@@ -12,9 +12,11 @@ and it works.
 ## How a game goes
 
 1. Save some crowdfunding pages as PDFs (any browser's Print → Save as PDF).
-2. Open the page and drop the PDFs in. Every dollar figure gets blacked out and
-   the campaign's own claims get pulled into an info card.
-3. Check the blackout, curate the slides, then start the game.
+2. Open the page and drop them all in at once. Each file becomes a round: every
+   dollar figure gets blacked out and the campaign's own claims get pulled into
+   an info card.
+3. Click **Work through 2 rounds** and the suite walks you through them one at a
+   time, ticking each off as you go.
 4. The room guesses. You reveal. Somebody is wrong by an order of magnitude.
 
 ---

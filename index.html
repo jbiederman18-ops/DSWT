@@ -232,8 +232,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <p class="lede">Drop in saved crowdfunding pages. The money disappears, the good stuff gets pulled out, and your friends guess how much a stranger on the internet has raised.</p>
 
     <div class="drop" id="drop">
-      <h2>Drop PDFs here</h2>
-      <p>Save a campaign page from your browser as PDF. One file per round.</p>
+      <h2>Drop your PDFs here</h2>
+      <p>All of them at once. Each file becomes a round, and you work through them one at a time afterwards.</p>
       <button class="btn solid" id="pick">Choose files</button>
       <input type="file" id="file" accept="application/pdf" multiple class="hidden">
     </div>
@@ -252,6 +252,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <p class="tiny" style="margin-bottom:.8rem">Answers were read off the page. Fix anything that looks wrong before you play — these are what everyone gets scored against.</p>
       <div id="roundlist"></div>
       <div class="startline">
+        <button class="btn solid hidden" id="reviewBtn">Work through rounds</button>
         <button class="btn solid" id="start">Start the game</button>
         <button class="btn" id="exportBtn">Download slides</button>
         <button class="btn ghost" id="joinBtn">Get the join code</button>
@@ -314,7 +315,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <span class="lbl">Goal</span><input type="text" id="gmGoal" style="width:7.5em" aria-label="Funding goal">
     <button id="gmBlackout">Blackout…</button>
     <button id="gmPreview">Preview</button>
-    <button id="gmDone" class="go">Done</button>
+    <button id="gmBack">All rounds</button>
+    <button id="gmNextUp" class="go">Save &amp; next</button>
   </div>
   <div class="gm-body">
     <div class="gm-slides">
@@ -1181,7 +1183,7 @@ async function ingestOne(file, opts){
   const round = {
     id: "r" + (G.rounds.length + 1),
     file: file.name,
-    title: info.title, creator: info.creator, pitch: info.pitch, showPitch: true, factOff: {},
+    title: info.title, creator: info.creator, pitch: info.pitch, showPitch: true, factOff: {}, reviewed: false,
     facts: info.facts, claims: info.claims, flags: info.flags, shots: shots,
     cleanTiles: clean, tiles: null, boxes: boxes, imageSpots: inPage.slice().sort((a,b) => a.y - b.y),
     textSpots: allSegs.map(sg => ({ y: sg.y, h: sg.h, len: sg.text.length })),
@@ -1211,7 +1213,8 @@ function renderRoundList(quiet){
         '<input type="text" data-k="raised" placeholder="raised" value="' + (r.raised !== null ? money(r.raised) : "") + '">' +
         '<input type="text" data-k="goal" placeholder="goal" value="' + (r.goal !== null ? money(r.goal) : "") + '">' +
       '</div>' +
-      '<button class="btn sm" data-act="gm">Edit slides</button>';
+      '<button class="btn sm' + (r.reviewed ? ' ghost' : '') + '" data-act="gm">' +
+        (r.reviewed ? '\u2713 Reviewed' : 'Edit slides') + '</button>';
     $(".title", row).textContent = r.title;
     const shortFile = r.file.length > 26 ? r.file.slice(0, 24) + "\u2026" : r.file;
     const bits = [r.creator, r.facts.Category, shortFile].filter(Boolean);
@@ -1246,6 +1249,16 @@ function renderRoundList(quiet){
   });
   const missing = G.rounds.filter(r => r.raised === null || r.goal === null).length;
   $("#start").disabled = G.rounds.length === 0;
+
+  const unread = G.rounds.filter(r => !r.reviewed).length;
+  const btn = $("#reviewBtn");
+  if (btn){
+    btn.classList.toggle("hidden", G.rounds.length === 0);
+    btn.textContent = unread
+      ? "Work through " + unread + " round" + (unread > 1 ? "s" : "")
+      : "All reviewed \u2014 look again";
+    btn.className = "btn " + (unread ? "solid" : "ghost");
+  }
   if (missing && !quiet) toast(missing + " round" + (missing>1?"s":"") + " couldn't be read — type the amounts in");
 }
 
@@ -1389,7 +1402,9 @@ function openGM(i){
   gmIdx = clamp(i, 0, G.rounds.length - 1);
   show("gm");
   const r = G.rounds[gmIdx];
+  const left = G.rounds.filter((x, n) => !x.reviewed && n !== gmIdx).length;
   $("#gmRoundLabel").textContent = "Round " + (gmIdx + 1) + " / " + G.rounds.length;
+  $("#gmNextUp").textContent = left ? "Save & next (" + left + " to go)" : "Save & finish";
   $("#gmTitle").value = r.title;
   $("#gmRaised").value = r.raised !== null ? money(r.raised) : "";
   $("#gmGoal").value = r.goal !== null ? money(r.goal) : "";
@@ -1558,7 +1573,22 @@ $("#gmAuto").addEventListener("click", async () => {
   drawGrid();
 });
 $("#gmPreview").addEventListener("click", () => { show("play"); loadRound(gmIdx); });
-$("#gmDone").addEventListener("click", () => { show("intake"); renderRoundList(true); });
+$("#gmBack").addEventListener("click", () => { show("intake"); renderRoundList(true); });
+
+/* Walk the pile: mark this one done, jump to the next one that isn't. */
+$("#gmNextUp").addEventListener("click", () => {
+  G.rounds[gmIdx].reviewed = true;
+  let next = -1;
+  for (let i = gmIdx + 1; i < G.rounds.length; i++) if (!G.rounds[i].reviewed){ next = i; break; }
+  if (next < 0) for (let i = 0; i < gmIdx; i++) if (!G.rounds[i].reviewed){ next = i; break; }
+  if (next < 0){
+    show("intake");
+    renderRoundList(true);
+    toast("All " + G.rounds.length + " rounds reviewed.");
+  } else {
+    openGM(next);
+  }
+});
 
 /* ============================================================
    10. PLAY
@@ -2145,6 +2175,11 @@ $("#start").addEventListener("click", () => {
   if (!G.rounds.length) return;
   show("play");
   loadRound(0);
+});
+$("#reviewBtn").addEventListener("click", () => {
+  let first = G.rounds.findIndex(r => !r.reviewed);
+  if (first < 0) first = 0;
+  openGM(first);
 });
 $("#exportBtn").addEventListener("click", exportPages);
 $("#joinBtn").addEventListener("click", () => {
