@@ -87,21 +87,15 @@ page itself.
 Everyone guesses on their phone while the TV shows the slides. The TV shows a
 quiet `3/8 in` tally in the corner so you know when the room is ready.
 
-This needs one free Firebase Realtime Database. It is the only setup in the
-whole project and it takes about three minutes:
+**It is already set up.** A database is baked into the app, so there is nothing
+to configure: click **Live play…**, then **Open a room**, and read the
+four-letter code out to the room. Players just tap **Join a game** and type it.
 
-1. Go to <https://console.firebase.google.com> and create a project. You can
-   turn off Analytics.
-2. In the left sidebar: **Build → Realtime Database → Create Database**. Pick
-   any region and start in **test mode**.
-3. Open the **Rules** tab and paste in the contents of
-   [`firebase-rules.json`](firebase-rules.json). Publish.
-4. Copy the database URL from the Data tab. It looks like
-   `https://your-project-default-rtdb.firebaseio.com`.
-5. In Dicksharter, click **Live play…**, paste the URL, **Save**, then
-   **Open a room**. A four-letter code appears.
-6. Everyone opens the same page on their phone, taps **Join a game**, and types
-   the code.
+If you want to point it at your own database instead, there is a URL field in
+that same panel. Create a project at <https://console.firebase.google.com>, add
+a **Realtime Database** (not Firestore), paste
+[`firebase-rules.json`](firebase-rules.json) into its Rules tab, and put the
+database URL in the field. Leaving the field empty returns to the built-in one.
 
 No SDK and no API key — the app talks to Firebase over plain REST, writing with
 `fetch` and reading with an `EventSource`. That is why there is nothing to

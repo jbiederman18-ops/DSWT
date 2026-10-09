@@ -265,8 +265,9 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       </div>
       <div class="sheet hidden" id="liveSheet">
         <h3 style="font-size:1rem;margin-bottom:.2rem">Live play from phones</h3>
-        <p class="tiny">Everyone guesses on their own phone while the TV shows the slides. Needs one free Firebase Realtime Database — setup is in the README, and the only thing you paste here is its URL. Leave it blank and the game still works the old way, with each phone scoring itself.</p>
-        <label class="field" style="margin-top:.6rem"><span>Realtime Database URL</span><input type="url" id="liveUrl" placeholder="https://your-project-default-rtdb.firebaseio.com"></label>
+        <p class="tiny">Everyone guesses on their own phone while the TV shows the slides, and the corner of the screen tells you who's locked in. The database is already wired in — just open a room and read the four letters out.</p>
+        <p class="tiny" style="margin-top:.4rem">The field below only matters if you want to point this at a different database.</p>
+        <label class="field" style="margin-top:.6rem"><span>Realtime Database URL</span><input type="url" id="liveUrl"></label>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
           <button class="btn sm" id="liveSave">Save</button>
           <button class="btn sm solid" id="liveStart">Open a room</button>
@@ -1790,10 +1791,6 @@ function renderPlayer(){
       P.name = name; store.set("ds.name", name);
 
       if (/^[A-Z0-9]{4}$/i.test(code)){
-        if (!LIVE.db){
-          $("#pjoinmsg").textContent = "This page has no database set up, so room codes won't work here. Use the host's long code instead.";
-          return;
-        }
         $("#pjoinmsg").textContent = "Joining\u2026";
         const ok = await liveJoin(code, name);
         if (!ok){ $("#pjoinmsg").textContent = "Couldn't reach that room."; return; }
@@ -1882,8 +1879,12 @@ function postSync(round, raised, goal){
    are revealed, so a curious player reading the raw data finds
    names and guesses and nothing worth cheating with.
    ============================================================ */
+/* Baked in so a player's phone can join with nothing but the four-letter
+   code. The override field still wins if anything is saved there. */
+const DB_URL = "https://dswt-eff47-default-rtdb.firebaseio.com";
+
 const LIVE = {
-  db: store.get("ds.db") || "",
+  db: store.get("ds.db") || DB_URL,
   code: "",
   es: null,
   state: {},
@@ -2117,9 +2118,11 @@ $("#liveBtn").addEventListener("click", () => {
   $("#liveUrl").value = LIVE.db;
 });
 $("#liveSave").addEventListener("click", () => {
-  LIVE.db = $("#liveUrl").value.trim().replace(/\/+$/, "");
-  store.set("ds.db", LIVE.db);
-  $("#liveState").textContent = LIVE.db ? "Saved." : "Live play off.";
+  const typed = $("#liveUrl").value.trim().replace(/\/+$/, "");
+  LIVE.db = typed || DB_URL;
+  store.set("ds.db", typed);
+  $("#liveUrl").value = LIVE.db;
+  $("#liveState").textContent = typed ? "Pointed at your database." : "Back to the built-in database.";
 });
 $("#liveStart").addEventListener("click", liveOpenRoom);
 
@@ -2161,8 +2164,6 @@ $("#toPlayer").addEventListener("click", e => {
 
 /* if someone lands here with #player, go straight to the phone view */
 if (/^#join=/i.test(location.hash)){
-  const saved = store.get("ds.db");
-  if (saved) LIVE.db = saved;
   show("player"); renderPlayer();
 } else if (location.hash === "#player"){
   const saved = store.get("ds.game");
