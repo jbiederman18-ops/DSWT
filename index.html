@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dicksharter (Working Title)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E4E5DF;
+  --paper-deep:#D3D5CB;
+  --card:#FFFFFF;
+  --ink:#000000;
+  --ink-soft:#555952;
+  --marker:#FFE800;
+  --stamp:#D5121A;
+  --rule:rgba(0,0,0,.18);
+  --shadow:0 1px 0 rgba(0,0,0,.28);
+  --pad:clamp(16px,3vw,32px);
+  --display:"Bricolage Grotesque","Archivo Black",Archivo,"Helvetica Neue",Impact,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;line-height:.98;letter-spacing:-.02em}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
+.hidden{display:none !important}
+
+/* ---------- shared controls ---------- */
+.btn{
+  border:2px solid var(--ink);background:var(--card);padding:.6em 1.1em;
+  border-radius:0;font-weight:600;box-shadow:var(--shadow);
+}
+.btn:hover{background:var(--marker)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:#222;color:var(--marker)}
+.btn.ghost{border-color:var(--rule);background:transparent;box-shadow:none;font-weight:500}
+.btn.ghost:hover{background:rgba(0,0,0,.06)}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn.sm{padding:.35em .7em;font-size:.85rem}
+input[type=text],input[type=number],input[type=url]{
+  font:inherit;padding:.55em .7em;border:2px solid var(--ink);background:var(--card);
+  border-radius:0;width:100%;
+}
+label.field{display:block;margin-bottom:.9rem}
+label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.3em;color:var(--ink-soft)}
+
+/* ---------- app shell ---------- */
+#app{height:100%;display:flex;flex-direction:column}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column}
+
+/* ---------- intake ---------- */
+#intake{overflow:auto;padding:var(--pad)}
+.intake-inner{max-width:920px;margin:0 auto;width:100%}
+.wordmark{position:relative;display:inline-block;margin-bottom:.15em}
+.wordmark h1{font-size:clamp(2.1rem,8.6vw,5.4rem);letter-spacing:-.045em}
+.submark{margin:.15rem 0 0;font-weight:600;font-size:clamp(.78rem,2vw,1rem);color:var(--ink-soft);letter-spacing:.02em}
+.wordmark .bar{
+  position:absolute;left:-2%;right:-2%;top:38%;height:22%;background:var(--ink);
+  transform-origin:left center;
+}
+.lede{max-width:56ch;font-size:1.05rem;margin:.4rem 0 2rem}
+.drop{
+  border:3px dashed var(--ink);background:var(--card);padding:clamp(28px,6vw,56px);
+  text-align:center;transition:background .12s;
+}
+.drop.over{background:var(--marker)}
+.drop h2{font-size:1.5rem;margin-bottom:.4rem}
+.drop p{margin:.2rem 0 1.1rem;color:var(--ink-soft)}
+.opts{display:flex;flex-wrap:wrap;gap:1.2rem;margin:1.6rem 0}
+.opt{display:flex;gap:.5rem;align-items:flex-start;max-width:34ch;font-size:.9rem}
+.opt input{margin-top:.25rem;width:1.05em;height:1.05em;accent-color:#000}
+
+.rounds{margin-top:2.2rem;border-top:2px solid var(--ink);padding-top:1rem}
+.round-row{
+  display:flex;gap:1rem;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--rule);
+}
+.round-row .n{font-family:var(--display);font-weight:800;font-size:1.4rem;min-width:1.6em}
+.round-row .meta{flex:1;min-width:0}
+.round-row .title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.round-row .sub{font-size:.82rem;color:var(--ink-soft);overflow:hidden}
+.round-row .answers{display:flex;gap:.5rem}
+.round-row .answers input{width:8.5em;font-variant-numeric:tabular-nums}
+.bar-progress{height:6px;background:var(--paper-deep);margin-top:.6rem}
+.bar-progress i{display:block;height:100%;background:var(--ink);width:0;transition:width .2s}
+.startline{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.6rem;align-items:center}
+
+/* ---------- check / redaction editor ---------- */
+#check{padding:var(--pad);overflow:auto}
+.check-head{max-width:1100px;margin:0 auto 1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
+.stage{position:relative;max-width:760px;margin:0 auto;background:var(--card);border:2px solid var(--ink)}
+.stage img{display:block;width:100%}
+.boxlayer{position:absolute;inset:0}
+.rbox{position:absolute;background:#000;outline:2px solid var(--stamp);cursor:pointer}
+.rbox.off{background:rgba(213,18,26,.10)}
+.rbox.off::after{content:"";position:absolute;inset:0;border:2px dashed var(--stamp)}
+
+/* ---------- play ---------- */
+#play{background:var(--paper-deep)}
+.topbar{
+  display:flex;align-items:center;gap:.8rem;padding:.5rem .9rem;background:var(--ink);color:var(--paper);
+  font-size:.85rem;flex-wrap:wrap;
+}
+.topbar .rnum{font-family:var(--display);font-weight:800;font-size:1.1rem;color:var(--marker)}
+.topbar .grow{flex:1}
+.topbar button{background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.3em .7em;font-size:.8rem;font-weight:600}
+.topbar button:hover{background:var(--marker);color:#000;border-color:var(--marker)}
+.viewwrap{flex:1;min-height:0;position:relative;overflow:hidden;display:flex;justify-content:center}
+.viewport{position:relative;overflow:hidden;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.22)}
+#slideImg{display:block;max-width:100%;max-height:100%;width:auto;height:auto;transition:opacity .16s}
+#slideImg.swap{opacity:0}
+.panelbar{display:flex;align-items:center;gap:.6rem;padding:.5rem .9rem;background:var(--ink);color:var(--paper);font-size:.8rem}
+.dots{flex:1;display:flex;gap:3px;align-items:center;overflow:hidden}
+.dots i{flex:1;height:4px;background:rgba(255,255,255,.25);min-width:2px}
+.dots i.on{background:var(--marker)}
+
+/* info drawer */
+.drawer{
+  position:absolute;top:0;right:0;bottom:0;width:min(430px,88vw);background:var(--card);
+  border-left:3px solid var(--ink);overflow:auto;padding:1.1rem 1.2rem 3rem;
+  transform:translateX(101%);transition:transform .26s cubic-bezier(.22,.61,.36,1);z-index:5;
+}
+.drawer.open{transform:none}
+.drawer h3{font-size:1.05rem;margin:1.5rem 0 .45rem}
+.drawer h3:first-child{margin-top:0}
+.drawer p{margin:.3rem 0;font-size:.92rem}
+.mark{background:var(--marker);box-shadow:0 0 0 3px var(--marker);}
+.factgrid{display:grid;grid-template-columns:auto 1fr;gap:.25rem .8rem;font-size:.9rem;margin-top:.3rem}
+.factgrid dt{font-weight:600;color:var(--ink-soft)}
+.factgrid dd{margin:0}
+.claims li{margin-bottom:.5rem;font-size:.92rem}
+.flags li{margin-bottom:.4rem;font-size:.9rem}
+.shots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:.5rem}
+.shots img{width:100%;height:88px;object-fit:cover;border:1px solid var(--rule);cursor:zoom-in}
+.shots img.big{grid-column:1/-1;height:auto;object-fit:contain}
+
+/* reveal */
+.reveal{
+  position:absolute;inset:0;background:#000;color:var(--paper);z-index:10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(1rem,5vh,3rem);
+  padding:var(--pad);text-align:center;
+}
+.reveal .slot{opacity:0;transform:scale(1.35) rotate(-3deg)}
+.reveal .slot.in{animation:stamp .42s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes stamp{to{opacity:1;transform:none}}
+.reveal .lbl{font-size:.95rem;letter-spacing:.02em;color:#9a9d95;margin-bottom:.1em}
+.reveal .amt{font-family:var(--display);font-weight:800;font-size:clamp(3rem,13vw,8rem);line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.reveal .amt.goal{color:var(--marker)}
+.reveal .verdict{font-size:1.05rem;color:#c9ccc3;max-width:34ch}
+@media (prefers-reduced-motion:reduce){.reveal .slot,.reveal .slot.in{animation:none;opacity:1;transform:none}#slideImg{transition:none}}
+
+/* ---------- player ---------- */
+#player{overflow:auto;padding:var(--pad);background:var(--ink);color:var(--paper)}
+.player-inner{max-width:520px;margin:0 auto}
+#player h1{font-size:clamp(2.2rem,9vw,3.4rem);color:var(--marker)}
+#player .card{background:var(--card);color:var(--ink);border:2px solid var(--marker);padding:1.1rem;margin-top:1.2rem}
+#player .btn{border-color:var(--ink)}
+.guessrow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.score-line{display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--rule);font-size:.92rem}
+.score-line b{font-variant-numeric:tabular-nums}
+.total{font-family:var(--display);font-weight:800;font-size:2.6rem;color:var(--marker);line-height:1}
+
+/* ---------- game master suite ---------- */
+#gm{background:var(--paper-deep)}
+.gm-top{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.6rem .9rem;background:var(--ink);color:var(--paper);flex:0 0 auto}
+.gm-top .rl{font-family:var(--display);font-weight:800;font-size:1.05rem;color:var(--marker);min-width:7.5em}
+.gm-top input[type=text]{border:2px solid rgba(255,255,255,.35);background:#141414;color:var(--paper);padding:.35em .55em}
+.gm-top input[type=text]:focus{border-color:var(--marker)}
+.gm-top .lbl{font-size:.72rem;font-weight:600;color:#9a9d95;margin-right:.25em}
+.gm-top button{background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.35em .7em;font-size:.82rem;font-weight:600}
+.gm-top button:hover{background:var(--marker);color:#000;border-color:var(--marker)}
+.gm-top button.go{background:var(--marker);color:#000;border-color:var(--marker)}
+.gm-body{flex:1;min-height:0;display:flex}
+.gm-slides{flex:1;min-width:0;overflow:auto;padding:1rem}
+.gm-head{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.7rem;flex-wrap:wrap}
+.gm-head h3{font-size:1.05rem}
+.gm-head .tiny{color:var(--ink-soft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.9rem}
+.card-slide{background:var(--card);border:2px solid var(--ink);position:relative}
+.card-slide.off{opacity:.42;border-style:dashed}
+.card-slide .thumb{display:block;width:100%;cursor:pointer;border-bottom:1px solid var(--rule)}
+.card-slide.off .thumb{filter:grayscale(1)}
+.card-slide .bar2{display:flex;align-items:center;gap:.2rem;padding:.25rem .3rem;font-size:.72rem}
+.card-slide .pos{font-family:var(--display);font-weight:800;font-size:.95rem;min-width:1.6em;text-align:center}
+.card-slide .grow{flex:1}
+.card-slide .mini{border:1px solid var(--rule);background:transparent;padding:.05em .4em;font-size:.8rem;line-height:1.3}
+.card-slide .mini:hover{background:var(--marker)}
+.card-slide .state{position:absolute;top:0;left:0;background:var(--ink);color:var(--paper);font-size:.64rem;padding:.1em .4em}
+.card-slide .risk{position:absolute;top:0;right:0;display:flex;gap:2px}
+.card-slide .risk b{font-size:.62rem;padding:.1em .4em;font-weight:700;cursor:help}
+.card-slide .risk b.money{background:var(--stamp);color:#fff}
+.card-slide .risk b.pic{background:var(--marker);color:#000}
+.card-slide.off .state{background:var(--stamp)}
+.gm-side{width:320px;flex:0 0 auto;background:var(--card);border-left:3px solid var(--ink);overflow:auto;padding:1rem}
+.gm-side h4{font-size:.95rem;margin:1.2rem 0 .4rem;font-family:var(--display);font-weight:800}
+.gm-side h4:first-child{margin-top:0}
+.chk{display:flex;gap:.5rem;align-items:flex-start;font-size:.85rem;margin-bottom:.45rem;cursor:pointer}
+.chk input{margin-top:.2rem;width:1em;height:1em;accent-color:#000;flex:0 0 auto}
+.chk span{flex:1}
+.chk.off span{opacity:.45;text-decoration:line-through}
+.shotpick{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.shotpick label{position:relative;cursor:pointer}
+.shotpick img{width:100%;height:60px;object-fit:cover;border:2px solid var(--ink);display:block}
+.shotpick input{position:absolute;top:3px;left:3px;accent-color:#000}
+.shotpick input:not(:checked) + img{opacity:.35;filter:grayscale(1);border-style:dashed}
+@media (max-width:760px){.gm-body{flex-direction:column}.gm-side{width:auto;border-left:0;border-top:3px solid var(--ink)}}
+
+.tiny{font-size:.8rem;color:var(--ink-soft)}
+.sheet{background:var(--card);border:2px solid var(--ink);padding:1rem 1.1rem;margin-top:1.2rem}
+.sheet code{display:block;word-break:break-all;font-size:.72rem;background:var(--paper);padding:.6rem;border:1px solid var(--rule);margin-top:.4rem;max-height:9em;overflow:auto}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ============ INTAKE ============ -->
+<section id="intake" class="screen">
+  <div class="intake-inner">
+    <div class="wordmark"><h1>DICKSHARTER</h1><div class="bar" id="wmbar"></div></div>
+    <p class="submark">(working title)</p>
+    <p class="lede">Drop in saved crowdfunding pages. The money disappears, the good stuff gets pulled out, and your friends guess how much a stranger on the internet has raised.</p>
+
+    <div class="drop" id="drop">
+      <h2>Drop PDFs here</h2>
+      <p>Save a campaign page from your browser as PDF. One file per round.</p>
+      <button class="btn solid" id="pick">Choose files</button>
+      <input type="file" id="file" accept="application/pdf" multiple class="hidden">
+    </div>
+
+    <div class="opts">
+      <label class="opt"><input type="checkbox" id="optBand" checked><span>Cover the whole stats strip, including the progress bar — not just the words.</span></label>
+      <label class="opt"><input type="checkbox" id="optAllMoney"><span>Also hide every other dollar amount over $1,000 in the body copy. Slower to read, but nobody does the arithmetic.</span></label>
+      <label class="opt"><input type="checkbox" id="optImgs" checked><span>Pull out the campaign's own photos for the info card.</span></label>
+    </div>
+
+    <div class="bar-progress hidden" id="prog"><i></i></div>
+    <p class="tiny" id="progtxt"></p>
+
+    <div class="rounds hidden" id="rounds">
+      <h2 style="font-size:1.3rem;margin-bottom:.6rem">Rounds</h2>
+      <p class="tiny" style="margin-bottom:.8rem">Answers were read off the page. Fix anything that looks wrong before you play — these are what everyone gets scored against.</p>
+      <div id="roundlist"></div>
+      <div class="startline">
+        <button class="btn solid" id="start">Start the game</button>
+        <button class="btn" id="exportBtn">Download slides</button>
+        <button class="btn ghost" id="joinBtn">Get the join code</button>
+        <button class="btn ghost" id="liveBtn">Live play…</button>
+      </div>
+      <div class="sheet hidden" id="joinSheet">
+        <h3 style="font-size:1rem;margin-bottom:.2rem">Join code</h3>
+        <p class="tiny">Send this to everyone playing, along with the address of this page. They paste it in once and their phone scores them automatically.</p>
+        <code id="joinCode"></code>
+        <button class="btn sm" style="margin-top:.6rem" id="copyJoin">Copy code</button>
+      </div>
+      <div class="sheet hidden" id="liveSheet">
+        <h3 style="font-size:1rem;margin-bottom:.2rem">Live play from phones</h3>
+        <p class="tiny">Everyone guesses on their own phone while the TV shows the slides. Needs one free Firebase Realtime Database — setup is in the README, and the only thing you paste here is its URL. Leave it blank and the game still works the old way, with each phone scoring itself.</p>
+        <label class="field" style="margin-top:.6rem"><span>Realtime Database URL</span><input type="url" id="liveUrl" placeholder="https://your-project-default-rtdb.firebaseio.com"></label>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+          <button class="btn sm" id="liveSave">Save</button>
+          <button class="btn sm solid" id="liveStart">Open a room</button>
+          <span class="tiny" id="liveState"></span>
+        </div>
+        <div id="liveRoom" class="hidden" style="margin-top:.9rem;text-align:center">
+          <div class="tiny">Everyone goes to this page and taps “Join a game”</div>
+          <div id="roomCode" style="font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,9vw,4rem);letter-spacing:.1em;line-height:1"></div>
+          <div class="tiny" id="roomUrl" style="word-break:break-all"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="tiny" style="margin-top:2.4rem">Playing along on your phone? <a href="#player" id="toPlayer"><b>Join a game</b></a></p>
+  </div>
+</section>
+
+<!-- ============ CHECK ============ -->
+<section id="check" class="screen hidden">
+  <div class="check-head">
+    <div style="flex:1">
+      <h2 style="font-size:1.5rem" id="checkTitle">Check the blackout</h2>
+      <p class="tiny">Click a bar to lift it. Drag anywhere on the page to add one.<br><b>Numbers printed inside a picture can't be read</b> — campaigns often put the goal in their own infographic. Step through the images and cover any by hand.</p>
+    </div>
+    <button class="btn sm" id="barPrev">↑ bar</button>
+    <span class="tiny" id="barCount" style="min-width:5.5em;text-align:center"></span>
+    <button class="btn sm" id="barNext">bar ↓</button>
+    <button class="btn sm" id="imgNext" style="background:var(--marker)">check images ↓</button>
+    <span class="tiny" id="imgCount" style="min-width:5.5em;text-align:center"></span>
+    <button class="btn" id="checkPrev">Previous round</button>
+    <button class="btn solid" id="checkDone">Looks right</button>
+  </div>
+  <div class="stage" id="stage"></div>
+</section>
+
+<!-- ============ GAME MASTER SUITE ============ -->
+<section id="gm" class="screen hidden">
+  <div class="gm-top">
+    <button id="gmPrevRound" title="Previous round">‹</button>
+    <span class="rl" id="gmRoundLabel">Round 1</span>
+    <button id="gmNextRound" title="Next round">›</button>
+    <input type="text" id="gmTitle" style="flex:1;min-width:11em" aria-label="Round title">
+    <span class="lbl">Raised</span><input type="text" id="gmRaised" style="width:7.5em" aria-label="Amount raised">
+    <span class="lbl">Goal</span><input type="text" id="gmGoal" style="width:7.5em" aria-label="Funding goal">
+    <button id="gmBlackout">Blackout…</button>
+    <button id="gmPreview">Preview</button>
+    <button id="gmDone" class="go">Done</button>
+  </div>
+  <div class="gm-body">
+    <div class="gm-slides">
+      <div class="gm-head">
+        <h3>Slides</h3>
+        <span class="tiny" id="gmCount"></span>
+        <span class="grow" style="flex:1"></span>
+        <button class="btn sm ghost" id="gmAll">Show all</button>
+        <button class="btn sm ghost" id="gmAuto">Back to suggested</button>
+      </div>
+      <p class="tiny" style="margin:0 0 .9rem;max-width:62ch">Click a slide to drop it from the round. Use ‹ › to move it. Site nav, the legal footer and near-blank slices start switched off.</p>
+      <div class="grid" id="gmGrid"></div>
+    </div>
+    <aside class="gm-side" id="gmSide"></aside>
+  </div>
+</section>
+
+<!-- ============ PLAY ============ -->
+<section id="play" class="screen hidden">
+  <div class="topbar">
+    <span class="rnum" id="pRound">1</span>
+    <span id="pTitle" style="max-width:38ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <span class="grow"></span>
+    <button id="bInfo">Info</button>
+    <button id="bReveal">Reveal</button>
+    <button id="bNext">Next round</button>
+    <button id="bQuit">End</button>
+    <span id="liveTally" class="hidden" style="font-variant-numeric:tabular-nums;color:var(--marker);font-weight:700"></span>
+  </div>
+  <div class="viewwrap">
+    <div class="viewport" id="viewport"><img id="slideImg" alt=""></div>
+    <aside class="drawer" id="drawer"></aside>
+    <div class="reveal hidden" id="revealBox"></div>
+  </div>
+  <div class="panelbar">
+    <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bPrev">←</button>
+    <div class="dots" id="dots"></div>
+    <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bNextPanel">→</button>
+    <span id="panelCount" style="font-variant-numeric:tabular-nums;min-width:5em;text-align:right"></span>
+  </div>
+</section>
+
+<!-- ============ PLAYER ============ -->
+<section id="player" class="screen hidden">
+  <div class="player-inner" id="playerInner"></div>
+</section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+/* ============================================================
+   DICKSHARTER (WORKING TITLE) — a crowdfunding guessing game
+   Single file. No server required.
+   ============================================================ */
+(function(){
+"use strict";
+
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+/* ---------- tiny helpers ---------- */
+const $  = (s, r) => (r||document).querySelector(s);
+const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+
+function toast(msg, ms){
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms || 2200);
+}
+
+/* storage that survives being opened inside a sandbox with no localStorage */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return k in mem ? mem[k] : null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k] = v; } }
+};
+
+/* ---------- state ---------- */
+const G = {
+  rounds: [],        // {id,title,creator,facts,claims,flags,shots,tiles,pageW,pageH,scale,boxes,raised,goal,src}
+  idx: 0,
+  panel: 0,
+  syncUrl: ""
+};
+
+/* ============================================================
+   1. TEXT GEOMETRY
+   Rebuild lines from pdf.js text items, then split each line
+   where a wide horizontal gap means a separate column.
+   ============================================================ */
+function buildTokens(textContent, viewport){
+  const out = [];
+  for (const it of textContent.items){
+    if (!it.str || !it.str.trim()) continue;
+    const tx = pdfjsLib.Util.transform(viewport.transform, it.transform);
+    const fh = Math.hypot(tx[2], tx[3]) || Math.abs(tx[3]) || 10;
+    const w  = (it.width || 0) * viewport.scale;
+    out.push({
+      str: it.str,
+      x: tx[4],
+      y: tx[5] - fh * 0.82,     // top edge
+      w: w,
+      h: fh * 1.16,
+      fs: fh,
+      base: tx[5]
+    });
+  }
+  return out;
+}
+
+function buildSegments(tokens){
+  // group by baseline, then split columns on wide gaps
+  const rows = [];
+  const sorted = tokens.slice().sort((a,b) => a.base - b.base || a.x - b.x);
+  for (const t of sorted){
+    const row = rows[rows.length-1];
+    if (row && Math.abs(t.base - row.base) < Math.max(3, t.fs*0.5)){
+      row.items.push(t);
+      row.base = (row.base * (row.items.length-1) + t.base) / row.items.length;
+    } else {
+      rows.push({ base: t.base, items: [t] });
+    }
+  }
+  const segs = [];
+  for (const row of rows){
+    row.items.sort((a,b) => a.x - b.x);
+    let cur = [];
+    for (let i = 0; i < row.items.length; i++){
+      const t = row.items[i];
+      if (cur.length){
+        const prev = cur[cur.length-1];
+        const gap  = t.x - (prev.x + prev.w);
+        if (gap > Math.max(14, prev.fs * 1.6)) { segs.push(makeSeg(cur)); cur = []; }
+      }
+      cur.push(t);
+    }
+    if (cur.length) segs.push(makeSeg(cur));
+  }
+  return segs;
+}
+
+function makeSeg(items){
+  // join with spaces, remembering where each token lands in the string
+  let text = "", map = [];
+  items.forEach((t, i) => {
+    if (i) text += " ";
+    map.push({ start: text.length, end: text.length + t.str.length, tok: t });
+    text += t.str;
+  });
+  const x0 = Math.min(...items.map(t => t.x));
+  const x1 = Math.max(...items.map(t => t.x + t.w));
+  const y0 = Math.min(...items.map(t => t.y));
+  const y1 = Math.max(...items.map(t => t.y + t.h));
+  return { text, map, items, x: x0, y: y0, w: x1-x0, h: y1-y0, base: items[0].base, fs: items[0].fs };
+}
+
+function tokensForMatch(seg, mStart, mEnd){
+  return seg.map.filter(m => m.start < mEnd && m.end > mStart).map(m => m.tok);
+}
+
+/* ============================================================
+   2. MONEY PARSING + FUNDING DETECTION
+   ============================================================ */
+const MONEY_RE = /(?:US\$|USD\s*\$?|CA\$|AU\$|£|€|\$)\s?([\d][\d,\.]*)\s*([KkMm])?\b/g;
+
+function parseAmount(numStr, suffix){
+  let s = String(numStr).replace(/,/g, "");
+  // a trailing ".00" is decimals; a lone "." in "1.500" (euro style) is a separator
+  let v = parseFloat(s);
+  if (!isFinite(v)) return null;
+  if (suffix){
+    if (/[Kk]/.test(suffix)) v *= 1000;
+    else v *= 1000000;
+  }
+  return v;
+}
+
+function findFunding(segs){
+  let raised = null, goal = null, raisedTok = null, goalTok = null;
+
+  const scan = (re, cb) => {
+    for (const seg of segs){
+      let m; re.lastIndex = 0;
+      while ((m = re.exec(seg.text)) !== null) if (cb(seg, m) === true) return true;
+    }
+    return false;
+  };
+
+  // (a) both on one line: "$3,015 pledged of $150,000" / "$1,200 raised of $5,000 goal"
+  scan(/(?:US\$|USD\s*\$?|\$|£|€)\s?([\d][\d,\.]*)\s*([KkMm])?\s+(?:pledged|raised|backed)\s+of\s+(?:US\$|USD\s*\$?|\$|£|€)?\s?([\d][\d,\.]*)\s*([KkMm])?/i,
+    (seg, m) => {
+      raised = parseAmount(m[1], m[2]); goal = parseAmount(m[3], m[4]);
+      const toks = tokensForMatch(seg, m.index, m.index + m[0].length);
+      raisedTok = toks[0] || null; goalTok = toks[toks.length-1] || null;
+      return true;
+    });
+
+  // (b) split across two lines, the way mobile Kickstarter stacks it
+  if (goal === null){
+    scan(/(?:pledged|raised|backed)\s+of\s+(?:US\$|USD\s*\$?|\$|£|€)?\s?([\d][\d,\.]*)\s*([KkMm])?/i,
+      (seg, m) => {
+        goal = parseAmount(m[1], m[2]);
+        const toks = tokensForMatch(seg, m.index, m.index + m[0].length);
+        goalTok = toks[toks.length-1] || null;
+        // raised = the money token sitting directly above, in the same column
+        let best = null;
+        for (const s2 of segs){
+          if (s2 === seg) continue;
+          const dy = seg.y - (s2.y + s2.h);
+          if (dy < -4 || dy > 46) continue;
+          if (Math.abs(s2.x - seg.x) > 60) continue;
+          let mm; MONEY_RE.lastIndex = 0;
+          while ((mm = MONEY_RE.exec(s2.text)) !== null){
+            const v = parseAmount(mm[1], mm[2]);
+            if (v === null) continue;
+            const tk = tokensForMatch(s2, mm.index, mm.index + mm[0].length);
+            if (!best || s2.y > best.seg.y) best = { seg: s2, v: v, tok: tk[0] };
+          }
+        }
+        if (best){ raised = best.v; raisedTok = best.tok; }
+        return true;
+      });
+  }
+
+  // (c) Indiegogo / GoFundMe wording
+  if (goal === null){
+    scan(/(?:US\$|\$|£|€)\s?([\d][\d,\.]*)\s*([KkMm])?\s+goal/i, (seg, m) => {
+      goal = parseAmount(m[1], m[2]);
+      goalTok = tokensForMatch(seg, m.index, m.index + m[0].length)[0] || null;
+      return true;
+    });
+    scan(/(?:US\$|\$|£|€)\s?([\d][\d,\.]*)\s*([KkMm])?\s+(?:raised|pledged)/i, (seg, m) => {
+      raised = parseAmount(m[1], m[2]);
+      raisedTok = tokensForMatch(seg, m.index, m.index + m[0].length)[0] || null;
+      return true;
+    });
+  }
+  return { raised, goal, raisedTok, goalTok };
+}
+
+/* ============================================================
+   3. REDACTION
+   ============================================================ */
+function pad(t, px){
+  px = px || 3;
+  return { x: t.x - px, y: t.y - px*0.8, w: t.w + px*2, h: t.h + px*1.6 };
+}
+
+function buildRedactions(segs, fund, opts, pageW){
+  const boxes = [];
+  const add = (b, why) => { if (b && b.w > 1 && b.h > 1) boxes.push(Object.assign({ why: why, on: true }, b)); };
+  const vals = [];
+  if (fund.raised !== null) vals.push(fund.raised);
+  if (fund.goal !== null) vals.push(fund.goal);
+
+  // every money token whose value matches the raised or goal figure, anywhere on the page
+  for (const seg of segs){
+    let m; MONEY_RE.lastIndex = 0;
+    while ((m = MONEY_RE.exec(seg.text)) !== null){
+      const v = parseAmount(m[1], m[2]);
+      if (v === null) continue;
+      const toks = tokensForMatch(seg, m.index, m.index + m[0].length);
+      if (!toks.length) continue;
+      const box = unionBox(toks);
+      const isAnswer = vals.some(a => a > 0 && Math.abs(v - a) / a < 0.005);
+      if (isAnswer) add(pad(box, 4), "amount");
+      else if (opts.allMoney && v >= 1000) add(pad(box, 4), "other amount");
+    }
+  }
+
+  // supporting stats that give the game away
+  const statRe = [
+    /\b\d[\d,]*\s+backers?\b/i,
+    /\b\d[\d,]*\s+supporters?\b/i,
+    /\b\d+\s*%\s*(?:funded|of goal|raised)\b/i,
+    /\bfunded\s*\d+\s*%/i,
+    /\b(?:almost|barely)\s+funded\b/i,
+    /\bof\s+(?:US\$|\$|£|€)\s?[\d][\d,\.]*\s*[KkMm]?\b/i,
+    /\bpledged\b/i,
+    /\braised\b(?=\s*$)/i
+  ];
+  for (const seg of segs){
+    for (const re of statRe){
+      const m = seg.text.match(re);
+      if (!m) continue;
+      const toks = tokensForMatch(seg, m.index, m.index + m[0].length);
+      if (toks.length) add(pad(unionBox(toks), 4), "stat");
+    }
+  }
+
+  // one solid band across the header stats strip, which also swallows the progress bar
+  if (opts.band && (fund.raisedTok || fund.goalTok)){
+    const anchor = fund.raisedTok || fund.goalTok;
+    let top = anchor.y - anchor.h * 2.6;   // the progress bar sits above the number
+    let bot = anchor.y + anchor.h;
+    for (const seg of segs){
+      if (seg.y > anchor.y - 4 && seg.y < anchor.y + anchor.h * 4.2 &&
+          /backers?|supporters?|days?\s+to\s+go|hours?\s+to\s+go|pledged|of\s*[\$£€]|funded/i.test(seg.text)){
+        bot = Math.max(bot, seg.y + seg.h);
+      }
+    }
+    add({ x: 0, y: top, w: pageW, h: (bot - top) + 8 }, "stats strip");
+  }
+  return mergeBoxes(boxes);
+}
+
+/* Amounts that aren't the answer but still sit on the page. On a campaign that
+   says "costs $400,000, I put in $250,000", the goal is one subtraction away. */
+function otherMoneyBoxes(segs, fund, covered){
+  const vals = [];
+  if (fund.raised !== null) vals.push(fund.raised);
+  if (fund.goal !== null) vals.push(fund.goal);
+  const out = [];
+  for (const seg of segs){
+    let m; MONEY_RE.lastIndex = 0;
+    while ((m = MONEY_RE.exec(seg.text)) !== null){
+      const v = parseAmount(m[1], m[2]);
+      if (v === null || v < 1000) continue;
+      if (vals.some(a => a > 0 && Math.abs(v - a) / a < 0.005)) continue;
+      const toks = tokensForMatch(seg, m.index, m.index + m[0].length);
+      if (!toks.length) continue;
+      const b = pad(unionBox(toks), 4);
+      if (covered.some(c => c.on && b.x < c.x + c.w && c.x < b.x + b.w && b.y < c.y + c.h && c.y < b.y + b.h)) continue;
+      out.push({ on: true, why: "other amount", x: b.x, y: b.y, w: b.w, h: b.h });
+    }
+  }
+  return mergeBoxes(out);
+}
+
+function unionBox(toks){
+  const x0 = Math.min(...toks.map(t => t.x));
+  const y0 = Math.min(...toks.map(t => t.y));
+  const x1 = Math.max(...toks.map(t => t.x + t.w));
+  const y1 = Math.max(...toks.map(t => t.y + t.h));
+  return { x: x0, y: y0, w: x1-x0, h: y1-y0 };
+}
+
+function mergeBoxes(boxes){
+  const out = [];
+  for (const b of boxes){
+    let merged = false;
+    for (const o of out){
+      if (b.x < o.x+o.w+2 && o.x < b.x+b.w+2 && b.y < o.y+o.h+2 && o.y < b.y+b.h+2){
+        const x0=Math.min(o.x,b.x), y0=Math.min(o.y,b.y);
+        const x1=Math.max(o.x+o.w,b.x+b.w), y1=Math.max(o.y+o.h,b.y+b.h);
+        o.x=x0; o.y=y0; o.w=x1-x0; o.h=y1-y0; merged = true; break;
+      }
+    }
+    if (!merged) out.push(b);
+  }
+  return out;
+}
+
+/* ============================================================
+   4. INFORMATION EXTRACTION  (rules only, no network)
+   ============================================================ */
+const KS_CATEGORIES = ["Art","Comics","Crafts","Dance","Design","Fashion","Film & Video","Food","Games",
+  "Journalism","Music","Photography","Publishing","Technology","Theater","Hardware","Product Design",
+  "Tabletop Games","Video Games","Apps","Software","Gadgets","Wearables","Sound","Web","Robots",
+  "Space Exploration","3D Printing","DIY Electronics","Camera Equipment","Flight","Comic Books"];
+
+const HYPE = [
+  [/\bworld'?s (?:first|only|best|largest)\b/i, 3],
+  [/\b(?:first|only) (?:ever|of its kind|in the world)\b/i, 3],
+  [/\brevolutionar(?:y|ise|ize)\b/i, 2],
+  [/\bgame[- ]chang(?:er|ing)\b/i, 2],
+  [/\bnever (?:before|been done|seen)\b/i, 2],
+  [/\bdisrupt\w*\b/i, 2],
+  [/\bunlimited\b/i, 2],
+  [/\bforever\b/i, 2],
+  [/\bcutting[- ]edge\b/i, 2],
+  [/\bpatent(?:ed)?\b/i, 1],
+  [/\banyone,? anywhere\b/i, 3],
+  [/\bchange(?:s|d)? (?:your|the) life\b/i, 3],
+  [/\bproven\b/i, 1],
+  [/\bguarantee\w*\b/i, 2],
+  [/\bthe future of\b/i, 2],
+  [/\blike nothing\b/i, 2],
+  [/\bsimply\b/i, 1],
+  [/\b(?:[a-z]{4,})est\b/, 1],          // lowercase only, so "West" and "Best Buy" don't count
+  [/\bin (?:days|weeks|minutes) instead of (?:months|years|hours)\b/i, 2],
+  [/\banywhere (?:on earth|in the world|on the planet)\b/i, 3],
+  [/\bany(?:one|body|where|thing) (?:can|could)\b/i, 2],
+  [/\bno (?:wells|pipelines|limits|compromise|batteries|subscription|wires|assembly)\b/i, 1],
+  [/\bimagine\b/i, 1],
+  [/\bwe (?:believe|know|promise)\b/i, 1],
+  [/\bfinally\b/i, 1],
+  [/\bnot a prototype\b/i, 2],
+  [/!\s*$/, 1]
+];
+
+/* [test, message, unless] — `unless` kills the flag when the page negates it */
+const FLAGS = [
+  [/AI tools? (?:were|was) used|use of ai|generative ai/i, "The creator says AI was used in making the campaign."],
+  [/pre-?production estimate|estimates? until final testing|figures are estimates/i, "The headline performance numbers are estimates, not measurements."],
+  [/\bprototype\b/i, "Still talking about a prototype.", /not (?:a |just a |yet a )?prototype|beyond the prototype/i],
+  [/all or nothing/i, "All or nothing — no money changes hands unless it hits the goal."],
+  [/lead times?|supply chain|component shortage|sourcing/i, "Supply chain named as a risk."],
+  [/first (?:time|project) creator|first created/i, "First-time creator."],
+  [/depends? (?:partly )?on (?:independent|third[- ]party|lab|regulatory)/i, "The timeline depends on somebody else."],
+  [/no shipping|every reward is digital|digital reward/i, "Every reward is digital — nothing physical to ship."],
+  [/rewards? (?:aren'?t|are not) guaranteed/i, "Rewards aren't guaranteed."],
+  [/\b(?:estimated )?delivery\b.*\b20\d\d\b/i, "A delivery date has been promised."]
+];
+
+/* pdf.js hands back glyph runs, so "AWG-1000:" arrives as "AWG - 1000 :" */
+function tidy(s){
+  return String(s == null ? "" : s)
+    .replace(/\s+/g, " ")
+    .replace(/(\w)\s+-\s+(\w)/g, "$1-$2")
+    .replace(/\s+([,.:;!?%’'])/g, "$1")
+    .replace(/(\d)\s+:\s+(\d)/g, "$1:$2")
+    .trim();
+}
+
+/* the info card never shows money — that is the whole game */
+function scrub(s){
+  const re = new RegExp(MONEY_RE.source, "g");
+  return tidy(s)
+    .replace(re, "\u2588\u2588\u2588")
+    .replace(/\b[\d,]+\s+(backers?|supporters?)\b/gi, "\u2588\u2588\u2588 $1")
+    .replace(/\b\d+\s*%\s*(funded|of goal)\b/gi, "\u2588\u2588\u2588 $1")
+    .replace(/\b\d+\s+(days?|hours?)\s+to go\b/gi, "\u2588\u2588\u2588 $1 to go");
+}
+
+/* softer version: hides only the two answers, so reward tiers stay readable */
+function scrubAnswers(s, vals){
+  const re = new RegExp(MONEY_RE.source, "g");
+  return tidy(s).replace(re, (whole, num, suf) => {
+    const v = parseAmount(num, suf);
+    return vals.some(a => a > 0 && v !== null && Math.abs(v - a) / a < 0.005) ? "\u2588\u2588\u2588" : whole;
+  });
+}
+
+function sentences(text){
+  return text.replace(/\s+/g, " ")
+             .split(/(?<=[.!?"”])\s+(?=[A-Z“"])/)
+             .map(s => s.trim())
+             .filter(s => s.length > 40 && s.length < 260);
+}
+
+/* a heading and the paragraph under it arrive as one line-per-segment;
+   walk down collecting segments that belong to the same visual block */
+function blockFrom(rows, i, sameSize){
+  const first = rows[i];
+  const parts = [first];
+  let last = first;
+  for (let j = i + 1; j < rows.length; j++){
+    const s = rows[j];
+    const gap = s.y - (last.y + last.h);
+    if (gap > last.fs * 1.4) break;
+    if (sameSize && Math.abs(s.fs - first.fs) > 1.5) break;
+    if (!sameSize && s.fs > first.fs + 1.5) break;
+    if (Math.abs(s.x - first.x) > first.fs * 3) break;
+    parts.push(s); last = s;
+    if (parts.length >= 8) break;
+  }
+  return { text: parts.map(p => p.text).join(" "), end: i + parts.length - 1, fs: first.fs };
+}
+
+function extractInfo(segs, meta, fund){
+  const rows = segs.slice().sort((a, b) => a.y - b.y);
+  const flat = tidy(rows.map(s => s.text).join(" "));
+  const pageH = Math.max.apply(null, rows.map(s => s.y + s.h));
+  const vals = [];
+  if (fund.raised !== null) vals.push(fund.raised);
+  if (fund.goal !== null) vals.push(fund.goal);
+
+  /* --- title: the first run of the largest type in the top half --- */
+  let title = "", pitch = "", creator = "";
+  const upper = rows.filter(s => s.y < pageH * 0.5 && s.text.length > 2);
+  if (upper.length){
+    const maxFs = Math.max.apply(null, upper.map(s => s.fs));
+    const hi = rows.findIndex(s => s.y < pageH * 0.5 && s.fs >= maxFs - 0.5 && s.text.length > 2);
+    if (hi >= 0){
+      const tb = blockFrom(rows, hi, true);
+      title = tidy(tb.text);
+      /* --- the pitch: the next block down, in smaller type --- */
+      for (let j = tb.end + 1; j < rows.length && j < tb.end + 6; j++){
+        if (rows[j].fs >= tb.fs - 1) continue;
+        const pb = blockFrom(rows, j, true);
+        if (pb.text.length > 24){ pitch = pb.text; break; }
+      }
+    }
+  }
+  if ((!title || title.length < 8) && meta && meta.Title){
+    title = tidy(meta.Title.replace(/\s*[—–|]\s*(Kickstarter|Indiegogo|GoFundMe|Crowdfunder).*$/i, "")
+                           .replace(/\s+by\s+[^,]+$/i, ""));
+  }
+  if (!pitch) pitch = sentences(flat).slice(0, 2).join(" ");
+
+  /* --- creator: the name sitting just above "First created / N backed" --- */
+  const NOT_A_NAME = /^(More|Follow|Share|Log in|Message|Contact|Report|Save|Back this project|Remind me)$/i;
+  const ci = rows.findIndex(s => /\bcreated\b/i.test(s.text) && /\bbacked\b/i.test(s.text));
+  if (ci > 0){
+    for (let j = ci - 1; j >= 0 && j > ci - 5; j--){
+      const c = tidy(rows[j].text);
+      if (Math.abs(rows[j].x - rows[ci].x) > 30) continue;   // same column as the byline
+      if (NOT_A_NAME.test(c)) continue;
+      if (/^[A-Z][A-Za-z.'\u2019-]+(?: [A-Z][A-Za-z.'\u2019-]+){0,3}$/.test(c)){ creator = c; break; }
+    }
+  }
+  if (!creator && meta && meta.Title){
+    const by = meta.Title.replace(/\s*[—–|]\s*\w+\s*$/, "").split(/\s+by\s+/);
+    if (by.length > 1) creator = tidy(by.pop());
+  }
+
+  /* --- facts --- */
+  const facts = {};
+  // the category badge sits near the stats, on its own, with the location beside it
+  const catRow = rows.find(s => s.y < pageH * 0.25 && KS_CATEGORIES.indexOf(tidy(s.text)) >= 0);
+  if (catRow){
+    facts["Category"] = tidy(catRow.text);
+    const beside = rows.find(s => s !== catRow && Math.abs(s.y - catRow.y) < 24 && s.x > catRow.x);
+    if (beside) facts["Where"] = tidy(beside.text);
+  }
+  if (!facts["Where"]){
+    const loc = flat.match(/\b([A-Z][A-Za-z.\-]+(?: [A-Z][A-Za-z.\-]+)?),\s*(?:[A-Z]{2}\b|England|Scotland|Wales|Canada|Australia|Denmark|Germany|France|Japan)/);
+    if (loc) facts["Where"] = loc[0];
+  }
+  const dl = flat.match(/by\s+((?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+[A-Z][a-z]+\s+\d{1,2},?\s+\d{4})/);
+  if (dl) facts["Deadline"] = dl[1];
+  const ship = flat.match(/\b(?:estimated\s+)?delivery[:\s]+([A-Z][a-z]+\s+\d{4})/i);
+  if (ship) facts["Delivery"] = ship[1];
+  if (/all or nothing/i.test(flat)) facts["Terms"] = "All or nothing";
+
+  // reward range — never the goal, so it stays readable
+  const tiers = [];
+  const push = n => {
+    const v = parseAmount(n, null);
+    if (v && v > 0 && v < 100000 && !vals.some(a => Math.abs(v - a) / a < 0.005)) tiers.push(v);
+  };
+  let tm;
+  const tierRe = /(?:US\$|\$|£|€)\s?([\d][\d,]*)\s*or more/gi;         // Kickstarter's own wording
+  while ((tm = tierRe.exec(flat)) !== null) push(tm[1]);
+  const rangeRe = /from\s+(?:a |an )?(?:US\$|\$|£|€)\s?([\d][\d,]*)[\s\S]{0,60}?\bto\s+(?:the |a )?(?:US\$|\$|£|€)\s?([\d][\d,]*)/gi;
+  while ((tm = rangeRe.exec(flat)) !== null){ push(tm[1]); push(tm[2]); }
+  if (tiers.length > 1){
+    facts["Rewards"] = money(Math.min.apply(null, tiers)) + " to " + money(Math.max.apply(null, tiers));
+  }
+  for (const k in facts){
+    facts[k] = (k === "Rewards") ? scrubAnswers(facts[k], vals) : scrub(facts[k]);
+  }
+
+  /* --- claims worth reading aloud --- */
+  const claims = sentences(flat).map(s => {
+    let score = 0; const hits = [];
+    for (const h of HYPE){ const m = s.match(h[0]); if (m){ score += h[1]; hits.push(m[0]); } }
+    if (/^["\u201C]/.test(s)) score += 2;
+    return { s: scrub(s), score: score, hits: hits, on: true };
+  }).filter(c => c.score >= 3 && !/\u2588/.test(c.s.slice(0, 24)))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  /* --- red flags --- */
+  const flags = [];
+  for (const f of FLAGS){
+    if (!f[0].test(flat)) continue;
+    if (f[2] && f[2].test(flat)) continue;
+    flags.push({ text: f[1], on: true });
+  }
+
+  return {
+    title: title || "Untitled campaign",
+    creator: creator,
+    pitch: scrub(pitch).slice(0, 340),
+    facts: facts, claims: claims, flags: flags
+  };
+}
+
+/* ============================================================
+   5. IMAGE REGIONS from the operator list
+   ============================================================ */
+async function imageRegions(page, viewport){
+  const OPS = pdfjsLib.OPS;
+  let ops;
+  try { ops = await page.getOperatorList(); } catch(e){ return []; }
+  let ctm = [1,0,0,1,0,0];
+  const stack = [];
+  const out = [];
+  const T = pdfjsLib.Util.transform;
+  for (let i = 0; i < ops.fnArray.length; i++){
+    const fn = ops.fnArray[i], a = ops.argsArray[i];
+    if (fn === OPS.save){ stack.push(ctm.slice()); }
+    else if (fn === OPS.restore){ ctm = stack.pop() || [1,0,0,1,0,0]; }
+    else if (fn === OPS.transform){ ctm = T(ctm, a); }
+    else if (fn === OPS.paintFormXObjectBegin || fn === OPS.beginGroup){
+      stack.push(ctm.slice());
+      if (a && a[0] && a[0].length === 6) ctm = T(ctm, a[0]);
+    }
+    else if (fn === OPS.paintFormXObjectEnd || fn === OPS.endGroup){ ctm = stack.pop() || ctm; }
+    else if (fn === OPS.paintImageXObject || fn === OPS.paintJpegXObject || fn === OPS.paintInlineImageXObject){
+      const pts = [[0,0],[1,0],[0,1],[1,1]].map(p => [
+        ctm[0]*p[0] + ctm[2]*p[1] + ctm[4],
+        ctm[1]*p[0] + ctm[3]*p[1] + ctm[5]
+      ]);
+      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+      const r = viewport.convertToViewportRectangle([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]);
+      const x = Math.min(r[0], r[2]), y = Math.min(r[1], r[3]);
+      const w = Math.abs(r[2]-r[0]), h = Math.abs(r[3]-r[1]);
+      if (w > 90 && h > 90 && w < viewport.width*1.2) out.push({ x:x, y:y, w:w, h:h, area: w*h });
+    }
+  }
+  // drop duplicates and near-duplicates, keep the biggest
+  out.sort((a,b) => b.area - a.area);
+  const keep = [];
+  for (const r of out){
+    if (keep.some(k => Math.abs(k.x-r.x) < 12 && Math.abs(k.y-r.y) < 12)) continue;
+    keep.push(r);
+    if (keep.length >= 9) break;
+  }
+  return keep;
+}
+
+/* ============================================================
+   6. RENDER a page to blob-backed tiles with the bars painted in
+   ============================================================ */
+const TILE_H = 2200;
+
+async function renderTiles(page, viewport, onTile){
+  const tiles = [];
+  const total = Math.ceil(viewport.height);
+  const count = Math.ceil(total / TILE_H);
+  let i = 0;
+  for (let top = 0; top < total; top += TILE_H){
+    const h = Math.min(TILE_H, total - top);
+    const c = document.createElement("canvas");
+    c.width = Math.ceil(viewport.width); c.height = Math.ceil(h);
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height);
+    await page.render({
+      canvasContext: ctx,
+      viewport: viewport,
+      transform: [1,0,0,1,0,-top]
+    }).promise;
+    tiles.push({ top: top, h: h, canvas: c });
+    if (onTile) onTile(++i, count);
+  }
+  return tiles;
+}
+
+/* Bars are never burned into the clean tiles. Every time the blackout changes
+   we recomposite from the clean copies, so a bar can be lifted again. */
+async function composite(r){
+  const out = [];
+  for (const t of r.cleanTiles){
+    const c = document.createElement("canvas");
+    c.width = t.img.naturalWidth || Math.ceil(r.pageW);
+    c.height = t.img.naturalHeight || Math.ceil(t.h);
+    const ctx = c.getContext("2d");
+    ctx.drawImage(t.img, 0, 0);
+    ctx.fillStyle = "#000";
+    for (const b of r.boxes){
+      if (!b.on) continue;
+      if (b.y + b.h < t.top || b.y > t.top + t.h) continue;
+      ctx.fillRect(Math.round(b.x), Math.round(b.y - t.top), Math.round(b.w), Math.round(b.h));
+    }
+    out.push({ top: t.top, h: t.h, canvas: c });
+  }
+  if (r.tiles) r.tiles.forEach(t => URL.revokeObjectURL(t.url));
+  r.tiles = await tilesToImages(out);
+  out.forEach(t => { t.canvas.width = t.canvas.height = 1; });
+}
+
+/* ============================================================
+   6b. SLIDES
+   A saved page is one long ribbon. Cut it into fixed slides so the
+   game master has discrete things to keep, drop and reorder.
+   ============================================================ */
+const SLIDE_RATIO = 1.3;        // each slide is a portrait chunk of the page
+
+function cropTiles(tiles, rect){
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(rect.w));
+  c.height = Math.max(1, Math.round(rect.h));
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+  for (const t of tiles){
+    const th = t.img.naturalHeight || t.h;
+    if (rect.y + rect.h < t.top || rect.y > t.top + th) continue;
+    const sy = Math.max(0, rect.y - t.top);
+    const dy = Math.max(0, t.top - rect.y);
+    const sh = Math.min(th - sy, rect.h - dy);
+    if (sh <= 0) continue;
+    ctx.drawImage(t.img, rect.x, sy, rect.w, sh, 0, dy, c.width, sh);
+  }
+  return c;
+}
+
+function canvasToImg(c){
+  return new Promise(res => c.toBlob(b => {
+    const img = new Image();
+    img.src = URL.createObjectURL(b);
+    img.decode().then(() => res({ img: img, url: img.src })).catch(() => res({ img: img, url: img.src }));
+  }, "image/png"));
+}
+
+/* Nav chrome at the top and the legal footer at the bottom are never
+   worth showing, and neither is a slide that is mostly white space. */
+function slideInterest(r, y, h){
+  let chars = 0, imgs = 0;
+  for (const seg of r.textSpots){
+    const mid = seg.y + seg.h / 2;
+    if (mid >= y && mid < y + h) chars += seg.len;
+  }
+  for (const sp of (r.imageSpots || [])){
+    if (sp.y + sp.h > y && sp.y < y + h) imgs++;
+  }
+  return { chars: chars, imgs: imgs };
+}
+
+async function buildSlides(r){
+  if (r.slides) r.slides.forEach(sl => URL.revokeObjectURL(sl.url));
+  const H = Math.round(r.pageW * SLIDE_RATIO);
+  const out = [];
+  for (let y = 0; y < r.pageH; y += H){
+    const h = Math.min(H, r.pageH - y);
+    if (h < H * 0.2 && out.length) break;        // ignore a sliver at the end
+    const got = await canvasToImg(cropTiles(r.tiles, { x: 0, y: y, w: r.pageW, h: h }));
+    const score = slideInterest(r, y, h);
+    const isFooter = r.footerY !== null && y >= r.footerY;
+    const isNav = y === 0 && score.imgs === 0 && score.chars < 120;
+    out.push({
+      y: y, h: h, url: got.url, img: got.img,
+      chars: score.chars, imgs: score.imgs,
+      on: !isFooter && !isNav && (score.chars >= 60 || score.imgs > 0),
+      why: isFooter ? "footer" : isNav ? "site nav" : (score.chars < 60 && !score.imgs) ? "nearly blank" : ""
+    });
+  }
+  // always leave something to show
+  if (!out.some(sl => sl.on)) out.forEach(sl => { sl.on = true; });
+  r.slides = out;
+}
+
+function tilesToImages(tiles){
+  return Promise.all(tiles.map(t => new Promise(res => {
+    t.canvas.toBlob(blob => {
+      const img = new Image();
+      img.src = URL.createObjectURL(blob);
+      img.decode().then(() => res({ top: t.top, h: t.h, img: img, url: img.src }))
+                  .catch(() => res({ top: t.top, h: t.h, img: img, url: img.src }));
+    }, "image/png");
+  })));
+}
+
+function cropFromTiles(tiles, r, maxW){
+  const scale = Math.min(1, (maxW || 360) / r.w);
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(r.w * scale));
+  c.height = Math.max(1, Math.round(r.h * scale));
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height);
+  for (const t of tiles){
+    if (r.y + r.h < t.top || r.y > t.top + t.h) continue;
+    const sy = Math.max(0, r.y - t.top);
+    const dy = Math.max(0, t.top - r.y);
+    const sh = Math.min(t.h - sy, r.h - dy);
+    if (sh <= 0) continue;
+    ctx.drawImage(t.canvas, r.x, sy, r.w, sh, 0, dy*scale, c.width, sh*scale);
+  }
+  return c.toDataURL("image/jpeg", 0.82);
+}
+
+/* ============================================================
+   7. INGEST
+   ============================================================ */
+async function ingest(files){
+  const opts = {
+    band: $("#optBand").checked,
+    allMoney: $("#optAllMoney").checked,
+    images: $("#optImgs").checked
+  };
+  $("#prog").classList.remove("hidden");
+  const bar = $("#prog i"), txt = $("#progtxt");
+  let done = 0;
+
+  for (const f of files){
+    txt.textContent = "Reading " + f.name;
+    bar.style.width = (done / files.length * 100) + "%";
+    try {
+      const round = await ingestOne(f, opts);
+      G.rounds.push(round);
+    } catch (err){
+      console.error(err);
+      toast("Couldn't read " + f.name);
+    }
+    done++;
+    bar.style.width = (done / files.length * 100) + "%";
+  }
+  $("#prog").classList.add("hidden");
+  txt.textContent = G.rounds.length + (G.rounds.length === 1 ? " round ready" : " rounds ready");
+  renderRoundList();
+  $("#rounds").classList.remove("hidden");
+  $("#rounds").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function ingestOne(file, opts){
+  const buf = await file.arrayBuffer();
+  const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+  const meta = await doc.getMetadata().then(m => m.info).catch(() => ({}));
+
+  // scale so the rendered page is comfortably readable on a big screen
+  const p1 = await doc.getPage(1);
+  const v1 = p1.getViewport({ scale: 1 });
+  const scale = clamp(1000 / v1.width, 0.9, 2.6);
+
+  let allSegs = [], allTiles = [], offsetY = 0, pageW = 0, regions = [];
+
+  for (let n = 1; n <= doc.numPages; n++){
+    const page = await doc.getPage(n);
+    const vp = page.getViewport({ scale: scale });
+    pageW = Math.max(pageW, vp.width);
+    const tc = await page.getTextContent();
+    const toks = buildTokens(tc, vp);
+    toks.forEach(t => { t.y += offsetY; t.base += offsetY; });
+    allSegs = allSegs.concat(buildSegments(toks));
+
+    const tiles = await renderTiles(page, vp, (i, n) => {
+      $("#progtxt").textContent = "Rendering " + file.name + " — " + i + " of " + n;
+    });
+    tiles.forEach(t => { t.top += offsetY; });
+    allTiles = allTiles.concat(tiles);
+
+    if (opts.images){
+      const rs = await imageRegions(page, vp);
+      rs.forEach(r => { r.y += offsetY; });
+      regions = regions.concat(rs);
+    }
+    offsetY += vp.height;
+  }
+
+  const FOOTER = /report this project|environmental commitments|questions about this project\?|check out the faq|our rules|creator resources|terms of use|cookie policy|similar projects/i;
+  let footerY = null;
+  for (const seg of allSegs.slice().sort((a, b) => a.y - b.y)){
+    if (FOOTER.test(seg.text)){ footerY = seg.y - 40; break; }
+  }
+
+  const fund  = findFunding(allSegs);
+  const boxes = buildRedactions(allSegs, fund, opts, pageW);
+  const info  = extractInfo(allSegs, meta, fund);
+
+  // pull the photos before the bars go on, then skip any that overlap a bar
+  let shots = [];
+  const inPage = regions.filter(r => r.y < offsetY * 0.86);
+  if (opts.images){
+    const byArea = inPage.slice().sort((a,b) => b.area - a.area);
+    for (const r of byArea.slice(0, 6)){
+      const clash = boxes.some(b => b.on && b.x < r.x+r.w && r.x < b.x+b.w && b.y < r.y+r.h && r.y < b.y+b.h);
+      if (clash) continue;
+      try { shots.push({ url: cropFromTiles(allTiles, r, 420), on: true }); } catch(e){}
+      if (shots.length >= 5) break;
+    }
+  }
+
+  const clean = await tilesToImages(allTiles);
+  allTiles.forEach(t => { t.canvas.width = t.canvas.height = 1; });
+
+  const round = {
+    id: "r" + (G.rounds.length + 1),
+    file: file.name,
+    title: info.title, creator: info.creator, pitch: info.pitch, showPitch: true, factOff: {},
+    facts: info.facts, claims: info.claims, flags: info.flags, shots: shots,
+    cleanTiles: clean, tiles: null, boxes: boxes, imageSpots: inPage.slice().sort((a,b) => a.y - b.y),
+    textSpots: allSegs.map(sg => ({ y: sg.y, h: sg.h, len: sg.text.length })),
+    footerY: footerY, slides: null,
+    leakBoxes: opts.allMoney ? [] : otherMoneyBoxes(allSegs, fund, boxes),
+    pageW: pageW, pageH: offsetY, scale: scale,
+    raised: fund.raised, goal: fund.goal
+  };
+  await composite(round);
+  await buildSlides(round);
+  return round;
+}
+
+/* ============================================================
+   8. INTAKE UI
+   ============================================================ */
+function renderRoundList(quiet){
+  const list = $("#roundlist");
+  list.innerHTML = "";
+  G.rounds.forEach((r, i) => {
+    const row = document.createElement("div");
+    row.className = "round-row";
+    row.innerHTML =
+      '<div class="n">' + (i+1) + '</div>' +
+      '<div class="meta"><div class="title"></div><div class="sub"></div></div>' +
+      '<div class="answers">' +
+        '<input type="text" data-k="raised" placeholder="raised" value="' + (r.raised !== null ? money(r.raised) : "") + '">' +
+        '<input type="text" data-k="goal" placeholder="goal" value="' + (r.goal !== null ? money(r.goal) : "") + '">' +
+      '</div>' +
+      '<button class="btn sm" data-act="gm">Edit slides</button>';
+    $(".title", row).textContent = r.title;
+    const shortFile = r.file.length > 26 ? r.file.slice(0, 24) + "\u2026" : r.file;
+    const bits = [r.creator, r.facts.Category, shortFile].filter(Boolean);
+    const sub = $(".sub", row);
+    sub.textContent = bits.join(" · ");
+    if (r.leakBoxes && r.leakBoxes.length){
+      const warn = document.createElement("button");
+      warn.className = "btn sm";
+      warn.style.cssText = "margin-left:.5rem;background:var(--marker);padding:.1em .5em;font-size:.75rem";
+      warn.textContent = r.leakBoxes.length + " other amount" + (r.leakBoxes.length>1?"s":"") + " visible — hide them";
+      warn.title = "Somebody can work backwards from these. Click to black them out too.";
+      warn.addEventListener("click", async () => {
+        warn.disabled = true; warn.textContent = "Hiding…";
+        r.boxes = r.boxes.concat(r.leakBoxes);
+        r.leakBoxes = [];
+        await composite(r);
+        await buildSlides(r);
+        renderRoundList(true);
+      });
+      sub.appendChild(document.createElement("br"));
+      sub.appendChild(warn);
+    }
+    $$("input", row).forEach(inp => {
+      inp.addEventListener("change", () => {
+        const v = parseAmount((inp.value.match(/[\d,\.]+/) || [""])[0], (inp.value.match(/[KkMm]\b/) || [])[0]);
+        r[inp.dataset.k] = v;
+        inp.value = v !== null ? money(v) : "";
+      });
+    });
+    $("[data-act=gm]", row).addEventListener("click", () => openGM(i));
+    list.appendChild(row);
+  });
+  const missing = G.rounds.filter(r => r.raised === null || r.goal === null).length;
+  $("#start").disabled = G.rounds.length === 0;
+  if (missing && !quiet) toast(missing + " round" + (missing>1?"s":"") + " couldn't be read — type the amounts in");
+}
+
+/* ============================================================
+   9. BLACKOUT EDITOR
+   ============================================================ */
+let checkIdx = 0;
+
+function openCheck(i){
+  checkIdx = i;
+  const r = G.rounds[i];
+  show("check");
+  $("#checkTitle").textContent = "Round " + (i+1) + " — " + r.title;
+
+  const stage = $("#stage");
+  stage.innerHTML = "";
+  const holder = document.createElement("div");
+  holder.style.position = "relative";
+  // the clean page goes underneath, so you can read what each bar is covering
+  r.cleanTiles.forEach(t => {
+    const im = document.createElement("img");
+    im.src = t.url; im.draggable = false;
+    holder.appendChild(im);
+  });
+  const layer = document.createElement("div");
+  layer.className = "boxlayer";
+  holder.appendChild(layer);
+  stage.appendChild(holder);
+
+  const px = v => (v / r.pageW * 100) + "%";
+  const py = v => (v / r.pageH * 100) + "%";
+
+  function draw(){
+    layer.innerHTML = "";
+    r.boxes.forEach(b => {
+      const el = document.createElement("div");
+      el.className = "rbox" + (b.on ? "" : " off");
+      el.style.left = px(b.x); el.style.top = py(b.y);
+      el.style.width = px(b.w); el.style.height = py(b.h);
+      el.title = b.why + " — click to " + (b.on ? "lift" : "put back");
+      el.addEventListener("click", ev => { ev.stopPropagation(); b.on = !b.on; draw(); });
+      layer.appendChild(el);
+    });
+  }
+  draw();
+
+  let start = null, ghost = null;
+  layer.onpointerdown = ev => {
+    if (ev.target !== layer) return;
+    const rect = layer.getBoundingClientRect();
+    start = { x: ev.clientX - rect.left, y: ev.clientY - rect.top, rect: rect };
+    ghost = document.createElement("div");
+    ghost.className = "rbox";
+    layer.appendChild(ghost);
+    layer.setPointerCapture(ev.pointerId);
+  };
+  layer.onpointermove = ev => {
+    if (!start) return;
+    const x = ev.clientX - start.rect.left, y = ev.clientY - start.rect.top;
+    ghost.style.left = Math.min(x, start.x) + "px";
+    ghost.style.top = Math.min(y, start.y) + "px";
+    ghost.style.width = Math.abs(x - start.x) + "px";
+    ghost.style.height = Math.abs(y - start.y) + "px";
+  };
+  layer.onpointerup = ev => {
+    if (!start) return;
+    const x = ev.clientX - start.rect.left, y = ev.clientY - start.rect.top;
+    const w = Math.abs(x - start.x), h = Math.abs(y - start.y);
+    const kx = r.pageW / start.rect.width;
+    const ky = r.pageH / start.rect.height;
+    if (w > 6 && h > 6){
+      r.boxes.push({
+        on: true, why: "added by hand",
+        x: Math.min(x, start.x) * kx,
+        y: Math.min(y, start.y) * ky,
+        w: w * kx,
+        h: h * ky
+      });
+    }
+    start = null;
+    if (ghost) ghost.remove();
+    ghost = null;
+    draw();
+  };
+
+  /* stepping bar to bar beats scrolling a page that is 24,000px tall */
+  const sc = $("#check");
+  let barIdx = -1;
+  function ordered(){ return r.boxes.slice().sort((a, b) => a.y - b.y); }
+  function jumpBar(dir){
+    const list = ordered();
+    if (!list.length){ $("#barCount").textContent = "no bars"; return; }
+    barIdx = clamp(barIdx + dir, 0, list.length - 1);
+    const rect = holder.getBoundingClientRect();
+    const y = (list[barIdx].y / r.pageH) * rect.height;
+    sc.scrollTo({ top: sc.scrollTop + (rect.top - sc.getBoundingClientRect().top) + y - sc.clientHeight * 0.32,
+                  behavior: "smooth" });
+    $("#barCount").textContent = "bar " + (barIdx + 1) + " of " + list.length;
+  }
+  $("#barNext").onclick = () => jumpBar(1);
+  $("#barPrev").onclick = () => jumpBar(-1);
+  $("#barCount").textContent = r.boxes.length + " bars";
+
+  /* a goal printed inside an infographic is invisible to the text layer,
+     so walk the operator list's images and let the host eyeball each one */
+  const spots = r.imageSpots || [];
+  let imgIdx = -1;
+  $("#imgCount").textContent = spots.length + " images";
+  $("#imgNext").onclick = () => {
+    if (!spots.length) return;
+    imgIdx = (imgIdx + 1) % spots.length;
+    const rect = holder.getBoundingClientRect();
+    const y = (spots[imgIdx].y / r.pageH) * rect.height;
+    sc.scrollTo({ top: sc.scrollTop + (rect.top - sc.getBoundingClientRect().top) + y - sc.clientHeight * 0.18,
+                  behavior: "smooth" });
+    $("#imgCount").textContent = "image " + (imgIdx + 1) + " of " + spots.length;
+  };
+
+  setTimeout(() => jumpBar(1), 350);
+
+  $("#checkPrev").disabled = i === 0;
+}
+
+$("#checkDone").addEventListener("click", async () => {
+  const r = G.rounds[checkIdx];
+  $("#checkDone").disabled = true;
+  await composite(r);
+  await buildSlides(r);
+  $("#checkDone").disabled = false;
+  openGM(checkIdx);
+});
+$("#checkPrev").addEventListener("click", () => openCheck(Math.max(0, checkIdx - 1)));
+
+
+/* ============================================================
+   9b. GAME MASTER SUITE
+   ============================================================ */
+let gmIdx = 0;
+
+function openGM(i){
+  gmIdx = clamp(i, 0, G.rounds.length - 1);
+  show("gm");
+  const r = G.rounds[gmIdx];
+  $("#gmRoundLabel").textContent = "Round " + (gmIdx + 1) + " / " + G.rounds.length;
+  $("#gmTitle").value = r.title;
+  $("#gmRaised").value = r.raised !== null ? money(r.raised) : "";
+  $("#gmGoal").value = r.goal !== null ? money(r.goal) : "";
+  $("#gmPrevRound").disabled = gmIdx === 0;
+  $("#gmNextRound").disabled = gmIdx >= G.rounds.length - 1;
+  drawGrid();
+  drawSide();
+}
+
+function drawGrid(){
+  const r = G.rounds[gmIdx];
+  const grid = $("#gmGrid");
+  grid.innerHTML = "";
+  const on = r.slides.filter(sl => sl.on).length;
+  const risky = r.slides.filter(sl => sl.on &&
+    ((r.leakBoxes || []).some(b => b.y + b.h > sl.y && b.y < sl.y + sl.h) ||
+     (r.imageSpots || []).some(b => b.y + b.h > sl.y && b.y < sl.y + sl.h))).length;
+  $("#gmCount").textContent = on + " of " + r.slides.length + " showing" +
+    (risky ? "  \u00b7  " + risky + " worth a look" : "");
+
+  let pos = 0;
+  r.slides.forEach((sl, idx) => {
+    if (sl.on) pos++;
+    const card = document.createElement("div");
+    card.className = "card-slide" + (sl.on ? "" : " off");
+
+    const im = document.createElement("img");
+    im.className = "thumb"; im.src = sl.url; im.draggable = false;
+    im.alt = "Slide " + (idx + 1);
+    im.addEventListener("click", () => { sl.on = !sl.on; drawGrid(); });
+
+    const bar = document.createElement("div");
+    bar.className = "bar2";
+    const posEl = document.createElement("span");
+    posEl.className = "pos";
+    posEl.textContent = sl.on ? pos : "\u2013";
+    const left = document.createElement("button");
+    left.className = "mini"; left.textContent = "\u2039"; left.title = "Move earlier";
+    left.disabled = idx === 0;
+    left.addEventListener("click", ev => { ev.stopPropagation(); swapSlides(idx, idx - 1); });
+    const right = document.createElement("button");
+    right.className = "mini"; right.textContent = "\u203a"; right.title = "Move later";
+    right.disabled = idx === r.slides.length - 1;
+    right.addEventListener("click", ev => { ev.stopPropagation(); swapSlides(idx, idx + 1); });
+    const grow = document.createElement("span"); grow.className = "grow";
+    bar.appendChild(posEl); bar.appendChild(grow); bar.appendChild(left); bar.appendChild(right);
+
+    const state = document.createElement("span");
+    state.className = "state";
+    state.textContent = sl.on ? String(idx + 1) : (sl.why || "off");
+
+    /* Flag what a text-layer blackout can miss: an amount still readable,
+       and any picture, since a goal printed inside a graphic is invisible. */
+    const risk = document.createElement("span");
+    risk.className = "risk";
+    const hits = (r.leakBoxes || []).filter(b => b.y + b.h > sl.y && b.y < sl.y + sl.h).length;
+    const pics = (r.imageSpots || []).filter(b => b.y + b.h > sl.y && b.y < sl.y + sl.h).length;
+    if (hits){
+      const t = document.createElement("b"); t.className = "money";
+      t.textContent = "$" + hits;
+      t.title = hits + " dollar amount" + (hits > 1 ? "s" : "") + " still readable on this slide";
+      risk.appendChild(t);
+    }
+    if (pics){
+      const t = document.createElement("b"); t.className = "pic";
+      t.textContent = "img";
+      t.title = "Has a picture \u2014 check it for numbers printed into the graphic";
+      risk.appendChild(t);
+    }
+
+    card.appendChild(state);
+    if (hits || pics) card.appendChild(risk);
+    card.appendChild(im); card.appendChild(bar);
+    grid.appendChild(card);
+  });
+}
+
+function swapSlides(a, b){
+  const arr = G.rounds[gmIdx].slides;
+  if (b < 0 || b >= arr.length) return;
+  const t = arr[a]; arr[a] = arr[b]; arr[b] = t;
+  drawGrid();
+}
+
+function drawSide(){
+  const r = G.rounds[gmIdx];
+  const side = $("#gmSide");
+  side.innerHTML = "";
+
+  const section = (label) => {
+    const h = document.createElement("h4"); h.textContent = label;
+    side.appendChild(h); return h;
+  };
+  const check = (label, get, set, cls) => {
+    const l = document.createElement("label");
+    l.className = "chk" + (get() ? "" : " off");
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = get();
+    const sp = document.createElement("span"); sp.textContent = label;
+    cb.addEventListener("change", () => { set(cb.checked); l.classList.toggle("off", !cb.checked); });
+    l.appendChild(cb); l.appendChild(sp);
+    side.appendChild(l);
+    return l;
+  };
+
+  section("What the crew sees");
+  check("The pitch \u2014 \u201C" + (r.pitch || "").slice(0, 46) + "\u2026\u201D",
+        () => r.showPitch, v => { r.showPitch = v; });
+
+  if (r.creator) check("Creator: " + r.creator, () => !r.factOff.Creator, v => { r.factOff.Creator = !v; });
+  for (const k of Object.keys(r.facts)){
+    (function(key){
+      check(key + ": " + r.facts[key], () => !r.factOff[key], v => { r.factOff[key] = !v; });
+    })(k);
+  }
+
+  if (r.claims.length){
+    section("Claims");
+    r.claims.forEach(c => check(c.s.slice(0, 110) + (c.s.length > 110 ? "\u2026" : ""),
+                                () => c.on, v => { c.on = v; }));
+  }
+  if (r.flags.length){
+    section("Worth noticing");
+    r.flags.forEach(f => check(f.text, () => f.on, v => { f.on = v; }));
+  }
+  if (r.shots.length){
+    section("Photos");
+    const wrap = document.createElement("div");
+    wrap.className = "shotpick";
+    r.shots.forEach(sh => {
+      const l = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = sh.on;
+      cb.addEventListener("change", () => { sh.on = cb.checked; });
+      const im = document.createElement("img"); im.src = sh.url; im.alt = "";
+      l.appendChild(cb); l.appendChild(im);
+      wrap.appendChild(l);
+    });
+    side.appendChild(wrap);
+  }
+}
+
+function readAmount(str){
+  const num = (String(str).match(/[\d,\.]+/) || [""])[0];
+  const suf = (String(str).match(/[KkMm]\b/) || [])[0];
+  return num ? parseAmount(num, suf) : null;
+}
+
+$("#gmTitle").addEventListener("change", e => { G.rounds[gmIdx].title = e.target.value.trim() || "Untitled"; });
+$("#gmRaised").addEventListener("change", e => {
+  const v = readAmount(e.target.value);
+  G.rounds[gmIdx].raised = v; e.target.value = v !== null ? money(v) : "";
+});
+$("#gmGoal").addEventListener("change", e => {
+  const v = readAmount(e.target.value);
+  G.rounds[gmIdx].goal = v; e.target.value = v !== null ? money(v) : "";
+});
+$("#gmPrevRound").addEventListener("click", () => openGM(gmIdx - 1));
+$("#gmNextRound").addEventListener("click", () => openGM(gmIdx + 1));
+$("#gmBlackout").addEventListener("click", () => openCheck(gmIdx));
+$("#gmAll").addEventListener("click", () => { G.rounds[gmIdx].slides.forEach(sl => { sl.on = true; }); drawGrid(); });
+$("#gmAuto").addEventListener("click", async () => {
+  const b = $("#gmAuto"); b.disabled = true; b.textContent = "Recutting\u2026";
+  await buildSlides(G.rounds[gmIdx]);
+  b.disabled = false; b.textContent = "Back to suggested";
+  drawGrid();
+});
+$("#gmPreview").addEventListener("click", () => { show("play"); loadRound(gmIdx); });
+$("#gmDone").addEventListener("click", () => { show("intake"); renderRoundList(true); });
+
+/* ============================================================
+   10. PLAY
+   ============================================================ */
+function show(which){
+  ["intake","check","gm","play","player"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
+}
+
+function loadRound(i){
+  G.idx = i; G.panel = 0;
+  const r = G.rounds[i];
+  $("#pRound").textContent = (i+1) + "/" + G.rounds.length;
+  $("#pTitle").textContent = r.title;
+  $("#revealBox").classList.add("hidden");
+  $("#drawer").classList.remove("open");
+  buildDrawer(r);
+  liveAnnounceRound();
+  requestAnimationFrame(() => { layoutColumns(); goPanel(0); });
+}
+
+/* The game master curates the deck in the suite; play just walks it. */
+function layoutColumns(){
+  const r = G.rounds[G.idx];
+  G.deck = r.slides.filter(sl => sl.on);
+  if (!G.deck.length) G.deck = r.slides.slice();
+  G.panels = Math.max(1, G.deck.length);
+  const dots = $("#dots");
+  dots.innerHTML = "";
+  for (let i = 0; i < G.panels; i++) dots.appendChild(document.createElement("i"));
+}
+
+function goPanel(p){
+  G.panel = clamp(p, 0, G.panels - 1);
+  const sl = G.deck[G.panel];
+  const im = $("#slideImg");
+  if (sl){
+    im.classList.add("swap");
+    im.src = sl.url;
+    requestAnimationFrame(() => im.classList.remove("swap"));
+  }
+  $$("#dots i").forEach((d, i) => d.classList.toggle("on", i <= G.panel));
+  $("#panelCount").textContent = (G.panel + 1) + " / " + G.panels;
+  updateTally();
+}
+
+function buildDrawer(r){
+  const d = $("#drawer");
+  const facts = Object.keys(r.facts).filter(k => !r.factOff[k]);
+  const claims = r.claims.filter(c => c.on);
+  const flags = r.flags.filter(f => f.on);
+  const shots = r.shots.filter(s => s.on);
+  let h = "";
+  if (r.showPitch && r.pitch) h += "<h3>What this is</h3><p>" + esc(r.pitch) + "</p>";
+  if ((r.creator && !r.factOff.Creator) || facts.length){
+    h += "<h3>The particulars</h3><dl class='factgrid'>";
+    if (r.creator && !r.factOff.Creator) h += "<dt>Creator</dt><dd>" + esc(r.creator) + "</dd>";
+    for (const k of facts) h += "<dt>" + esc(k) + "</dt><dd>" + esc(r.facts[k]) + "</dd>";
+    h += "</dl>";
+  }
+  if (claims.length){
+    h += "<h3>Claims made with a straight face</h3><ul class='claims'>";
+    for (const c of claims) h += "<li>" + highlight(c.s, c.hits) + "</li>";
+    h += "</ul>";
+  }
+  if (flags.length){
+    h += "<h3>Worth noticing</h3><ul class='flags'>";
+    for (const f of flags) h += "<li>" + esc(f.text) + "</li>";
+    h += "</ul>";
+  }
+  if (shots.length){
+    h += "<h3>From the page</h3><div class='shots'>";
+    shots.forEach(sh => { h += "<img src='" + sh.url + "' alt=''>"; });
+    h += "</div>";
+  }
+  d.innerHTML = h || "<p class='tiny'>Nothing turned on for this round.</p>";
+  $$(".shots img", d).forEach(im => im.addEventListener("click", () => im.classList.toggle("big")));
+}
+
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+function highlight(sentence, hits){
+  let out = esc(sentence);
+  const seen = new Set();
+  for (const hRaw of hits){
+    const hh = esc(hRaw);
+    if (!hh || seen.has(hh.toLowerCase())) continue;
+    seen.add(hh.toLowerCase());
+    const re = new RegExp("(" + hh.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "i");
+    out = out.replace(re, "<span class='mark'>$1</span>");
+  }
+  return out;
+}
+
+function doReveal(){
+  const r = G.rounds[G.idx];
+  const box = $("#revealBox");
+  const gap = (r.raised && r.goal) ? (r.raised / r.goal) : null;
+  let verdict = "";
+  if (gap !== null){
+    if (gap >= 1) verdict = "Funded. Somebody out there wanted this.";
+    else if (gap >= 0.5) verdict = "Over halfway. It might actually happen.";
+    else if (gap >= 0.1) verdict = "A long way to go.";
+    else verdict = "Barely off the ground.";
+  }
+  box.innerHTML =
+    '<div class="slot"><div class="lbl">Has raised</div><div class="amt">' + (r.raised !== null ? money(r.raised) : "\u2014") + '</div></div>' +
+    '<div class="slot"><div class="lbl">Requesting</div><div class="amt goal">' + (r.goal !== null ? money(r.goal) : "\u2014") + '</div></div>' +
+    '<p class="verdict slot">' + esc(verdict) + '</p>';
+  box.classList.remove("hidden");
+  $$(".slot", box).forEach((sl, i) => setTimeout(() => sl.classList.add("in"), 120 + i * 620));
+  liveReveal();
+}
+
+$("#bInfo").addEventListener("click", () => $("#drawer").classList.toggle("open"));
+$("#bReveal").addEventListener("click", () => {
+  const box = $("#revealBox");
+  if (box.classList.contains("hidden")) doReveal(); else box.classList.add("hidden");
+});
+$("#bNext").addEventListener("click", () => {
+  if (G.idx + 1 < G.rounds.length) loadRound(G.idx + 1);
+  else { toast("That was the last one"); }
+});
+$("#bQuit").addEventListener("click", () => { show("intake"); });
+$("#bPrev").addEventListener("click", () => goPanel(G.panel - 1));
+$("#bNextPanel").addEventListener("click", () => goPanel(G.panel + 1));
+
+window.addEventListener("keydown", e => {
+  if ($("#play").classList.contains("hidden")) return;
+  if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+  const k = e.key;
+  if (k === "ArrowRight" || k === "ArrowDown" || k === " "){ e.preventDefault(); goPanel(G.panel + 1); }
+  else if (k === "ArrowLeft" || k === "ArrowUp"){ e.preventDefault(); goPanel(G.panel - 1); }
+  else if (k === "r" || k === "R"){ $("#bReveal").click(); }
+  else if (k === "i" || k === "I"){ $("#bInfo").click(); }
+  else if (k === "n" || k === "N"){ $("#bNext").click(); }
+  else if (k === "Home"){ goPanel(0); }
+  else if (k === "End"){ goPanel(G.panels - 1); }
+});
+window.addEventListener("resize", () => {
+  if (!$("#play").classList.contains("hidden")){ layoutColumns(); goPanel(G.panel); }
+});
+
+/* ============================================================
+   11. JOIN CODE + EXPORT
+   ============================================================ */
+function makeJoinCode(){
+  const payload = {
+    v: 1,
+    r: G.rounds.map((r,i) => ({ n: i+1, t: r.title.slice(0,60), a: r.raised, g: r.goal }))
+  };
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+}
+function readJoinCode(code){
+  try { return JSON.parse(decodeURIComponent(escape(atob(code.trim())))); }
+  catch(e){ return null; }
+}
+
+async function exportPages(){
+  const btn = $("#exportBtn");
+  btn.disabled = true;
+  for (let i = 0; i < G.rounds.length; i++){
+    const r = G.rounds[i];
+    const deck = r.slides.filter(sl => sl.on);
+    for (let n = 0; n < deck.length; n++){
+      btn.textContent = "Round " + (i+1) + ", slide " + (n+1) + "\u2026";
+      const a = document.createElement("a");
+      a.href = deck[n].url;
+      a.download = "round-" + (i+1) + "-" + slug(r.title) + "-" + String(n+1).padStart(2,"0") + ".png";
+      document.body.appendChild(a); a.click(); a.remove();
+      await new Promise(res => setTimeout(res, 260));
+    }
+  }
+  const answers = G.rounds.map((r,i) =>
+    (i+1) + ". " + r.title +
+    "\n   has raised: " + (r.raised !== null ? money(r.raised) : "?") +
+    "\n   requesting: " + (r.goal !== null ? money(r.goal) : "?")
+  ).join("\n\n");
+  const blob = new Blob(["DICKSHARTER \u2014 answer key\n\n" + answers + "\n"], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "answer-key.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  btn.textContent = "Download slides";
+  btn.disabled = false;
+  toast("Saved. The answer key is a separate file \u2014 don't open it on the big screen.");
+}
+
+function slug(s){
+  return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "page";
+}
+
+/* ============================================================
+   12. PLAYER MODE
+   ============================================================ */
+const P = {
+  game: null,
+  name: store.get("ds.name") || "",
+  guesses: JSON.parse(store.get("ds.guesses") || "{}")
+};
+
+function scoreGuess(guess, actual){
+  if (actual === null || actual === undefined || !isFinite(guess)) return 0;
+  if (actual <= 0) return guess <= 0 ? 100 : 0;
+  const err = Math.abs(guess - actual) / actual;
+  let pts = Math.round(100 * Math.max(0, 1 - err));
+  if (err <= 0.10) pts += 50;
+  if (err <= 0.02) pts += 50;
+  return pts;
+}
+
+function renderPlayer(){
+  const el = $("#playerInner");
+  if (LIVE.code && LIVE.db && !LIVE.isHost){ renderLivePlayer(); return; }
+
+  if (!P.game){
+    const hint = (location.hash.match(/#join=([A-Z0-9]{4})/i) || [])[1] || "";
+    el.innerHTML =
+      '<h1>Join a game</h1>' +
+      '<p style="margin:.6rem 0 0;max-width:34ch">Four letters off the TV, or the long code the host sent you.</p>' +
+      '<div class="card">' +
+        '<label class="field"><span>Your name</span><input type="text" id="pname" value="' + esc(P.name) + '" placeholder="Who are you"></label>' +
+        '<label class="field"><span>Room or join code</span><input type="text" id="pcode" value="' + esc(hint.toUpperCase()) + '" placeholder="e.g. 7KQM"></label>' +
+        '<button class="btn solid" id="pjoin">Join</button>' +
+        '<p class="tiny" id="pjoinmsg" style="margin:.6rem 0 0"></p>' +
+      '</div>';
+    $("#pjoin").addEventListener("click", async () => {
+      const name = ($("#pname").value || "Anonymous").trim();
+      const code = $("#pcode").value.trim();
+      P.name = name; store.set("ds.name", name);
+
+      if (/^[A-Z0-9]{4}$/i.test(code)){
+        if (!LIVE.db){
+          $("#pjoinmsg").textContent = "This page has no database set up, so room codes won't work here. Use the host's long code instead.";
+          return;
+        }
+        $("#pjoinmsg").textContent = "Joining\u2026";
+        const ok = await liveJoin(code, name);
+        if (!ok){ $("#pjoinmsg").textContent = "Couldn't reach that room."; return; }
+        renderLivePlayer();
+        return;
+      }
+      const g = readJoinCode(code);
+      if (!g || !g.r || !g.r.length){ $("#pjoinmsg").textContent = "That code didn't work."; return; }
+      P.game = g; store.set("ds.game", code);
+      renderPlayer();
+    });
+    return;
+  }
+
+  let total = 0;
+  let h = '<h1>' + esc(P.name) + '</h1><p style="margin:.4rem 0 0">' + P.game.r.length + ' rounds. Lock in both numbers before the host reveals.</p>';
+  h += '<div class="card" style="text-align:center"><div class="tiny" style="color:#555">Running total</div><div class="total" id="ptotal">0</div></div>';
+
+  P.game.r.forEach(rd => {
+    const key = "g" + rd.n;
+    const g = P.guesses[key];
+    h += '<div class="card" data-n="' + rd.n + '">';
+    h += '<div style="display:flex;gap:.6rem;align-items:baseline"><b style="font-family:var(--display);font-size:1.6rem">' + rd.n + '</b><span style="font-weight:600">' + esc(rd.t) + '</span></div>';
+    if (!g){
+      h += '<div class="guessrow" style="margin-top:.8rem">' +
+             '<label class="field" style="margin:0"><span>Has raised</span><input type="number" inputmode="numeric" data-f="raised"></label>' +
+             '<label class="field" style="margin:0"><span>Requesting</span><input type="number" inputmode="numeric" data-f="goal"></label>' +
+           '</div><button class="btn solid sm" style="margin-top:.7rem" data-act="lock">Lock it in</button>';
+    } else if (!g.scored){
+      h += '<p style="margin-top:.6rem">You said <b>' + money(g.raised) + '</b> raised, <b>' + money(g.goal) + '</b> asked.</p>' +
+           '<button class="btn sm" style="margin-top:.5rem" data-act="score">Host revealed — score me</button>';
+    } else {
+      const pr = scoreGuess(g.raised, rd.a), pg = scoreGuess(g.goal, rd.g);
+      total += pr + pg;
+      h += '<div class="score-line"><span>Raised · you said ' + money(g.raised) + ', it was ' + money(rd.a) + '</span><b>' + pr + '</b></div>' +
+           '<div class="score-line"><span>Asking · you said ' + money(g.goal) + ', it was ' + money(rd.g) + '</span><b>' + pg + '</b></div>';
+    }
+    h += '</div>';
+  });
+  h += '<p class="tiny" style="color:#8a8f86;margin-top:1.4rem">Guesses are kept on this phone. <a href="#" id="preset" style="color:var(--marker)">Start over</a></p>';
+  el.innerHTML = h;
+  $("#ptotal").textContent = total;
+
+  $$("[data-act=lock]").forEach(b => b.addEventListener("click", ev => {
+    const card = ev.target.closest(".card");
+    const n = card.dataset.n;
+    const raised = parseFloat($("[data-f=raised]", card).value);
+    const goal = parseFloat($("[data-f=goal]", card).value);
+    if (!isFinite(raised) || !isFinite(goal)){ toast("Both numbers, please"); return; }
+    P.guesses["g"+n] = { raised: raised, goal: goal, scored: false };
+    store.set("ds.guesses", JSON.stringify(P.guesses));
+    postSync(n, raised, goal);
+    renderPlayer();
+  }));
+  $$("[data-act=score]").forEach(b => b.addEventListener("click", ev => {
+    const n = ev.target.closest(".card").dataset.n;
+    P.guesses["g"+n].scored = true;
+    store.set("ds.guesses", JSON.stringify(P.guesses));
+    renderPlayer();
+  }));
+  const rst = $("#preset");
+  if (rst) rst.addEventListener("click", e => {
+    e.preventDefault();
+    P.guesses = {}; P.game = null;
+    store.set("ds.guesses", "{}"); store.set("ds.game", "");
+    renderPlayer();
+  });
+}
+
+function postSync(round, raised, goal){
+  const url = (P.game && P.game.s) || "";
+  if (!url) return;
+  const body = new URLSearchParams({
+    name: P.name, round: String(round), raised: String(raised), goal: String(goal)
+  });
+  fetch(url, { method: "POST", body: body, mode: "no-cors" }).catch(() => {});
+}
+
+
+/* ============================================================
+   14. LIVE PLAY
+   Firebase Realtime Database over plain REST: fetch to write,
+   EventSource to stream. No SDK, no build step, no modules.
+
+   The answers never go into the database until the moment they
+   are revealed, so a curious player reading the raw data finds
+   names and guesses and nothing worth cheating with.
+   ============================================================ */
+const LIVE = {
+  db: store.get("ds.db") || "",
+  code: "",
+  es: null,
+  state: {},
+  isHost: false,
+  pid: store.get("ds.pid") || ""
+};
+if (!LIVE.pid){
+  LIVE.pid = "p" + Math.random().toString(36).slice(2, 9);
+  store.set("ds.pid", LIVE.pid);
+}
+
+function dbRoot(){ return String(LIVE.db || "").replace(/\/+$/, ""); }
+function gamePath(sub){ return dbRoot() + "/games/" + LIVE.code + (sub || "") + ".json"; }
+
+async function dbPut(sub, value){
+  if (!dbRoot() || !LIVE.code) return false;
+  try {
+    const res = await fetch(gamePath(sub), { method: "PUT", body: JSON.stringify(value) });
+    return res.ok;
+  } catch (e){ return false; }
+}
+
+/* Firebase streams `put` and `patch` events carrying a path and a payload. */
+function applyEvent(state, msg){
+  if (!msg || typeof msg.path !== "string") return state;
+  if (msg.path === "/") return (msg.data === null ? {} : msg.data) || {};
+  const parts = msg.path.split("/").filter(Boolean);
+  let node = state;
+  for (let i = 0; i < parts.length - 1; i++){
+    if (!node[parts[i]] || typeof node[parts[i]] !== "object") node[parts[i]] = {};
+    node = node[parts[i]];
+  }
+  const last = parts[parts.length - 1];
+  if (msg.data === null) delete node[last];
+  else if (msg.isPatch && typeof msg.data === "object"){
+    if (!node[last] || typeof node[last] !== "object") node[last] = {};
+    for (const k in msg.data){
+      if (msg.data[k] === null) delete node[last][k]; else node[last][k] = msg.data[k];
+    }
+  } else node[last] = msg.data;
+  return state;
+}
+
+function liveConnect(onChange){
+  if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
+  if (!dbRoot() || !LIVE.code) return;
+  const es = new EventSource(gamePath(""));
+  LIVE.es = es;
+  const handle = isPatch => ev => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch (e){ return; }
+    if (!msg) return;
+    msg.isPatch = isPatch;
+    LIVE.state = applyEvent(LIVE.state, msg);
+    onChange(LIVE.state);
+  };
+  es.addEventListener("put", handle(false));
+  es.addEventListener("patch", handle(true));
+  es.addEventListener("error", () => { /* EventSource retries on its own */ });
+}
+
+function roomUrl(){
+  return location.origin + location.pathname + "#join=" + LIVE.code;
+}
+
+/* ---------- host ---------- */
+async function liveOpenRoom(){
+  const url = $("#liveUrl").value.trim();
+  if (!url){ toast("Paste the database URL first"); return; }
+  LIVE.db = url.replace(/\/+$/, "");
+  store.set("ds.db", LIVE.db);
+
+  LIVE.code = "";
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  for (let i = 0; i < 4; i++) LIVE.code += letters[Math.floor(Math.random() * letters.length)];
+
+  const ok = await dbPut("", {
+    meta: { opened: Date.now(), rounds: G.rounds.length },
+    now: { r: -1, phase: "lobby", title: "" }
+  });
+  if (!ok){
+    $("#liveState").textContent = "Couldn't reach that database — check the URL and the rules.";
+    LIVE.code = "";
+    return;
+  }
+  LIVE.isHost = true;
+  $("#liveState").textContent = "Room open.";
+  $("#liveRoom").classList.remove("hidden");
+  $("#roomCode").textContent = LIVE.code;
+  $("#roomUrl").textContent = roomUrl();
+  liveConnect(() => updateTally());
+  updateTally();
+}
+
+function livePlayers(){
+  const p = LIVE.state.players || {};
+  return Object.keys(p).map(k => ({ id: k, name: p[k] && p[k].name }));
+}
+
+function liveLockedCount(r){
+  const g = (LIVE.state.guesses || {})["r" + r] || {};
+  return Object.keys(g).length;
+}
+
+function updateTally(){
+  const el = $("#liveTally");
+  if (!el) return;
+  if (!LIVE.isHost || !LIVE.code){ el.classList.add("hidden"); return; }
+  el.classList.remove("hidden");
+  const total = livePlayers().length;
+  if (G.rounds.length && !$("#play").classList.contains("hidden")){
+    el.textContent = liveLockedCount(G.idx) + "/" + total + " in";
+  } else {
+    el.textContent = LIVE.code + " · " + total + " joined";
+  }
+}
+
+async function liveAnnounceRound(){
+  if (!LIVE.isHost || !LIVE.code) return;
+  const r = G.rounds[G.idx];
+  await dbPut("/now", { r: G.idx, phase: "guessing", title: r.title });
+  updateTally();
+}
+
+async function liveReveal(){
+  if (!LIVE.isHost || !LIVE.code) return;
+  const r = G.rounds[G.idx];
+  const guesses = (LIVE.state.guesses || {})["r" + G.idx] || {};
+  const scores = {};
+  for (const pid in guesses){
+    const g = guesses[pid] || {};
+    scores[pid] = scoreGuess(Number(g.raised), r.raised) + scoreGuess(Number(g.goal), r.goal);
+  }
+  await dbPut("/scores/r" + G.idx, scores);
+  await dbPut("/now", {
+    r: G.idx, phase: "revealed", title: r.title,
+    raised: r.raised, goal: r.goal
+  });
+}
+
+/* ---------- phone ---------- */
+async function liveJoin(code, name){
+  LIVE.code = String(code).toUpperCase().trim();
+  LIVE.isHost = false;
+  const ok = await dbPut("/players/" + LIVE.pid, { name: name, joined: Date.now() });
+  if (!ok) return false;
+  store.set("ds.room", LIVE.code);
+  store.set("ds.name", name);
+  liveConnect(() => renderLivePlayer());
+  return true;
+}
+
+async function liveSubmit(r, raised, goal){
+  return dbPut("/guesses/r" + r + "/" + LIVE.pid, { raised: raised, goal: goal, at: Date.now() });
+}
+
+function liveTotal(){
+  const sc = LIVE.state.scores || {};
+  let t = 0;
+  for (const k in sc){ const row = sc[k] || {}; t += Number(row[LIVE.pid]) || 0; }
+  return t;
+}
+
+function renderLivePlayer(){
+  if ($("#player").classList.contains("hidden")) return;
+  const el = $("#playerInner");
+  const now = LIVE.state.now || { phase: "lobby", r: -1 };
+  const mine = ((LIVE.state.guesses || {})["r" + now.r] || {})[LIVE.pid];
+  const total = liveTotal();
+  const name = store.get("ds.name") || "You";
+
+  let h = '<h1>' + esc(name) + '</h1>';
+  h += '<div class="card" style="text-align:center"><div class="tiny" style="color:#555">Running total</div>' +
+       '<div class="total">' + total + '</div>' +
+       '<div class="tiny" style="color:#555">room ' + esc(LIVE.code) + '</div></div>';
+
+  if (now.phase === "lobby" || now.r < 0){
+    h += '<div class="card"><b>Waiting for the first round.</b>' +
+         '<p class="tiny" style="margin-top:.4rem">Keep this open. It will wake up when the TV does.</p></div>';
+  } else if (now.phase === "guessing"){
+    h += '<div class="card"><div style="display:flex;gap:.6rem;align-items:baseline">' +
+         '<b style="font-family:var(--display);font-size:1.6rem">' + (Number(now.r) + 1) + '</b>' +
+         '<span style="font-weight:600">' + esc(now.title || "") + '</span></div>';
+    if (mine){
+      h += '<p style="margin-top:.7rem">Locked in: <b>' + money(mine.raised) + '</b> raised, <b>' + money(mine.goal) + '</b> asked.</p>' +
+           '<p class="tiny" style="margin-top:.3rem">Waiting for the reveal.</p>';
+    } else {
+      h += '<div class="guessrow" style="margin-top:.8rem">' +
+             '<label class="field" style="margin:0"><span>Has raised</span><input type="number" inputmode="numeric" id="lgRaised"></label>' +
+             '<label class="field" style="margin:0"><span>Requesting</span><input type="number" inputmode="numeric" id="lgGoal"></label>' +
+           '</div><button class="btn solid sm" style="margin-top:.7rem" id="lgLock">Lock it in</button>';
+    }
+    h += '</div>';
+  } else if (now.phase === "revealed"){
+    const pts = ((LIVE.state.scores || {})["r" + now.r] || {})[LIVE.pid];
+    h += '<div class="card"><div style="font-weight:600">' + esc(now.title || "") + '</div>';
+    if (mine){
+      h += '<div class="score-line"><span>Raised · you said ' + money(mine.raised) + ', it was ' + money(now.raised) + '</span><b>' + scoreGuess(Number(mine.raised), Number(now.raised)) + '</b></div>' +
+           '<div class="score-line"><span>Asking · you said ' + money(mine.goal) + ', it was ' + money(now.goal) + '</span><b>' + scoreGuess(Number(mine.goal), Number(now.goal)) + '</b></div>' +
+           '<p class="tiny" style="margin-top:.5rem">This round: <b>' + (pts || 0) + '</b></p>';
+    } else {
+      h += '<p class="tiny" style="margin-top:.5rem">You sat this one out. It was ' + money(now.raised) + ' of ' + money(now.goal) + '.</p>';
+    }
+    h += '</div>';
+  }
+
+  h += '<p class="tiny" style="color:#8a8f86;margin-top:1.4rem"><a href="#" id="lgLeave" style="color:var(--marker)">Leave the room</a></p>';
+  el.innerHTML = h;
+
+  const lock = $("#lgLock");
+  if (lock) lock.addEventListener("click", async () => {
+    const a = parseFloat($("#lgRaised").value), b = parseFloat($("#lgGoal").value);
+    if (!isFinite(a) || !isFinite(b)){ toast("Both numbers, please"); return; }
+    lock.disabled = true;
+    const ok = await liveSubmit(now.r, a, b);
+    if (!ok){ lock.disabled = false; toast("Couldn't send that — try again"); }
+  });
+  const leave = $("#lgLeave");
+  if (leave) leave.addEventListener("click", e => {
+    e.preventDefault();
+    if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
+    LIVE.code = ""; LIVE.state = {};
+    store.set("ds.room", "");
+    renderPlayer();
+  });
+}
+
+/* ---------- wiring ---------- */
+$("#liveBtn").addEventListener("click", () => {
+  $("#liveSheet").classList.toggle("hidden");
+  $("#liveUrl").value = LIVE.db;
+});
+$("#liveSave").addEventListener("click", () => {
+  LIVE.db = $("#liveUrl").value.trim().replace(/\/+$/, "");
+  store.set("ds.db", LIVE.db);
+  $("#liveState").textContent = LIVE.db ? "Saved." : "Live play off.";
+});
+$("#liveStart").addEventListener("click", liveOpenRoom);
+
+/* ============================================================
+   13. WIRING
+   ============================================================ */
+$("#pick").addEventListener("click", () => $("#file").click());
+$("#file").addEventListener("change", e => { if (e.target.files.length) ingest(Array.from(e.target.files)); });
+
+const drop = $("#drop");
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => {
+  const files = Array.from(e.dataTransfer.files).filter(f => /pdf$/i.test(f.name) || f.type === "application/pdf");
+  if (files.length) ingest(files);
+  else toast("PDFs only");
+});
+
+$("#start").addEventListener("click", () => {
+  if (!G.rounds.length) return;
+  show("play");
+  loadRound(0);
+});
+$("#exportBtn").addEventListener("click", exportPages);
+$("#joinBtn").addEventListener("click", () => {
+  const s = $("#joinSheet");
+  s.classList.toggle("hidden");
+  $("#joinCode").textContent = makeJoinCode();
+});
+$("#copyJoin").addEventListener("click", () => {
+  navigator.clipboard.writeText($("#joinCode").textContent).then(() => toast("Copied"), () => toast("Select and copy it by hand"));
+});
+$("#toPlayer").addEventListener("click", e => {
+  e.preventDefault();
+  const saved = store.get("ds.game");
+  if (saved) P.game = readJoinCode(saved);
+  show("player"); renderPlayer();
+});
+
+/* if someone lands here with #player, go straight to the phone view */
+if (/^#join=/i.test(location.hash)){
+  const saved = store.get("ds.db");
+  if (saved) LIVE.db = saved;
+  show("player"); renderPlayer();
+} else if (location.hash === "#player"){
+  const saved = store.get("ds.game");
+  if (saved) P.game = readJoinCode(saved);
+  show("player"); renderPlayer();
+}
+
+/* handy when a page parses oddly: open the console and poke at the parser */
+window.DS = window.REDACTED = {
+  G: G, buildTokens: buildTokens, buildSegments: buildSegments, findFunding: findFunding,
+  buildRedactions: buildRedactions, extractInfo: extractInfo, parseAmount: parseAmount,
+  imageRegions: imageRegions, MONEY_RE: MONEY_RE, clamp: clamp, money: money
+};
+
+/* the wordmark bar slides off once, on load — the only decoration that moves */
+window.addEventListener("load", () => {
+  const bar = $("#wmbar");
+  if (!bar || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  bar.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }],
+              { duration: 850, delay: 550, easing: "cubic-bezier(.7,0,.2,1)", fill: "forwards" });
+});
+
+})();
+</script>
+</body>
+</html>
