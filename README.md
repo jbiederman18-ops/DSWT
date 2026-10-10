@@ -229,10 +229,21 @@ your avatar opens your profile.
   **Start chat**. They find it at the top of their list and join with one tap.
   You also get an invite link for anyone else; **Join with a code** takes one.
 - **Chat settings** (tap the chat's name, or ⓘ): rename it, pick a **theme**
-  (Mint, Redacted, Stretch goal, Backer, Grape, Neon, Night), an **icon**, and
+  (Mint, Redacted, Stretch goal, Backer, Grape, Neon, Night) or a **scene**, an
+  **icon**, and
   **nicknames** for anyone in it. Everyone sees the changes, and the chat says
   who made them. The invite link and code, and **Leave chat**, are here too.
 - Light and dark follow your phone's setting.
+- **Scenes** restyle the whole chat (background, header, bubbles, the font
+  for names, the send button and the one-tap emoji row):
+  - **Ink & Omen:** a cursed notebook with parchment bubbles on dark ruled paper.
+  - **Pole Position:** race day, with a checkered header, livery stripes and
+    messages that streak in.
+  - **Main Event:** an arena with a spotlight, neon corners, ring ropes and
+    messages that slam in.
+  - **Pep Rally of the Dead:** zombie green against cheer pink.
+  - **Family Weekend:** blue velvet and lamplight.
+  - **Eugene:** dusk over the ridgelines and downtown's colours.
 
 - **Tap any message** to react (😂 🤑 💀 🙄 🔥 👀 ❤️ 👍), **Reply**, **Copy**, or
   **Edit** / **Delete** your own. Reaction counts show under the bubble; tap a
