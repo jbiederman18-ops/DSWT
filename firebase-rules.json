@@ -201,7 +201,7 @@
           "chat": {
             ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$msg": {
-              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || (newData.child('by').val() === auth.uid && newData.child('pid').val() === data.child('pid').val()))))",
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && newData.child('pid').val() === auth.uid) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || (newData.child('by').val() === auth.uid && newData.child('pid').val() === data.child('pid').val()))))",
               ".validate": "newData.hasChildren(['pid', 'at'])",
               "t": {
                 ".validate": "newData.isString() && newData.val().length <= 12000"
