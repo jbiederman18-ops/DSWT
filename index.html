@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="DS(WT) Crew">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#F4F6F3;
@@ -548,6 +548,207 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .alert-modes span{font-size:.85rem;color:var(--ink-soft)}
 .alert-modes b{display:block;color:var(--ink);font-size:.95rem}
 
+/* ============ messenger: home + chat ============
+   Its own quieter palette (cool paper, pine ink, money green), the phone's
+   own font for reading, Bricolage Grotesque for names. Game screens keep
+   the party look. */
+.msgr{
+  --m-bg:#F3F6F4; --m-surf:#FFFFFF; --m-ink:#12221B; --m-soft:#5E6E66; --m-line:rgba(18,34,27,.10);
+  --m-green:#0E9F63; --m-mint:#DCF3E7; --m-red:#E0352B; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05); --m-bubble:#FFFFFF;
+  --m-text:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",system-ui,sans-serif;
+  --m-name:"Bricolage Grotesque",var(--m-text);
+  --me-a:#0E9F63; --me-b:#1DBF7B; --me-t:#FFFFFF;
+  font-family:var(--m-text); background:var(--m-bg); color:var(--m-ink);
+}
+@media (prefers-color-scheme:dark){
+  .msgr{--m-bg:#0B1612; --m-surf:#14211B; --m-ink:#E6F0EB; --m-soft:#90A49A; --m-line:rgba(230,240,235,.10);
+        --m-mint:#173528; --m-other:#1D2C25; --m-press:rgba(230,240,235,.06); --m-bubble:#22342C}
+}
+.msgr .convo.dark-theme{--m-bg:#101826; --m-surf:#172131; --m-ink:#E9EEF7; --m-soft:#94A3B8; --m-line:rgba(233,238,247,.10);
+  --m-other:#223047; --m-press:rgba(233,238,247,.06); --m-bubble:#26354D}
+
+/* two panes that take turns on a phone */
+#crew.msgr{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);position:relative;overflow:hidden}
+.msgr .inbox,.msgr .convo{grid-area:1/1;min-height:0;min-width:0;display:flex;flex-direction:column}
+.msgr.v-list .convo{display:none}
+.msgr.v-chat .inbox{display:none}
+@media (min-width:900px){
+  #crew.msgr{grid-template-columns:360px minmax(0,1fr)}
+  .msgr .inbox{display:flex !important;border-right:1px solid var(--m-line)}
+  .msgr .convo{display:flex !important;grid-area:1/2}
+  .msgr .cv-back{display:none}
+}
+.msgr svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- the list ---------- */
+.msgr .inbox{background:var(--m-surf);position:relative}
+.ib-top{display:flex;align-items:center;gap:.5rem;padding:max(14px,env(safe-area-inset-top)) 16px 10px}
+.ib-mark{flex:1;font-family:var(--m-name);font-weight:800;font-size:1.65rem;letter-spacing:-.035em;line-height:1;position:relative;
+         font-variation-settings:"opsz" 96;color:var(--m-ink);margin:0}
+.ib-mark small{font-size:.5em;font-weight:600;letter-spacing:0;vertical-align:.55em;margin:0 .12em;color:var(--m-soft)}
+/* the redaction bar: the one loud thing */
+.ib-bar{position:absolute;left:0;bottom:-.32em;width:2.1em;height:.26em;background:var(--m-green);border-radius:2px}
+.ib-games{border:1px solid var(--m-line);background:transparent;color:var(--m-ink);border-radius:99px;padding:.38em .9em;font-weight:600;font-size:.88rem}
+.ib-games:hover{background:var(--m-press)}
+.ib-me{width:36px;height:36px;border-radius:50%;border:0;background:var(--m-ink);color:var(--m-surf);font-weight:700;font-size:.85rem;flex:0 0 auto;
+       display:flex;align-items:center;justify-content:center}
+.ib-me.emoji{font-size:1.2rem;background:var(--m-other)}
+.ib-search{display:flex;align-items:center;gap:.45rem;margin:6px 16px 8px;padding:0 .8rem;background:var(--m-bg);border-radius:12px;color:var(--m-soft)}
+.ib-search svg{width:18px;height:18px;flex:0 0 auto}
+.ib-search input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;padding:.6em 0;color:var(--m-ink);outline:none}
+.ib-search input::-webkit-search-cancel-button{opacity:.5}
+.ib-list{flex:1;min-height:0;overflow:auto;padding:2px 8px 96px;overscroll-behavior:contain}
+.ib-row{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;border:0;background:transparent;color:inherit;
+        padding:.62rem .55rem;border-radius:14px}
+.ib-row:hover{background:var(--m-press)}
+.ib-row.on{background:var(--m-mint)}
+.ib-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:.12rem}
+.ib-l1,.ib-l2{display:flex;align-items:baseline;gap:.5rem;min-width:0}
+.ib-l1 b{flex:1;min-width:0;font-family:var(--m-name);font-weight:700;font-size:1.06rem;letter-spacing:-.01em;
+         overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib-l1 time{font-size:.78rem;color:var(--m-soft);flex:0 0 auto;font-variant-numeric:tabular-nums}
+.ib-prev{flex:1;min-width:0;font-size:.9rem;color:var(--m-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib-row.unread .ib-prev{color:var(--m-ink);font-weight:600}
+.ib-row.unread .ib-l1 time{color:var(--m-green);font-weight:700}
+.ib-badge{flex:0 0 auto;min-width:1.35rem;height:1.35rem;padding:0 .4rem;border-radius:99px;background:var(--m-green);color:#fff;
+          font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;align-self:center}
+.ib-live{font-style:normal;font-weight:700;color:var(--m-red)}
+.ib-livedot{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;background:var(--m-red);border:2.5px solid var(--m-surf)}
+.ib-empty{padding:2.5rem 1rem;text-align:center}
+.ib-empty p{margin:0 0 .4rem;font-family:var(--m-name);font-weight:700;font-size:1.2rem}
+.ib-empty p.tiny{font-family:var(--m-text);font-weight:400;font-size:.9rem;margin-bottom:1.1rem}
+.ib-new{position:absolute;right:16px;bottom:max(16px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:.35rem;
+        border:0;border-radius:99px;padding:.8rem 1.15rem .8rem .95rem;background:var(--m-ink);color:var(--m-surf);font-weight:700;font-size:.98rem;
+        box-shadow:0 10px 26px rgba(14,40,28,.28)}
+.ib-new svg{width:20px;height:20px}
+.ib-new:active{transform:scale(.97)}
+
+/* chat pictures: emoji or initials on the chat's theme */
+.cv-icon{position:relative;flex:0 0 auto;width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+         font-size:1.55rem;line-height:1;background:linear-gradient(140deg,var(--me-a),var(--me-b));color:var(--me-t)}
+.cv-ini{font-family:var(--m-name);font-weight:700;font-size:1.05rem;letter-spacing:.01em}
+.cv-icon.big{width:64px;height:64px;border-radius:20px;font-size:2rem}
+.cv-icon.big .cv-ini{font-size:1.35rem}
+
+/* ---------- the open chat ---------- */
+.msgr .convo{background:color-mix(in srgb,var(--me-a) 5%,var(--m-bg));position:relative}
+.cv-top{display:flex;align-items:center;gap:.3rem;padding:max(8px,env(safe-area-inset-top)) 8px 8px;flex:0 0 auto;
+        background:color-mix(in srgb,var(--m-surf) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);
+        border-bottom:1px solid var(--m-line);position:relative;z-index:2}
+.cv-back,.cv-btn{border:0;background:transparent;color:var(--m-ink);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+                 flex:0 0 auto;font-size:1.05rem}
+.cv-back:hover,.cv-btn:hover{background:var(--m-press)}
+.cv-back svg{width:26px;height:26px}
+.cv-btn.on{color:var(--m-green)}
+.cv-who{flex:1;min-width:0;display:flex;align-items:center;gap:.6rem;border:0;background:transparent;color:inherit;text-align:left;padding:2px 4px;border-radius:12px}
+.cv-who .cv-icon{width:38px;height:38px;border-radius:12px;font-size:1.2rem}
+.cv-who .cv-ini{font-size:.85rem}
+.cv-txt{min-width:0;display:flex;flex-direction:column}
+.cv-txt b{font-family:var(--m-name);font-weight:700;font-size:1.08rem;letter-spacing:-.01em;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-txt span{font-size:.76rem;color:var(--m-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--m-soft);font-size:.95rem;padding:2rem}
+.msgr .cr-body{background:transparent;justify-content:stretch}
+.msgr .rp-chat.cr-chat{max-width:none;background:transparent;border:0 !important}
+.msgr .cr-chat .ch-head{display:none}
+.msgr .ch-log{padding:.9rem clamp(.7rem,3vw,2rem) .5rem;gap:2px}
+.msgr .ch-msg{max-width:min(78%,560px)}
+.msgr .ch-n{font-size:.74rem;color:var(--m-soft);margin:.7rem 0 .18rem .6rem;font-weight:600}
+.msgr .ch-b{background:var(--m-bubble);color:var(--m-ink);border-radius:20px;padding:.5em .9em;font-size:1rem;line-height:1.38;
+            box-shadow:0 1px 1px rgba(18,34,27,.06)}
+.msgr .ch-msg.me .ch-b{background:linear-gradient(140deg,var(--me-a),var(--me-b));color:var(--me-t);box-shadow:none}
+.msgr .ch-msg.me .ch-b a{color:inherit}
+.msgr .ch-msg.host .ch-b{background:var(--m-ink);color:var(--m-surf)}
+.msgr .ch-b.big{background:transparent !important;box-shadow:none !important;font-size:2.4rem}
+.msgr .ch-b.gone{background:transparent !important;box-shadow:none;border:1px dashed var(--m-line);color:var(--m-soft) !important}
+.msgr .ch-sys{background:transparent;color:var(--m-soft);font-weight:600;font-size:.74rem;border:0;margin:.9rem 0 .4rem;padding:0 1rem}
+.msgr .ch-sys.live{color:var(--m-red)}
+.msgr .ch-quote{border-left-color:currentColor;opacity:.72}
+.msgr .ch-msg.mention .ch-b{box-shadow:0 0 0 2px var(--me-a)}
+.msgr .ch-pill{background:var(--m-surf);border:1px solid var(--m-line);color:var(--m-ink);border-radius:99px}
+.msgr .ch-pill.on{background:var(--m-mint);border-color:var(--m-green)}
+.msgr .ch-meta,.msgr .ch-seen{color:var(--m-soft)}
+.msgr .ch-top{color:var(--m-soft)}
+.msgr .ch-pick{background:var(--m-surf);border:1px solid var(--m-line);border-radius:18px;box-shadow:0 12px 32px rgba(14,40,28,.18)}
+.msgr .ch-pick-act button{background:var(--m-bg);border:0;color:var(--m-ink);border-radius:99px}
+.msgr .ch-pick-act button.danger{color:var(--m-red)}
+.msgr .ch-status{color:var(--m-soft)}
+.msgr .ch-react{border-top:0;padding:.2rem clamp(.6rem,3vw,2rem) 0;background:transparent;gap:0}
+.msgr .ch-react button{font-size:1.25rem;opacity:.9}
+.msgr .ch-ctx{background:var(--m-surf);border-left-color:var(--me-a);margin:.3rem clamp(.6rem,3vw,2rem) 0}
+.msgr .ch-ments{margin:.3rem clamp(.6rem,3vw,2rem) 0}
+.msgr .ch-ments button{background:var(--m-surf);border:1px solid var(--m-line);color:var(--m-ink)}
+.msgr .ch-form{gap:.4rem;padding:.45rem clamp(.5rem,3vw,2rem);padding-bottom:max(.6rem,env(safe-area-inset-bottom));align-items:center}
+.msgr .ch-form input[type=text]{border:1px solid var(--m-line);background:var(--m-surf);color:var(--m-ink);border-radius:22px;padding:.62em 1em;font-size:16px}
+.msgr .ch-form input[type=text]:focus{border-color:var(--me-a);box-shadow:0 0 0 3px color-mix(in srgb,var(--me-a) 22%,transparent)}
+.msgr .ch-form .btn,.msgr .ch-form .btn.solid{width:42px;height:42px;padding:0;border:0;border-radius:50%;box-shadow:none;font-size:0;flex:0 0 auto;
+                    background:linear-gradient(140deg,var(--me-a),var(--me-b));color:var(--me-t);position:relative}
+.msgr .ch-form .btn::after{content:"";position:absolute;inset:0;margin:auto;width:18px;height:18px;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.4 20.4l17.5-7.5c.8-.4.8-1.5 0-1.8L3.4 3.6c-.7-.3-1.4.3-1.2 1l1.8 6.4 9 1-9 1-1.8 6.4c-.2.7.5 1.3 1.2 1z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.4 20.4l17.5-7.5c.8-.4.8-1.5 0-1.8L3.4 3.6c-.7-.3-1.4.3-1.2 1l1.8 6.4 9 1-9 1-1.8 6.4c-.2.7.5 1.3 1.2 1z'/%3E%3C/svg%3E") center/contain no-repeat}
+.msgr .ch-form .btn:hover,.msgr .ch-form .btn.solid:hover{filter:brightness(1.06);background:linear-gradient(140deg,var(--me-a),var(--me-b))}
+.msgr .ch-att{width:40px;height:40px;font-size:1.25rem;color:var(--m-soft)}
+.msgr .ch-att:hover{background:var(--m-press)}
+
+/* ---------- sheets, cards and fields inside the messenger ---------- */
+.msgr .modal{background:rgba(8,20,15,.42);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#crew.msgr .modal .card,#crew.msgr .card{background:var(--m-surf);color:var(--m-ink);border:0;border-radius:24px !important;
+  box-shadow:0 24px 60px rgba(8,20,15,.25);padding:1.3rem 1.25rem}
+#crew.msgr .cr-setup .card{box-shadow:0 1px 2px rgba(18,34,27,.08);margin-bottom:12px}
+.msgr .card h2{font-family:var(--m-name);font-weight:800;font-size:1.5rem;letter-spacing:-.025em;line-height:1.1}
+.msgr .card h3{font-family:var(--m-name);font-weight:700;font-size:1rem;letter-spacing:-.01em;margin:1.2rem 0 .55rem}
+.msgr .card .tiny,.msgr .tiny{color:var(--m-soft)}
+.msgr label.field > span{color:var(--m-soft);font-weight:600}
+.msgr input[type=text]{border:1px solid var(--m-line);background:var(--m-bg);color:var(--m-ink);border-radius:12px;padding:.65em .85em;font-size:16px}
+.msgr input[type=text]:focus{outline:none;border-color:var(--m-green);box-shadow:0 0 0 3px color-mix(in srgb,var(--m-green) 20%,transparent)}
+.msgr .btn{border:1px solid var(--m-line);background:var(--m-surf);color:var(--m-ink);border-radius:99px;box-shadow:none;padding:.62em 1.15em;font-weight:600}
+.msgr .btn:hover{background:var(--m-press)}
+.msgr .btn.solid{background:var(--m-ink);color:var(--m-surf);border-color:var(--m-ink)}
+.msgr .btn.solid:hover{background:var(--m-ink);filter:brightness(1.25)}
+.msgr .btn.danger{color:var(--m-red)}
+.msgr .linkish{border:0;background:none;padding:0;color:var(--m-green);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.sheet-acts{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
+.msgr .cr-setup{max-width:520px;margin:0 auto;padding:16px 14px 32px}
+
+/* new chat: people */
+.nc-people{display:flex;flex-direction:column;max-height:40vh;overflow:auto;margin:0 -.4rem}
+.nc-person{display:flex;align-items:center;gap:.65rem;padding:.45rem .4rem;border-radius:12px;cursor:pointer}
+.nc-person:hover{background:var(--m-press)}
+.nc-person input{width:1.15rem;height:1.15rem;accent-color:var(--m-green)}
+.nc-av{width:34px;height:34px;border-radius:50%;background:var(--m-other);color:var(--m-ink);display:flex;align-items:center;justify-content:center;
+       font-weight:700;font-size:.8rem;flex:0 0 auto}
+.nc-av[style*="background"]{color:#fff}
+.nc-person:has(input:checked){background:var(--m-mint)}
+
+/* chat settings */
+.info-card{max-height:min(88vh,760px);overflow:auto}
+.info-hero{display:flex;align-items:center;gap:.8rem}
+.info-hero input[type=text]{flex:1;font-family:var(--m-name);font-weight:700;font-size:1.3rem;background:transparent;border-color:transparent;padding:.35em .5em}
+.info-hero input[type=text]:hover{border-color:var(--m-line)}
+.theme-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.theme-row button{display:flex;flex-direction:column;align-items:center;gap:.3rem;border:2px solid transparent;background:var(--m-bg);border-radius:14px;
+                  padding:.5rem .3rem .4rem;color:var(--m-ink);font-size:.76rem;font-weight:600}
+.theme-row button i{width:28px;height:28px;border-radius:50%;display:block}
+.theme-row button.on{border-color:var(--m-ink)}
+.icon-row{display:grid;grid-template-columns:repeat(7,1fr);gap:.35rem}
+.icon-row button{width:100%;aspect-ratio:1;border-radius:12px;border:2px solid transparent;background:var(--m-bg);font-size:1.3rem;line-height:1;color:var(--m-ink);
+                 font-family:var(--m-name);font-weight:700}
+.icon-row button:first-child{font-size:.85rem}
+.icon-row button.on{border-color:var(--m-ink)}
+.nick-list{display:flex;flex-direction:column;gap:.35rem}
+.nick-row{display:flex;align-items:center;gap:.6rem}
+.nick-real{flex:0 1 38%;min-width:0;font-weight:600;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nick-row input[type=text]{flex:1;min-width:0;padding:.45em .7em}
+.inv-row{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.inv-code{font-family:var(--m-name);font-weight:800;font-size:1.3rem;letter-spacing:.1em}
+
+/* profile + alert sheets restyled in place */
+.msgr .prof-avs button,.msgr .alert-modes label{border-color:var(--m-line);background:var(--m-bg);color:var(--m-ink)}
+.msgr .prof-avs button.on{border-color:var(--m-ink);background:var(--m-mint)}
+.msgr .alert-modes label:has(input:checked){border-color:var(--m-ink);background:var(--m-mint)}
+.msgr .alert-modes b{color:var(--m-ink)}
+.msgr .alert-modes span{color:var(--m-soft)}
+@media (prefers-reduced-motion:reduce){.ib-new:active{transform:none}}
+
 /* "game going live" */
 .live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
              display:flex;align-items:center;gap:.6rem;width:min(560px,calc(100vw - 16px));padding:.55rem .55rem .55rem .9rem;
@@ -831,22 +1032,84 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 </section>
 
 <!-- ============ CREW CHAT ============ -->
-<section id="crew" class="screen hidden">
-  <div class="rp-top hs-top">
-    <button type="button" id="crBack">‹ Games</button>
-    <span class="rp-r cr-name" id="crName">Crew chat</span>
-    <span style="flex:1"></span>
-    <button type="button" id="crAlerts" class="hidden">🔔 Alerts</button>
-    <button type="button" id="crInvite" class="hidden">Invite</button>
-    <button type="button" id="crMoreBtn" class="hidden" aria-label="More">⋯</button>
+<section id="crew" class="screen hidden msgr v-list">
+  <aside class="inbox" aria-label="Chats">
+    <header class="ib-top">
+      <h1 class="ib-mark">DS<small>(WT)</small> Crew<i class="ib-bar" aria-hidden="true"></i></h1>
+      <button type="button" class="ib-games" id="ibGames">Games</button>
+      <button type="button" class="ib-me" id="ibMe" aria-label="Your profile"></button>
+    </header>
+    <label class="ib-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" id="ibSearch" placeholder="Search chats" aria-label="Search chats" autocomplete="off"></label>
+    <div class="ib-list" id="ibList" role="list"></div>
+    <button type="button" class="ib-new" id="ibNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New chat</button>
+  </aside>
+  <main class="convo" id="convo">
+    <header class="cv-top">
+      <button type="button" class="cv-back" id="crBack" aria-label="All chats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button type="button" class="cv-who" id="cvWho" aria-label="Chat settings">
+        <span class="cv-icon" id="cvIcon"></span>
+        <span class="cv-txt"><b id="crName">Chat</b><span id="crSub"></span></span>
+      </button>
+      <button type="button" class="cv-btn hidden" id="crAlerts">&#x1F514;</button>
+      <button type="button" class="cv-btn" id="crInfo" aria-label="Chat settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/></svg></button>
+    </header>
+    <div class="cr-body" id="crBody"></div>
+  </main>
+  <div class="modal hidden" id="newSheet" role="dialog" aria-modal="true" aria-labelledby="ncH">
+    <div class="card">
+      <h2 id="ncH">New chat</h2>
+      <label class="field hidden" id="ncMeWrap"><span>Your name</span><input type="text" id="ncMe" maxlength="40" autocomplete="nickname"></label>
+      <label class="field"><span>Chat name</span><input type="text" id="ncName" maxlength="60" placeholder="Optional"></label>
+      <div id="ncPeopleWrap" class="hidden">
+        <p class="tiny" style="margin:.2rem 0 .4rem">People from your other chats</p>
+        <div class="nc-people" id="ncPeople"></div>
+      </div>
+      <p class="tiny" id="ncNote">You’ll get an invite link to send to anyone else.</p>
+      <div class="sheet-acts">
+        <button type="button" class="btn solid" id="ncGo">Start chat</button>
+        <button type="button" class="btn" id="ncCancel">Cancel</button>
+      </div>
+      <p class="tiny" style="margin:.9rem 0 0">Got a code from a friend? <button type="button" class="linkish" id="ncJoin">Join a chat</button></p>
+    </div>
   </div>
-  <div class="cr-more hidden" id="crMore">
-    <button type="button" class="btn sm cr-prof-btn" id="crProfBtn">Your profile</button>
-    <div class="cr-crews" id="crCrews"></div>
-    <div class="tiny" style="margin-top:.8rem">Crew code</div>
-    <div class="cr-code" id="crCodeShow"></div>
-    <p class="tiny" style="margin:.2rem 0 .7rem">Anyone with this code (or the invite link) can join the chat.</p>
-    <button type="button" class="btn sm" id="crLeave" style="color:var(--stamp)">Leave this crew</button>
+  <div class="modal hidden" id="infoSheet" role="dialog" aria-modal="true" aria-label="Chat settings">
+    <div class="card info-card">
+      <div class="info-hero">
+        <span class="cv-icon big" id="infIcon"></span>
+        <input type="text" id="infName" maxlength="60" aria-label="Chat name" placeholder="Name this chat">
+      </div>
+      <h3>Theme</h3>
+      <div class="theme-row" id="infThemes"></div>
+      <h3>Icon</h3>
+      <div class="icon-row" id="infIcons"></div>
+      <h3>Nicknames</h3>
+      <p class="tiny" style="margin:-.2rem 0 .5rem">Everyone in this chat sees them.</p>
+      <div class="nick-list" id="infNicks"></div>
+      <h3>Invite</h3>
+      <div class="inv-row">
+        <span class="inv-code" id="crCodeShow"></span>
+        <button type="button" class="btn" id="crInvite">Share invite link</button>
+      </div>
+      <p class="tiny" style="margin:.4rem 0 0">Anyone with the link or code can join.</p>
+      <div class="sheet-acts">
+        <button type="button" class="btn solid" id="infDone">Done</button>
+        <button type="button" class="btn danger" id="crLeave">Leave chat</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal hidden" id="iosSheet" role="dialog" aria-modal="true" aria-labelledby="iosH">
+    <div class="card">
+      <h2 id="iosH" style="font-size:1.4rem">Alerts on iPhone</h2>
+      <p class="tiny" style="margin:.4rem 0 .8rem">iPhones only deliver alerts to sites added to the home screen. One-time setup:</p>
+      <ol class="ios-steps">
+        <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
+        <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+        <li>Open <b>DS(WT) Crew</b> from the new icon on your home screen.</li>
+        <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
+      </ol>
+      <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
+      <button type="button" class="btn solid hs-act" id="iosOk">Got it</button>
+    </div>
   </div>
   <div class="modal hidden" id="alertSheet" role="dialog" aria-modal="true" aria-labelledby="alertH">
     <div class="card">
@@ -876,21 +1139,6 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
         <button type="button" class="btn solid" id="profSave">Save</button>
         <button type="button" class="btn" id="profCancel">Cancel</button>
       </div>
-    </div>
-  </div>
-  <div class="cr-body" id="crBody"></div>
-  <div class="modal hidden" id="iosSheet" role="dialog" aria-modal="true" aria-labelledby="iosH">
-    <div class="card">
-      <h2 id="iosH" style="font-size:1.4rem">Alerts on iPhone</h2>
-      <p class="tiny" style="margin:.4rem 0 .8rem">iPhones only deliver alerts to sites added to the home screen. One-time setup:</p>
-      <ol class="ios-steps">
-        <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
-        <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-        <li>Open <b>DS(WT) Crew</b> from the new icon on your home screen.</li>
-        <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
-      </ol>
-      <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
-      <button type="button" class="btn solid hs-act" id="iosOk">Got it</button>
     </div>
   </div>
 </section>
@@ -4201,7 +4449,7 @@ function crewLabel(){
   const n = Object.keys(CR.state.members || {}).length;
   if (!n) return "";
   const on = crewOnline().length;
-  return plural(n, "member") + (on > 1 ? " · " + on + " online" : "");
+  return plural(n, "member") + (on > 1 ? ", " + on + " online" : "");
 }
 function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
 
@@ -4304,12 +4552,13 @@ let typingSent = 0, readSent = 0;
 const crewRich = {
   rich: true,
   who: pid => {
-    const p = (CR.state.members || {})[pid];
-    return p ? { n: p.n, c: p.c, a: p.a } : null;
+    const p = (CR.state.members || {})[pid], nick = crewNick(pid);
+    if (!p && !nick) return null;
+    return { n: nick || (p && p.n), c: p && p.c, a: p && p.a };
   },
   members: () => {
     const mem = CR.state.members || {};
-    return Object.keys(mem).filter(id => mem[id] && mem[id].n).map(id => ({ id: id, n: String(mem[id].n) }));
+    return Object.keys(mem).filter(id => mem[id] && mem[id].n).map(id => ({ id: id, n: dispName(id) }));
   },
   media: {
     async put(url){
@@ -4336,6 +4585,7 @@ const crewRich = {
     fetch(crewPath("/typing/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: store.get("ds.name") || "", at: Date.now() }) }).catch(() => {});
   },
   onRead(key){
+    markRead(CR.code, key);
     if (key <= CR.lastRead || Date.now() - readSent < 2000) return;
     CR.lastRead = key; readSent = Date.now();
     fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify({ read: key }) }).catch(() => {});
@@ -4343,12 +4593,12 @@ const crewRich = {
   seenBy(key){
     const mem = CR.state.members || {};
     return Object.keys(mem).filter(id => id !== LIVE.pid && id !== LIVE.oldPid && mem[id] && mem[id].read && mem[id].read >= key)
-                          .map(id => String(mem[id].n || "someone"));
+                          .map(id => dispName(id));
   },
   status(){
     const mem = CR.state.members || {}, t = CR.state.typing || {};
     const names = Object.keys(CR.typing).filter(id => id !== LIVE.pid && Date.now() - CR.typing[id] < 6000)
-                        .map(id => String((mem[id] && mem[id].n) || (t[id] && t[id].n) || "Someone"));
+                        .map(id => (mem[id] || crewNick(id)) ? dispName(id) : String((t[id] && t[id].n) || "Someone"));
     if (!names.length) return "";
     if (names.length === 1) return names[0] + " is typing…";
     if (names.length === 2) return names[0] + " and " + names[1] + " are typing…";
@@ -4372,10 +4622,12 @@ function crewSeen(){
 /* ---------- the crews on this phone ----------
    ds.crews remembers every crew you've joined, so you can switch between them. */
 function crewList(){ try { return JSON.parse(store.get("ds.crews") || "[]").filter(c => c && /^[A-Z0-9]{6}$/.test(c.code)); } catch (e){ return []; } }
-function crewRemember(code, name){
+function crewRemember(code, name, invited){
   const old = crewList().find(c => c.code === code);
   const list = crewList().filter(c => c.code !== code);
-  list.unshift({ code: code, name: name || (old && old.name) || "Crew" });
+  const rec = { code: code, name: name || (old && old.name) || "Chat" };
+  if (invited) rec.invited = 1;
+  list.unshift(rec);
   store.set("ds.crews", JSON.stringify(list.slice(0, 20)));
 }
 function crewForget(code){ store.set("ds.crews", JSON.stringify(crewList().filter(c => c.code !== code))); }
@@ -4384,29 +4636,14 @@ function crewSwitch(code){
   CR.code = code; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null; CR.typing = {}; CR.lastRead = ""; CR.media = new Map();
   store.set("ds.crew", code);
   crewRemember(code);
-  $("#crMore").classList.add("hidden");
+  crewView("chat");
   crewConnect();
   crewScreenChat();
 }
-function drawCrews(){
-  const others = crewList().filter(c => c.code !== CR.code);
-  let h = '<div class="tiny" style="margin:.8rem 0 .3rem">Your crews</div>';
-  h += others.map(c => '<button type="button" class="cr-sw" data-code="' + esc(c.code) + '">' + esc(c.name) + '</button>').join("");
-  h += '<button type="button" class="cr-sw add" id="crAdd">+ Join or start another</button>';
-  $("#crCrews").innerHTML = h;
-}
-$("#crCrews").addEventListener("click", e => {
-  const b = e.target.closest(".cr-sw");
-  if (!b) return;
-  if (b.id === "crAdd"){ $("#crMore").classList.add("hidden"); crewSetup(""); return; }
-  crewSwitch(b.dataset.code);
-});
-
 /* ---------- profile ---------- */
 const AVATARS = ["\u{1F600}", "\u{1F60E}", "\u{1F920}", "\u{1F47D}", "\u{1F916}", "\u{1F98A}", "\u{1F438}", "\u{1F984}", "\u{1F355}", "\u{1F3B8}", "\u{1F680}", "\u{1F4B8}"];
 let profPick = {};
 function openProfile(){
-  $("#crMore").classList.add("hidden");
   profPick = { c: store.get("ds.color"), a: store.get("ds.avatar") || "" };
   $("#profName").value = store.get("ds.name") || "";
   $("#profCols").innerHTML = COLORS.map((c, i) => '<button type="button" data-c="' + i + '" style="background:' + c + '" aria-label="Colour ' + (i + 1) + '"></button>').join("");
@@ -4430,10 +4667,14 @@ $("#profSave").addEventListener("click", async () => {
   if (profPick.c !== undefined && profPick.c !== null && profPick.c !== "") store.set("ds.color", String(profPick.c));
   store.set("ds.avatar", profPick.a || "");
   $("#profSheet").classList.add("hidden");
-  await crewTouch();
+  /* the same name, colour and avatar in every chat on this phone */
+  const me = { n: n, c: profPick.c !== undefined && profPick.c !== null && profPick.c !== "" ? Number(profPick.c) : null, a: profPick.a || null };
+  await Promise.all(crewList().filter(c => !c.invited).map(c =>
+    fetch(crewPath("/members/" + LIVE.pid, c.code), { method: "PATCH", body: JSON.stringify(me) }).catch(() => {})));
+  drawMe();
   toast("Saved");
 });
-$("#crProfBtn").addEventListener("click", openProfile);
+$("#ibMe").addEventListener("click", openProfile);
 
 /* the open game, if the crew has one going (a stale one is ignored) */
 function crewLive(){
@@ -4454,6 +4695,8 @@ function crewChanged(){
     const known = crewList().find(c => c.code === CR.code);
     if (!known || known.name !== CR.state.meta.name) crewRemember(CR.code, CR.state.meta.name);
   }
+  crewDecor();
+  drawHomeSoon();
 
   const live = crewLive();
   const key = live ? live.room + ":" + live.at : "";
@@ -4556,7 +4799,7 @@ async function crewCreate(title, name){
     await putJSON(crewPath("/meta", code), { name: title, created: Date.now() });
   } catch (e){ return "Couldn’t reach the database."; }
   const err = await crewJoin(code, name);
-  if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: name + " started " + title + ". Invite the rest of the crew.", at: { ".sv": "timestamp" } })) }).catch(() => {});
+  if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: name + " started " + title + ".", at: { ".sv": "timestamp" } })) }).catch(() => {});
   return err;
 }
 
@@ -4660,7 +4903,7 @@ function alertsButton(){
     return;
   }
   const on = pushIsOn();
-  b.textContent = on ? "\u{1F514} On" : "\u{1F514}";
+  b.textContent = "\u{1F514}";
   b.title = on ? "Alerts are on for this phone — tap for settings" : "Get notifications for new messages and games";
   b.setAttribute("aria-label", b.title);
   b.classList.toggle("on", on);
@@ -4716,39 +4959,44 @@ function pushNotifyCrew(){
 $("#iosOk").addEventListener("click", () => $("#iosSheet").classList.add("hidden"));
 
 /* ---------- crew screen ---------- */
+/* #crew=<code> (an invite link or a notification), or the home screen */
 function openCrew(hintCode){
   show("crew");
-  $("#crMore").classList.add("hidden");
-  if (CR.code && store.get("ds.name") && !(hintCode && hintCode !== CR.code)){
-    crewScreenChat();
+  const hint = String(hintCode || "").toUpperCase();
+  const known = hint && crewList().find(c => c.code === hint && !c.invited);
+  if (hint && known && store.get("ds.name")){
+    if (hint === CR.code){ crewView("chat"); crewScreenChat(); }
+    else crewSwitch(hint);
     return;
   }
-  crewSetup(hintCode || "");
+  if (hint){ crewView("chat"); crewSetup(hint); return; }
+  openHome();
 }
 
 function crewSetup(hintCode, msg){
   CR.chat = null;
-  $("#crName").textContent = "Crew chat";
-  $("#crInvite").classList.add("hidden"); $("#crMoreBtn").classList.add("hidden");
+  $("#crName").textContent = hintCode ? "Invitation" : "Join a chat";
+  $("#crSub").textContent = "";
+  $("#cvIcon").textContent = ""; $("#cvIcon").removeAttribute("style");
+  $("#crAlerts").classList.add("hidden"); $("#crInfo").classList.add("hidden");
   const name = store.get("ds.name") || "";
   let h = '<div class="cr-setup">';
   if (hintCode){
-    h += '<div class="card"><h2 style="font-size:1.6rem">You’re invited</h2>' +
-         '<p class="tiny" style="margin:.4rem 0 .9rem">A standing chat for the crew. When someone starts a game, it lights up here and you tap in.</p>' +
-         '<label class="field"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="Who are you"></label>' +
-         '<button class="btn solid hs-act" id="crJoinBtn" data-code="' + esc(hintCode) + '">Join the crew</button>' +
+    h += '<div class="card"><h2>You’re invited</h2>' +
+         '<p class="tiny" style="margin:.4rem 0 .9rem">A group chat that stays open between games. When someone hosts, it lights up and you join with one tap.</p>' +
+         '<label class="field"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="What your friends call you"></label>' +
+         '<button class="btn solid hs-act" id="crJoinBtn" data-code="' + esc(hintCode) + '">Join the chat</button>' +
          '<p class="tiny" id="crNote" style="margin:.5rem 0 0">' + esc(msg || "") + '</p></div>';
   } else {
-    h += '<div class="card"><h2 style="font-size:1.6rem">Crew chat</h2>' +
-         '<p class="tiny" style="margin:.4rem 0 0">A group chat that’s always on. Talk between games; when the host opens a room, everyone gets a <b>game going live</b> banner and joins with one tap.</p>' +
-         '<label class="field" style="margin-top:1rem"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="Who are you"></label>' +
-         '<p class="tiny" id="crNote" style="margin:0;color:var(--stamp)">' + esc(msg || "") + '</p></div>' +
-         '<div class="card"><h3 style="font-size:1.15rem">Start a crew</h3>' +
-         '<label class="field" style="margin-top:.7rem"><span>Crew name</span><input type="text" id="crTitle" placeholder="e.g. The Diaspora"></label>' +
-         '<button class="btn solid" id="crMake">Start it</button></div>' +
-         '<div class="card"><h3 style="font-size:1.15rem">Join one</h3>' +
-         '<label class="field" style="margin-top:.7rem"><span>Crew code</span><input type="text" id="crCode" maxlength="6" placeholder="six characters" style="text-transform:uppercase"></label>' +
-         '<button class="btn" id="crJoinBtn">Join</button></div>';
+    h += '<div class="card"><h2>Join a chat</h2>' +
+         '<p class="tiny" style="margin:.4rem 0 0">Group chats that stay open between games. When someone hosts, everyone gets a <b>game going live</b> banner and joins with one tap.</p>' +
+         '<label class="field" style="margin-top:1rem"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="What your friends call you"></label>' +
+         '<label class="field"><span>Invite code</span><input type="text" id="crCode" maxlength="6" placeholder="Six characters" style="text-transform:uppercase" autocapitalize="characters"></label>' +
+         '<button class="btn solid" id="crJoinBtn">Join</button>' +
+         '<p class="tiny" id="crNote" style="margin:.5rem 0 0;color:var(--stamp)">' + esc(msg || "") + '</p></div>' +
+         '<div class="card"><h3>Or start one</h3>' +
+         '<label class="field" style="margin-top:.7rem"><span>Chat name</span><input type="text" id="crTitle" placeholder="The Diaspora"></label>' +
+         '<button class="btn" id="crMake">Start chat</button></div>';
   }
   h += '</div>';
   $("#crBody").innerHTML = h;
@@ -4770,7 +5018,7 @@ function crewSetup(hintCode, msg){
   const mk = $("#crMake");
   if (mk) mk.addEventListener("click", async () => {
     const n = getName(); if (!n) return;
-    const t = ($("#crTitle").value || "").trim() || (n + "’s crew");
+    const t = ($("#crTitle").value || "").trim() || (n + "’s chat");
     if (isBanned(t)){ stopThat(); return; }
     mk.disabled = true;
     const err = await crewCreate(t, n);
@@ -4783,17 +5031,16 @@ function crewSetup(hintCode, msg){
 function crewScreenChat(){
   if (!CR.es) crewConnect();
   crewTouch();
-  $("#crInvite").classList.remove("hidden"); $("#crMoreBtn").classList.remove("hidden");
-  $("#crName").textContent = crewName();
+  $("#crInfo").classList.remove("hidden");
   $("#crBody").innerHTML = '<aside class="rp-chat cr-chat" id="crChat"></aside>';
   CR.chat = makeChat($("#crChat"), {
     title: "Chat",
     url: crewChatUrl,
     me: () => LIVE.pid,
     name: () => store.get("ds.name") || "Anonymous",
-    isOpen: () => !$("#crew").classList.contains("hidden"),
-    onUnread: () => {},
-    placeholder: "Message the crew…",
+    isOpen: chatVisible,
+    onUnread: () => drawHomeSoon(),
+    placeholder: "Message",
     empty: "Quiet in here. Say hi — and tap any message to react to it.",
     ...crewPaging,
     ...crewRich,
@@ -4802,37 +5049,34 @@ function crewScreenChat(){
   CR.chat.update(CR.state.chat, crewLabel());
   CR.chat.restore();
   crewRemember(CR.code, (CR.state.meta || {}).name);
+  crewDecor();
+  drawHomeSoon();
   alertsButton();
   pushRefresh();
   drawLiveBanner();
 }
 
-$("#crBack").addEventListener("click", () => { CR.chat = null; menuCrew(); show("menu"); drawLiveBanner(); });
+$("#crBack").addEventListener("click", () => { crewView("list"); refreshHome(); drawLiveBanner(); });
 
 /* the menu's first item: your crew by name once you're in one */
 function menuCrew(){
   const t = $("#miCrewT"), d = $("#miCrewD");
   if (!t) return;
-  if (CR.code){
-    t.textContent = "Back to " + crewName();
-    d.textContent = "Your crew's chat. The app opens there when you launch it.";
+  const n = crewList().length;
+  if (n){
+    t.textContent = "Back to your chats";
+    d.textContent = n === 1 ? "Your group chat. The app opens there when you launch it." : "Your " + n + " group chats. The app opens there when you launch it.";
   } else {
-    t.textContent = "Crew chat";
-    d.textContent = "A group chat that's always on. When a game goes live, everyone gets pinged and joins with one tap.";
+    t.textContent = "Chats";
+    d.textContent = "Group chats that are always on. When a game goes live, everyone gets pinged and joins with one tap.";
   }
 }
 $("#crInvite").addEventListener("click", crewShare);
-$("#crMoreBtn").addEventListener("click", () => {
-  const box = $("#crMore");
-  $("#crCodeShow").textContent = CR.code;
-  drawCrews();
-  box.classList.toggle("hidden");
-});
 $("#crAlerts").addEventListener("click", async () => {
   if (!pushUrl()){
     try { await Notification.requestPermission(); } catch (e){}
     alertsButton();
-    toast(Notification.permission === "granted" ? "You’ll get an alert while this tab is open" : "Alerts are off — the banner still shows");
+    toast(Notification.permission === "granted" ? "You’ll get an alert while this tab is open" : "Alerts are off. The banner still shows.");
     return;
   }
   if (pushIsOn()){ openAlerts(); return; }
@@ -4848,14 +5092,396 @@ $("#crLeave").addEventListener("click", () => {
   CR.code = ""; CR.state = {}; CR.chat = null; CR.liveSeen = null; CR.primed = false;
   store.set("ds.crew", "");
   crewForget(left);
+  delete HOME.data[left];
   drawLiveBanner();
-  $("#crMore").classList.add("hidden");
-  const next = crewList()[0];
-  if (next) crewSwitch(next.code); else crewSetup("");
+  $("#infoSheet").classList.add("hidden");
+  $("#crBody").innerHTML = "";
+  openHome();
 });
+/* ============================================================
+   HOME: every chat on this phone, newest first
+   On a phone the list and the open chat take turns (#crew.v-list /
+   .v-chat); from 900px wide they sit side by side.
+
+   The open chat streams live. The others are checked every 20 seconds
+   while the list is on screen: their name, newest message, whether a game
+   is live, and how many messages came in since you last read it here.
+   That keeps the number of open connections small however many chats
+   there are. Invitations from people who added you to a chat arrive under
+   /users/<you>/chats and show at the top until you open them.
+   ============================================================ */
+const THEMES = [
+  { id: "mint",     n: "Mint",         a: "#0E9F63", b: "#1DBF7B", t: "#FFFFFF" },
+  { id: "redacted", n: "Redacted",     a: "#0F1A15", b: "#22302A", t: "#45E5A0" },
+  { id: "stretch",  n: "Stretch goal", a: "#FF6A3D", b: "#F23D7A", t: "#FFFFFF" },
+  { id: "backer",   n: "Backer",       a: "#1F5EEA", b: "#4B8DF8", t: "#FFFFFF" },
+  { id: "grape",    n: "Grape",        a: "#6D35E8", b: "#A158F2", t: "#FFFFFF" },
+  { id: "neon",     n: "Neon",         a: "#E0157A", b: "#FF5FB4", t: "#FFFFFF" },
+  { id: "night",    n: "Night",        a: "#2B3A52", b: "#465A7A", t: "#E9EEF7", dark: true }
+];
+const CHAT_ICONS = ["\u{1F98A}", "\u{1F4B8}", "\u{1F680}", "\u{1F3AF}", "\u{1F355}", "\u{1F3B2}", "\u{1F525}", "\u{1F30A}", "\u{1F33F}", "\u{1F47E}", "\u{1F3A4}", "\u{1F4BC}"];
+const themeOf = id => THEMES.find(t => t.id === id) || THEMES[0];
+const themeVars = id => { const t = themeOf(id); return "--me-a:" + t.a + ";--me-b:" + t.b + ";--me-t:" + t.t; };
+function initials(name){
+  const w = String(name || "").trim().split(/\s+/).filter(Boolean);
+  return ((w[0] || "?")[0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
+}
+/* a chat's picture: its emoji, or its initials on the theme's colours */
+function iconHtml(meta, name){
+  return meta && meta.icon ? esc(meta.icon) : '<span class="cv-ini">' + esc(initials(name)) + '</span>';
+}
+
+const wide = () => window.matchMedia("(min-width:900px)").matches;
+function crewView(v){
+  const c = $("#crew");
+  c.classList.toggle("v-list", v === "list");
+  c.classList.toggle("v-chat", v === "chat");
+}
+function chatVisible(){
+  const c = $("#crew");
+  return !!CR.chat && !c.classList.contains("hidden") && (c.classList.contains("v-chat") || wide()) && document.visibilityState === "visible";
+}
+function crewNick(pid){ const n = ((CR.state.meta || {}).nick || {})[pid]; return n ? String(n) : ""; }
+function dispName(pid){
+  const p = (CR.state.members || {})[pid];
+  return crewNick(pid) || String((p && p.n) || "someone");
+}
+
+/* the open chat's header and colours */
+function crewDecor(){
+  if (!CR.code || !CR.chat) return;
+  const meta = CR.state.meta || {}, t = themeOf(meta.theme);
+  $("#crName").textContent = crewName();
+  $("#crSub").textContent = crewLabel();
+  const ic = $("#cvIcon");
+  ic.innerHTML = iconHtml(meta, crewName());
+  ic.setAttribute("style", themeVars(meta.theme));
+  const cv = $("#convo");
+  cv.setAttribute("style", themeVars(meta.theme));
+  cv.classList.toggle("dark-theme", !!t.dark);
+  if (!$("#infoSheet").classList.contains("hidden")) drawInfo();
+}
+
+/* ---------- read positions, kept on this phone ---------- */
+function readMap(){ try { return JSON.parse(store.get("ds.readMap") || "{}"); } catch (e){ return {}; } }
+function markRead(code, key){
+  if (!code || !key) return;
+  const m = readMap();
+  if (m[code] && m[code] >= key) return;
+  m[code] = key;
+  store.set("ds.readMap", JSON.stringify(m));
+  drawHomeSoon();
+}
+
+/* ---------- checking the other chats ---------- */
+const HOME = { data: {}, busy: false, people: {}, drawQ: false };
+try { HOME.data = JSON.parse(store.get("ds.home") || "{}") || {}; } catch (e){}
+
+async function refreshHome(){
+  if (HOME.busy || !dbRoot()) return;
+  HOME.busy = true;
+  try {
+    await authToken();
+    /* chats someone added you to */
+    if (authOn() && AUTH.uid){
+      const inv = await getJSON(dbRoot() + "/users/" + AUTH.uid + "/chats.json").catch(() => null);
+      for (const code in inv || {}){
+        if (/^[A-Z0-9]{6}$/.test(code) && !crewList().some(c => c.code === code)) crewRemember(code, String((inv[code] || {}).n || "Chat"), true);
+      }
+    }
+    await pool(crewList(), 3, async c => {
+      const d = HOME.data[c.code] = HOME.data[c.code] || {};
+      try {
+        const meta = await getJSON(crewPath("/meta", c.code));
+        if (!meta){ d.gone = true; return; }
+        d.gone = false; d.meta = meta;
+        if (c.invited || c.code === CR.code) return;      /* the open chat is live already */
+        const [last, live, mem] = await Promise.all([
+          getJSON(crewPath("/chat", c.code) + byKey("&limitToLast=1")),
+          getJSON(crewPath("/live", c.code)),
+          getJSON(crewPath("/members", c.code))
+        ]);
+        const k = Object.keys(last || {})[0] || "";
+        d.lastKey = k; d.last = k ? last[k] : null;
+        d.live = !!(live && live.room && Date.now() - Number(live.at || 0) < 8 * 3600 * 1000);
+        d.members = mem || {};
+        const rk = readMap()[c.code];
+        if (k && rk && k > rk){
+          const after = await getJSON(crewPath("/chat", c.code) + byKey("&startAt=" + encodeURIComponent(JSON.stringify(rk)) + "&limitToFirst=100"));
+          d.unread = Object.keys(after || {}).filter(x => x > rk && after[x] && !after[x].sys && !isMe(after[x].pid)).length;
+        } else d.unread = 0;
+      } catch (e){ /* not reachable right now: keep what we had */ }
+    });
+    /* everyone you share a chat with, for starting new ones */
+    const people = {};
+    const add = mem => { for (const id in mem || {}) if (id !== LIVE.pid && id.length > 10 && mem[id] && mem[id].n) people[id] = { n: String(mem[id].n), a: mem[id].a, c: mem[id].c }; };
+    for (const code in HOME.data) add(HOME.data[code].members);
+    add(CR.state.members);
+    HOME.people = people;
+    const slim = {};
+    for (const code in HOME.data){ const d = HOME.data[code]; slim[code] = { meta: d.meta, last: d.last, lastKey: d.lastKey, unread: d.unread, live: d.live }; }
+    try { store.set("ds.home", JSON.stringify(slim)); } catch (e){}
+  } finally {
+    HOME.busy = false;
+    drawHome();
+  }
+}
+setInterval(() => {
+  if (!$("#crew").classList.contains("hidden") && document.visibilityState === "visible") refreshHome();
+}, 20000);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !$("#crew").classList.contains("hidden")) refreshHome();
+});
+
+function fmtWhen(at){
+  at = Number(at) || 0;
+  if (!at) return "";
+  const d = new Date(at), now = new Date();
+  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (now - d < 6 * 864e5) return d.toLocaleDateString([], { weekday: "short" });
+  return d.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+function previewOf(r){
+  if (r.c.invited) return "You’re invited. Tap to join.";
+  const m = r.last;
+  if (!m) return "No messages yet";
+  if (m.del) return "Message deleted";
+  if (m.sys) return String(m.t || "");
+  const who = isMe(m.pid) ? "You" : String(((r.meta.nick || {})[m.pid]) || ((r.members || {})[m.pid] || {}).n || m.n || "Someone");
+  const body = m.img ? "\u{1F4F7} " + (m.t || "Photo") : String(m.t || "");
+  return who + ": " + body;
+}
+function homeRows(){
+  const rk = readMap();
+  return crewList().map(c => {
+    const d = HOME.data[c.code] || {}, cur = c.code === CR.code && CR.state.meta;
+    const meta = (cur ? CR.state.meta : d.meta) || {};
+    let last = d.last, unread = d.unread || 0, live = !!d.live, members = d.members;
+    if (cur){
+      const chat = CR.state.chat || {}, ks = Object.keys(chat).sort();
+      if (ks.length){ last = chat[ks[ks.length - 1]]; }
+      live = !!crewLive();
+      members = CR.state.members;
+      unread = chatVisible() || !rk[c.code] ? 0 : ks.filter(k => k > rk[c.code] && chat[k] && !chat[k].sys && !isMe(chat[k].pid)).length;
+    }
+    return { c: c, meta: meta, name: String(meta.name || c.name || "Chat"), last: last, unread: unread, live: live, members: members,
+             at: last ? Number(last.at) || 0 : 0, gone: !!d.gone };
+  }).filter(r => !r.gone)
+    .sort((a, b) => ((b.c.invited ? 1 : 0) - (a.c.invited ? 1 : 0)) || (b.at - a.at));
+}
+function drawHome(){
+  HOME.drawQ = false;
+  const el = $("#ibList");
+  if (!el) return;
+  const q = ($("#ibSearch").value || "").trim().toLowerCase();
+  const all = homeRows();
+  const rows = q ? all.filter(r => r.name.toLowerCase().includes(q)) : all;
+  $("#ibNew").classList.toggle("hidden", !all.length);   /* the empty list has its own button */
+  if (!all.length){
+    el.innerHTML = '<div class="ib-empty"><p>No chats yet.</p><p class="tiny">Start one and invite your people, or join with a code a friend sent you.</p>' +
+      '<button type="button" class="btn solid" data-act="new">New chat</button> <button type="button" class="btn" data-act="join">Join with a code</button></div>';
+    return;
+  }
+  if (!rows.length){ el.innerHTML = '<div class="ib-empty"><p class="tiny">No chats called “' + esc(q) + '”.</p></div>'; return; }
+  const showing = (wide() || $("#crew").classList.contains("v-chat")) && CR.chat ? CR.code : "";
+  el.innerHTML = rows.map(r =>
+    '<button type="button" class="ib-row' + (r.c.code === showing ? " on" : "") + (r.unread || r.c.invited ? " unread" : "") + '" role="listitem" data-code="' + esc(r.c.code) + '">' +
+      '<span class="cv-icon" style="' + themeVars(r.meta.theme) + '">' + iconHtml(r.meta, r.name) + (r.live ? '<i class="ib-livedot" aria-label="Game live"></i>' : "") + '</span>' +
+      '<span class="ib-main">' +
+        '<span class="ib-l1"><b>' + esc(r.name) + '</b><time>' + esc(r.c.invited ? "New" : fmtWhen(r.at)) + '</time></span>' +
+        '<span class="ib-l2"><span class="ib-prev">' + (r.live ? '<em class="ib-live">Game live</em> ' : "") + esc(previewOf(r)) + '</span>' +
+        (r.unread ? '<span class="ib-badge">' + (r.unread > 99 ? "99+" : r.unread) + '</span>' : "") + '</span>' +
+      '</span></button>').join("");
+}
+function drawHomeSoon(){
+  if (HOME.drawQ) return;
+  HOME.drawQ = true;
+  requestAnimationFrame(drawHome);
+}
+function drawMe(){
+  const b = $("#ibMe"), n = store.get("ds.name") || "", col = store.get("ds.color"), av = store.get("ds.avatar");
+  b.textContent = av || initials(n || "?");
+  b.style.background = col !== null && col !== undefined && col !== "" ? COLORS[Number(col) % COLORS.length] : "";
+  b.classList.toggle("emoji", !!av);
+}
+
+function openHome(){
+  show("crew");
+  crewView("list");
+  drawMe();
+  menuCrew();
+  if (wide()){
+    if (CR.code && store.get("ds.name") && !CR.chat) crewScreenChat();
+    if (!CR.code){
+      $("#crName").textContent = ""; $("#crSub").textContent = "";
+      $("#crInfo").classList.add("hidden"); $("#crAlerts").classList.add("hidden");
+      $("#cvIcon").textContent = ""; $("#cvIcon").removeAttribute("style");
+      $("#crBody").innerHTML = '<div class="cv-empty"><p>Pick a chat, or start a new one.</p></div>';
+    }
+  }
+  drawHome();
+  refreshHome();
+  drawLiveBanner();
+}
+
+/* tapping a chat in the list */
+async function openChat(code){
+  const c = crewList().find(x => x.code === code);
+  if (!c) return;
+  if (c.invited){
+    const n = store.get("ds.name");
+    if (!n){ crewView("chat"); crewSetup(code); return; }
+    const err = await crewJoin(code, n);
+    if (err){ toast(err); return; }
+    crewRemember(code, c.name);
+    if (authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/chats/" + code + ".json", { method: "DELETE" }).catch(() => {});
+    crewView("chat"); crewScreenChat();
+    return;
+  }
+  if (code === CR.code && CR.chat){ crewView("chat"); CR.chat.toEnd(); drawHome(); return; }
+  if (code === CR.code){ crewView("chat"); crewScreenChat(); return; }
+  crewSwitch(code);
+}
+$("#ibList").addEventListener("click", e => {
+  const act = e.target.closest("[data-act]");
+  if (act){ if (act.dataset.act === "new") openNew(); else { crewView("chat"); crewSetup(""); } return; }
+  const row = e.target.closest(".ib-row");
+  if (row) openChat(row.dataset.code);
+});
+$("#ibSearch").addEventListener("input", drawHome);
+$("#ibGames").addEventListener("click", () => { menuCrew(); show("menu"); drawLiveBanner(); });
+window.matchMedia("(min-width:900px)").addEventListener("change", () => { if (!$("#crew").classList.contains("hidden")) openHome(); });
+
+/* sheets close when you tap outside them */
+["newSheet", "infoSheet", "alertSheet", "profSheet"].forEach(id => {
+  $("#" + id).addEventListener("click", e => { if (e.target.id === id) $("#" + id).classList.add("hidden"); });
+});
+
+/* ---------- a new chat ---------- */
+function openNew(){
+  const named = !!store.get("ds.name");
+  $("#ncMeWrap").classList.toggle("hidden", named);
+  $("#ncMe").value = store.get("ds.name") || "";
+  $("#ncName").value = "";
+  const people = Object.keys(HOME.people).map(id => Object.assign({ id: id }, HOME.people[id])).sort((a, b) => a.n.localeCompare(b.n));
+  const canAdd = authOn() && people.length;
+  $("#ncPeopleWrap").classList.toggle("hidden", !canAdd);
+  $("#ncPeople").innerHTML = people.map(p =>
+    '<label class="nc-person"><input type="checkbox" value="' + esc(p.id) + '">' +
+    '<span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + esc(p.a || initials(p.n)) + '</span>' +
+    '<span>' + esc(p.n) + '</span></label>').join("");
+  $("#ncNote").textContent = canAdd ? "They’ll see it in their chats. You’ll also get an invite link for anyone else." : "You’ll get an invite link to send to your people.";
+  $("#newSheet").classList.remove("hidden");
+  setTimeout(() => (named ? $("#ncName") : $("#ncMe")).focus(), 50);
+}
+$("#ibNew").addEventListener("click", openNew);
+$("#ncCancel").addEventListener("click", () => $("#newSheet").classList.add("hidden"));
+$("#ncJoin").addEventListener("click", () => { $("#newSheet").classList.add("hidden"); crewView("chat"); crewSetup(""); });
+$("#ncGo").addEventListener("click", async () => {
+  const me = ($("#ncMe").value || store.get("ds.name") || "").trim().slice(0, 40);
+  if (!me){ $("#ncMeWrap").classList.remove("hidden"); $("#ncMe").focus(); return; }
+  if (isBanned(me)){ $("#ncMe").value = ""; stopThat(); return; }
+  const picked = $$("#ncPeople input:checked").map(i => i.value);
+  const names = picked.map(id => (HOME.people[id] || {}).n).filter(Boolean);
+  let title = ($("#ncName").value || "").trim().slice(0, 60);
+  if (!title) title = names.length ? [me.split(" ")[0]].concat(names.map(n => n.split(" ")[0])).join(", ") : me + "’s chat";
+  if (isBanned(title)){ $("#ncName").value = ""; stopThat(); return; }
+  store.set("ds.name", me);
+  const btn = $("#ncGo");
+  btn.disabled = true;
+  const err = await crewCreate(title, me);
+  btn.disabled = false;
+  if (err){ $("#ncNote").textContent = err; return; }
+  /* put it in their list */
+  await Promise.all(picked.map(id => fetch(dbRoot() + "/users/" + id + "/chats/" + CR.code + ".json",
+    { method: "PUT", body: JSON.stringify(by({ n: title, at: { ".sv": "timestamp" } })) }).catch(() => {})));
+  $("#newSheet").classList.add("hidden");
+  crewRemember(CR.code, title);
+  crewView("chat");
+  crewScreenChat();
+  if (!picked.length) setTimeout(crewShare, 300);
+  else toast("Started " + title + ". " + (names.length === 1 ? names[0] + " will" : "They’ll") + " see it in their chats.", 3200);
+});
+
+/* ---------- this chat's settings ---------- */
+function openInfo(){
+  if (!CR.code || !CR.chat) return;
+  drawInfo();
+  $("#infName").value = crewName();
+  $("#crCodeShow").textContent = CR.code;
+  $("#infoSheet").classList.remove("hidden");
+}
+function drawInfo(){
+  const meta = CR.state.meta || {};
+  const ic = $("#infIcon");
+  ic.innerHTML = iconHtml(meta, crewName());
+  ic.setAttribute("style", themeVars(meta.theme));
+  $("#infThemes").innerHTML = THEMES.map(t =>
+    '<button type="button" data-t="' + t.id + '" class="' + (themeOf(meta.theme).id === t.id ? "on" : "") + '" aria-label="' + esc(t.n) + '" title="' + esc(t.n) + '">' +
+    '<i style="background:linear-gradient(135deg,' + t.a + ',' + t.b + ')"></i><span>' + esc(t.n) + '</span></button>').join("");
+  $("#infIcons").innerHTML = '<button type="button" data-i="" class="' + (meta.icon ? "" : "on") + '" aria-label="Initials">' + esc(initials(crewName())) + '</button>' +
+    CHAT_ICONS.map(i => '<button type="button" data-i="' + i + '" class="' + (meta.icon === i ? "on" : "") + '">' + i + '</button>').join("");
+  const mem = CR.state.members || {};
+  const ids = Object.keys(mem).filter(id => mem[id] && mem[id].n)
+    .sort((a, b) => (b === LIVE.pid) - (a === LIVE.pid) || String(mem[a].n).localeCompare(String(mem[b].n)));
+  const active = document.activeElement && document.activeElement.closest && document.activeElement.closest("#infNicks") ? document.activeElement.dataset.uid : null;
+  if (active) return;   /* don't redraw under someone typing a nickname */
+  $("#infNicks").innerHTML = ids.map(id => {
+    const p = mem[id];
+    return '<label class="nick-row"><span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + esc(p.a || initials(p.n)) + '</span>' +
+      '<span class="nick-real">' + esc(p.n) + (id === LIVE.pid ? " (you)" : "") + '</span>' +
+      '<input type="text" maxlength="30" data-uid="' + esc(id) + '" value="' + esc(crewNick(id)) + '" placeholder="Nickname" aria-label="Nickname for ' + esc(p.n) + '"></label>';
+  }).join("");
+}
+/* change one thing about the chat for everyone, and say so in the chat */
+async function setMeta(path, val, said){
+  const meta = CR.state.meta = CR.state.meta || {};
+  const parts = path.split("/");
+  if (parts.length === 2){ meta[parts[0]] = meta[parts[0]] || {}; if (val === null) delete meta[parts[0]][parts[1]]; else meta[parts[0]][parts[1]] = val; }
+  else if (val === null) delete meta[path]; else meta[path] = val;
+  crewChanged();
+  drawInfo();
+  const r = await fetch(crewPath("/meta/" + path), { method: "PUT", body: JSON.stringify(val) }).catch(() => null);
+  if (!r || !r.ok){ toast("Couldn’t save that. Check your connection."); return; }
+  if (said) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: said, at: { ".sv": "timestamp" } })) }).catch(() => {});
+}
+const myName = () => store.get("ds.name") || "Someone";
+$("#cvWho").addEventListener("click", openInfo);
+$("#crInfo").addEventListener("click", openInfo);
+$("#infDone").addEventListener("click", () => $("#infoSheet").classList.add("hidden"));
+function saveName(){
+  const v = ($("#infName").value || "").trim().slice(0, 60);
+  if (!v || v === crewName()) { $("#infName").value = crewName(); return; }
+  if (isBanned(v)){ $("#infName").value = crewName(); stopThat(); return; }
+  crewRemember(CR.code, v);
+  setMeta("name", v, myName() + " named the chat " + v);
+}
+$("#infName").addEventListener("change", saveName);
+$("#infName").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); } });
+$("#infThemes").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const t = themeOf(b.dataset.t);
+  if (themeOf((CR.state.meta || {}).theme).id === t.id) return;
+  setMeta("theme", t.id, myName() + " changed the theme to " + t.n);
+});
+$("#infIcons").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  setMeta("icon", b.dataset.i || null, null);
+});
+$("#infNicks").addEventListener("change", e => {
+  const inp = e.target.closest("input[data-uid]"); if (!inp) return;
+  const uid = inp.dataset.uid, v = inp.value.trim().slice(0, 30);
+  if (v === crewNick(uid)) return;
+  if (v && isBanned(v)){ inp.value = crewNick(uid); stopThat(); return; }
+  const real = String(((CR.state.members || {})[uid] || {}).n || "someone");
+  const whose = uid === LIVE.pid ? "their own" : real + "’s";
+  setMeta("nick/" + uid, v || null, v ? myName() + " set " + whose + " nickname to " + v : myName() + " cleared " + whose + " nickname");
+});
+$("#infNicks").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input")){ e.preventDefault(); e.target.blur(); } });
+
 $("#lbJoin").addEventListener("click", joinLive);
 $("#lbX").addEventListener("click", () => $("#liveBanner").classList.add("hidden"));
-$("#miCrew").addEventListener("click", () => openCrew(""));
+$("#miCrew").addEventListener("click", openHome);
 
 function setBadge(el, n){
   el.textContent = n > 9 ? "9+" : String(n);
@@ -5498,6 +6124,9 @@ $("#toPlayer").addEventListener("click", e => {
   show("player"); renderPlayer();
 });
 
+/* a crew joined before the chat list existed still belongs on it */
+if (CR.code && !crewList().some(c => c.code === CR.code)) crewRemember(CR.code);
+
 /* if someone lands here with #player, go straight to the phone view */
 const crewHash = (location.hash.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
 if (crewHash){
@@ -5510,8 +6139,8 @@ if (crewHash){
   const saved = store.get("ds.game");
   if (saved) P.game = readJoinCode(saved);
   show("player"); renderPlayer();
-} else if (!location.hash && (CR.code || standalone())){
-  openCrew("");          /* DS(WT) Crew opens to the chat (or to joining one, from the home-screen app) */
+} else if (!location.hash && (CR.code || crewList().length || standalone())){
+  openHome();            /* DS(WT) Crew opens to your chats */
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();

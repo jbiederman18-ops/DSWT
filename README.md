@@ -217,13 +217,22 @@ the host code that holds the answers. A published game is mostly JPEG slides,
 roughly 1–3 MB a round. **Close this room** at the end deletes the room and
 its chat; published decks stay until you delete them from the Firebase console.
 
-### Crew chat
+### Chats
 
-A group chat that's always on, for between games. **Crew chat** on the menu →
-start one (give it a name) → **Invite** sends a link that drops each friend
-straight into it. Once you're in a crew, opening the site takes you right to the
-chat, and the home-screen app always opens there (or to joining one). **‹ Games**
-at the top goes to the game tools.
+DS(WT) Crew opens to **your chats**: every group you're in, newest first, with
+the latest message, how many you haven't read, and a red dot when one of them
+has a game live. **Search chats** filters the list. On a laptop the list and the
+open chat sit side by side. **Games** at the top goes to the game tools, and
+your avatar opens your profile.
+
+- **New chat:** name it (or don't), tick people from your other chats, and
+  **Start chat**. They find it at the top of their list and join with one tap.
+  You also get an invite link for anyone else; **Join with a code** takes one.
+- **Chat settings** (tap the chat's name, or ⓘ): rename it, pick a **theme**
+  (Mint, Redacted, Stretch goal, Backer, Grape, Neon, Night), an **icon**, and
+  **nicknames** for anyone in it. Everyone sees the changes, and the chat says
+  who made them. The invite link and code, and **Leave chat**, are here too.
+- Light and dark follow your phone's setting.
 
 - **Tap any message** to react (😂 🤑 💀 🙄 🔥 👀 ❤️ 👍), **Reply**, **Copy**, or
   **Edit** / **Delete** your own. Reaction counts show under the bubble; tap a
@@ -291,7 +300,8 @@ Once accounts are on, the relay also needs its own database login — step 4 of
 The relay only sends when the crew really has a game that opened in the last
 ten minutes, announces each game once, and drops subscriptions from phones
 that have uninstalled or revoked permission. Subscriptions are stored under
-`/saves/<crew code>/crew/push`.
+`/saves/<crew code>/crew/push`. A chat someone added you to waits under
+`/users/<you>/chats` until you open it.
 
 The chat lives under `/saves/<crew code>/crew`; photos sit beside it under
 `crew/media`, so they only download when they scroll into view. The free
