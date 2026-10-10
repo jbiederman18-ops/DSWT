@@ -46,6 +46,19 @@
             }
           },
           "pushSent": {},
+          "typing": {
+            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            "$uid": {
+              ".write": "auth != null && $uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"
+            }
+          },
+          "media": {
+            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            "$id": {
+              ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('by').val() === auth.uid))",
+              ".validate": "newData.child('d').isString() && newData.child('d').val().length <= 1700000"
+            }
+          },
           "$other": {
             ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"

@@ -488,6 +488,59 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 #crew{position:relative}
 .hs-crew{margin-top:1rem;padding:.6rem .7rem;background:var(--hl);border-radius:var(--r);font-size:.88rem}
 
+/* messenger extras (crew chat) */
+.ch-status{min-height:0;font-size:.75rem;color:var(--ink-soft);padding:0 .9rem;flex:0 0 auto}
+.ch-status:not(:empty){padding:.15rem .9rem .3rem}
+.ch-meta{font-size:.68rem;color:var(--ink-soft);margin:.1rem .4rem 0}
+.ch-retry{border:0;background:none;color:var(--stamp);font-weight:700;font-size:.72rem;padding:0}
+.ch-msg.pending .ch-b{opacity:.6}
+.ch-seen{font-size:.68rem;color:var(--ink-soft);margin:.15rem .4rem 0}
+.ch-b.gone{background:transparent !important;border:1px dashed var(--rule);color:var(--ink-soft) !important;font-style:italic}
+.ch-b a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.ch-at{font-weight:800}
+.ch-msg.mention .ch-b{box-shadow:0 0 0 2px var(--marker-deep)}
+.ch-quote{display:block;border-left:3px solid currentColor;padding:.1rem .5rem;margin:.05rem 0 .35rem;font-size:.82rem;opacity:.75;
+          max-height:3.6em;overflow:hidden;cursor:pointer}
+.ch-quote b{display:block;font-size:.72rem}
+.ch-img{display:block;width:min(260px,62vw);max-height:340px;object-fit:cover;border-radius:10px;margin:.15rem 0 .2rem;background:var(--rule);cursor:zoom-in}
+.ch-img.broken{min-height:3rem}
+.ch-av{font-style:normal;margin-right:.3em}
+.ch-msg.flash .ch-b{animation:chflash 1.2s ease}
+@keyframes chflash{0%,40%{box-shadow:0 0 0 4px var(--hl)}}
+.ch-pick{display:flex;flex-direction:column;gap:.3rem;background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:.25rem;margin:.3rem 0;
+         box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.ch-pick-rx{display:flex;gap:0;flex-wrap:wrap}
+.ch-pick-rx button{border:0;background:transparent;font-size:1.35rem;padding:.12em .22em;border-radius:8px}
+.ch-pick-rx button:hover{background:var(--hl)}
+.ch-pick-act{display:flex;gap:.3rem;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:.3rem}
+.ch-pick-act button{border:1px solid var(--rule);background:var(--paper);border-radius:99px;padding:.25em .8em;font-size:.82rem;font-weight:600}
+.ch-pick-act button.danger{color:var(--stamp)}
+.ch-ctx{display:flex;align-items:center;gap:.5rem;margin:.3rem .6rem 0;padding:.35rem .5rem .35rem .7rem;background:var(--paper-deep);
+        border-left:3px solid var(--marker-deep);border-radius:8px;flex:0 0 auto}
+.ch-ctx-t{flex:1;min-width:0;display:flex;align-items:center;gap:.5rem;font-size:.8rem}
+.ch-ctx-t b{flex:0 0 auto}
+.ch-ctx-t span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-soft)}
+.ch-chip{height:2.6rem;width:auto;border-radius:6px;margin-left:auto}
+.ch-ctx-x{border:0;background:transparent;font-size:.95rem;padding:.2rem .4rem}
+.ch-ments{display:flex;flex-wrap:wrap;gap:.3rem;margin:.3rem .6rem 0;flex:0 0 auto}
+.ch-ments button{border:1px solid var(--marker-deep);background:var(--hl);color:#06281A;border-radius:99px;padding:.25em .8em;font-weight:700;font-size:.85rem}
+.ch-att{display:flex;align-items:center;justify-content:center;width:2.4rem;flex:0 0 auto;font-size:1.3rem;cursor:pointer;border-radius:99px}
+.ch-att:hover{background:var(--hl)}
+.lightbox{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:12px}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+.lightbox button{position:absolute;top:max(10px,env(safe-area-inset-top));right:12px;border:0;background:rgba(255,255,255,.18);color:#fff;
+                 width:2.4rem;height:2.4rem;border-radius:99px;font-size:1.1rem}
+
+.cr-prof-btn{width:100%}
+.cr-crews .cr-sw{display:block;width:100%;text-align:left;border:1px solid var(--rule);background:var(--paper);border-radius:8px;padding:.45em .7em;
+                 margin-bottom:.3rem;font-weight:600;font-size:.9rem}
+.cr-crews .cr-sw.add{border-style:dashed;color:var(--ink-soft)}
+.prof-cols,.prof-avs{display:flex;flex-wrap:wrap;gap:.4rem}
+.prof-cols button{width:2rem;height:2rem;border-radius:99px;border:3px solid transparent}
+.prof-cols button.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card) inset}
+.prof-avs button{width:2.3rem;height:2.3rem;border-radius:10px;border:2px solid var(--rule);background:var(--paper);font-size:1.25rem;line-height:1}
+.prof-avs button.on{border-color:var(--ink);background:var(--hl)}
+
 /* "game going live" */
 .live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
              display:flex;align-items:center;gap:.6rem;width:min(560px,calc(100vw - 16px));padding:.55rem .55rem .55rem .9rem;
@@ -781,10 +834,27 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <button type="button" id="crMoreBtn" class="hidden" aria-label="More">⋯</button>
   </div>
   <div class="cr-more hidden" id="crMore">
-    <div class="tiny">Crew code</div>
+    <button type="button" class="btn sm cr-prof-btn" id="crProfBtn">Your profile</button>
+    <div class="cr-crews" id="crCrews"></div>
+    <div class="tiny" style="margin-top:.8rem">Crew code</div>
     <div class="cr-code" id="crCodeShow"></div>
     <p class="tiny" style="margin:.2rem 0 .7rem">Anyone with this code (or the invite link) can join the chat.</p>
     <button type="button" class="btn sm" id="crLeave" style="color:var(--stamp)">Leave this crew</button>
+  </div>
+  <div class="modal hidden" id="profSheet" role="dialog" aria-modal="true" aria-labelledby="profH">
+    <div class="card">
+      <h2 id="profH" style="font-size:1.4rem">Your profile</h2>
+      <p class="tiny" style="margin:.3rem 0 .8rem">How the crew sees you. Applies to every crew on this phone.</p>
+      <label class="field"><span>Name</span><input type="text" id="profName" maxlength="40" autocomplete="nickname"></label>
+      <div class="tiny" style="margin:.6rem 0 .3rem">Colour</div>
+      <div class="prof-cols" id="profCols"></div>
+      <div class="tiny" style="margin:.8rem 0 .3rem">Avatar</div>
+      <div class="prof-avs" id="profAvs"></div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <button type="button" class="btn solid" id="profSave">Save</button>
+        <button type="button" class="btn" id="profCancel">Cancel</button>
+      </div>
+    </div>
   </div>
   <div class="cr-body" id="crBody"></div>
   <div class="modal hidden" id="iosSheet" role="dialog" aria-modal="true" aria-labelledby="iosH">
@@ -3558,16 +3628,42 @@ const RX = [["laugh", "\u{1F602}"], ["money", "\u{1F911}"], ["dead", "\u{1F480}"
             ["fire", "\u{1F525}"], ["eyes", "\u{1F440}"], ["heart", "❤️"], ["up", "\u{1F44D}"]];
 const CHAT_KEEP = 250;   // messages drawn in a game room; the crew chat pages instead
 
+/* o.rich turns on the full messenger (the crew chat): a menu on every message
+   with reply, edit, delete and copy, @mentions, photos, "seen by" and an
+   outbox for messages sent with no signal. Game-room chats stay simple.
+   Optional hooks, all for the crew:
+     o.who(pid)        → { n, c, a } the person's current name, colour and avatar
+     o.members()       → [{ id, n }] for @mention suggestions
+     o.media           → { put(dataUrl) → id, get(id) → dataUrl } photo storage
+     o.onSent(key, m)  → after a message is stored (alerts)
+     o.onTyping()      → as you type
+     o.onRead(key)     → newest message you've seen, while you're at the bottom
+     o.seenBy(key)     → names of others who've read up to that message
+     o.status()        → a line under the log, e.g. "Sam is typing…" */
+const CHAT_MAX = 2000;
+const COLORS = ["#0A7D4F", "#C2410C", "#1D4ED8", "#9D174D", "#6D28D9", "#0E7490", "#A16207", "#4D7C0F"];
+const URL_RE = /\bhttps?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]]/g;
+
 function makeChat(root, o){
+  const rich = !!o.rich;
   root.innerHTML =
     '<div class="ch-head"><b>' + esc(o.title || "Chat") + '</b><span class="ch-sub"></span><button type="button" class="ch-x" aria-label="Close chat">✕</button></div>' +
     '<div class="ch-log" aria-live="polite"><p class="ch-empty">' + esc(o.empty || "Nothing yet. Say something — and tap any message to react to it.") + '</p></div>' +
+    '<div class="ch-status" aria-live="polite"></div>' +
     '<div class="ch-react">' + REACTS.map(e => '<button type="button" data-e="' + e + '" aria-label="Send ' + e + '">' + e + '</button>').join("") + '</div>' +
-    '<form class="ch-form"><input type="text" maxlength="280" placeholder="' + esc(o.placeholder || "Talk it over…") + '" autocomplete="off" enterkeyhint="send" aria-label="Message">' +
-    '<button class="btn solid sm">Send</button></form>';
-  const log = $(".ch-log", root), input = $(".ch-form input", root);
+    '<div class="ch-ctx hidden"><div class="ch-ctx-t"></div><button type="button" class="ch-ctx-x" aria-label="Cancel">✕</button></div>' +
+    '<div class="ch-ments hidden" role="listbox"></div>' +
+    '<form class="ch-form">' +
+      (rich && o.media ? '<label class="ch-att" aria-label="Add a photo"><input type="file" accept="image/*" hidden>\u{1F4F7}</label>' : '') +
+      '<input type="text" maxlength="' + (rich ? CHAT_MAX : 280) + '" placeholder="' + esc(o.placeholder || "Talk it over…") + '" autocomplete="off" enterkeyhint="send" aria-label="Message">' +
+      '<button class="btn solid sm">Send</button></form>';
+  const log = $(".ch-log", root), input = $(".ch-form input[type=text]", root);
+  const ctxBar = $(".ch-ctx", root), mentBox = $(".ch-ments", root), statusEl = $(".ch-status", root);
   const rows = {};
   let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
+  let replyTo = null, editing = null, photo = null;        /* the composer's state */
+  const outbox = [];                                        /* { id, m, el } not yet stored */
+
   /* o.loadOlder (optional): fetch earlier messages when scrolled to the top.
      o.hasMore() says whether there are any left to fetch. */
   let top = null;
@@ -3582,85 +3678,337 @@ function makeChat(root, o){
     if (!o.loadOlder || !o.hasMore() || (o.loading && o.loading())) return;
     if (log.scrollTop < 80 || log.scrollHeight <= log.clientHeight + 4) o.loadOlder();
   }
-  if (o.loadOlder) log.addEventListener("scroll", wantOlder, { passive: true });
+  const atBottom = () => log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+  function reportRead(){
+    if (!o.onRead || !o.isOpen() || document.visibilityState !== "visible" || !atBottom()) return;
+    const keys = Object.keys(cur).sort();
+    if (keys.length) o.onRead(keys[keys.length - 1]);
+  }
+  log.addEventListener("scroll", () => { wantOlder(); reportRead(); }, { passive: true });
+
+  const mineId = () => o.me();
+  const isMine = m => m.pid === mineId() || (mineId() !== "host" && isMe(m.pid));
+  /* editing and deleting are only for messages this account wrote (the rules check it too) */
+  const canChange = m => rich && !m.sys && !m.del && (authOn() ? (!!m.by && m.by === AUTH.uid) : isMine(m));
+  const who = m => (o.who && o.who(m.pid)) || { n: m.n };
+  const nameOf = m => { const n = who(m).n || m.n || "Anonymous"; return isBanned(n) ? "nope" : n; };
 
   async function post(url, method, body){
-    try { const res = await fetch(url, { method: method, body: JSON.stringify(body) }); return res.ok; }
-    catch (e){ return false; }
+    try { const res = await fetch(url, { method: method, body: JSON.stringify(body) }); return res.ok ? (await res.json().catch(() => ({}))) || {} : null; }
+    catch (e){ return null; }
+  }
+
+  /* ---------- sending ---------- */
+  function mentionsIn(t){
+    if (!o.members) return null;
+    const m = {};
+    for (const p of o.members()) if (p.n && p.id !== mineId() && new RegExp("@" + p.n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![\\w])", "i").test(t)) m[p.id] = 1;
+    return Object.keys(m).length ? m : null;
   }
   async function send(t){
-    t = String(t || "").trim().slice(0, 280);
-    if (!t) return;
+    t = String(t || "").trim().slice(0, rich ? CHAT_MAX : 280);
+    if (editing){ return saveEdit(t); }
+    if (!t && !photo) return;
+    if (t && isBanned(t)){ stopThat(); return; }
+    const m = { pid: mineId(), n: o.name(), at: { ".sv": "timestamp" } };
+    if (t) m.t = t;
+    if (replyTo){ m.re = { k: replyTo.k, n: replyTo.n, t: replyTo.t }; }
+    const ments = rich && t ? mentionsIn(t) : null;
+    if (ments) m.m = ments;
+    const pic = photo;
+    clearContext(); clearPhoto();
+    queue(by(m), pic);
+  }
+  /* every message goes through the outbox, so one sent with no signal waits and retries */
+  function queue(m, pic){
+    const item = { id: "o" + Math.random().toString(36).slice(2), m: m, pic: pic, el: null, tries: 0 };
+    outbox.push(item);
+    drawOutbox();
+    flush();
+  }
+  let flushing = false;
+  async function flush(){
+    if (flushing) return;
+    flushing = true;
+    while (outbox.length){
+      const it = outbox[0];
+      if (it.pic && !it.m.img){
+        const id = await o.media.put(it.pic.url).catch(() => null);
+        if (!id){ it.failed = true; break; }
+        it.m.img = { id: id, w: it.pic.w, h: it.pic.h };
+      }
+      const r = await post(o.url(""), "POST", it.m);
+      if (!r || !r.name){ it.failed = true; break; }
+      outbox.shift();
+      if (it.el) it.el.remove();
+      if (o.onSent) o.onSent(r.name, it.m);
+    }
+    flushing = false;
+    drawOutbox();
+  }
+  window.addEventListener("online", flush);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && outbox.length) flush(); });
+  function drawOutbox(){
+    for (const it of outbox){
+      if (!it.el){
+        it.el = document.createElement("div");
+        it.el.className = "ch-msg me pending";
+        log.appendChild(it.el);
+        const empty = $(".ch-empty", log); if (empty) empty.remove();
+      }
+      it.el.innerHTML = '<span class="ch-b">' + (it.pic ? '<img class="ch-img" alt="" src="' + it.pic.url + '">' : '') + richText(it.m.t || "") + '</span>' +
+        '<span class="ch-meta">' + (it.failed ? '<button type="button" class="ch-retry">Not sent — tap to retry</button>' : "Sending…") + '</span>';
+      const rb = $(".ch-retry", it.el);
+      if (rb) rb.addEventListener("click", () => { it.failed = false; drawOutbox(); flush(); });
+      log.appendChild(it.el);   /* pending messages stay at the end */
+    }
+    if (outbox.length) log.scrollTop = log.scrollHeight;
+  }
+
+  async function saveEdit(t){
+    const k = editing.k, m = cur[k];
+    clearContext();
+    if (!m || !t || t === m.t) return;
     if (isBanned(t)){ stopThat(); return; }
-    const ok = await post(o.url(""), "POST", by({ pid: o.me(), n: o.name(), t: t, at: { ".sv": "timestamp" } }));
-    if (!ok) toast("That message didn’t send");
+    const old = m.t;
+    m.t = t; m.ed = Date.now(); drawRow(k);
+    const r = await post(o.url("/" + k), "PATCH", { t: t, ed: { ".sv": "timestamp" }, m: rich ? mentionsIn(t) : null });
+    if (!r){ m.t = old; delete m.ed; drawRow(k); toast("Couldn’t save that edit"); }
+  }
+  async function remove(k){
+    const m = cur[k];
+    if (!m || !confirm("Delete this message for everyone?")) return;
+    const keep = Object.assign({}, m);
+    for (const f of ["t", "img", "re", "m", "r"]) delete m[f];
+    m.del = 1; drawRow(k);
+    const r = await post(o.url("/" + k), "PATCH", { del: 1, t: null, img: null, re: null, m: null, r: null });
+    if (!r){ Object.assign(m, keep); delete m.del; drawRow(k); toast("Couldn’t delete that"); return; }
+    if (keep.img && o.media && o.media.drop) o.media.drop(keep.img.id);
   }
   async function react(key, name){
     const m = cur[key];
     if (!m) return;
-    const mine = !!(m.r && m.r[name] && m.r[name][o.me()]);
+    const mine = !!(m.r && m.r[name] && m.r[name][mineId()]);
     /* show it now: messages older than the live window get no echo from the database */
     const set = on => {
       m.r = m.r || {};
-      if (on){ m.r[name] = m.r[name] || {}; m.r[name][o.me()] = String(o.name()).slice(0, 40); }
-      else if (m.r[name]){ delete m.r[name][o.me()]; if (!Object.keys(m.r[name]).length) delete m.r[name]; }
+      if (on){ m.r[name] = m.r[name] || {}; m.r[name][mineId()] = String(o.name()).slice(0, 40); }
+      else if (m.r[name]){ delete m.r[name][mineId()]; if (!Object.keys(m.r[name]).length) delete m.r[name]; }
       if (rows[key]) drawReactions(key);
     };
     set(!mine);
-    const ok = await post(o.url("/" + key + "/r/" + name + "/" + o.me()), "PUT", mine ? null : String(o.name()).slice(0, 40));
+    const ok = await post(o.url("/" + key + "/r/" + name + "/" + mineId()), "PUT", mine ? null : String(o.name()).slice(0, 40));
     if (!ok){ set(mine); toast("Couldn’t add that reaction"); }
   }
 
+  /* ---------- the composer: reply / edit bar, photo, mentions ---------- */
+  function showContext(html){ $(".ch-ctx-t", root).innerHTML = html; ctxBar.classList.remove("hidden"); }
+  function clearContext(){
+    if (editing) input.value = "";
+    replyTo = null; editing = null;
+    if (!photo) ctxBar.classList.add("hidden");
+    else drawPhotoBar();
+  }
+  function startReply(k){
+    const m = cur[k]; if (!m) return;
+    editing = null;
+    replyTo = { k: k, n: nameOf(m), t: m.img && !m.t ? "\u{1F4F7} Photo" : String(m.t || "").slice(0, 120) };
+    showContext('<b>Replying to ' + esc(replyTo.n) + '</b><span>' + esc(replyTo.t) + '</span>' + (photo ? photoChip() : ""));
+    input.focus();
+  }
+  function startEdit(k){
+    const m = cur[k]; if (!m) return;
+    replyTo = null; clearPhoto();
+    editing = { k: k };
+    input.value = m.t || "";
+    showContext('<b>Editing your message</b><span>Send to save, ✕ to leave it.</span>');
+    input.focus();
+  }
+  const photoChip = () => photo ? '<img class="ch-chip" alt="Photo to send" src="' + photo.url + '">' : "";
+  function drawPhotoBar(){
+    if (!photo){ if (!replyTo && !editing) ctxBar.classList.add("hidden"); return; }
+    showContext((replyTo ? '<b>Replying to ' + esc(replyTo.n) + '</b>' : '<b>Photo</b><span>Add a caption, or just send.</span>') + photoChip());
+  }
+  function clearPhoto(){ photo = null; drawPhotoBar(); }
+  $(".ch-ctx-x", root).addEventListener("click", () => { if (photo && !editing){ photo = null; replyTo = null; ctxBar.classList.add("hidden"); } else clearContext(); });
+  const att = $(".ch-att input", root);
+  if (att) att.addEventListener("change", async () => {
+    const f = att.files && att.files[0];
+    att.value = "";
+    if (!f) return;
+    try { photo = await shrinkPhoto(f); }
+    catch (e){ toast(e.message || "Couldn’t read that picture"); return; }
+    if (editing) clearContext();
+    drawPhotoBar();
+    input.focus();
+  });
+
+  /* @mentions: a short list of people as you type "@" */
+  let mentAt = -1;
+  function mentionMenu(){
+    if (!rich || !o.members){ return; }
+    const pos = input.selectionStart || 0;
+    const before = input.value.slice(0, pos);
+    const mm = /(^|\s)@([^\s@]{0,20})$/.exec(before);
+    if (!mm){ mentBox.classList.add("hidden"); mentAt = -1; return; }
+    const q = mm[2].toLowerCase();
+    const list = o.members().filter(p => p.id !== mineId() && p.n && p.n.toLowerCase().startsWith(q)).slice(0, 6);
+    if (!list.length){ mentBox.classList.add("hidden"); mentAt = -1; return; }
+    mentAt = pos - mm[2].length - 1;
+    mentBox.innerHTML = list.map(p => '<button type="button" role="option" data-n="' + esc(p.n) + '">@' + esc(p.n) + '</button>').join("");
+    mentBox.classList.remove("hidden");
+  }
+  mentBox.addEventListener("mousedown", e => e.preventDefault());   /* keep the keyboard up */
+  mentBox.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || mentAt < 0) return;
+    const pos = input.selectionStart || input.value.length;
+    input.value = input.value.slice(0, mentAt) + "@" + b.dataset.n + " " + input.value.slice(pos);
+    const caret = mentAt + b.dataset.n.length + 2;
+    input.setSelectionRange(caret, caret);
+    mentBox.classList.add("hidden"); mentAt = -1;
+    input.focus();
+  });
+  input.addEventListener("input", () => { mentionMenu(); if (o.onTyping && input.value.trim()) o.onTyping(); });
+  input.addEventListener("keydown", e => { if (e.key === "Escape"){ if (!mentBox.classList.contains("hidden")) mentBox.classList.add("hidden"); else if (replyTo || editing) clearContext(); } });
+  input.addEventListener("blur", () => setTimeout(() => mentBox.classList.add("hidden"), 150));
+
   $(".ch-form", root).addEventListener("submit", e => {
     e.preventDefault();
-    const t = input.value; input.value = "";
+    const t = input.value;
+    if (!editing) input.value = "";
+    mentBox.classList.add("hidden");
     send(t);
+    if (editing) input.value = "";
   });
-  $$(".ch-react button", root).forEach(b => b.addEventListener("click", () => send(b.dataset.e)));
+  $$(".ch-react button", root).forEach(b => b.addEventListener("click", () => queue(by({ pid: mineId(), n: o.name(), t: b.dataset.e, at: { ".sv": "timestamp" } }))));
   $(".ch-x", root).addEventListener("click", () => o.onClose && o.onClose());
 
+  /* ---------- the menu on a message: reactions, then actions ---------- */
   function closePicker(){ if (picker){ picker.remove(); picker = null; } }
   function openPicker(row){
     const was = picker && picker.parentElement === row;
     closePicker();
     if (was) return;
+    const m = cur[row.dataset.k] || {};
+    if (m.del) return;
     picker = document.createElement("div");
     picker.className = "ch-pick";
-    picker.innerHTML = RX.map(([n, e]) => '<button type="button" data-n="' + n + '" aria-label="React ' + e + '">' + e + '</button>').join("");
+    let h = '<div class="ch-pick-rx">' + RX.map(([n, e]) => '<button type="button" data-n="' + n + '" aria-label="React ' + e + '">' + e + '</button>').join("") + '</div>';
+    if (rich){
+      h += '<div class="ch-pick-act">' +
+           '<button type="button" data-a="reply">Reply</button>' +
+           (m.t ? '<button type="button" data-a="copy">Copy</button>' : "") +
+           (canChange(m) && m.t ? '<button type="button" data-a="edit">Edit</button>' : "") +
+           (canChange(m) ? '<button type="button" data-a="del" class="danger">Delete</button>' : "") +
+           '</div>';
+    }
+    picker.innerHTML = h;
     row.insertBefore(picker, row.querySelector(".ch-rx"));
-    const near = log.scrollHeight - log.scrollTop - log.clientHeight < 120;
-    if (near) log.scrollTop = log.scrollHeight;
+    if (log.scrollHeight - log.scrollTop - log.clientHeight < 160) log.scrollTop = log.scrollHeight;
   }
   log.addEventListener("click", e => {
     const row = e.target.closest(".ch-msg");
-    if (!row){ closePicker(); return; }
+    if (!row || row.classList.contains("pending")){ closePicker(); return; }
+    const k = row.dataset.k;
     const pill = e.target.closest(".ch-pill");
-    const pick = e.target.closest(".ch-pick button");
-    if (pill){ react(row.dataset.k, pill.dataset.n); return; }
-    if (pick){ react(row.dataset.k, pick.dataset.n); closePicker(); return; }
+    const pick = e.target.closest(".ch-pick-rx button");
+    const act = e.target.closest(".ch-pick-act button");
+    const quote = e.target.closest(".ch-quote");
+    const img = e.target.closest(".ch-img");
+    if (pill){ react(k, pill.dataset.n); return; }
+    if (pick){ react(k, pick.dataset.n); closePicker(); return; }
+    if (act){
+      closePicker();
+      const a = act.dataset.a;
+      if (a === "reply") startReply(k);
+      else if (a === "edit") startEdit(k);
+      else if (a === "del") remove(k);
+      else if (a === "copy") navigator.clipboard.writeText((cur[k] || {}).t || "").then(() => toast("Copied"), () => {});
+      return;
+    }
+    if (quote){ jumpTo(quote.dataset.k); return; }
+    if (img && img.src){ lightbox(img.src); return; }
+    if (e.target.closest("a")) return;
     if (e.target.closest(".ch-b")) openPicker(row);
   });
   document.addEventListener("click", e => { if (picker && !root.contains(e.target)) closePicker(); });
+  function jumpTo(k){
+    const r = rows[k];
+    if (!r){ toast("That one’s further back — scroll up to load it"); return; }
+    r.el.scrollIntoView({ block: "center", behavior: "smooth" });
+    r.el.classList.remove("flash"); void r.el.offsetWidth; r.el.classList.add("flash");
+  }
 
+  /* ---------- drawing ---------- */
+  function richText(t){
+    let h = esc(t).replace(URL_RE, u => '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>');
+    if (rich && o.members){
+      const names = o.members().map(p => p.n).filter(Boolean).sort((a, b) => b.length - a.length);
+      for (const n of names){
+        const re = new RegExp("(^|[\\s(])@(" + esc(n).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")(?![\\w])", "gi");
+        h = h.replace(re, (all, pre, nm) => pre + '<b class="ch-at">@' + nm + '</b>');
+      }
+    }
+    return h;
+  }
   function drawReactions(key){
     const m = cur[key] || {}, row = rows[key];
+    if (!row || !row.rx) return;
     const r = m.r || {};
     const sig = JSON.stringify(r);
     if (sig === row.sig) return;
     row.sig = sig;
     let h = "";
     for (const [n, e] of RX){
-      const who = r[n] || {};
-      const ids = Object.keys(who);
+      const whoR = r[n] || {};
+      const ids = Object.keys(whoR);
       if (!ids.length) continue;
-      const names = ids.map(id => isBanned(who[id]) ? "nope" : String(who[id] || "someone")).join(", ");
-      h += '<button type="button" class="ch-pill' + (who[o.me()] ? " on" : "") + '" data-n="' + n + '" title="' + esc(names) + '" aria-label="' + esc(e + " from " + names) + '">' +
+      const names = ids.map(id => isBanned(whoR[id]) ? "nope" : String(whoR[id] || "someone")).join(", ");
+      h += '<button type="button" class="ch-pill' + (whoR[mineId()] ? " on" : "") + '" data-n="' + n + '" title="' + esc(names) + '" aria-label="' + esc(e + " from " + names) + '">' +
            e + (ids.length > 1 ? '<b>' + ids.length + '</b>' : "") + '</button>';
     }
     row.rx.innerHTML = h;
     row.rx.classList.toggle("hidden", !h);
   }
-
+  /* the inside of one message; redrawn when it is edited or deleted */
+  function drawRow(key){
+    const m = cur[key] || {}, row = rows[key];
+    if (!row || row.sys) return;
+    const sig = [m.t, m.ed, m.del, m.img && m.img.id, m.re && m.re.k, m.n, JSON.stringify(o.who ? who(m) : 0)].join("|");
+    if (sig === row.body) return;
+    row.body = sig;
+    const mine = isMine(m);
+    const badText = isBanned(m.t);
+    const p = who(m);
+    const mentionsMe = rich && m.m && (m.m[mineId()] || (LIVE.oldPid && m.m[LIVE.oldPid]));
+    row.el.classList.toggle("mention", !!mentionsMe && !mine);
+    let h = "";
+    if (row.showName){
+      const col = p.c !== undefined && p.c !== null ? COLORS[Number(p.c) % COLORS.length] : "";
+      h += '<span class="ch-n"' + (col ? ' style="color:' + col + '"' : "") + '>' + (p.a ? '<i class="ch-av">' + esc(p.a) + '</i>' : "") + esc(nameOf(m)) + '</span>';
+    }
+    if (m.del){
+      h += '<span class="ch-b gone">Message deleted</span>';
+    } else {
+      const big = !badText && !m.img && !m.re && EMOJI_ONLY.test(m.t || "");
+      h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + '" role="button" tabindex="0">';
+      if (m.re && !badText) h += '<span class="ch-quote" data-k="' + esc(m.re.k) + '"><b>' + esc(m.re.n || "") + '</b>' + esc(m.re.t || "") + '</span>';
+      if (m.img && !badText){
+        const w = Math.max(1, Number(m.img.w) || 4), hh = Math.max(1, Number(m.img.h) || 3);
+        h += '<img class="ch-img" alt="Photo" data-id="' + esc(m.img.id) + '" style="aspect-ratio:' + w + '/' + hh + '">';
+      }
+      h += badText ? "bippity’d" : richText(m.t || "");
+      h += '</span>';
+      if (m.ed) h += '<span class="ch-meta">edited</span>';
+    }
+    h += '<div class="ch-rx hidden"></div>';
+    row.el.innerHTML = h;
+    row.rx = $(".ch-rx", row.el);
+    row.sig = "";
+    drawReactions(key);
+    const img = $(".ch-img", row.el);
+    if (img && o.media) o.media.get(img.dataset.id).then(src => { if (src) img.src = src; }, () => img.classList.add("broken"));
+  }
   function append(key, m){
     const empty = $(".ch-empty", log);
     if (empty) empty.remove();
@@ -3671,21 +4019,29 @@ function makeChat(root, o){
       rows[key] = { el: d, sys: true };
       return;
     }
-    const mine = m.pid === o.me() || (o.me() !== "host" && isMe(m.pid));
-    const badName = isBanned(m.n), badText = isBanned(m.t);
+    const mine = isMine(m);
     const row = document.createElement("div");
     row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "");
     row.dataset.k = key;
-    let h = "";
-    if (m.pid !== lastPid && !mine) h += '<span class="ch-n">' + esc(badName ? "nope" : (m.n || "Anonymous")) + '</span>';
-    const big = !badText && EMOJI_ONLY.test(m.t || "");
-    h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + '" role="button" tabindex="0">' +
-         (badText ? "bippity’d" : esc(m.t || "")) + '</span><div class="ch-rx hidden"></div>';
-    row.innerHTML = h;
     log.appendChild(row);
-    rows[key] = { el: row, rx: $(".ch-rx", row), sig: "" };
-    drawReactions(key);
+    rows[key] = { el: row, rx: null, sig: "", body: "", showName: m.pid !== lastPid && !mine };
+    drawRow(key);
     lastPid = m.pid;
+  }
+  /* "Seen by" under your newest message */
+  let seenEl = null;
+  function drawSeen(keys){
+    if (seenEl){ seenEl.remove(); seenEl = null; }
+    if (!o.seenBy || !keys.length) return;
+    let k = null;
+    for (let i = keys.length - 1; i >= 0; i--){ const m = cur[keys[i]] || {}; if (m.sys) continue; if (isMine(m)) k = keys[i]; break; }
+    if (!k || !rows[k]) return;
+    const names = o.seenBy(k);
+    if (!names.length) return;
+    seenEl = document.createElement("span");
+    seenEl.className = "ch-seen";
+    seenEl.textContent = "Seen by " + (names.length > 3 ? names.slice(0, 3).join(", ") + " +" + (names.length - 3) : names.join(", "));
+    rows[k].el.appendChild(seenEl);
   }
 
   function update(chat, sub){
@@ -3702,6 +4058,8 @@ function makeChat(root, o){
       for (const k of keys) append(k, cur[k] || {});
       first = keys[0];
       drawTop(keys.length);
+      for (const it of outbox) if (it.el) log.appendChild(it.el);
+      drawSeen(keys);
       log.scrollTop = log.scrollHeight - fromBottom;
       $(".ch-sub", root).textContent = sub || "";
       return;
@@ -3712,27 +4070,64 @@ function makeChat(root, o){
       const m = cur[k] || {};
       if (!rows[k]){
         append(k, m);
-        if (m.pid === o.me() || (o.me() !== "host" && isMe(m.pid))) mineAdded = true;
+        if (isMine(m)) mineAdded = true;
         else if (!m.sys) others++;
-      } else if (!rows[k].sys) drawReactions(k);
+      } else if (!rows[k].sys){ drawRow(k); drawReactions(k); }
     }
     /* a message removed from the database (a closed room) goes too */
     for (const k in rows) if (!(k in cur)){ rows[k].el.remove(); delete rows[k]; }
+    for (const it of outbox) if (it.el) log.appendChild(it.el);
+    drawSeen(keys);
     if (keys.length && (nearBottom || mineAdded || !primed)) log.scrollTop = log.scrollHeight;
     if (primed && others && !o.isOpen()){ unread += others; o.onUnread(unread); }
     primed = true;
     first = keys[0] || "";
     drawTop(keys.length);
     $(".ch-sub", root).textContent = sub || "";
+    statusEl.textContent = o.status ? o.status() : "";
+    reportRead();
     /* a short chat that doesn't fill the screen can't be scrolled, so fetch more now */
     if (o.loadOlder) setTimeout(wantOlder, 0);
   }
 
   return {
     update: update,
-    clearUnread(){ unread = 0; o.onUnread(0); },
-    toEnd(){ log.scrollTop = log.scrollHeight; }
+    clearUnread(){ unread = 0; o.onUnread(0); reportRead(); },
+    toEnd(){ log.scrollTop = log.scrollHeight; reportRead(); },
+    status(){ statusEl.textContent = o.status ? o.status() : ""; }
   };
+}
+
+/* A picture from the phone, made small enough to keep in the database:
+   at most 1600px on the long side as a JPEG. A small GIF is kept as it is so
+   it still moves. */
+async function shrinkPhoto(file){
+  if (!/^image\//.test(file.type)) throw new Error("That isn’t a picture");
+  const readUrl = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
+  const url = await readUrl(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("Couldn’t open that picture")); i.src = url; });
+  if (file.type === "image/gif"){
+    if (file.size > 1200000) throw new Error("That GIF is too big (1.2 MB at most)");
+    return { url: url, w: img.naturalWidth, h: img.naturalHeight };
+  }
+  const MAX = 1600;
+  const s = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * s)), h = Math.max(1, Math.round(img.naturalHeight * s));
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  c.getContext("2d").drawImage(img, 0, 0, w, h);
+  let q = 0.82, out = c.toDataURL("image/jpeg", q);
+  while (out.length > 900000 && q > 0.45){ q -= 0.1; out = c.toDataURL("image/jpeg", q); }
+  return { url: out, w: w, h: h };
+}
+
+/* tap a photo to see it full screen */
+function lightbox(src){
+  const d = document.createElement("div");
+  d.className = "lightbox";
+  d.innerHTML = '<img alt="Photo" src="' + src + '"><button type="button" aria-label="Close">✕</button>';
+  d.addEventListener("click", () => d.remove());
+  document.body.appendChild(d);
 }
 
 const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
@@ -3744,15 +4139,22 @@ const roomChatUrl = sub => gamePath("/chat" + sub);
    whole crew gets a "going live" banner, wherever they are in the app.
    Inside a game the crew chat carries on, so it is one conversation. */
 const CR = { code: store.get("ds.crew") || "", es: null, state: {}, chat: null, liveSeen: null, primed: false, flash: null,
-             chatMore: false, olderBusy: false };
+             chatMore: false, olderBusy: false, typing: {}, skew: 0, seenSent: 0, lastRead: "", media: new Map() };
 const CHAT_PAGE = 60;    // the crew chat streams the newest 60 and fetches earlier ones on demand
 const byKey = extra => "?orderBy=" + encodeURIComponent('"$key"') + extra;
 
 function crewPath(sub, code){ return savePath("/" + (code || CR.code) + "/crew" + (sub || "")); }
 const crewChatUrl = sub => crewPath("/chat" + sub);
+const ONLINE_MS = 150000;   /* seen in the last 2½ minutes counts as online */
+function crewOnline(){
+  const now = Date.now() + CR.skew, mem = CR.state.members || {};
+  return Object.keys(mem).filter(id => mem[id] && mem[id].seen && now - Number(mem[id].seen) < ONLINE_MS);
+}
 function crewLabel(){
   const n = Object.keys(CR.state.members || {}).length;
-  return n ? plural(n, "member") : "";
+  if (!n) return "";
+  const on = crewOnline().length;
+  return plural(n, "member") + (on > 1 ? " · " + on + " online" : "");
 }
 function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
 
@@ -3788,11 +4190,22 @@ async function crewConnect(){
     es.addEventListener("patch", handle(true));
     list.push(es);
   };
-  /* meta, live and members: each kept as CR.state[name] */
-  for (const name of ["meta", "live", "members"]){
+  /* meta, live, members and typing: each kept as CR.state[name] */
+  for (const name of ["meta", "live", "members", "typing"]){
     open(name, crewPath("/" + name), msg => {
       const box = applyEvent({ v: CR.state[name] }, { path: "/v" + (msg.path === "/" ? "" : msg.path), data: msg.data, isPatch: msg.isPatch });
       CR.state[name] = box.v;
+      if (name === "typing" && msg.path !== "/"){
+        /* someone started typing: timed from when it arrived, so clocks don't matter */
+        const uid = msg.path.split("/").filter(Boolean)[0];
+        if (msg.data) CR.typing[uid] = Date.now(); else delete CR.typing[uid];
+        crewStatusTick();
+      }
+      if (name === "members"){
+        /* how far this phone's clock is from the database's, from our own "seen" */
+        const me = (CR.state.members || {})[LIVE.pid];
+        if (me && me.seen && CR.seenSent && Date.now() - CR.seenSent < 10000){ CR.skew = Number(me.seen) - Date.now(); CR.seenSent = 0; }
+      }
     });
   }
   let firstLoad = true;
@@ -3808,6 +4221,8 @@ async function crewConnect(){
     }
     /* a whole message turning null is the window sliding past it: keep it */
     if (msg.data === null && msg.path.split("/").filter(Boolean).length === 1) return;
+    /* a new message ends its sender's "typing…" */
+    if (msg.data && msg.data.pid && msg.path.split("/").filter(Boolean).length === 1) delete CR.typing[msg.data.pid];
     applyEvent(CR.state, { path: "/chat" + msg.path, data: msg.data, isPatch: msg.isPatch });
   });
   CR.es = {
@@ -3837,6 +4252,142 @@ const crewPaging = {
   loading: () => CR.olderBusy
 };
 
+/* everything else the crew chat does beyond a game-room chat */
+let typingSent = 0, readSent = 0;
+const crewRich = {
+  rich: true,
+  who: pid => {
+    const p = (CR.state.members || {})[pid];
+    return p ? { n: p.n, c: p.c, a: p.a } : null;
+  },
+  members: () => {
+    const mem = CR.state.members || {};
+    return Object.keys(mem).filter(id => mem[id] && mem[id].n).map(id => ({ id: id, n: String(mem[id].n) }));
+  },
+  media: {
+    async put(url){
+      const r = await fetch(crewPath("/media"), { method: "POST", body: JSON.stringify(by({ d: url, at: { ".sv": "timestamp" } })) });
+      if (!r.ok) throw new Error("upload failed");
+      const id = (await r.json()).name;
+      CR.media.set(id, Promise.resolve(url));
+      return id;
+    },
+    get(id){
+      if (!/^[-\w]{1,40}$/.test(String(id))) return Promise.resolve("");
+      if (!CR.media.has(id)) CR.media.set(id, getJSON(crewPath("/media/" + id)).then(v => (v && v.d) || ""));
+      return CR.media.get(id);
+    },
+    drop(id){ CR.media.delete(id); fetch(crewPath("/media/" + id), { method: "DELETE" }).catch(() => {}); }
+  },
+  onSent(key, m){
+    if (typingSent){ typingSent = 0; fetch(crewPath("/typing/" + LIVE.pid), { method: "DELETE" }).catch(() => {}); }
+    pushMessage(key);
+  },
+  onTyping(){
+    if (Date.now() - typingSent < 3000) return;
+    typingSent = Date.now();
+    fetch(crewPath("/typing/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: store.get("ds.name") || "", at: Date.now() }) }).catch(() => {});
+  },
+  onRead(key){
+    if (key <= CR.lastRead || Date.now() - readSent < 2000) return;
+    CR.lastRead = key; readSent = Date.now();
+    fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify({ read: key }) }).catch(() => {});
+  },
+  seenBy(key){
+    const mem = CR.state.members || {};
+    return Object.keys(mem).filter(id => id !== LIVE.pid && id !== LIVE.oldPid && mem[id] && mem[id].read && mem[id].read >= key)
+                          .map(id => String(mem[id].n || "someone"));
+  },
+  status(){
+    const mem = CR.state.members || {}, t = CR.state.typing || {};
+    const names = Object.keys(CR.typing).filter(id => id !== LIVE.pid && Date.now() - CR.typing[id] < 6000)
+                        .map(id => String((mem[id] && mem[id].n) || (t[id] && t[id].n) || "Someone"));
+    if (!names.length) return "";
+    if (names.length === 1) return names[0] + " is typing…";
+    if (names.length === 2) return names[0] + " and " + names[1] + " are typing…";
+    return "Several people are typing…";
+  }
+};
+/* the typing line fades on its own, so it needs a clock while anyone is typing */
+let statusTimer = 0;
+function crewStatusTick(){
+  [CR.chat, RP.crew && RP.chat, RH.crew && RH.chat].forEach(c => c && c.status());
+  clearTimeout(statusTimer);
+  if (Object.keys(CR.typing).some(id => Date.now() - CR.typing[id] < 6000)) statusTimer = setTimeout(crewStatusTick, 1500);
+}
+/* "online" is a heartbeat while the app is open and visible */
+setInterval(() => { if (CR.code && document.visibilityState === "visible" && CR.es) crewSeen(); }, 60000);
+function crewSeen(){
+  CR.seenSent = Date.now();
+  return fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify({ seen: { ".sv": "timestamp" } }) }).catch(() => {});
+}
+
+/* ---------- the crews on this phone ----------
+   ds.crews remembers every crew you've joined, so you can switch between them. */
+function crewList(){ try { return JSON.parse(store.get("ds.crews") || "[]").filter(c => c && /^[A-Z0-9]{6}$/.test(c.code)); } catch (e){ return []; } }
+function crewRemember(code, name){
+  const old = crewList().find(c => c.code === code);
+  const list = crewList().filter(c => c.code !== code);
+  list.unshift({ code: code, name: name || (old && old.name) || "Crew" });
+  store.set("ds.crews", JSON.stringify(list.slice(0, 20)));
+}
+function crewForget(code){ store.set("ds.crews", JSON.stringify(crewList().filter(c => c.code !== code))); }
+function crewSwitch(code){
+  if (CR.es){ CR.es.close(); CR.es = null; }
+  CR.code = code; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null; CR.typing = {}; CR.lastRead = ""; CR.media = new Map();
+  store.set("ds.crew", code);
+  crewRemember(code);
+  $("#crMore").classList.add("hidden");
+  crewConnect();
+  crewScreenChat();
+}
+function drawCrews(){
+  const others = crewList().filter(c => c.code !== CR.code);
+  let h = '<div class="tiny" style="margin:.8rem 0 .3rem">Your crews</div>';
+  h += others.map(c => '<button type="button" class="cr-sw" data-code="' + esc(c.code) + '">' + esc(c.name) + '</button>').join("");
+  h += '<button type="button" class="cr-sw add" id="crAdd">+ Join or start another</button>';
+  $("#crCrews").innerHTML = h;
+}
+$("#crCrews").addEventListener("click", e => {
+  const b = e.target.closest(".cr-sw");
+  if (!b) return;
+  if (b.id === "crAdd"){ $("#crMore").classList.add("hidden"); crewSetup(""); return; }
+  crewSwitch(b.dataset.code);
+});
+
+/* ---------- profile ---------- */
+const AVATARS = ["\u{1F600}", "\u{1F60E}", "\u{1F920}", "\u{1F47D}", "\u{1F916}", "\u{1F98A}", "\u{1F438}", "\u{1F984}", "\u{1F355}", "\u{1F3B8}", "\u{1F680}", "\u{1F4B8}"];
+let profPick = {};
+function openProfile(){
+  $("#crMore").classList.add("hidden");
+  profPick = { c: store.get("ds.color"), a: store.get("ds.avatar") || "" };
+  $("#profName").value = store.get("ds.name") || "";
+  $("#profCols").innerHTML = COLORS.map((c, i) => '<button type="button" data-c="' + i + '" style="background:' + c + '" aria-label="Colour ' + (i + 1) + '"></button>').join("");
+  $("#profAvs").innerHTML = '<button type="button" data-a="" aria-label="No avatar">–</button>' +
+    AVATARS.map(a => '<button type="button" data-a="' + a + '">' + a + '</button>').join("");
+  drawProfPick();
+  $("#profSheet").classList.remove("hidden");
+}
+function drawProfPick(){
+  $$("#profCols button").forEach(b => b.classList.toggle("on", String(profPick.c) === b.dataset.c));
+  $$("#profAvs button").forEach(b => b.classList.toggle("on", (profPick.a || "") === b.dataset.a));
+}
+$("#profCols").addEventListener("click", e => { const b = e.target.closest("button"); if (b){ profPick.c = b.dataset.c; drawProfPick(); } });
+$("#profAvs").addEventListener("click", e => { const b = e.target.closest("button"); if (b){ profPick.a = b.dataset.a; drawProfPick(); } });
+$("#profCancel").addEventListener("click", () => $("#profSheet").classList.add("hidden"));
+$("#profSave").addEventListener("click", async () => {
+  const n = ($("#profName").value || "").trim().slice(0, 40);
+  if (!n){ $("#profName").focus(); return; }
+  if (isBanned(n)){ $("#profName").value = ""; stopThat(); return; }
+  store.set("ds.name", n);
+  if (profPick.c !== undefined && profPick.c !== null && profPick.c !== "") store.set("ds.color", String(profPick.c));
+  store.set("ds.avatar", profPick.a || "");
+  $("#profSheet").classList.add("hidden");
+  await crewTouch();
+  toast("Saved");
+});
+$("#crProfBtn").addEventListener("click", openProfile);
+
 /* the open game, if the crew has one going (a stale one is ignored) */
 function crewLive(){
   const l = CR.state.live;
@@ -3852,6 +4403,10 @@ function crewChanged(){
   if (RH.chat && RH.crew) RH.chat.update(CR.state.chat, label);
   if (!$("#crew").classList.contains("hidden")) $("#crName").textContent = crewName();
   menuCrew();
+  if (CR.code && CR.state.meta && CR.state.meta.name){
+    const known = crewList().find(c => c.code === CR.code);
+    if (!known || known.name !== CR.state.meta.name) crewRemember(CR.code, CR.state.meta.name);
+  }
 
   const live = crewLive();
   const key = live ? live.room + ":" + live.at : "";
@@ -3920,7 +4475,8 @@ async function crewJoin(code, name){
   CR.code = code; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null;
   store.set("ds.crew", code);
   if (name) store.set("ds.name", name);
-  crewTouch();
+  await crewTouch();       /* on the member list before posting or reading */
+  crewRemember(code, meta.name);
   crewConnect();
   return "";
 }
@@ -3930,7 +4486,12 @@ async function crewTouch(){
   if (!CR.code) return;
   await authToken();        /* so the entry goes under the signed-in account */
   if (!CR.code) return;
-  const done = fetch(crewPath("/members/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: name, seen: { ".sv": "timestamp" } }) }).catch(() => {});
+  const me = { n: name, seen: { ".sv": "timestamp" } };
+  const col = store.get("ds.color");
+  me.c = col !== null && col !== undefined && col !== "" ? Number(col) : null;
+  me.a = store.get("ds.avatar") || null;
+  CR.seenSent = Date.now();
+  const done = fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify(me) }).catch(() => {});
   /* first time signed in: drop this device's entries from before accounts */
   if (authOn() && LIVE.oldPid && LIVE.oldPid !== LIVE.pid && store.get("ds.tidy") !== CR.code){
     done.then(() => Promise.all([
@@ -4060,6 +4621,15 @@ function alertsButton(){
   b.classList.remove("hidden");
 }
 
+/* a new crew message: the relay alerts everyone whose settings ask for it */
+function pushMessage(key){
+  if (!pushUrl() || !CR.code || !key) return;
+  fetch(pushUrl() + "/message", {
+    method: "POST",
+    body: JSON.stringify({ crew: CR.code, key: key, site: location.origin + location.pathname })
+  }).catch(() => {});
+}
+
 function pushNotifyCrew(){
   if (!pushUrl() || !CR.code || !LIVE.code) return;
   fetch(pushUrl() + "/notify", {
@@ -4150,9 +4720,11 @@ function crewScreenChat(){
     onUnread: () => {},
     placeholder: "Message the crew…",
     empty: "Quiet in here. Say hi — and tap any message to react to it.",
-    ...crewPaging
+    ...crewPaging,
+    ...crewRich
   });
   CR.chat.update(CR.state.chat, crewLabel());
+  crewRemember(CR.code, (CR.state.meta || {}).name);
   alertsButton();
   pushRefresh();
   drawLiveBanner();
@@ -4176,6 +4748,7 @@ $("#crInvite").addEventListener("click", crewShare);
 $("#crMoreBtn").addEventListener("click", () => {
   const box = $("#crMore");
   $("#crCodeShow").textContent = CR.code;
+  drawCrews();
   box.classList.toggle("hidden");
 });
 $("#crAlerts").addEventListener("click", async () => {
@@ -4190,15 +4763,18 @@ $("#crAlerts").addEventListener("click", async () => {
 });
 $("#crLeave").addEventListener("click", () => {
   if (!confirm("Leave " + crewName() + "? You can rejoin with the code.")) return;
+  const left = CR.code;
   if (CR.es){ CR.es.close(); CR.es = null; }
   if (CR.code) fetch(crewPath("/members/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
   if (CR.code) fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
   store.set("ds.pushOn", "");
   CR.code = ""; CR.state = {}; CR.chat = null; CR.liveSeen = null; CR.primed = false;
   store.set("ds.crew", "");
+  crewForget(left);
   drawLiveBanner();
-  crewSetup("");
   $("#crMore").classList.add("hidden");
+  const next = crewList()[0];
+  if (next) crewSwitch(next.code); else crewSetup("");
 });
 $("#lbJoin").addEventListener("click", joinLive);
 $("#lbX").addEventListener("click", () => $("#liveBanner").classList.add("hidden"));
@@ -4232,7 +4808,7 @@ function rpMount(state){
     isOpen: () => RP.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#rpBadge"), n),
     onClose: () => rpSetChat(false),
-    ...(crew ? crewPaging : {})
+    ...(crew ? Object.assign({}, crewPaging, crewRich) : {})
   });
   if (crew) RP.chat.update(CR.state.chat, crewLabel());
 }
@@ -4533,7 +5109,7 @@ function hostAttach(){
     isOpen: () => RH.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#hsBadge"), n),
     onClose: () => hsSetChat(false),
-    ...(RH.crew ? crewPaging : {})
+    ...(RH.crew ? Object.assign({}, crewPaging, crewRich) : {})
   });
   if (RH.crew) RH.chat.update(CR.state.chat, crewLabel());
   drawLiveBanner();
