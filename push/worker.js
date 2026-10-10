@@ -14,6 +14,13 @@
         VAPID_JWK, paste the key, Deploy.
    Optional variable DB_URL points it at a different Firebase database.
 
+   Once the database has the locked-down rules (firebase-rules.json), the
+   worker needs its own login to read the crew's alert subscriptions: add a
+   second Secret named FIREBASE_SA holding the whole service-account JSON file
+   (Firebase console → Project settings → Service accounts → Generate new
+   private key). Without it, the worker reads the database with no login, which
+   only works under the old open rules.
+
    Endpoints:
      GET  /key     public key the site subscribes with
      GET  /setup   one-time key generator (refuses once VAPID_JWK is set)
@@ -113,6 +120,51 @@ async function sendPush(sub, text, jwk){
   return res.status;
 }
 
+/* ---------- the worker's own database login (service account) ----------
+   A signed JWT is swapped for a one-hour Google access token, which the
+   database accepts as ?access_token= and treats as an administrator. */
+let admin = { token: "", exp: 0, busy: null };
+function pemToDer(pem){
+  return unb64u(String(pem).replace(/-----[^-]+-----/g, "").replace(/\s+/g, "").replace(/\+/g, "-").replace(/\//g, "_"));
+}
+function adminToken(env){
+  if (!env.FIREBASE_SA) return Promise.resolve("");
+  if (admin.token && admin.exp - Date.now() > 5 * 60000) return Promise.resolve(admin.token);
+  /* parallel reads share one login */
+  if (!admin.busy) admin.busy = adminLogin(env).finally(() => { admin.busy = null; });
+  return admin.busy;
+}
+async function adminLogin(env){
+  const sa = JSON.parse(env.FIREBASE_SA);
+  const now = Math.floor(Date.now() / 1000);
+  const h = b64u(enc.encode(JSON.stringify({ alg: "RS256", typ: "JWT" })));
+  const c = b64u(enc.encode(JSON.stringify({
+    iss: sa.client_email,
+    scope: "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now, exp: now + 3600
+  })));
+  const key = await crypto.subtle.importKey("pkcs8", pemToDer(sa.private_key),
+                                            { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, enc.encode(h + "." + c));
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: "grant_type=" + encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer") + "&assertion=" + h + "." + c + "." + b64u(sig)
+  });
+  const j = await res.json();
+  if (!res.ok || !j.access_token) throw new Error("service account login failed: " + (j.error_description || j.error || res.status));
+  admin.token = j.access_token;
+  admin.exp = Date.now() + (Number(j.expires_in) || 3600) * 1000;
+  return admin.token;
+}
+/* a database URL with the worker's login on it */
+async function dbUrl(env, path){
+  const db = String(env.DB_URL || DEFAULT_DB).replace(/\/+$/, "");
+  const t = await adminToken(env);
+  return db + path + ".json" + (t ? "?access_token=" + encodeURIComponent(t) : "");
+}
+
 function json(obj, status, extra){
   return new Response(JSON.stringify(obj), { status: status || 200, headers: Object.assign({ "content-type": "application/json" }, CORS, extra) });
 }
@@ -129,15 +181,21 @@ async function notify(req, env){
   if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[A-Z0-9]{4}$/.test(room)) return json({ error: "bad codes" }, 400);
   if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
 
-  const db = String(env.DB_URL || DEFAULT_DB).replace(/\/+$/, "");
-  const base = db + "/saves/" + crew + "/crew";
-  const get = k => fetch(base + "/" + k + ".json").then(r => r.ok ? r.json() : null);
-  const [live, sent, subs, meta] = await Promise.all([get("live"), get("pushSent"), get("push"), get("meta")]);
+  const base = "/saves/" + crew + "/crew";
+  const at = async k => dbUrl(env, base + "/" + k);
+  const get = async k => {
+    const r = await fetch(await at(k));
+    if (r.status === 401 || r.status === 403) throw new Error("the database refused the relay: add the FIREBASE_SA secret (see the top of this file)");
+    return r.ok ? r.json() : null;
+  };
+  let live, sent, subs, meta;
+  try { [live, sent, subs, meta] = await Promise.all([get("live"), get("pushSent"), get("push"), get("meta")]); }
+  catch (e){ return json({ error: String(e.message || e) }, 502); }
 
   if (!live || live.room !== room || Date.now() - Number(live.at || 0) > LIVE_WINDOW) return json({ skipped: "that game isn't live" }, 409);
   if (sent && sent.room === room) return json({ skipped: "already announced" });
   if (sent && Date.now() - Number(sent.at || 0) < MIN_GAP) return json({ skipped: "too soon" }, 429);
-  await fetch(base + "/pushSent.json", { method: "PUT", body: JSON.stringify({ room: room, at: Date.now() }) });
+  await fetch(await at("pushSent"), { method: "PUT", body: JSON.stringify({ room: room, at: Date.now() }) });
 
   const jwk = JSON.parse(env.VAPID_JWK);
   const crewName = String((meta && meta.name) || "Your crew").slice(0, 60);
@@ -159,7 +217,7 @@ async function notify(req, env){
       if (status >= 200 && status < 300) out.sent++;
       else if (status === 404 || status === 410){
         out.gone++;
-        await fetch(base + "/push/" + pid + ".json", { method: "DELETE" });
+        await fetch(await at("push/" + pid), { method: "DELETE" });
       } else out.failed++;
     } catch (e){ out.failed++; }
   }));
@@ -194,7 +252,8 @@ export default {
       if (!env.VAPID_JWK) return json({ error: "not set up yet" }, 503);
       return notify(req, env);
     }
-    return text("DS(WT) Crew push relay. " + (env.VAPID_JWK ? "Ready." : "Not set up yet — visit /setup."));
+    return text("DS(WT) Crew push relay. " + (env.VAPID_JWK ? "Ready" : "Not set up yet — visit /setup") +
+                (env.FIREBASE_SA ? " · database login set." : " · no database login (FIREBASE_SA), so it needs the old open rules."));
   }
 };
 
