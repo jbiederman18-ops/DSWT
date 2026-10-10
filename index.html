@@ -265,6 +265,83 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .tiny{font-size:.8rem;color:var(--ink-soft)}
 .sheet{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:1rem 1.1rem;margin-top:1.2rem}
 .sheet code{display:block;word-break:break-all;font-size:.72rem;background:var(--paper);padding:.6rem;border:1px solid var(--rule);margin-top:.4rem;max-height:9em;overflow:auto}
+/* ---------- player names on the TV ---------- */
+.roster{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;padding:.45rem .9rem;background:#121512;
+        border-bottom:1px solid rgba(255,255,255,.12);flex:0 0 auto}
+.roster .rl{font-size:.68rem;font-weight:700;letter-spacing:.06em;color:#7d837a;text-transform:uppercase;margin-right:.2rem}
+.chip{display:inline-flex;align-items:center;gap:.35em;padding:.22em .7em;border-radius:99px;font-weight:700;font-size:clamp(.8rem,1.15vw,1.05rem);
+      border:2px solid rgba(255,255,255,.28);color:#c9ccc3;transition:background .2s,color .2s,border-color .2s}
+.chip.in{background:var(--marker);border-color:var(--marker);color:#06281A}
+.chip.in::before{content:"\2713";font-size:.85em}
+.chip .pts{font-variant-numeric:tabular-nums;font-weight:800;opacity:.75}
+.chip.best{background:#fff;color:#000;border-color:#fff}
+.chip.best::before{content:"\2605"}
+.chip.banned{background:var(--stamp);border-color:var(--stamp);color:#fff;text-decoration:line-through}
+
+/* ---------- results ---------- */
+#results{background:#0b0d0b;color:var(--paper);position:relative;overflow:hidden}
+.res-top{display:flex;gap:.6rem;align-items:center;padding:.5rem .9rem;background:var(--ink);font-size:.85rem;flex:0 0 auto;position:relative;z-index:30}
+.res-top button{background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.3em .7em;font-size:.8rem;font-weight:600}
+.res-top button:hover{background:var(--marker);color:#000;border-color:var(--marker)}
+.res-stage{flex:1;min-height:0;overflow:auto;padding:clamp(18px,4vh,44px) var(--pad)}
+.res-inner{max-width:980px;margin:0 auto}
+.res-h{font-size:clamp(2.4rem,7vw,5.2rem);color:var(--marker)}
+.res-sub{color:#8a9087;margin:.4rem 0 clamp(1rem,3vh,2rem);font-size:clamp(.9rem,1.4vw,1.15rem)}
+.board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem}
+.board li{display:flex;align-items:center;gap:1rem;padding:clamp(.5rem,1.4vh,.9rem) 1.1rem;background:#171a17;
+          border:2px solid #262a26;border-radius:var(--r);opacity:0;transform:translateX(-40px)}
+.board li.in{animation:slidein .45s cubic-bezier(.2,1.3,.4,1) forwards}
+@keyframes slidein{to{opacity:1;transform:none}}
+.board .rk{font-family:var(--display);font-weight:800;font-size:clamp(1.4rem,3vw,2.4rem);min-width:2.2ch;color:#7d837a}
+.board .nm{flex:1;min-width:0;font-weight:700;font-size:clamp(1.1rem,2.4vw,1.9rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board .nm small{display:block;font-weight:500;font-size:.5em;color:#8a9087;margin-top:.15em}
+.board .tt{font-family:var(--display);font-weight:800;font-size:clamp(1.4rem,3vw,2.4rem);font-variant-numeric:tabular-nums}
+.board li.top{border-color:var(--marker);background:#0f2a1c}
+.board li.top .rk,.board li.top .tt{color:var(--marker)}
+.board li.mystery .nm,.board li.mystery .tt{color:#4d534b}
+.winner{position:absolute;inset:0;z-index:20;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        text-align:center;padding:var(--pad);cursor:pointer}
+.winner .drum{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,4.5vw,3.4rem);color:#c9ccc3;opacity:0}
+.winner .drum.in{animation:fadeup .6s ease forwards}
+@keyframes fadeup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.winner .crown{font-size:clamp(2.4rem,7vw,5rem);line-height:1;margin-top:1rem;opacity:0}
+.winner .wname{font-family:var(--display);font-weight:800;font-size:clamp(3.2rem,14vw,11rem);line-height:.92;letter-spacing:-.04em;
+               color:var(--marker);margin:.1em 0 .15em;opacity:0;transform:scale(2.2) rotate(-6deg);max-width:100%;overflow-wrap:anywhere}
+.winner .wpts{font-size:clamp(1.1rem,2.6vw,2rem);font-weight:700;opacity:0}
+.winner .hint{position:absolute;bottom:18px;left:0;right:0;font-size:.8rem;color:#5d635b;opacity:0}
+.winner.go .crown,.winner.go .wpts,.winner.go .hint{animation:fadeup .5s ease .35s forwards}
+.winner.go .wname{animation:bigstamp .55s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes bigstamp{to{opacity:1;transform:none}}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-4vh;width:10px;height:16px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+.res-empty{max-width:46ch;color:#c9ccc3;font-size:1.05rem}
+@media (prefers-reduced-motion:reduce){
+  .board li,.board li.in{animation:none;opacity:1;transform:none}
+  .winner .drum,.winner .crown,.winner .wname,.winner .wpts,.winner .hint{animation:none !important;opacity:1;transform:none}
+  .confetti{display:none}
+}
+/* phone: final standings */
+.ph-win{text-align:center}
+.ph-win .wl{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.ph-win .wn{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,11vw,3.4rem);line-height:1;color:var(--marker-deep);margin:.2rem 0;overflow-wrap:anywhere}
+.ph-row{display:flex;gap:.7rem;padding:.4rem 0;border-bottom:1px solid var(--rule);font-size:.95rem}
+.ph-row b{min-width:1.8em}
+.ph-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ph-row em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.ph-row.me{background:var(--hl);margin:0 -.5rem;padding:.4rem .5rem}
+
+/* ---------- the ban ---------- */
+.stopthat{position:fixed;inset:0;z-index:1000;background:rgba(10,0,0,.94);display:flex;flex-direction:column;align-items:center;
+          justify-content:center;text-align:center;padding:24px;cursor:pointer}
+.stopthat b{font-family:var(--display);font-weight:800;color:#FF1E12;font-size:clamp(3rem,15vw,11rem);line-height:.88;letter-spacing:-.03em;
+            text-shadow:0 0 40px rgba(255,30,18,.55);animation:scold .5s cubic-bezier(.2,1.6,.4,1) both, shake .38s .5s 3}
+.stopthat small{color:#ffb3ad;font-weight:600;font-size:clamp(.9rem,2.4vw,1.3rem);margin-top:1.4rem;max-width:36ch}
+@keyframes scold{from{transform:scale(3);opacity:0}to{transform:none;opacity:1}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-14px) rotate(-2deg)}40%{transform:translateX(12px) rotate(2deg)}
+                 60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.stopthat b{animation:none}}
+
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;border-radius:var(--r);box-shadow:0 4px 0 rgba(0,0,0,.3)}
 </style>
 </head>
@@ -446,9 +523,11 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <button id="bInfo">Info</button>
     <button id="bReveal">Reveal</button>
     <button id="bNext">Next round</button>
+    <button id="bResults">Results</button>
     <button id="bQuit">End</button>
     <span id="liveTally" class="hidden" style="font-variant-numeric:tabular-nums;color:var(--marker);font-weight:700"></span>
   </div>
+  <div class="roster hidden" id="roster"></div>
   <div class="viewwrap">
     <div class="viewport" id="viewport"><div id="slideRow"></div></div>
     <aside class="drawer" id="drawer"></aside>
@@ -463,6 +542,17 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bNextPanel">→</button>
     <span id="panelCount" style="font-variant-numeric:tabular-nums;min-width:5em;text-align:right"></span>
   </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section id="results" class="screen hidden">
+  <div class="res-top">
+    <button id="resBack">‹ Back to the game</button>
+    <span style="flex:1"></span>
+    <button id="resReplay">Run the reveal again</button>
+    <button id="resMenu">Main menu</button>
+  </div>
+  <div class="res-stage" id="resStage"></div>
 </section>
 
 <!-- ============ PLAYER ============ -->
@@ -498,6 +588,44 @@ function toast(msg, ms){
   document.body.appendChild(t);
   setTimeout(() => t.remove(), ms || 2200);
 }
+
+/* ---------- the ban ----------
+   "Bippity boppity" is not welcome here, in any field, in any spelling.
+   Text is lowercased, stripped of accents, digits-for-letters undone,
+   everything but letters dropped and doubled letters squashed, so
+   "B1PP-ity  BOPPITY", "bippityboppity" and "bibbidi bobbidi" all land
+   on the same handful of letters. */
+const BANNED = /b[iy][pb][iy][td][iy]b[ou][pb][iy][td][iy]/;
+function banNorm(s){
+  return String(s == null ? "" : s).toLowerCase()
+    .normalize("NFKD").replace(/[̀-ͯ]/g, "")
+    .replace(/[1!|]/g, "i").replace(/0/g, "o").replace(/3/g, "e").replace(/[4@]/g, "a").replace(/[5$]/g, "s")
+    .replace(/[^a-z]/g, "")
+    .replace(/(.)\1+/g, "$1");
+}
+function isBanned(s){ return BANNED.test(banNorm(s)); }
+
+let stopTimer = null;
+function stopThat(){
+  let o = document.querySelector(".stopthat");
+  if (o) o.remove();
+  o = document.createElement("div");
+  o.className = "stopthat";
+  o.setAttribute("role", "alert");
+  o.innerHTML = '<b>STOP THAT<br>THIS INSTANT</b><small>“Bippity boppity” is banned in this game. Don’t make me say it twice.</small>';
+  document.body.appendChild(o);
+  const born = Date.now();
+  o.addEventListener("click", () => { if (Date.now() - born > 900) o.remove(); });
+  clearTimeout(stopTimer);
+  stopTimer = setTimeout(() => o.remove(), 4200);
+}
+
+/* every text box in the app, typed or pasted */
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (!el || !(el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && /^(text|search|url|)$/.test(el.type)))) return;
+  if (isBanned(el.value)){ el.value = ""; stopThat(); }
+}, true);
 
 /* storage that survives being opened inside a sandbox with no localStorage */
 const mem = {};
@@ -1915,7 +2043,7 @@ $("#gmNextUp").addEventListener("click", () => {
    10. PLAY
    ============================================================ */
 function show(which){
-  ["menu","intake","check","gm","play","player"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
+  ["menu","intake","check","gm","play","results","player"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
 }
 
 function loadRound(i){
@@ -1923,6 +2051,7 @@ function loadRound(i){
   const r = G.rounds[i];
   $("#pRound").textContent = (i+1) + "/" + G.rounds.length;
   $("#pTitle").textContent = r.title;
+  $("#bNext").textContent = (i + 1 < G.rounds.length) ? "Next round" : "Final results";
   $("#revealBox").classList.add("hidden");
   $("#drawer").classList.remove("open");
   buildDrawer(r);
@@ -2058,8 +2187,9 @@ $("#bReveal").addEventListener("click", () => {
 });
 $("#bNext").addEventListener("click", () => {
   if (G.idx + 1 < G.rounds.length) loadRound(G.idx + 1);
-  else { toast("That was the last one"); }
+  else openResults();
 });
+$("#bResults").addEventListener("click", openResults);
 $("#bQuit").addEventListener("click", () => { openIntake("Your game"); renderRoundList(true); });
 $$("#upSel button").forEach(b => b.addEventListener("click", () => setUp(Number(b.dataset.up))));
 $("#bPrev").addEventListener("click", () => goPanel(G.panel - 1));
@@ -2136,7 +2266,7 @@ function slug(s){
    ============================================================ */
 const P = {
   game: null,
-  name: store.get("ds.name") || "",
+  name: isBanned(store.get("ds.name")) ? "" : (store.get("ds.name") || ""),
   guesses: JSON.parse(store.get("ds.guesses") || "{}")
 };
 
@@ -2168,6 +2298,7 @@ function renderPlayer(){
     $("#pjoin").addEventListener("click", async () => {
       const name = ($("#pname").value || "Anonymous").trim();
       const code = $("#pcode").value.trim();
+      if (isBanned(name)){ $("#pname").value = ""; stopThat(); return; }
       P.name = name; store.set("ds.name", name);
 
       if (/^[A-Z0-9]{4}$/i.test(code)){
@@ -2364,7 +2495,7 @@ async function liveOpenRoom(){
 
 function livePlayers(){
   const p = LIVE.state.players || {};
-  return Object.keys(p).map(k => ({ id: k, name: p[k] && p[k].name }));
+  return Object.keys(p).map(k => ({ id: k, name: p[k] && p[k].name, joined: p[k] && p[k].joined }));
 }
 
 function liveLockedCount(i){
@@ -2375,6 +2506,7 @@ function liveLockedCount(i){
 }
 
 function updateTally(){
+  renderRoster();
   const el = $("#liveTally");
   if (!el) return;
   if (!LIVE.isHost || !LIVE.code){ el.classList.add("hidden"); return; }
@@ -2411,6 +2543,237 @@ async function liveReveal(){
   });
 }
 
+/* ---------- names on the TV ---------- */
+const scolded = new Set();
+function displayName(pid, raw){
+  if (isBanned(raw)){
+    if (LIVE.isHost && !scolded.has(pid)){ scolded.add(pid); stopThat(); }
+    return null;
+  }
+  return String(raw || "").trim() || "Anonymous";
+}
+
+function renderRoster(){
+  const el = $("#roster");
+  if (!el) return;
+  const players = livePlayers();
+  if (!LIVE.isHost || !LIVE.code || !players.length || !G.rounds[G.idx]){ el.classList.add("hidden"); return; }
+  el.classList.remove("hidden");
+  const rd = G.rounds[G.idx];
+  const now = LIVE.state.now || {};
+  const revealed = now.phase === "revealed" && now.uid === rd.uid;
+  const locked = (LIVE.state.guesses || {})[rd.uid] || {};
+  const pts = revealed ? ((LIVE.state.scores || {})[rd.uid] || {}) : {};
+  let best = -1;
+  if (revealed) for (const k in pts) best = Math.max(best, Number(pts[k]) || 0);
+
+  const list = players.slice().sort((a, b) => (a.joined || 0) - (b.joined || 0));
+  let h = '<span class="rl">' + (revealed ? "This round" : "Players") + '</span>';
+  for (const p of list){
+    const nm = displayName(p.id, p.name);
+    const cls = ["chip"];
+    if (nm === null) cls.push("banned");
+    if (revealed){
+      const v = Number(pts[p.id]);
+      if (p.id in pts && v === best && best > 0) cls.push("best");
+      h += '<span class="' + cls.join(" ") + '">' + esc(nm === null ? "nope" : nm) +
+           ' <span class="pts">' + (p.id in pts ? "+" + v : "—") + '</span></span>';
+    } else {
+      if (locked[p.id]) cls.push("in");
+      h += '<span class="' + cls.join(" ") + '">' + esc(nm === null ? "nope" : nm) + '</span>';
+    }
+  }
+  el.innerHTML = h;
+}
+
+/* ---------- standings ---------- */
+function standings(){
+  const players = LIVE.state.players || {};
+  const scores = LIVE.state.scores || {};
+  const ids = new Set(Object.keys(players));
+  for (const uid in scores) for (const pid in (scores[uid] || {})) ids.add(pid);
+
+  // who topped each round, to hang a little stat on each row
+  const roundWins = {};
+  let played = 0;
+  for (const r of G.rounds){
+    const row = scores[r.uid];
+    if (!row) continue;
+    played++;
+    let hi = 0;
+    for (const pid in row) hi = Math.max(hi, Number(row[pid]) || 0);
+    if (hi > 0) for (const pid in row) if ((Number(row[pid]) || 0) === hi) roundWins[pid] = (roundWins[pid] || 0) + 1;
+  }
+
+  const rows = [];
+  ids.forEach(pid => {
+    let t = 0;
+    for (const uid in scores) t += Number((scores[uid] || {})[pid]) || 0;
+    const nm = displayName(pid, (players[pid] || {}).name);
+    rows.push({ id: pid, name: nm === null ? "Banned for bippity" : nm, total: t, wins: roundWins[pid] || 0 });
+  });
+  rows.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+  rows.forEach((r, i) => { r.rank = (i && rows[i-1].total === r.total) ? rows[i-1].rank : i + 1; });
+  return { rows: rows, played: played };
+}
+
+/* ---------- results ---------- */
+const RES = { timers: [] };
+function resClear(){ RES.timers.forEach(clearTimeout); RES.timers = []; }
+function later(fn, ms){ RES.timers.push(setTimeout(fn, RES.squash ? 0 : ms)); }
+
+function openResults(){
+  show("results");
+  runResults();
+}
+
+function runResults(){
+  resClear();
+  const stage = $("#resStage");
+  $$(".winner", $("#results")).forEach(w => w.remove());
+  const live = LIVE.isHost && LIVE.code;
+  const st = live ? standings() : { rows: [], played: 0 };
+
+  if (!st.rows.length || !st.played){
+    stage.innerHTML = '<div class="res-inner"><h1 class="res-h">Final results</h1>' +
+      '<p class="res-empty" style="margin-top:1.2rem">' + (live
+        ? "No round has been revealed yet, so nobody has any points. Reveal a round or two and come back."
+        : "Nobody played along on phones, so there’s nothing to tally. Open a room under Live play… before the game and the scores add themselves up.") +
+      '</p></div>';
+    return;
+  }
+
+  if (live) dbPut("/now", { r: G.idx, phase: "results", title: "" });
+
+  const rows = st.rows;
+  const top = rows.filter(r => r.rank === 1);
+  const fmt = n => Number(n).toLocaleString("en-US");
+  let h = '<div class="res-inner"><h1 class="res-h">Final results</h1>' +
+          '<div class="res-sub">' + st.played + ' round' + (st.played === 1 ? "" : "s") + ' scored · ' +
+          rows.length + ' player' + (rows.length === 1 ? "" : "s") + '</div><ol class="board">';
+  rows.forEach(r => {
+    const sub = r.wins ? "Closest on " + r.wins + " round" + (r.wins === 1 ? "" : "s") : "";
+    h += '<li data-rank="' + r.rank + '" class="' + (r.rank === 1 ? "top mystery" : "") + '">' +
+         '<span class="rk">' + r.rank + '</span>' +
+         '<span class="nm" data-real="' + esc(r.name) + '" data-sub="' + esc(sub) + '">' + (r.rank === 1 ? "? ? ?" : esc(r.name)) +
+           (sub && r.rank !== 1 ? '<small>' + esc(sub) + '</small>' : "") + '</span>' +
+         '<span class="tt" data-real="' + fmt(r.total) + '">' + (r.rank === 1 ? "???" : fmt(r.total)) + '</span></li>';
+  });
+  h += '</ol></div>';
+  stage.innerHTML = h;
+  stage.scrollTop = 0;
+
+  // count up from last place, quicker when the room is big
+  const lis = $$(".board li", stage);
+  const step = lis.length > 8 ? 380 : 750;
+  let t = 500;
+  for (let i = lis.length - 1; i >= 0; i--){
+    const li = lis[i];
+    later(() => { li.classList.add("in"); li.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, t);
+    t += (li.dataset.rank === "1") ? 0 : step;
+  }
+
+  // then the announcement
+  later(() => {
+    const w = document.createElement("div");
+    w.className = "winner";
+    const names = top.map(r => r.name);
+    const tie = names.length > 1;
+    w.innerHTML = '<div class="drum">' + (tie ? "We have a tie. The winners are…" : "And the winner is…") + '</div>' +
+      '<div class="crown">🏆</div>' +
+      '<div class="wname">' + esc(names.join(" & ")) + '</div>' +
+      '<div class="wpts">' + fmt(top[0].total) + ' points' + (top[0].wins ? " · closest on " + top[0].wins + " round" + (top[0].wins === 1 ? "" : "s") : "") + '</div>' +
+      '<div class="hint">Click for the full table</div>';
+    $("#results").appendChild(w);
+    requestAnimationFrame(() => $(".drum", w).classList.add("in"));
+
+    later(() => {
+      w.classList.add("go");
+      confetti(w);
+      // the phones find out the same instant the TV does
+      if (live) dbPut("/now", {
+        r: G.idx, phase: "final", title: "",
+        winners: names, tie: tie,
+        standings: rows.map(r => ({ id: r.id, n: r.name, t: r.total, k: r.rank }))
+      });
+      // fill in the top row underneath
+      $$(".board li.top", stage).forEach(li => {
+        li.classList.remove("mystery");
+        const nm = $(".nm", li), tt = $(".tt", li);
+        nm.innerHTML = esc(nm.dataset.real) + (nm.dataset.sub ? '<small>' + esc(nm.dataset.sub) + '</small>' : "");
+        tt.textContent = tt.dataset.real;
+      });
+    }, 2300);
+
+    w.addEventListener("click", () => { if (w.classList.contains("go")) w.remove(); });
+  }, t + 700);
+}
+
+function confetti(host){
+  const box = document.createElement("div");
+  box.className = "confetti";
+  const colors = ["#05CE78", "#ffffff", "#B9F3D8", "#FFD23F", "#03A861"];
+  for (let i = 0; i < 140; i++){
+    const c = document.createElement("i");
+    c.style.left = (Math.random() * 100) + "%";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (2.4 + Math.random() * 2.6) + "s";
+    c.style.animationDelay = (Math.random() * 1.4) + "s";
+    c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+    if (i % 3 === 0){ c.style.width = "7px"; c.style.height = "7px"; c.style.borderRadius = "50%"; }
+    box.appendChild(c);
+  }
+  host.appendChild(box);
+}
+
+/* Space or Enter during the build-up skips straight to the announcement. */
+function skipResults(){
+  if (!RES.timers.length) return;
+  RES.squash = true;
+  runResults();
+  RES.squash = false;
+}
+
+$("#resReplay").addEventListener("click", runResults);
+$("#resBack").addEventListener("click", () => {
+  resClear();
+  $$(".winner", $("#results")).forEach(w => w.remove());
+  show("play");
+  requestAnimationFrame(() => { layoutColumns(); goPanel(G.panel || 0); });
+});
+$("#resMenu").addEventListener("click", () => { resClear(); show("menu"); });
+window.addEventListener("keydown", e => {
+  if ($("#results").classList.contains("hidden")) return;
+  const w = $(".winner", $("#results"));
+  if (e.key === "Escape"){ if (w && w.classList.contains("go")) w.remove(); }
+  else if (e.key === " " || e.key === "Enter"){
+    e.preventDefault();
+    if (w && w.classList.contains("go")) w.remove();
+    else skipResults();
+  }
+});
+
+/* ---------- phone: final standings ---------- */
+function phoneFinal(now){
+  const rows = now.standings || [];
+  const winners = now.winners || [];
+  const me = rows.find(r => r.id === LIVE.pid);
+  let h = '<div class="card ph-win"><div class="wl">' + (now.tie ? "Joint winners" : "The winner") + '</div>' +
+          '<div class="wn">' + esc(winners.join(" & ")) + '</div>';
+  if (me) h += '<p style="margin:.3rem 0 0;font-weight:600">' +
+               (me.k === 1 ? "That’s you. Take a bow." : "You came " + ordinal(me.k) + " of " + rows.length + ".") + '</p>';
+  h += '</div><div class="card">';
+  rows.forEach(r => {
+    h += '<div class="ph-row' + (r.id === LIVE.pid ? " me" : "") + '"><b>' + r.k + '</b><span>' + esc(r.n) + '</span><em>' +
+         Number(r.t).toLocaleString("en-US") + '</em></div>';
+  });
+  return h + '</div>';
+}
+function ordinal(n){
+  const s = ["th","st","nd","rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 /* ---------- phone ---------- */
 async function liveJoin(code, name){
   LIVE.code = String(code).toUpperCase().trim();
@@ -2437,7 +2800,7 @@ function liveTotal(){
 function renderLivePlayer(){
   if ($("#player").classList.contains("hidden")) return;
   const el = $("#playerInner");
-  const now = LIVE.state.now || { phase: "lobby", r: -1 };
+  let now = LIVE.state.now || { phase: "lobby", r: -1 };
   const mine = ((LIVE.state.guesses || {})[now.uid] || {})[LIVE.pid];
   const total = liveTotal();
   const name = store.get("ds.name") || "You";
@@ -2447,10 +2810,15 @@ function renderLivePlayer(){
        '<div class="total">' + total + '</div>' +
        '<div class="tiny" style="color:#555">room ' + esc(LIVE.code) + '</div></div>';
 
-  const known = now.phase === "lobby" || now.phase === "guessing" || now.phase === "revealed";
+  const known = /^(lobby|guessing|revealed|results|final)$/.test(now.phase);
   if (!known && now.r >= 0) now = Object.assign({}, now, { phase: "guessing" });
 
-  if (now.phase === "lobby" || now.r < 0){
+  if (now.phase === "results"){
+    h += '<div class="card" style="text-align:center"><b style="font-size:1.15rem">That\u2019s every round.</b>' +
+         '<p class="tiny" style="margin-top:.4rem">Eyes on the TV \u2014 the winner is about to be announced.</p></div>';
+  } else if (now.phase === "final"){
+    h += phoneFinal(now);
+  } else if (now.phase === "lobby" || now.r < 0){
     const seen = LIVE.state && LIVE.state.players;
     h += '<div class="card"><b>' + (seen ? "You\u2019re in. Waiting for the first round." : "Connecting\u2026") + '</b>' +
          '<p class="tiny" style="margin-top:.4rem">Keep this open \u2014 it wakes up on its own when the TV starts a round. Nothing to tap yet.</p></div>';

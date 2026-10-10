@@ -131,6 +131,16 @@ delete old games from the Firebase console now and then.
 
 ---
 
+### Results and the winner
+
+With a live room open, everyone's name sits in a strip across the top of the TV. A name lights up green the moment that phone locks in, and after the reveal each name shows the points it just earned, with a star on whoever was closest.
+
+On the last round the **Next round** button becomes **Final results** (there's also a **Results** button any time). The TV counts the table up from last place, holds on "And the winner is…", then puts the winner's name up in letters you can read from the back of the room. Every phone gets the announcement at the same instant, along with the full table and where that player finished. A tie announces joint winners. Space skips the build-up; **Run the reveal again** does it all over.
+
+### House rules
+
+"Bippity boppity" is banned. Type it — or paste it, or spell it b1ppity-B0PPITY, or try "bibbidi bobbidi" — into any box in the app and the box empties and the screen tells you, in very large red letters, to STOP THAT THIS INSTANT. A name that gets into the room some other way is struck out on the TV and the TV says the same thing.
+
 ## Cloud save
 
 Prepare a game on one computer, play it on another. **Cloud save…** uploads the
