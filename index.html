@@ -3433,7 +3433,7 @@ window.EventSource = function(url, opts){
    GOOGLE_CLIENT_ID: Firebase console → Authentication → Sign-in method →
    Google → Web SDK configuration → Web client ID. Empty = email only.
    ============================================================ */
-const GOOGLE_CLIENT_ID = "" || store.get("ds.googleClient") || "";   /* the store value is for tests */
+const GOOGLE_CLIENT_ID = "829468643014-3v2hjnb60pblnn0hkqor4ld2qcc89omp.apps.googleusercontent.com";
 function jwtClaims(t){
   try { return JSON.parse(decodeURIComponent(escape(atob(String(t).split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))))); }
   catch (e){ return {}; }
