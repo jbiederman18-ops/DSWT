@@ -2811,16 +2811,21 @@ function dbRoot(){ return String(LIVE.db || "").replace(/\/+$/, ""); }
    FB_API_KEY is the project's Web API key (Firebase console → Project
    settings → General). It is meant to be public. Empty = no sign-in, which
    only works while the database still has the old open rules. */
-const FB_API_KEY = "";
+const FB_API_KEY = "AIzaSyA4QrISlLPU7LNSbK4iA3syv36dwB-3O4A";
 const AUTH = {
   key: store.get("ds.fbKey") || FB_API_KEY,
   host: store.get("ds.authHost") || "",          /* tests point this at a stand-in */
   uid: store.get("ds.uid") || "",
   refresh: store.get("ds.refresh") || "",
-  token: "", exp: 0, busy: null, timer: 0
+  token: "", exp: 0, busy: null, timer: 0,
+  /* set when Firebase says anonymous sign-in isn't switched on for the project:
+     carry on without accounts (fine under the old open rules), try again later */
+  offUntil: Number(store.get("ds.authOff") || 0)
 };
+const AUTH_RETRY = 30 * 60 * 1000;
+const AUTH_SETUP_ERR = /OPERATION_NOT_ALLOWED|ADMIN_ONLY_OPERATION|CONFIGURATION_NOT_FOUND|API_KEY_INVALID|API key not valid|PROJECT_NOT_FOUND/i;
 /* only the built-in database belongs to this sign-in */
-const authOn = () => !!AUTH.key && (dbRoot() === DB_URL.replace(/\/+$/, "") || !!AUTH.host);
+const authOn = () => !!AUTH.key && Date.now() > AUTH.offUntil && (dbRoot() === DB_URL.replace(/\/+$/, "") || !!AUTH.host);
 if (authOn() && AUTH.uid) LIVE.pid = AUTH.uid;
 
 async function authCall(url, body, form){
@@ -2865,8 +2870,16 @@ function authToken(force){
     try {
       const j = await authCall(idt + "/v1/accounts:signUp?key=" + AUTH.key, { returnSecureToken: true });
       authSave(j.localId, j.idToken, j.refreshToken, j.expiresIn);
+      store.set("ds.authOff", "");
       return AUTH.token;
-    } catch (e){ return ""; }
+    } catch (e){
+      if (AUTH_SETUP_ERR.test(String(e.message))){
+        AUTH.offUntil = Date.now() + AUTH_RETRY;
+        store.set("ds.authOff", String(AUTH.offUntil));
+        authReconnect();
+      }
+      return "";
+    }
   })().finally(() => { AUTH.busy = null; });
   return AUTH.busy;
 }
@@ -2929,7 +2942,7 @@ function liveConnect(onChange){
   LIVE.onChange = onChange;
   if (!dbRoot() || !LIVE.code) return;
   if (authOn() && !(AUTH.token && AUTH.exp - Date.now() > 2 * 60000)){
-    authToken().then(t => { if (t && LIVE.onChange === onChange && !LIVE.es) liveConnect(onChange); });
+    authToken().then(t => { if ((t || !authOn()) && LIVE.onChange === onChange && !LIVE.es) liveConnect(onChange); });
     return;
   }
   const es = new EventSource(gamePath(""));
