@@ -34,8 +34,12 @@ It reads the PDF's real text layer, so it knows exactly where every word sits.
 - Flags other amounts that are still readable. A campaign that says
   "costs $400,000, I've put in $250,000" gives away a $150,000 goal by
   subtraction, so it offers to hide those too.
-- Cuts the page into slides and switches off the site nav, the legal footer and
-  any near-blank slice.
+- Cuts the page into slides at its own natural breaks. It builds an occupancy
+  map of every line of text, every picture and every blackout bar, and only
+  cuts where there is whitespace — so a slide starts at a heading rather than
+  halfway through a sentence, and a picture is never sliced in half. Large
+  images get a slide to themselves. Site nav, the legal footer and near-blank
+  slices start switched off.
 - Pulls out the title, creator, category, location, deadline, reward range, the
   campaign's most quotable claims, and whatever is worth noticing in the risks
   section. Money is scrubbed out of all of it.

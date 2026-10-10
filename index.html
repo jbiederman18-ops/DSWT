@@ -1020,7 +1020,6 @@ async function composite(r){
    A saved page is one long ribbon. Cut it into fixed slides so the
    game master has discrete things to keep, drop and reorder.
    ============================================================ */
-const SLIDE_RATIO = 1.3;        // each slide is a portrait chunk of the page
 
 function cropTiles(tiles, rect){
   const c = document.createElement("canvas");
@@ -1062,17 +1061,102 @@ function slideInterest(r, y, h){
   return { chars: chars, imgs: imgs };
 }
 
+/* Where the page can be cut without slicing through anything.
+   Build an occupancy map of every line of text, every picture and every
+   blackout bar, then treat the whitespace between them as candidate cuts. */
+function contentGaps(r){
+  const H = Math.ceil(r.pageH);
+  const occ = new Uint8Array(H + 1);
+  const PAD = Math.round(r.pageW * 0.006);
+  const mark = (y, h) => {
+    const a = Math.max(0, Math.floor(y) - PAD);
+    const b = Math.min(H, Math.ceil(y + h) + PAD);
+    for (let i = a; i < b; i++) occ[i] = 1;
+  };
+  for (const t of (r.textSpots || [])) mark(t.y, t.h);
+  for (const im of (r.imageSpots || [])) mark(im.y, im.h);
+  for (const b of (r.boxes || [])) if (b.on) mark(b.y, b.h);
+
+  const MIN_GAP = Math.max(20, Math.round(r.pageW * 0.045));
+  const gaps = [];
+  let i = 0;
+  while (i < H){
+    if (occ[i]){ i++; continue; }
+    let j = i;
+    while (j < H && !occ[j]) j++;
+    if (j - i >= MIN_GAP) gaps.push({ mid: (i + j) / 2, size: j - i });
+    i = j;
+  }
+
+  /* A picture deserves to start and end a slide rather than be straddled,
+     so its edges go in as strong candidates of their own. */
+  const bigEnough = r.pageW * 0.45;
+  for (const im of (r.imageSpots || [])){
+    if (im.h < bigEnough) continue;
+    gaps.push({ mid: Math.max(0, im.y - PAD), size: 140 });
+    gaps.push({ mid: Math.min(H, im.y + im.h + PAD), size: 140 });
+  }
+  gaps.sort((a, b) => a.mid - b.mid);
+  return gaps;
+}
+
+/* Never let a forced cut land inside a picture. */
+function nudgeOffImages(cut, floor, r){
+  for (const im of (r.imageSpots || [])){
+    if (cut > im.y + 2 && cut < im.y + im.h - 2){
+      const before = im.y - 2;
+      return before > floor ? before : im.y + im.h + 2;
+    }
+  }
+  return cut;
+}
+
+function sliceAt(r){
+  const target = r.pageW * 1.25;
+  const maxH   = r.pageW * 1.85;
+  const minH   = r.pageW * 0.45;
+  const gaps = contentGaps(r);
+  const cuts = [0];
+  let y = 0, guard = 0;
+  while (y < r.pageH - minH && guard++ < 500){
+    const window = gaps.filter(g => g.mid > y + minH && g.mid <= y + maxH);
+    let next;
+    if (window.length){
+      let best = null, bestScore = -Infinity;
+      for (const g of window){
+        // close to the target height, and the wider the whitespace the better
+        const sc = -Math.abs(g.mid - (y + target)) / target + Math.min(g.size, 220) / 220 * 0.75;
+        if (sc > bestScore){ bestScore = sc; best = g; }
+      }
+      next = best.mid;
+    } else {
+      next = nudgeOffImages(y + maxH, y + minH, r);
+    }
+    next = Math.min(next, r.pageH);
+    if (next <= y + 4) break;
+    cuts.push(next);
+    y = next;
+  }
+  if (r.pageH - y > 8) cuts.push(r.pageH);
+  // a sliver at the end is no one's idea of a slide; fold it into the one before
+  if (cuts.length > 2 && cuts[cuts.length - 1] - cuts[cuts.length - 2] < minH * 0.6){
+    cuts.splice(cuts.length - 2, 1);
+  }
+  return cuts;
+}
+
 async function buildSlides(r){
   if (r.slides) r.slides.forEach(sl => URL.revokeObjectURL(sl.url));
-  const H = Math.round(r.pageW * SLIDE_RATIO);
+  const cuts = sliceAt(r);
   const out = [];
-  for (let y = 0; y < r.pageH; y += H){
-    const h = Math.min(H, r.pageH - y);
-    if (h < H * 0.2 && out.length) break;        // ignore a sliver at the end
+  for (let i = 0; i + 1 < cuts.length; i++){
+    const y = Math.round(cuts[i]);
+    const h = Math.round(cuts[i + 1]) - y;
+    if (h < 40) continue;
     const got = await canvasToImg(cropTiles(r.tiles, { x: 0, y: y, w: r.pageW, h: h }));
     const score = slideInterest(r, y, h);
     const isFooter = r.footerY !== null && y >= r.footerY;
-    const isNav = y === 0 && score.imgs === 0 && score.chars < 120;
+    const isNav = i === 0 && score.imgs === 0 && score.chars < 120;
     out.push({
       y: y, h: h, url: got.url, img: got.img,
       chars: score.chars, imgs: score.imgs,
@@ -1080,7 +1164,6 @@ async function buildSlides(r){
       why: isFooter ? "footer" : isNav ? "site nav" : (score.chars < 60 && !score.imgs) ? "nearly blank" : ""
     });
   }
-  // always leave something to show
   if (!out.some(sl => sl.on)) out.forEach(sl => { sl.on = true; });
   r.slides = out;
 }
@@ -1094,24 +1177,6 @@ function tilesToImages(tiles){
                   .catch(() => res({ top: t.top, h: t.h, img: img, url: img.src }));
     }, "image/png");
   })));
-}
-
-function cropFromTiles(tiles, r, maxW){
-  const scale = Math.min(1, (maxW || 360) / r.w);
-  const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round(r.w * scale));
-  c.height = Math.max(1, Math.round(r.h * scale));
-  const ctx = c.getContext("2d");
-  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height);
-  for (const t of tiles){
-    if (r.y + r.h < t.top || r.y > t.top + t.h) continue;
-    const sy = Math.max(0, r.y - t.top);
-    const dy = Math.max(0, t.top - r.y);
-    const sh = Math.min(t.h - sy, r.h - dy);
-    if (sh <= 0) continue;
-    ctx.drawImage(t.canvas, r.x, sy, r.w, sh, 0, dy*scale, c.width, sh*scale);
-  }
-  return c.toDataURL("image/jpeg", 0.82);
 }
 
 /* ============================================================
@@ -1558,6 +1623,7 @@ function drawGrid(){
     const posEl = document.createElement("span");
     posEl.className = "pos";
     posEl.textContent = sl.on ? pos : "\u2013";
+    posEl.title = sl.on ? ("Slide " + pos + " of the round") : "Not in the round";
     const left = document.createElement("button");
     left.className = "mini"; left.textContent = "\u2039"; left.title = "Move earlier";
     left.disabled = idx === 0;
@@ -1569,9 +1635,11 @@ function drawGrid(){
     const grow = document.createElement("span"); grow.className = "grow";
     bar.appendChild(posEl); bar.appendChild(grow); bar.appendChild(left); bar.appendChild(right);
 
+    /* only label a slide that is switched off, and say why — a number here
+       sits on top of the first line of text */
     const state = document.createElement("span");
     state.className = "state";
-    state.textContent = sl.on ? String(idx + 1) : (sl.why || "off");
+    state.textContent = sl.why || "off";
 
     /* Flag what a text-layer blackout can miss: an amount still readable,
        and any picture, since a goal printed inside a graphic is invisible. */
@@ -1592,7 +1660,7 @@ function drawGrid(){
       risk.appendChild(t);
     }
 
-    card.appendChild(state);
+    if (!sl.on) card.appendChild(state);
     if (hits || pics) card.appendChild(risk);
     card.appendChild(im); card.appendChild(bar);
     grid.appendChild(card);
