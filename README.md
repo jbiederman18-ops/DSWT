@@ -115,6 +115,24 @@ delete old games from the Firebase console now and then.
 
 ---
 
+## Cloud save
+
+Prepare a game on one computer, play it on another. **Cloud save…** uploads the
+source PDFs plus every decision you've made — answers, blackout bars, slide
+order, what the info card shows — and gives you a six-character code. Enter it
+on the other machine and the game comes back exactly as you left it, still
+fully editable.
+
+It saves the PDFs rather than the rendered slides because that is both smaller
+(6.6 MB against 10.3 MB for one campaign) and keeps the game editable, since
+rendering is deterministic and lands in the same place on any machine. The
+trade-off is that loading re-renders: allow a few seconds a round.
+
+The decisions themselves are about 3 KB per round, so what you are really
+uploading is the PDFs.
+
+---
+
 ## Hosting it
 
 GitHub Pages: **Settings → Pages → Source: deploy from branch → `main` / root**.

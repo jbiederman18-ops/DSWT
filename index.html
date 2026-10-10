@@ -249,6 +249,28 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <label class="opt"><input type="checkbox" id="optImgs" checked><span>Pull out the campaign's own photos for the info card.</span></label>
     </div>
 
+    <p class="tiny" style="margin:-.6rem 0 1.4rem">Made this game on another computer? <button class="btn sm ghost" id="cloudBtn">Cloud save &amp; load…</button></p>
+    <div class="sheet hidden" id="cloudSheet" style="margin-top:-.8rem;margin-bottom:1.4rem">
+        <h3 style="font-size:1rem;margin-bottom:.2rem">Cloud save</h3>
+        <p class="tiny">Saves the source PDFs and every decision you've made — answers, blackout bars, which slides are in, what the info card shows. Open the code on another computer and the game comes back exactly as you left it, still editable. Rebuilding re-renders the pages, so allow a few seconds a round.</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.7rem">
+          <button class="btn sm solid" id="saveBtn">Save this game</button>
+          <span class="tiny" id="cloudNote"></span>
+        </div>
+        <div id="savedBox" class="hidden" style="margin-top:.7rem;text-align:center">
+          <div class="tiny">Open this on the other computer</div>
+          <div id="saveCode" style="font-family:var(--display);font-weight:800;font-size:clamp(2rem,7vw,3.2rem);letter-spacing:.1em;line-height:1.1"></div>
+          <button class="btn sm" id="copySave">Copy code</button>
+        </div>
+        <div style="margin-top:1.1rem;border-top:1px solid var(--rule);padding-top:.9rem">
+          <label class="field"><span>Load a saved game</span><input type="text" id="loadCode" placeholder="six characters" style="text-transform:uppercase"></label>
+          <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+            <button class="btn sm" id="loadBtn">Load</button>
+            <span class="tiny" id="loadNote"></span>
+          </div>
+        </div>
+      </div>
+
     <div class="bar-progress hidden" id="prog"><i></i></div>
     <p class="tiny" id="progtxt"></p>
 
@@ -1125,9 +1147,10 @@ async function ingest(files){
   $("#rounds").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-async function ingestOne(file, opts){
+async function ingestOne(file, opts, recipe){
   const buf = await file.arrayBuffer();
-  const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+  const keep = new Uint8Array(buf.slice(0));      // pdf.js detaches what it is given
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(keep) }).promise;
   const meta = await doc.getMetadata().then(m => m.info).catch(() => ({}));
 
   // scale so the rendered page is comfortably readable on a big screen
@@ -1188,6 +1211,7 @@ async function ingestOne(file, opts){
 
   const round = {
     id: "r" + (G.rounds.length + 1),
+    pdfData: keep,
     uid: "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     file: file.name,
     title: info.title, creator: info.creator, pitch: info.pitch, showPitch: true, factOff: {}, reviewed: false,
@@ -1199,9 +1223,63 @@ async function ingestOne(file, opts){
     pageW: pageW, pageH: offsetY, scale: scale,
     raised: fund.raised, goal: fund.goal
   };
+  if (recipe) applyRecipe(round, recipe);
   await composite(round);
   await buildSlides(round);
+  if (recipe && recipe.slides) applySlideRecipe(round, recipe.slides);
   return round;
+}
+
+/* Rendering is deterministic, so geometry saved on one machine lands in
+   exactly the same place on another. Only the decisions need storing. */
+function makeRecipe(r){
+  return {
+    v: 1, file: r.file, uid: r.uid, title: r.title, creator: r.creator,
+    pitch: r.pitch, raised: r.raised, goal: r.goal, reviewed: r.reviewed,
+    showPitch: r.showPitch, factOff: r.factOff, facts: r.facts,
+    boxes: r.boxes.map(b => ({ x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.w), h: Math.round(b.h), on: !!b.on, why: b.why })),
+    claimsOn: r.claims.map(c => !!c.on),
+    flagsOn: r.flags.map(f => !!f.on),
+    shotsOn: r.shots.map(sh => !!sh.on),
+    slides: r.slides.map(sl => ({ y: Math.round(sl.y), on: !!sl.on }))
+  };
+}
+
+function applyRecipe(r, rec){
+  if (rec.uid) r.uid = rec.uid;
+  if (rec.title) r.title = rec.title;
+  if (rec.creator !== undefined) r.creator = rec.creator;
+  if (rec.pitch !== undefined) r.pitch = rec.pitch;
+  if (rec.facts) r.facts = rec.facts;
+  if (rec.factOff) r.factOff = rec.factOff;
+  if (rec.showPitch !== undefined) r.showPitch = rec.showPitch;
+  if (rec.raised !== undefined) r.raised = rec.raised;
+  if (rec.goal !== undefined) r.goal = rec.goal;
+  r.reviewed = !!rec.reviewed;
+  if (rec.boxes) r.boxes = rec.boxes.map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, on: b.on !== false, why: b.why || "saved" }));
+  if (rec.claimsOn) r.claims.forEach((c, i) => { if (i < rec.claimsOn.length) c.on = rec.claimsOn[i]; });
+  if (rec.flagsOn) r.flags.forEach((f, i) => { if (i < rec.flagsOn.length) f.on = rec.flagsOn[i]; });
+  if (rec.shotsOn) r.shots.forEach((sh, i) => { if (i < rec.shotsOn.length) sh.on = rec.shotsOn[i]; });
+  r.leakBoxes = [];
+}
+
+/* Slides are matched on their position down the page, then put back in the
+   saved order — so a reordered deck survives the round trip. */
+function applySlideRecipe(r, saved){
+  const pool = r.slides.slice();
+  const out = [];
+  for (const want of saved){
+    let best = -1, dist = 1e9;
+    for (let i = 0; i < pool.length; i++){
+      const d = Math.abs(pool[i].y - want.y);
+      if (d < dist){ dist = d; best = i; }
+    }
+    if (best >= 0 && dist < 40){
+      pool[best].on = want.on;
+      out.push(pool.splice(best, 1)[0]);
+    }
+  }
+  r.slides = out.concat(pool);
 }
 
 /* ============================================================
@@ -2196,6 +2274,114 @@ $("#liveSave").addEventListener("click", () => {
   $("#liveState").textContent = typed ? "Pointed at your database." : "Back to the built-in database.";
 });
 $("#liveStart").addEventListener("click", liveOpenRoom);
+
+
+/* ============================================================
+   15. CLOUD SAVE
+   The source PDF plus a few kilobytes of decisions, chunked into
+   the same database. Loading re-renders, which costs a few seconds
+   a round but keeps the game fully editable on the far machine.
+   ============================================================ */
+const CHUNK = 700000;          // base64 characters per write
+
+function b64(bytes){
+  let out = "";
+  const STEP = 0x8000;
+  for (let i = 0; i < bytes.length; i += STEP){
+    out += String.fromCharCode.apply(null, bytes.subarray(i, i + STEP));
+  }
+  return btoa(out);
+}
+function unb64(str){
+  const bin = atob(str);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function savePath(sub){ return dbRoot() + "/saves" + sub + ".json"; }
+
+async function putJSON(url, value){
+  const res = await fetch(url, { method: "PUT", body: JSON.stringify(value) });
+  if (!res.ok) throw new Error("write failed (" + res.status + ")");
+  return true;
+}
+
+async function cloudSave(){
+  if (!G.rounds.length){ $("#cloudNote").textContent = "Import some PDFs first."; return; }
+  const btn = $("#saveBtn"), note = $("#cloudNote");
+  btn.disabled = true;
+  let code = "";
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  for (let i = 0; i < 6; i++) code += letters[Math.floor(Math.random() * letters.length)];
+
+  try {
+    let sent = 0, total = G.rounds.reduce((a, r) => a + (r.pdfData ? r.pdfData.length : 0), 0);
+    for (let i = 0; i < G.rounds.length; i++){
+      const r = G.rounds[i];
+      if (!r.pdfData) throw new Error("round " + (i+1) + " has no source PDF — re-import it");
+      await putJSON(savePath("/" + code + "/r" + i + "/recipe"), makeRecipe(r));
+      const data = b64(r.pdfData);
+      const parts = Math.ceil(data.length / CHUNK);
+      for (let p = 0; p < parts; p++){
+        await putJSON(savePath("/" + code + "/r" + i + "/pdf/c" + p), data.slice(p * CHUNK, (p + 1) * CHUNK));
+      }
+      await putJSON(savePath("/" + code + "/r" + i + "/parts"), parts);
+      sent += r.pdfData.length;
+      note.textContent = "Uploading — round " + (i+1) + " of " + G.rounds.length +
+                         " (" + Math.round(sent / total * 100) + "%)";
+    }
+    await putJSON(savePath("/" + code + "/meta"), {
+      created: Date.now(), rounds: G.rounds.length,
+      titles: G.rounds.map(r => r.title.slice(0, 60))
+    });
+    $("#saveCode").textContent = code;
+    $("#savedBox").classList.remove("hidden");
+    note.textContent = "Saved.";
+  } catch (e){
+    note.textContent = "Couldn't save: " + e.message;
+  }
+  btn.disabled = false;
+}
+
+async function cloudLoad(code){
+  const note = $("#loadNote");
+  code = String(code).toUpperCase().trim();
+  if (!/^[A-Z0-9]{6}$/.test(code)){ note.textContent = "That should be six characters."; return; }
+  note.textContent = "Looking for " + code + "…";
+  try {
+    const meta = await (await fetch(savePath("/" + code + "/meta"))).json();
+    if (!meta || !meta.rounds){ note.textContent = "No game saved under that code."; return; }
+
+    for (let i = 0; i < meta.rounds; i++){
+      note.textContent = "Rebuilding round " + (i+1) + " of " + meta.rounds + "…";
+      const node = await (await fetch(savePath("/" + code + "/r" + i))).json();
+      if (!node || !node.pdf) throw new Error("round " + (i+1) + " is missing from the save");
+      let data = "";
+      for (let p = 0; p < (node.parts || Object.keys(node.pdf).length); p++) data += node.pdf["c" + p] || "";
+      const bytes = unb64(data);
+      const file = new File([bytes], (node.recipe && node.recipe.file) || ("round-" + (i+1) + ".pdf"),
+                            { type: "application/pdf" });
+      const round = await ingestOne(file, {
+        band: $("#optBand").checked, allMoney: $("#optAllMoney").checked, images: $("#optImgs").checked
+      }, node.recipe);
+      G.rounds.push(round);
+      renderRoundList(true);
+      $("#rounds").classList.remove("hidden");
+    }
+    note.textContent = "Loaded " + meta.rounds + " round" + (meta.rounds > 1 ? "s" : "") + ".";
+    toast("Game " + code + " loaded.");
+  } catch (e){
+    note.textContent = "Couldn't load: " + e.message;
+  }
+}
+
+$("#cloudBtn").addEventListener("click", () => $("#cloudSheet").classList.toggle("hidden"));
+$("#saveBtn").addEventListener("click", cloudSave);
+$("#loadBtn").addEventListener("click", () => cloudLoad($("#loadCode").value));
+$("#copySave").addEventListener("click", () => {
+  navigator.clipboard.writeText($("#saveCode").textContent).then(() => toast("Copied"), () => {});
+});
 
 /* ============================================================
    13. WIRING

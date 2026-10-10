@@ -6,6 +6,13 @@
         ".write": true,
         ".validate": "$code.length === 4"
       }
+    },
+    "saves": {
+      "$code": {
+        ".read": true,
+        ".write": true,
+        ".validate": "$code.length === 6"
+      }
     }
   }
 }
