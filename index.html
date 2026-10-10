@@ -1014,7 +1014,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 }
 
 /* "game going live" */
-.live-banner{position:fixed;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + var(--app-y,0px));transform:translateX(-50%);z-index:60;
+.live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
              display:flex;align-items:center;gap:.6rem;width:min(560px,calc(100vw - 16px));padding:.55rem .55rem .55rem .9rem;
              background:var(--stamp);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:700}
 .live-banner.pop{animation:lbpop .55s cubic-bezier(.2,1.5,.4,1)}
@@ -1063,7 +1063,9 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 
 /* push alerts */
 #crAlerts.on{background:var(--marker) !important;color:#06281A !important;border-color:var(--marker) !important}
-.modal{position:fixed;left:0;right:0;top:var(--app-y,0px);height:var(--app-h,100%);z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+/* inside #app, which moves with the keyboard and so already places these:
+   they fill the app, nothing more (adding --app-y here pushed them down twice) */
+.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
 .modal .card{width:100%;max-width:460px;margin:0 !important;border-radius:16px !important}
 @media (min-width:600px){.modal{align-items:center}}
 .ios-steps{margin:0;padding-left:1.3rem;font-size:.95rem}
@@ -3803,7 +3805,7 @@ function e2eDevice(){
     E2E.dev = rec.id; E2E.priv = rec.priv; E2E.pub = rec.pub;
     const r = await fetch(dbRoot() + "/users/" + AUTH.uid + "/devices/" + rec.id + ".json",
       { method: "PUT", body: JSON.stringify({ pub: rec.pub, at: { ".sv": "timestamp" }, kind: deviceLabel() }) }).catch(() => null);
-    if (!r || !r.ok){ E2E.ready = null; return null; }
+    if (!r || !r.ok){ E2E.ready = null; E2E.why = r ? "device:" + r.status : "offline"; return null; }
     return E2E;
   })().catch(() => { E2E.ready = null; return null; });
   return E2E.ready;
@@ -3900,6 +3902,15 @@ async function crewPost(m, code){
   return fetch(crewPath("/chat", code), { method: "POST", body: JSON.stringify(m) }).catch(() => null);
 }
 
+/* why encryption couldn't be set up, in words someone can act on */
+function e2eWhy(){
+  const w = String(E2E.why || "");
+  if (w === "offline") return "Couldn’t reach the database. Check your connection and try again.";
+  if (/^(device|key):40[13]$/.test(w))
+    return "The database refused to store this chat’s encryption key. Its rules are older than the app: paste the latest firebase-rules.json into Firebase → Realtime Database → Rules, publish, and try again.";
+  return "Couldn’t set up encryption for this chat" + (w ? " (" + w + ")" : "") + ". Try again in a moment.";
+}
+
 /* a brand-new key for a chat: when it's made, and after removing someone */
 async function newChatKey(code){
   const d = await e2eDevice();
@@ -3908,7 +3919,7 @@ async function newChatKey(code){
   const kid = "k" + randId(8);
   const rec = await wrapFor(new Uint8Array(await crypto.subtle.exportKey("raw", key)), d.pub);
   const r = await fetch(crewPath("/keys/" + kid + "/" + AUTH.uid + "/" + d.dev, code), { method: "PUT", body: JSON.stringify(rec) }).catch(() => null);
-  if (!r || !r.ok) return null;
+  if (!r || !r.ok){ E2E.why = r ? "key:" + r.status : "offline"; return null; }
   let m = E2E.keys.get(code); if (!m) E2E.keys.set(code, m = new Map());
   m.set(kid, Promise.resolve(key));
   kvSet("ck:" + AUTH.uid + ":" + code + ":" + kid, key);
@@ -5946,7 +5957,16 @@ async function crewCreate(title, name){
   if (err) return err;
   if (e2eOn()){
     /* the chat's first key, made on this phone; everything after is sealed */
-    if (!(await newChatKey(code))) return "Couldn’t set up encryption for this chat.";
+    E2E.why = "";
+    if (!(await newChatKey(code))){
+      /* don't leave a half-made chat in anyone's list */
+      fetch(crewPath("/members/" + LIVE.pid, code), { method: "DELETE" }).catch(() => {});
+      if (AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/crews/" + code + ".json", { method: "DELETE" }).catch(() => {});
+      crewForget(code);
+      if (CR.code === code){ if (CR.es){ CR.es.close(); CR.es = null; } CR.code = ""; CR.state = {}; store.set("ds.crew", ""); }
+      drawHome();
+      return e2eWhy();
+    }
     try {
       await putJSON(crewPath("/meta/name", code), await seal(code, title));
       await putJSON(crewPath("/members/" + LIVE.pid + "/n", code), await seal(code, name));
