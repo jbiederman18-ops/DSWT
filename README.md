@@ -128,6 +128,8 @@ nothing to install.
 
 **Accounts and the rules.** Every phone signs itself in with an anonymous
 Firebase account the first time it opens the app; nobody fills anything in.
+Chats also need a signed-in account (Google or an email link) and are end-to-end
+encrypted: see **Signing in and end-to-end encryption** below.
 The rules in [`firebase-rules.json`](firebase-rules.json) use that account to
 decide who can do what:
 
@@ -298,6 +300,67 @@ your avatar opens your profile.
 - **⋯** shows the crew code and lets you leave.
 - **Existing chats after this update:** everyone already in a chat stays in.
   Old invite links still work, but now as a request someone has to approve.
+
+#### Signing in and end-to-end encryption
+
+**Chats need a signed-in account.** Opening the chats asks you to sign in with
+**Google** or with a **link sent by email** (no passwords). Signing in links
+the account the phone already had, so everyone keeps their place in their
+chats; on a new phone, the same sign-in brings back the same chats. Game rooms
+don't need an account: anyone with a room code can still play.
+
+**Chats are end-to-end encrypted.** Each phone makes its own private key when
+it first signs in; it never leaves that phone's browser. Each chat has a key of
+its own, and a copy of it is locked to every member's every phone. Messages,
+replies, reactions, photos, names, nicknames, the chat's name, its photo theme
+and its picture are all encrypted on the phone before they're sent, so the
+database only ever holds scrambled text. Not Firebase, not Google, and not you
+as the owner of the database can read them.
+
+- **New members and new phones are unlocked automatically.** Whenever anyone in
+  the chat has the app open, their app hands the chat's key to any member phone
+  that doesn't have it yet. Until then, the new phone shows "Unlocking this chat
+  on this phone".
+- **Removing someone** switches the chat to a new key; they can't read anything
+  sent after that, even if they somehow got back into the database.
+- **Messages from before encryption** are re-encrypted by each person's own app
+  the first time they sign in. Messages from someone who never signs in again
+  stay as they were.
+- **Push alerts** can't show what was said (the relay can't read it), so they say
+  "New message" instead.
+
+**What stays readable** in the database, because the app needs it to work:
+which accounts are in which chat, when things were sent, colours and which
+scene a chat uses, the names of people asking to join (until someone answers),
+and game rooms (players' names, guesses, scores) and saved games.
+
+**The one thing to know:** the keys live in phones' browsers. If *every* person
+in a chat signs out or clears their browser data at the same time, nobody holds
+the key any more and that chat's history can't be read again. As long as one
+phone in the chat still has it, everyone else gets unlocked again.
+
+**Turning it on (once, in this order).** Do steps 1–3 before publishing the
+rules; once the rules are on, the chats ask everyone to sign in.
+
+1. **Firebase console → Authentication → Sign-in method → Add new provider →
+   Email/Password.** Turn on **Email link (passwordless sign-in)** and save.
+2. **Same page → Add new provider → Google**, enable it, pick a support email,
+   save. Then open Google again, expand **Web SDK configuration**, copy the
+   **Web client ID** into `GOOGLE_CLIENT_ID` near the top of the "Accounts"
+   section of `index.html`, and push to GitHub. (Leave it empty to offer email
+   only.)
+3. **Authentication → Settings → Authorized domains → Add domain:**
+   `jbiederman18-ops.github.io`. Then in the
+   [Google Cloud console](https://console.cloud.google.com/apis/credentials)
+   for the same project, open the **Web client (auto created by Google
+   Service)** and add `https://jbiederman18-ops.github.io` under **Authorized
+   JavaScript origins**.
+4. **Realtime Database → Rules:** paste `firebase-rules.json`, **Publish**.
+
+**On iPhone, from the home screen:** an email link opens in Safari, not the
+app. The sign-in screen says what to do: press and hold the link in the email,
+copy it, and paste it into the app. Google sign-in may also open a separate
+window there; email always works.
 
 #### Setting up push alerts (once)
 

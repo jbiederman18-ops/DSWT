@@ -47,6 +47,7 @@ function siteFor(env, claimed){
   } catch (e){}
   return home;
 }
+const SEALED = "e2ee:v1:";              // end-to-end encrypted text: unreadable here, by design
 const LIVE_WINDOW = 10 * 60 * 1000;   // only announce a game opened in the last 10 minutes
 const MIN_GAP = 3 * 60 * 1000;        // and not more often than this per crew
 
@@ -241,17 +242,21 @@ async function message(req, env){
   await fetch(await at("chat/" + key + "/p"), { method: "PUT", body: "1" });
 
   const from = String(m.by || m.pid || "");
-  const who = String(m.n || "Someone").slice(0, 40);
-  const crewName = String((meta && meta.name) || "Your crew").slice(0, 60);
-  let text = String(m.t || "").replace(/\s+/g, " ").trim();
+  /* Chats are end-to-end encrypted: the relay can't read names or messages,
+     so the alert says only that something arrived. Plain text (from before
+     encryption) is still shown as it was. */
+  const plain = v => typeof v === "string" && v && !v.startsWith(SEALED);
+  const who = plain(m.n) ? String(m.n).slice(0, 40) : "";
+  const crewName = plain(meta && meta.name) ? String(meta.name).slice(0, 60) : "DS(WT) Crew";
+  let text = plain(m.t) ? String(m.t).replace(/\s+/g, " ").trim() : (m.t ? "New message" : "");
   if (text.length > 140) text = text.slice(0, 139) + "…";
-  if (m.img) text = "\u{1F4F7} " + (text || "Photo");
+  if (m.img) text = "\u{1F4F7} " + (plain(m.t) ? text : "Photo");
   const mentioned = uid => !!(m.m && m.m[uid]);
   const out = await sendAll(subs,
     (uid, mode) => uid !== from && (mode === "all" || (mode === "mentions" && mentioned(uid))),
     uid => JSON.stringify({
-      title: mentioned(uid) ? who + " mentioned you in " + crewName : crewName,
-      body: (mentioned(uid) ? "" : who + ": ") + text,
+      title: mentioned(uid) ? (who || "Someone") + " mentioned you" + (crewName !== "DS(WT) Crew" ? " in " + crewName : "") : crewName,
+      body: (mentioned(uid) || !who ? "" : who + ": ") + (text || "New message"),
       url: site + "#crew=" + crew,
       tag: "ds-chat-" + crew
     }), env, at);
@@ -277,7 +282,7 @@ async function notify(req, env){
   if (sent && Date.now() - Number(sent.at || 0) < MIN_GAP) return json({ skipped: "too soon" }, 429);
   await fetch(await at("pushSent"), { method: "PUT", body: JSON.stringify({ room: room, at: Date.now() }) });
 
-  const crewName = String((meta && meta.name) || "Your crew").slice(0, 60);
+  const crewName = typeof (meta && meta.name) === "string" && !meta.name.startsWith(SEALED) ? String(meta.name).slice(0, 60) : "Your crew";
   const n = Number(live.rounds) || 0;
   const payload = JSON.stringify({
     title: "\u{1F534} " + crewName + " is going live",
