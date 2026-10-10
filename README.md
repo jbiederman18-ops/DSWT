@@ -131,13 +131,21 @@ Firebase account the first time it opens the app; nobody fills anything in.
 The rules in [`firebase-rules.json`](firebase-rules.json) use that account to
 decide who can do what:
 
-- **A crew's chat, members and live game** can only be read by its members. Anyone
-  with the crew code (or invite link) can join, which makes them a member.
+- **A crew's chat, name, members, photos and live game** can only be read by its
+  members. The invite link or code only lets someone **ask** to join: their
+  request shows up for everyone in the chat as "Sam wants to join · Not now /
+  Let in", and nothing is visible to them until someone lets them in. People you
+  add from **New chat** (because they're already in another chat with you) go
+  straight in. Anyone in a chat can remove someone from **Chat settings →
+  People**, and they lose access at once.
 - **Messages:** you can only post as yourself, and only edit or delete your own.
   You can react to anything, but only as yourself.
 - **Alert subscriptions** can't be read by anyone except the push relay.
-- **Game rooms and saved games** need a signed-in phone, and the code is the key,
-  as before. The answers are never written to a room until the moment you
+- **Game rooms** need a signed-in phone, and the code is the key. The room
+  belongs to whoever opened it: only the host can start rounds, reveal, score or
+  close it, and each player can only write their own name and their own guesses.
+- **Photos** must be pictures, and an edited message stays with whoever wrote it.
+- **Saved games** need a signed-in phone, and the code is the key, as before. The answers are never written to a room until the moment you
   reveal them, so a player poking at the raw data finds nothing worth cheating
   with.
 
@@ -228,11 +236,16 @@ your avatar opens your profile.
 - **New chat:** name it (or don't), tick people from your other chats, and
   **Start chat**. They find it at the top of their list and join with one tap.
   You also get an invite link for anyone else; **Join with a code** takes one.
+  Either way, someone new asks to join and anyone already in the chat lets them in.
 - **Chat settings** (tap the chat's name, or ⓘ): rename it, pick a **theme**
   (Mint, Redacted, Stretch goal, Backer, Grape, Neon, Night) or a **scene**, an
-  **icon**, and
-  **nicknames** for anyone in it. Everyone sees the changes, and the chat says
-  who made them. The invite link and code, and **Leave chat**, are here too.
+  **icon** (an emoji, initials, or a photo), and **nicknames** for anyone in it.
+  **Your photo** turns any picture into the chat's theme: it fills the
+  background, the bubbles and buttons take their colours from it, and anyone can
+  give the theme a name. Everyone in the chat can change all of this, everyone
+  sees the changes, and the chat says who made them. **People** lists everyone
+  in the chat, with a button to remove someone. The invite link and code, and
+  **Leave chat**, are here too.
 - Light and dark follow your phone's setting.
 - **Scenes** restyle the whole chat (background, header, bubbles, the font
   for names, the send button and the one-tap emoji row):
@@ -283,6 +296,8 @@ your avatar opens your profile.
     tap the bell there.
   - Whoever hosts doesn't get pinged by their own game.
 - **⋯** shows the crew code and lets you leave.
+- **Existing chats after this update:** everyone already in a chat stays in.
+  Old invite links still work, but now as a request someone has to approve.
 
 #### Setting up push alerts (once)
 
@@ -301,6 +316,10 @@ Cloudflare Worker. No credit card, no command line.
    **Secret**, name `VAPID_JWK`, paste the key, **Deploy**.
 6. Put the Worker's address in `PUSH_URL` near the top of the push section in
    `index.html` and push to GitHub.
+
+If the app lives anywhere other than `https://jbiederman18-ops.github.io/`, add a
+plain variable named `SITE` to the Worker with its address. Alerts only ever
+link there, so nobody can use the relay to send the crew somewhere else.
 
 Until step 6 the bell falls back to an in-tab notification on computers, and
 the in-app banner works everywhere regardless.
@@ -359,7 +378,7 @@ uploading is the PDFs.
 ## Hosting it
 
 GitHub Pages: **Settings → Pages → Source: deploy from branch → `main` / root**.
-It'll be at `https://<you>.github.io/dicksharter/`.
+It'll be at `https://<you>.github.io/DSWT/`.
 
 Anything that serves a static file works just as well — Netlify, a USB stick,
 opening the file off your desktop. The only requirement for live play is that

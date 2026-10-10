@@ -58,7 +58,12 @@ self.addEventListener("push", e => {
 
 self.addEventListener("notificationclick", e => {
   e.notification.close();
-  const url = (e.notification.data && e.notification.data.url) || "./";
+  /* only ever open this app: a link to anywhere else in a push is ignored */
+  let url = (e.notification.data && e.notification.data.url) || "./";
+  try {
+    const u = new URL(url, self.registration.scope);
+    url = u.origin === self.location.origin ? u.href : self.registration.scope;
+  } catch (err){ url = self.registration.scope; }
   e.waitUntil((async () => {
     const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const w of wins){

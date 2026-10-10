@@ -199,7 +199,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .mi{display:flex;align-items:stretch;gap:0;text-align:left;border:2px solid var(--ink);background:var(--card);
     padding:0;box-shadow:var(--shadow);width:100%;overflow:hidden;border-radius:var(--r)}
 .mi .mk{flex:0 0 auto;background:var(--marker);color:#06281A;font-family:var(--display);font-weight:800;
-        font-size:1.05rem;display:flex;align-items:center;padding:0 .85em;letter-spacing:.02em}
+        font-size:1.05rem;display:flex;align-items:center;justify-content:center;width:3.2em;padding:0;letter-spacing:.02em;
+        font-variant-numeric:tabular-nums}
 .mi .mt{padding:.75em .95em;display:block}
 .mi b{display:block;font-size:1.08rem;font-weight:700;line-height:1.2}
 .mi em{display:block;font-style:normal;font-size:.86rem;color:var(--ink-soft);margin-top:.12em}
@@ -209,7 +210,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .foot{max-width:56ch;margin-top:2.4rem}
 .backbar{display:flex;align-items:center;gap:.9rem;margin-bottom:1.6rem}
 .backbar h2{font-size:1.5rem}
-@media (max-width:520px){.mi b{font-size:1rem}.mi .mk{padding:0 .6em}}
+@media (max-width:520px){.mi b{font-size:1rem}.mi .mk{width:2.6em}}
 
 /* ---------- spoiler shield ---------- */
 .shielded .round-row .title{color:var(--ink-soft);font-style:italic}
@@ -500,21 +501,17 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ch-at{font-weight:800}
 .ch-msg.mention .ch-b{box-shadow:0 0 0 2px var(--marker-deep)}
 .ch-quote{display:block;border-left:3px solid currentColor;padding:.1rem .5rem;margin:.05rem 0 .35rem;font-size:.82rem;opacity:.75;
-          max-height:3.6em;overflow:hidden;cursor:pointer}
+          overflow:hidden;cursor:pointer}
 .ch-quote b{display:block;font-size:.72rem}
+.ch-qt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
 .ch-img{display:block;width:min(260px,62vw);max-height:340px;object-fit:cover;border-radius:10px;margin:.15rem 0 .2rem;background:var(--rule);cursor:zoom-in}
 .ch-img.broken{min-height:3rem}
+/* a photo on its own: the picture is the bubble, with a hairline of colour */
+.ch-b.pic-only,.msgr .ch-b.pic-only{padding:3px;border-radius:18px}
+.ch-b.pic-only .ch-img{margin:0;border-radius:15px}
 .ch-av{font-style:normal;margin-right:.3em}
 .ch-msg.flash .ch-b{animation:chflash 1.2s ease}
 @keyframes chflash{0%,40%{box-shadow:0 0 0 4px var(--hl)}}
-.ch-pick{display:flex;flex-direction:column;gap:.3rem;background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:.25rem;margin:.3rem 0;
-         box-shadow:0 6px 18px rgba(0,0,0,.18)}
-.ch-pick-rx{display:flex;gap:0;flex-wrap:wrap}
-.ch-pick-rx button{border:0;background:transparent;font-size:1.35rem;padding:.12em .22em;border-radius:8px}
-.ch-pick-rx button:hover{background:var(--hl)}
-.ch-pick-act{display:flex;gap:.3rem;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:.3rem}
-.ch-pick-act button{border:1px solid var(--rule);background:var(--paper);border-radius:99px;padding:.25em .8em;font-size:.82rem;font-weight:600}
-.ch-pick-act button.danger{color:var(--stamp)}
 .ch-ctx{display:flex;align-items:center;gap:.5rem;margin:.3rem .6rem 0;padding:.35rem .5rem .35rem .7rem;background:var(--paper-deep);
         border-left:3px solid var(--marker-deep);border-radius:8px;flex:0 0 auto}
 .ch-ctx-t{flex:1;min-width:0;display:flex;align-items:center;gap:.5rem;font-size:.8rem}
@@ -669,9 +666,6 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .msgr .ch-pill.on{background:var(--m-mint);border-color:var(--m-green)}
 .msgr .ch-meta,.msgr .ch-seen{color:var(--m-soft)}
 .msgr .ch-top{color:var(--m-soft)}
-.msgr .ch-pick{background:var(--m-surf);border:1px solid var(--m-line);border-radius:18px;box-shadow:0 12px 32px rgba(14,40,28,.18)}
-.msgr .ch-pick-act button{background:var(--m-bg);border:0;color:var(--m-ink);border-radius:99px}
-.msgr .ch-pick-act button.danger{color:var(--m-red)}
 .msgr .ch-status{color:var(--m-soft)}
 .msgr .ch-react{border-top:0;padding:.2rem clamp(.6rem,3vw,2rem) 0;background:transparent;gap:0}
 .msgr .ch-react button{font-size:1.25rem;opacity:.9}
@@ -756,6 +750,69 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
    the phone's own font so it reads at a glance. */
 .theme-row.scenes{grid-template-columns:repeat(3,1fr)}
 .theme-row.scenes button i{width:100%;height:40px;border-radius:10px}
+/* the upload tiles: a dashed outline with a camera, same size as the rest */
+.theme-row.scenes button.add i{display:grid;place-items:center;background:transparent;border:1.5px dashed var(--m-soft);color:var(--m-soft)}
+.theme-row button.add svg,.icon-row button.pic-add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icon-row button.pic-add{color:var(--m-soft);border:1.5px dashed var(--m-soft)}
+.icon-row button.pic{padding:0;overflow:hidden}
+.icon-row button.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.theme-name{margin:.6rem 0 0}
+.cv-icon .cv-pic{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
+.cv-icon:has(.cv-pic){background:none}
+/* the chat name in settings is a field you can tap: say so */
+.info-hero input[type=text]{border-color:transparent;border-bottom:1.5px dashed var(--m-line);border-radius:10px 10px 4px 4px;
+  padding-right:2.1em;background:no-repeat right .6em center/16px
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A9690' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z'/%3E%3C/svg%3E")}
+.info-hero input[type=text]:focus{border-bottom-style:solid;border-bottom-color:var(--me-a,var(--m-green))}
+
+/* someone asking to join: a quiet bar under the header, for members */
+.cr-req{display:flex;flex-direction:column;gap:6px;padding:8px clamp(.6rem,3vw,2rem);background:var(--m-surf);border-bottom:1px solid var(--m-line);
+        -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);position:relative;z-index:2}
+.cr-req.hidden{display:none}
+.rq{display:flex;align-items:center;gap:10px;font-size:.92rem;color:var(--m-ink)}
+.rq-av{width:32px;height:32px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;font:700 .78rem/1 var(--m-name);
+       background:linear-gradient(140deg,var(--me-a,var(--m-green)),var(--me-b,var(--m-green)));color:var(--me-t,#fff)}
+.rq-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rq button{border:0;border-radius:99px;padding:.5em .95em;font:600 .82rem/1 var(--m-text);cursor:pointer;flex:0 0 auto}
+.rq-no{background:transparent;color:var(--m-soft)}
+.rq-no:hover{background:var(--m-press)}
+.rq-yes{background:linear-gradient(140deg,var(--me-a,var(--m-green)),var(--me-b,var(--m-green)));color:var(--me-t,#fff)}
+.rq button:disabled{opacity:.5}
+.rq-more{margin:0;font-size:.78rem;color:var(--m-soft);padding-left:42px}
+/* waiting to be let in */
+.ask-card{text-align:center}
+.ask-dot{display:block;width:12px;height:12px;border-radius:50%;margin:.2rem auto 1rem;background:var(--m-green,#0E9F63);
+         box-shadow:0 0 0 0 rgba(14,159,99,.5);animation:askpulse 1.8s ease-out infinite}
+@keyframes askpulse{70%{box-shadow:0 0 0 14px rgba(14,159,99,0)}100%{box-shadow:0 0 0 0 rgba(14,159,99,0)}}
+@media (prefers-reduced-motion:reduce){.ask-dot{animation:none}}
+/* take someone out of the chat, from their row in settings */
+.nick-x{flex:0 0 auto;width:34px;height:34px;border:0;border-radius:10px;background:transparent;color:var(--m-soft);display:grid;place-items:center;cursor:pointer;margin-left:2px}
+.nick-x:hover,.nick-x:focus-visible{background:var(--m-press);color:var(--m-red);outline:none}
+.nick-x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- a photo of the chat's own as its theme ----------
+   The picture fills the chat under a light or dark wash (picked from how
+   bright the photo is); bubbles, header and composer turn to frosted glass so
+   text stays readable whatever is behind it. */
+.msgr .convo[data-scene=photo]{
+  color-scheme:light;
+  --m-surf:rgba(255,255,255,.78); --m-ink:#12221B; --m-soft:#4A5751; --m-line:rgba(18,34,27,.12); --m-mint:rgba(255,255,255,.7);
+  --m-other:rgba(255,255,255,.8); --m-press:rgba(18,34,27,.06); --m-bubble:rgba(255,255,255,.84);
+  --cv-shade:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.12) 40%,rgba(255,255,255,.34));
+  background:var(--cv-shade),var(--cv-photo,none) center/cover no-repeat,linear-gradient(160deg,var(--me-a),var(--me-b));
+}
+.msgr .convo[data-scene=photo].dark-theme{
+  color-scheme:dark;
+  --m-surf:rgba(16,18,22,.7); --m-ink:#F3F5F7; --m-soft:#C3CAD2; --m-line:rgba(243,245,247,.14); --m-mint:rgba(30,34,40,.7);
+  --m-other:rgba(22,24,28,.72); --m-press:rgba(243,245,247,.08); --m-bubble:rgba(20,22,26,.7);
+  --cv-shade:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.2) 40%,rgba(0,0,0,.5));
+}
+.msgr .convo[data-scene=photo] .cv-top{background:var(--m-surf);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border-bottom-color:transparent}
+.msgr .convo[data-scene=photo] .ch-b:not(.big),.msgr .convo[data-scene=photo] .ch-form input[type=text],.msgr .convo[data-scene=photo] .ch-pick-rx,.msgr .convo[data-scene=photo] .ch-pick-act{
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4)}
+.msgr .convo[data-scene=photo] .ch-sys{align-self:center;background:var(--m-surf);color:var(--m-ink);border-radius:99px;padding:.3em .9em;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.msgr .convo[data-scene=photo] .ch-n,.msgr .convo[data-scene=photo] .ch-seen,.msgr .convo[data-scene=photo] .ch-meta{text-shadow:0 1px 6px var(--m-surf)}
 
 /* --- Ink & Omen: a cursed notebook --- */
 .msgr .convo[data-scene=ink]{
@@ -779,6 +836,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 
 /* --- Pole Position: race day --- */
 .msgr .convo[data-scene=pole]{
+  /* a light scene stays light when the phone is in dark mode */
+  color-scheme:light; --m-surf:#FFFFFF; --m-ink:#12221B; --m-soft:#5E6E66; --m-line:rgba(18,34,27,.10); --m-mint:#DCF3E7; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05);
   --m-bg:#E9ECF0; --m-bubble:#FFFFFF; --th-font:"Russo One",var(--m-text);
   background:
     repeating-linear-gradient(-14deg,transparent 0 46px,rgba(18,24,38,.035) 46px 49px),
@@ -820,9 +879,10 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 
 /* --- Pep Rally of the Dead: zombie green meets cheer pink --- */
 .msgr .convo[data-scene=pep]{
+  /* a light scene stays light when the phone is in dark mode */
+  color-scheme:light; --m-surf:#FFFFFF; --m-ink:#12221B; --m-soft:#5E6E66; --m-line:rgba(18,34,27,.10); --m-mint:#DCF3E7; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05);
   --m-bg:#FAFAF5; --m-bubble:#7CC242; --th-font:"Bungee",var(--m-name);
   background:
-    repeating-linear-gradient(180deg,transparent 0 11px,rgba(0,0,0,.035) 11px 13px),
     linear-gradient(90deg,#E6F4D7 0 50%,#FFE4F0 50% 100%);
 }
 .msgr .convo[data-scene=pep] .cv-top{background:linear-gradient(90deg,#5FAF31 0 50%,#FF4F9A 50%);color:#fff;border-bottom:0}
@@ -853,6 +913,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 
 /* --- Eugene: dusk over the ridgelines --- */
 .msgr .convo[data-scene=eugene]{
+  /* a light scene stays light when the phone is in dark mode */
+  color-scheme:light; --m-surf:#FFFFFF; --m-ink:#12221B; --m-soft:#5E6E66; --m-line:rgba(18,34,27,.10); --m-mint:#DCF3E7; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05);
   --m-bg:#EEF0EC; --m-bubble:rgba(255,255,255,.92);
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath d='M0 62 C70 58 110 22 165 14 C215 8 245 50 300 52 C340 54 372 40 400 44 V100 H0Z' fill='%232F5A3A' opacity='.16'/%3E%3Cpath d='M0 82 C60 70 120 58 180 70 C240 82 300 60 400 68 V100 H0Z' fill='%23244A30' opacity='.26'/%3E%3C/svg%3E") bottom/100% 230px no-repeat,
@@ -885,17 +947,37 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 /* message reactions */
 .ch-b{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ch-b:focus-visible{outline:2px solid var(--marker-deep);outline-offset:2px}
-.ch-pick{display:flex;gap:.1rem;margin:.3rem 0 .1rem;padding:.2rem .3rem;background:var(--card);border:2px solid var(--ink);border-radius:99px;
-         box-shadow:0 4px 14px rgba(0,0,0,.18);animation:pickin .16s ease-out}
-@keyframes pickin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
-.ch-pick button{border:0;background:transparent;font-size:1.35rem;line-height:1.15;padding:.12em .2em;border-radius:50%}
-.ch-pick button:hover,.ch-pick button:active{background:var(--hl);transform:scale(1.15)}
+/* the react menu: one floating pill of emoji, and the actions as quiet chips
+   underneath. No borders, no dividers; it takes its colours from the chat */
+.ch-pick{--pk-bg:var(--card);--pk-ink:var(--ink);--pk-press:var(--hl);--pk-red:var(--stamp);
+         --pk-sh:0 10px 28px rgba(0,0,0,.16),0 1px 3px rgba(0,0,0,.08);
+         display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:6px 0 2px;width:max-content;max-width:calc(100vw - 24px);
+         animation:pickin .2s cubic-bezier(.2,.9,.3,1.15);transform-origin:top left}
+.msgr .ch-pick{--pk-bg:var(--m-surf);--pk-ink:var(--m-ink);--pk-press:var(--m-mint);--pk-red:var(--m-red)}
+.ch-msg.me .ch-pick{align-items:flex-end;transform-origin:top right}
+@keyframes pickin{from{opacity:0;transform:scale(.92) translateY(-4px)}to{opacity:1;transform:none}}
+.ch-pick-rx{display:flex;flex-wrap:nowrap;gap:2px;padding:4px;border-radius:999px;background:var(--pk-bg);box-shadow:var(--pk-sh);
+            max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.ch-pick-rx::-webkit-scrollbar{display:none}
+.ch-pick-rx button{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border:0;background:transparent;border-radius:50%;
+                   font-size:22px;line-height:1;padding:0;cursor:pointer;transition:transform .14s cubic-bezier(.2,.9,.3,1.4),background .14s}
+.ch-pick-rx button:hover,.ch-pick-rx button:focus-visible{background:var(--pk-press);transform:scale(1.2);outline:none}
+.ch-pick-rx button:active{transform:scale(.92)}
+.ch-pick-act{display:flex;gap:2px;padding:4px;border-radius:16px;background:var(--pk-bg);box-shadow:var(--pk-sh)}
+.ch-pick-act button{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--pk-ink);cursor:pointer;
+                    font:600 .8rem/1 var(--m-text,system-ui,sans-serif);letter-spacing:0;padding:9px 11px;border-radius:12px;transition:background .14s}
+.ch-pick-act button:hover,.ch-pick-act button:focus-visible{background:var(--pk-press);outline:none}
+.ch-pick-act button.danger{color:var(--pk-red)}
+.ch-pick-act svg{width:15px;height:15px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ch-rx{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.2rem}
 .ch-pill{display:inline-flex;align-items:center;gap:.2em;border:1.5px solid var(--rule);background:var(--card);border-radius:99px;
          padding:.05em .45em;font-size:.95rem;line-height:1.35}
 .ch-pill b{font-size:.75rem;font-variant-numeric:tabular-nums}
 .ch-pill.on{border-color:var(--marker-deep);background:var(--hl)}
 .ch-sys.live{background:var(--stamp);color:#fff}
+/* in the messenger look the line stays a line: red words, no red slab (the slab
+   came through from the rule above and hid the red words completely) */
+.msgr .ch-sys.live{background:transparent;color:var(--m-red);font-weight:700}
 
 /* push alerts */
 #crAlerts.on{background:var(--marker) !important;color:#06281A !important;border-color:var(--marker) !important}
@@ -1173,6 +1255,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <button type="button" class="cv-btn hidden" id="crAlerts">&#x1F514;</button>
       <button type="button" class="cv-btn" id="crInfo" aria-label="Chat settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/></svg></button>
     </header>
+    <div class="cr-req hidden" id="crReq" aria-live="polite"></div>
     <div class="cr-body" id="crBody"></div>
   </main>
   <div class="modal hidden" id="newSheet" role="dialog" aria-modal="true" aria-labelledby="ncH">
@@ -1202,17 +1285,21 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <div class="theme-row" id="infThemes"></div>
       <h3>Scenes</h3>
       <div class="theme-row scenes" id="infScenes"></div>
+      <input type="file" accept="image/*" id="infPhotoFile" hidden>
+      <label class="field theme-name hidden" id="infThemeNameWrap"><span>Theme name</span>
+        <input type="text" id="infThemeName" maxlength="40" placeholder="Name your photo theme"></label>
       <h3>Icon</h3>
+      <input type="file" accept="image/*" id="infPicFile" hidden>
       <div class="icon-row" id="infIcons"></div>
-      <h3>Nicknames</h3>
-      <p class="tiny" style="margin:-.2rem 0 .5rem">Everyone in this chat sees them.</p>
+      <h3>People</h3>
+      <p class="tiny" style="margin:-.2rem 0 .5rem">Give anyone a nickname; everyone in the chat sees it.</p>
       <div class="nick-list" id="infNicks"></div>
       <h3>Invite</h3>
       <div class="inv-row">
         <span class="inv-code" id="crCodeShow"></span>
         <button type="button" class="btn" id="crInvite">Share invite link</button>
       </div>
-      <p class="tiny" style="margin:.4rem 0 0">Anyone with the link or code can join.</p>
+      <p class="tiny" style="margin:.4rem 0 0">The link only lets someone <b>ask</b> to join. Anyone already in the chat can let them in.</p>
       <div class="sheet-acts">
         <button type="button" class="btn solid" id="infDone">Done</button>
         <button type="button" class="btn danger" id="crLeave">Leave chat</button>
@@ -1470,8 +1557,28 @@ function makeSeg(items){
   return { text, map, items, x: x0, y: y0, w: x1-x0, h: y1-y0, base: items[0].base, fs: items[0].fs };
 }
 
+/* The tokens a match falls in, each narrowed to just the matched characters.
+   PDFs saved from Chrome put a whole line of text in one token, so without the
+   narrowing a "$150K" in the middle of a sentence blacked out the sentence. The
+   cut is placed by measuring the text, with a little slack either side. */
+let measureCtx = null;
+function textWidth(s, fs){
+  if (!measureCtx){ try { measureCtx = document.createElement("canvas").getContext("2d"); } catch (e){ return s.length; } }
+  measureCtx.font = Math.max(1, fs) + "px Arial, Helvetica, sans-serif";
+  return measureCtx.measureText(s).width;
+}
 function tokensForMatch(seg, mStart, mEnd){
-  return seg.map.filter(m => m.start < mEnd && m.end > mStart).map(m => m.tok);
+  return seg.map.filter(m => m.start < mEnd && m.end > mStart).map(m => {
+    const t = m.tok, str = t.str;
+    const a = Math.max(0, mStart - m.start), b = Math.min(str.length, mEnd - m.start);
+    if (a === 0 && b === str.length) return t;
+    const full = textWidth(str, t.fs);
+    if (!(full > 0) || !(t.w > 0)) return t;
+    const k = t.w / full, slack = t.fs * 0.15;
+    const x0 = Math.max(t.x, t.x + textWidth(str.slice(0, a), t.fs) * k - slack);
+    const x1 = Math.min(t.x + t.w, t.x + textWidth(str.slice(0, b), t.fs) * k + slack);
+    return Object.assign({}, t, { x: x0, w: Math.max(1, x1 - x0) });
+  });
 }
 
 /* ============================================================
@@ -1609,6 +1716,16 @@ function buildRedactions(segs, fund, opts, pageW){
     const anchor = fund.raisedTok || fund.goalTok;
     let top = anchor.y - anchor.h * 2.6;   // the progress bar sits above the number
     let bot = anchor.y + anchor.h;
+    /* ...but stop short of an ordinary line of text above it (the title, often),
+       which the band would otherwise slice through */
+    for (const seg of segs){
+      const end = seg.y + seg.h;
+      if (!(end > top && end < anchor.y - 2 && seg.y < anchor.y - anchor.h * 0.5)) continue;
+      MONEY_RE.lastIndex = 0;
+      const money = MONEY_RE.test(seg.text);
+      MONEY_RE.lastIndex = 0;
+      if (!money && !/backers?|supporters?|pledged|funded|raised|goal/i.test(seg.text)) top = end + 2;
+    }
     for (const seg of segs){
       if (seg.y > anchor.y - 4 && seg.y < anchor.y + anchor.h * 4.2 &&
           /backers?|supporters?|days?\s+to\s+go|hours?\s+to\s+go|pledged|of\s*[\$£€]|funded/i.test(seg.text)){
@@ -2188,7 +2305,9 @@ async function ingest(files){
 async function ingestOne(file, opts, recipe){
   const buf = await file.arrayBuffer();
   const keep = new Uint8Array(buf.slice(0));      // pdf.js detaches what it is given
-  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(keep) }).promise;
+  /* isEvalSupported off: a booby-trapped PDF can run script through font
+     compilation in this PDF.js version (CVE-2024-4367); this closes that door */
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(keep), isEvalSupported: false }).promise;
   const meta = await doc.getMetadata().then(m => m.info).catch(() => ({}));
 
   // scale so the rendered page is comfortably readable on a big screen
@@ -2900,7 +3019,7 @@ function buildDrawer(r){
 }
 
 function esc(s){
-  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
 function highlight(sentence, hits){
@@ -3276,6 +3395,9 @@ window.EventSource = function(url, opts){
   }
   return es;
 };
+/* the room belongs to the account that opened it: the rules let only that
+   account change the room, and each player only their own entry */
+const hostTag = meta => (authOn() && AUTH.uid ? Object.assign(meta, { host: AUTH.uid }) : meta);
 function gamePath(sub){ return dbRoot() + "/games/" + LIVE.code + (sub || "") + ".json"; }
 
 async function dbPut(sub, value){
@@ -3286,11 +3408,14 @@ async function dbPut(sub, value){
   } catch (e){ return false; }
 }
 
+/* keys that would reach into Object.prototype if someone wrote them to the database */
+const badKey = k => k === "__proto__" || k === "constructor" || k === "prototype";
 /* Firebase streams `put` and `patch` events carrying a path and a payload. */
 function applyEvent(state, msg){
   if (!msg || typeof msg.path !== "string") return state;
   if (msg.path === "/") return (msg.data === null ? {} : msg.data) || {};
   const parts = msg.path.split("/").filter(Boolean);
+  if (parts.some(badKey)) return state;
   let node = state;
   for (let i = 0; i < parts.length - 1; i++){
     if (!node[parts[i]] || typeof node[parts[i]] !== "object") node[parts[i]] = {};
@@ -3301,6 +3426,7 @@ function applyEvent(state, msg){
   else if (msg.isPatch && typeof msg.data === "object"){
     if (!node[last] || typeof node[last] !== "object") node[last] = {};
     for (const k in msg.data){
+      if (badKey(k)) continue;
       if (msg.data[k] === null) delete node[last][k]; else node[last][k] = msg.data[k];
     }
   } else node[last] = msg.data;
@@ -3340,13 +3466,12 @@ async function liveOpenRoom(){
   if (!url){ toast("Paste the database URL first"); return; }
   LIVE.db = url.replace(/\/+$/, "");
   store.set("ds.db", LIVE.db);
+  await authToken();
 
-  LIVE.code = "";
-  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  for (let i = 0; i < 4; i++) LIVE.code += letters[Math.floor(Math.random() * letters.length)];
+  LIVE.code = randCode(4);
 
   const ok = await dbPut("", {
-    meta: { opened: Date.now(), rounds: G.rounds.length },
+    meta: hostTag({ opened: Date.now(), rounds: G.rounds.length }),
     now: { r: -1, phase: "lobby", title: "" }
   });
   if (!ok){
@@ -3653,6 +3778,7 @@ async function liveJoin(code, name){
   LIVE.isHost = false;
   LIVE.state = {};
   rpReset();
+  await authToken();     /* signed in first, so the entry goes under this account */
   const ok = await dbPut("/players/" + LIVE.pid, { name: name, joined: Date.now() });
   if (!ok) return false;
   store.set("ds.room", LIVE.code);
@@ -3722,9 +3848,7 @@ async function cloudSave(){
   if (!G.rounds.length){ $("#cloudNote").textContent = "Import some PDFs first."; return; }
   const btn = $("#saveBtn"), note = $("#cloudNote");
   btn.disabled = true;
-  let code = "";
-  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  for (let i = 0; i < 6; i++) code += letters[Math.floor(Math.random() * letters.length)];
+  const code = randCode(6);
 
   try {
     let sent = 0, total = G.rounds.reduce((a, r) => a + (r.pdfData ? r.pdfData.length : 0), 0);
@@ -3821,12 +3945,17 @@ $("#copySave").addEventListener("click", () => {
 const REACTS = ["\u{1F602}", "\u{1F911}", "\u{1F480}", "\u{1F644}", "\u{1F525}", "\u{1F440}", "\u{1F926}"];
 const EMOJI_ONLY = /^(?:\p{Extended_Pictographic}|\p{Emoji_Modifier}|️|‍|\s){1,16}$/u;
 
-function code6(){
-  const L = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+/* codes are the only key to a chat, a room or a save, so they come from the
+   browser's cryptographic random source rather than Math.random */
+function randCode(n){
+  const L = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   /* 32 letters, so no bias */
+  const b = new Uint8Array(n);
+  crypto.getRandomValues(b);
   let s = "";
-  for (let i = 0; i < 6; i++) s += L[Math.floor(Math.random() * L.length)];
+  for (let i = 0; i < n; i++) s += L[b[i] & 31];
   return s;
 }
+function code6(){ return randCode(6); }
 
 /* run fn over items, n at a time */
 async function pool(items, n, fn){
@@ -4326,11 +4455,12 @@ function makeChat(root, o){
     picker.className = "ch-pick";
     let h = '<div class="ch-pick-rx">' + RX.map(([n, e]) => '<button type="button" data-n="' + n + '" aria-label="React ' + e + '">' + e + '</button>').join("") + '</div>';
     if (rich){
+      const ic = d => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>';
       h += '<div class="ch-pick-act">' +
-           '<button type="button" data-a="reply">Reply</button>' +
-           (m.t ? '<button type="button" data-a="copy">Copy</button>' : "") +
-           (canChange(m) && m.t ? '<button type="button" data-a="edit">Edit</button>' : "") +
-           (canChange(m) ? '<button type="button" data-a="del" class="danger">Delete</button>' : "") +
+           '<button type="button" data-a="reply">' + ic("M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11") + 'Reply</button>' +
+           (m.t ? '<button type="button" data-a="copy">' + ic("M9 9h11v11H9zM5 15H4V4h11v1") + 'Copy</button>' : "") +
+           (canChange(m) && m.t ? '<button type="button" data-a="edit">' + ic("M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z") + 'Edit</button>' : "") +
+           (canChange(m) ? '<button type="button" data-a="del" class="danger">' + ic("M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6") + 'Delete</button>' : "") +
            '</div>';
     }
     picker.innerHTML = h;
@@ -4372,7 +4502,15 @@ function makeChat(root, o){
 
   /* ---------- drawing ---------- */
   function richText(t){
-    let h = esc(t).replace(URL_RE, u => '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>');
+    /* links are found in the raw text, then each piece is escaped on its own,
+       so an &, ' or " inside a URL can't spill out of (or into) the link */
+    let h = "", at = 0;
+    String(t).replace(URL_RE, (u, i) => {
+      h += esc(t.slice(at, i)) + '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">' + esc(u) + '</a>';
+      at = i + u.length;
+      return u;
+    });
+    h += esc(String(t).slice(at));
     if (rich && o.members){
       const names = o.members().map(p => p.n).filter(Boolean).sort((a, b) => b.length - a.length);
       for (const n of names){
@@ -4422,8 +4560,8 @@ function makeChat(root, o){
       h += '<span class="ch-b gone">Message deleted</span>';
     } else {
       const big = !badText && !m.img && !m.re && EMOJI_ONLY.test(m.t || "");
-      h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + '" role="button" tabindex="0">';
-      if (m.re && !badText) h += '<span class="ch-quote" data-k="' + esc(m.re.k) + '"><b>' + esc(m.re.n || "") + '</b>' + esc(m.re.t || "") + '</span>';
+      h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + (m.img && !badText && !m.re && !String(m.t || "").trim() ? " pic-only" : "") + '" role="button" tabindex="0">';
+      if (m.re && !badText) h += '<span class="ch-quote" data-k="' + esc(m.re.k) + '"><b>' + esc(m.re.n || "") + '</b><span class="ch-qt">' + esc(m.re.t || "") + '</span></span>';
       if (m.img && !badText){
         const w = Math.max(1, Number(m.img.w) || 4), hh = Math.max(1, Number(m.img.h) || 3);
         h += '<img class="ch-img" alt="Photo" data-id="' + esc(m.img.id) + '" style="aspect-ratio:' + w + '/' + hh + '">';
@@ -4565,7 +4703,11 @@ async function shrinkPhoto(file){
 function lightbox(src){
   const d = document.createElement("div");
   d.className = "lightbox";
-  d.innerHTML = '<img alt="Photo" src="' + src + '"><button type="button" aria-label="Close">✕</button>';
+  const im = document.createElement("img");
+  im.alt = "Photo"; im.src = src;
+  const x = document.createElement("button");
+  x.type = "button"; x.setAttribute("aria-label", "Close"); x.textContent = "✕";
+  d.append(im, x);
   d.addEventListener("click", () => d.remove());
   document.body.appendChild(d);
 }
@@ -4612,8 +4754,9 @@ async function crewConnect(){
     const t = await authToken();
     if (gen !== CR.gen) return;
     if (!t){ CR.es = null; return; }
-    await crewTouch();
+    const touched = await crewTouch();
     if (gen !== CR.gen) return;
+    if (touched && (touched.status === 401 || touched.status === 403)){ CR.es = null; crewLost(CR.code); return; }
   }
   const list = [];
   const open = (name, url, onMsg) => {
@@ -4628,10 +4771,12 @@ async function crewConnect(){
     };
     es.addEventListener("put", handle(false));
     es.addEventListener("patch", handle(true));
+    /* Firebase ends a stream this account may no longer read: check we're still in */
+    es.addEventListener("cancel", () => { if (gen === CR.gen) crewTouch().then(r => { if (r && (r.status === 401 || r.status === 403) && gen === CR.gen) crewLost(CR.code); }); });
     list.push(es);
   };
   /* meta, live, members and typing: each kept as CR.state[name] */
-  for (const name of ["meta", "live", "members", "typing"]){
+  for (const name of ["meta", "live", "members", "typing", "requests"]){
     open(name, crewPath("/" + name), msg => {
       const box = applyEvent({ v: CR.state[name] }, { path: "/v" + (msg.path === "/" ? "" : msg.path), data: msg.data, isPatch: msg.isPatch });
       CR.state[name] = box.v;
@@ -4715,7 +4860,11 @@ const crewRich = {
     },
     get(id){
       if (!/^[-\w]{1,40}$/.test(String(id))) return Promise.resolve("");
-      if (!CR.media.has(id)) CR.media.set(id, getJSON(crewPath("/media/" + id)).then(v => (v && v.d) || ""));
+      /* only ever a picture: anything stored there that isn't an image is ignored */
+      if (!CR.media.has(id)) CR.media.set(id, getJSON(crewPath("/media/" + id)).then(v => {
+        const d = (v && typeof v.d === "string") ? v.d : "";
+        return /^data:image\/(jpeg|png|gif|webp);base64,/.test(d) ? d : "";
+      }));
       return CR.media.get(id);
     },
     drop(id){ CR.media.delete(id); fetch(crewPath("/media/" + id), { method: "DELETE" }).catch(() => {}); }
@@ -4767,11 +4916,12 @@ function crewSeen(){
 /* ---------- the crews on this phone ----------
    ds.crews remembers every crew you've joined, so you can switch between them. */
 function crewList(){ try { return JSON.parse(store.get("ds.crews") || "[]").filter(c => c && /^[A-Z0-9]{6}$/.test(c.code)); } catch (e){ return []; } }
-function crewRemember(code, name, invited){
+function crewRemember(code, name, invited, asked){
   const old = crewList().find(c => c.code === code);
   const list = crewList().filter(c => c.code !== code);
   const rec = { code: code, name: name || (old && old.name) || "Chat" };
   if (invited) rec.invited = 1;
+  if (asked) rec.asked = 1;     /* asked to join, waiting for someone to let us in */
   list.unshift(rec);
   store.set("ds.crews", JSON.stringify(list.slice(0, 20)));
 }
@@ -4841,6 +4991,7 @@ function crewChanged(){
     if (!known || known.name !== CR.state.meta.name) crewRemember(CR.code, CR.state.meta.name);
   }
   crewDecor();
+  drawRequests();
   drawHomeSoon();
 
   const live = crewLive();
@@ -4858,7 +5009,7 @@ function drawLiveBanner(){
   const inIt = live && LIVE.code === live.room;
   const hosting = LIVE.isHost && LIVE.code;
   if (!live || inIt || hosting){ el.classList.add("hidden"); return; }
-  $("#lbText").textContent = "Game going live" + (live.rounds ? " · " + plural(Number(live.rounds), "campaign") : "");
+  $("#lbText").textContent = "Game going live" + (live.rounds ? " · " + plural(Number(live.rounds), "campaign").replace(" ", "\u00A0") : "");
   el.classList.remove("hidden");
 }
 
@@ -4900,20 +5051,151 @@ async function joinLive(){
   drawLiveBanner();
 }
 
+/* Getting into a chat. The rules let you straight in if you're already a
+   member, if you're starting the chat, or if someone in it added you from
+   "New chat". Anyone else, even with the link or code, can only ask: a request
+   sits under crew/requests until someone in the chat lets them in. */
+const JOIN_ASKED = "asked";
+async function crewEnter(code, name){
+  const me = { n: String(name || "Someone").slice(0, 40), seen: { ".sv": "timestamp" } };
+  const col = store.get("ds.color");
+  me.c = col !== null && col !== undefined && col !== "" ? Number(col) : null;
+  me.a = store.get("ds.avatar") || null;
+  try {
+    const r = await fetch(crewPath("/members/" + LIVE.pid, code), { method: "PATCH", body: JSON.stringify(me) });
+    return r.ok ? "in" : (r.status === 401 || r.status === 403 ? "no" : "net");
+  } catch (e){ return "net"; }
+}
 async function crewJoin(code, name){
   await authToken();
   code = String(code || "").toUpperCase().trim();
   if (!/^[A-Z0-9]{6}$/.test(code)) return "That crew code should be six characters.";
+  if (name) store.set("ds.name", name);
+  const nm = name || store.get("ds.name") || "Someone";
+  const got = await crewEnter(code, nm);
+  if (got === "net") return "Couldn’t reach the database.";
+  if (got === "no"){
+    let here = null;
+    try { here = await getJSON(crewPath("/here", code)); } catch (e){ return "Couldn’t reach the database."; }
+    if (!here) return "There’s no chat under that code.";
+    try { await putJSON(crewPath("/requests/" + LIVE.pid, code), { n: nm.slice(0, 40), at: { ".sv": "timestamp" } }); }
+    catch (e){ return "Couldn’t reach the database."; }
+    const old = crewList().find(c => c.code === code);
+    crewRemember(code, (old && old.name !== "Chat" && old.name) || inviteName() || "Chat", false, true);
+    return JOIN_ASKED;
+  }
+  await crewEntered(code);
+  return "";
+}
+/* in: make it the open chat */
+async function crewEntered(code){
   let meta = null;
-  try { meta = await getJSON(crewPath("/meta", code)); } catch (e){ return "Couldn’t reach the database."; }
-  if (!meta) return "There’s no crew under that code.";
+  try { meta = await getJSON(crewPath("/meta", code)); } catch (e){}
   CR.code = code; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null;
   store.set("ds.crew", code);
-  if (name) store.set("ds.name", name);
-  await crewTouch();       /* on the member list before posting or reading */
-  crewRemember(code, meta.name);
+  crewRemember(code, meta && meta.name);
+  if (authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/chats/" + code + ".json", { method: "DELETE" }).catch(() => {});
   crewConnect();
-  return "";
+}
+/* the chat's name from an invite link (#crew=CODE&n=Name), for the join screen */
+function inviteName(){
+  const m = location.hash.match(/[#&]n=([^&]*)/);
+  try { return m ? decodeURIComponent(m[1]).slice(0, 60) : ""; } catch (e){ return ""; }
+}
+
+/* waiting to be let in: watch our own member entry, and go in the moment it appears */
+function crewWaiting(code){
+  CR.chat = null;
+  const c = crewList().find(x => x.code === code) || {};
+  const nm = c.name && c.name !== "Chat" ? c.name : "";
+  $("#crName").textContent = nm || "Asked to join";
+  $("#crSub").textContent = "";
+  $("#cvIcon").innerHTML = nm ? '<span class="cv-ini">' + esc(initials(nm)) + '</span>' : "";
+  $("#cvIcon").removeAttribute("style");
+  $("#crAlerts").classList.add("hidden"); $("#crInfo").classList.add("hidden");
+  $("#crReq").classList.add("hidden");
+  $("#crBody").innerHTML = '<div class="cr-setup"><div class="card ask-card"><span class="ask-dot" aria-hidden="true"></span>' +
+    '<h2>Asked to join' + (nm ? " " + esc(nm) : "") + '</h2>' +
+    '<p class="tiny" style="margin:.4rem 0 1rem">Someone already in the chat needs to let you in. Keep this open and you’ll go straight in when they do — or close the app; the chat shows up in your list once you’re in.</p>' +
+    '<button type="button" class="btn" id="crCancelAsk">Cancel request</button></div></div>';
+  if (CR.askEs){ CR.askEs.close(); CR.askEs = null; }
+  const es = CR.askEs = new EventSource(crewPath("/members/" + LIVE.pid, code));
+  const go = async ev => {
+    let msg; try { msg = JSON.parse(ev.data); } catch (e){ return; }
+    if (!msg || !msg.data || CR.askEs !== es) return;
+    es.close(); CR.askEs = null;
+    if (location.hash) history.replaceState(null, "", location.pathname);
+    await crewEntered(code);
+    toast("You’re in");
+    crewScreenChat();
+  };
+  es.addEventListener("put", go);
+  es.addEventListener("patch", go);
+  $("#crCancelAsk").addEventListener("click", () => {
+    if (CR.askEs){ CR.askEs.close(); CR.askEs = null; }
+    fetch(crewPath("/requests/" + LIVE.pid, code), { method: "DELETE" }).catch(() => {});
+    crewForget(code);
+    openHome();
+  });
+}
+
+/* no longer a member (removed): say so, and offer to ask again */
+function crewLost(code){
+  if (CR.es){ CR.es.close(); CR.es = null; }
+  if (CR.code === code){ CR.code = ""; CR.chat = null; CR.state = {}; store.set("ds.crew", ""); }
+  $("#crReq").classList.add("hidden");
+  /* the join screen still knows the chat's name from the list, then it's forgotten */
+  if (!$("#crew").classList.contains("hidden") && $("#crew").classList.contains("v-chat"))
+    crewSetup(code, "You’re not in this chat any more. Ask to join and someone in it can let you back in.");
+  crewForget(code);
+  drawHome();
+}
+
+/* for members: who's asking to join, with Let in / Not now */
+function drawRequests(){
+  const el = $("#crReq");
+  if (!el) return;
+  const req = CR.chat ? (CR.state.requests || {}) : {}, mem = CR.state.members || {};
+  const ids = Object.keys(req).filter(id => req[id] && typeof req[id].n === "string" && !mem[id])
+    .sort((a, b) => (Number(req[a].at) || 0) - (Number(req[b].at) || 0));
+  el.classList.toggle("hidden", !ids.length);
+  const sig = ids.map(id => id + ":" + req[id].n).join("|");
+  if (el.dataset.sig === sig) return;
+  el.dataset.sig = sig;
+  el.innerHTML = ids.slice(0, 3).map(id =>
+    '<div class="rq"><span class="rq-av" aria-hidden="true">' + esc(initials(req[id].n)) + '</span>' +
+    '<span class="rq-t"><b>' + esc(req[id].n) + '</b> wants to join</span>' +
+    '<button type="button" class="rq-no" data-no="' + esc(id) + '">Not now</button>' +
+    '<button type="button" class="rq-yes" data-yes="' + esc(id) + '">Let in</button></div>').join("") +
+    (ids.length > 3 ? '<p class="rq-more">and ' + plural(ids.length - 3, "more") + '</p>' : "");
+}
+async function crewSys(t){
+  return fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } })) }).catch(() => {});
+}
+$("#crReq").addEventListener("click", async e => {
+  const yes = e.target.closest("[data-yes]"), no = e.target.closest("[data-no]");
+  const id = (yes && yes.dataset.yes) || (no && no.dataset.no);
+  if (!id || !CR.code) return;
+  const req = (CR.state.requests || {})[id] || {}, nm = String(req.n || "Someone").slice(0, 40);
+  const b = yes || no;
+  b.disabled = true;
+  if (yes){
+    const r = await fetch(crewPath("/members/" + id), { method: "PUT", body: JSON.stringify({ n: nm, at: { ".sv": "timestamp" } }) }).catch(() => null);
+    if (!r || !r.ok){ b.disabled = false; toast("Couldn’t let them in. Try again."); return; }
+    await fetch(crewPath("/requests/" + id), { method: "DELETE" }).catch(() => {});
+    crewSys(myName() + " let " + nm + " in.");
+  } else {
+    await fetch(crewPath("/requests/" + id), { method: "DELETE" }).catch(() => {});
+  }
+});
+/* for members: take someone out of the chat */
+async function crewRemove(id){
+  const p = (CR.state.members || {})[id] || {}, nm = crewNick(id) || String(p.n || "them");
+  if (!confirm("Remove " + nm + " from the chat? They’ll lose access straight away, and would need someone to let them back in.")) return;
+  const r = await fetch(crewPath("/members/" + id), { method: "DELETE" }).catch(() => null);
+  if (!r || !r.ok){ toast("Couldn’t remove them. Check your connection."); return; }
+  fetch(crewPath("/push/" + id), { method: "DELETE" }).catch(() => {});
+  crewSys(myName() + " removed " + nm + ".");
 }
 
 async function crewTouch(){
@@ -4927,6 +5209,12 @@ async function crewTouch(){
   me.a = store.get("ds.avatar") || null;
   CR.seenSent = Date.now();
   const done = fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify(me) }).catch(() => {});
+  /* the one thing anyone can see about a chat: that it exists, so a join
+     request can tell a real code from a typo */
+  if (authOn() && CR.hereSent !== CR.code){
+    const code = CR.code;
+    done.then(r => { if (r && r.ok){ CR.hereSent = code; fetch(crewPath("/here", code), { method: "PUT", body: "true" }).catch(() => {}); } });
+  }
   /* first time signed in: drop this device's entries from before accounts */
   if (authOn() && LIVE.oldPid && LIVE.oldPid !== LIVE.pid && store.get("ds.tidy") !== CR.code){
     done.then(() => Promise.all([
@@ -4942,13 +5230,14 @@ async function crewCreate(title, name){
   const code = code6();
   try {
     await putJSON(crewPath("/meta", code), { name: title, created: Date.now() });
+    await putJSON(crewPath("/here", code), true);
   } catch (e){ return "Couldn’t reach the database."; }
   const err = await crewJoin(code, name);
   if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: name + " started " + title + ".", at: { ".sv": "timestamp" } })) }).catch(() => {});
   return err;
 }
 
-function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" + CR.code; }
+function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" + CR.code + "&n=" + encodeURIComponent(crewName()); }
 
 async function crewShare(){
   const url = crewInviteUrl();
@@ -5108,6 +5397,8 @@ $("#iosOk").addEventListener("click", () => $("#iosSheet").classList.add("hidden
 function openCrew(hintCode){
   show("crew");
   const hint = String(hintCode || "").toUpperCase();
+  const asked = hint && crewList().find(c => c.code === hint && c.asked);
+  if (asked){ crewView("chat"); crewWaiting(hint); return; }
   const known = hint && crewList().find(c => c.code === hint && !c.invited);
   if (hint && known && store.get("ds.name")){
     if (hint === CR.code){ crewView("chat"); crewScreenChat(); }
@@ -5120,6 +5411,7 @@ function openCrew(hintCode){
 
 function crewSetup(hintCode, msg){
   CR.chat = null;
+  $("#crReq").classList.add("hidden");
   $("#crName").textContent = hintCode ? "Invitation" : "Join a chat";
   $("#crSub").textContent = "";
   $("#cvIcon").textContent = ""; $("#cvIcon").removeAttribute("style");
@@ -5137,7 +5429,7 @@ function crewSetup(hintCode, msg){
          '<p class="tiny" style="margin:.4rem 0 0">Group chats that stay open between games. When someone hosts, everyone gets a <b>game going live</b> banner and joins with one tap.</p>' +
          '<label class="field" style="margin-top:1rem"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="What your friends call you"></label>' +
          '<label class="field"><span>Invite code</span><input type="text" id="crCode" maxlength="6" placeholder="Six characters" style="text-transform:uppercase" autocapitalize="characters"></label>' +
-         '<button class="btn solid" id="crJoinBtn">Join</button>' +
+         '<button class="btn solid" id="crJoinBtn">Ask to join</button>' +
          '<p class="tiny" id="crNote" style="margin:.5rem 0 0;color:var(--stamp)">' + esc(msg || "") + '</p></div>' +
          '<div class="card"><h3>Or start one</h3>' +
          '<label class="field" style="margin-top:.7rem"><span>Chat name</span><input type="text" id="crTitle" placeholder="The Diaspora"></label>' +
@@ -5145,6 +5437,26 @@ function crewSetup(hintCode, msg){
   }
   h += '</div>';
   $("#crBody").innerHTML = h;
+
+  /* an invite link: say which chat it is (or that it's gone) before anyone types.
+     Only members can read a chat's details, so the name comes from the link. */
+  if (hintCode && /^[A-Z0-9]{6}$/i.test(hintCode)){
+    const want = String(hintCode).toUpperCase();
+    const known = crewList().find(c => c.code === want);
+    const nm = inviteName() || (known && known.name !== "Chat" ? known.name : "");
+    if (nm){
+      $("#crName").textContent = nm;
+      $("#cvIcon").innerHTML = '<span class="cv-ini">' + esc(initials(nm)) + '</span>';
+      const h2 = $(".cr-setup h2");
+      if (h2) h2.textContent = "Join " + nm;
+    }
+    $("#crJoinBtn").textContent = "Ask to join";
+    authToken().then(() => getJSON(crewPath("/here", want))).then(here => {
+      const btn = $("#crJoinBtn");
+      if (!btn || btn.dataset.code !== hintCode || CR.chat) return;
+      if (!here) $("#crNote").textContent = "That invite doesn’t lead to a chat any more. Ask whoever sent it for a fresh link.";
+    }).catch(() => {});
+  }
 
   const getName = () => {
     const n = ($("#crN").value || "").trim();
@@ -5154,8 +5466,11 @@ function crewSetup(hintCode, msg){
   };
   $("#crJoinBtn").addEventListener("click", async e => {
     const n = getName(); if (!n) return;
-    const code = e.currentTarget.dataset.code || $("#crCode").value;
+    const btn = e.currentTarget, code = btn.dataset.code || $("#crCode").value;
+    btn.disabled = true;
     const err = await crewJoin(code, n);
+    btn.disabled = false;
+    if (err === JOIN_ASKED){ crewWaiting(String(code).toUpperCase().trim()); return; }
     if (err){ $("#crNote").textContent = err; return; }
     if (location.hash) history.replaceState(null, "", location.pathname);
     crewScreenChat();
@@ -5285,7 +5600,7 @@ const THEMES = [
     rx: ["\u{1F332}", "\u{1F986}", "\u{1F6B2}", "\u{2615}", "\u{1F327}\u{FE0F}", "\u{1F3D4}\u{FE0F}", "\u{1F308}"] }
 ];
 /* a chat's picture uses the scene's own colours, so the list shows its mood too */
-const iconVars = id => { const t = themeOf(id); return t.ic ? "--me-a:" + t.ic[0] + ";--me-b:" + t.ic[1] + ";--me-t:" + t.ic[2] : themeVars(id); };
+const iconVars = (id, meta) => { const t = themeOf(id, meta); return t.ic ? "--me-a:" + t.ic[0] + ";--me-b:" + t.ic[1] + ";--me-t:" + t.ic[2] : themeVars(id, meta); };
 const fontsLoaded = new Set();
 function loadFont(spec){
   if (!spec || fontsLoaded.has(spec)) return;
@@ -5296,14 +5611,82 @@ function loadFont(spec){
   document.head.appendChild(l);
 }
 const CHAT_ICONS = ["\u{1F98A}", "\u{1F4B8}", "\u{1F680}", "\u{1F3AF}", "\u{1F355}", "\u{1F3B2}", "\u{1F525}", "\u{1F30A}", "\u{1F33F}", "\u{1F47E}", "\u{1F3A4}", "\u{1F4BC}"];
-const themeOf = id => THEMES.find(t => t.id === id) || THEMES[0];
-const themeVars = id => { const t = themeOf(id); return "--me-a:" + t.a + ";--me-b:" + t.b + ";--me-t:" + t.t; };
+/* A chat's own photo as its theme. meta.photo holds the picture's id in the
+   chat's photo store, a name someone gave it, and colours taken from the photo
+   (checked as plain #rrggbb before they go anywhere near a style attribute). */
+const HEX = /^#[0-9a-f]{6}$/i;
+const photoOk = p => !!(p && typeof p === "object" && /^[-\w]{1,40}$/.test(String(p.img || "")) && HEX.test(p.a) && HEX.test(p.b) && HEX.test(p.t));
+const photoTheme = p => ({ id: "photo", n: String(p.n || "").slice(0, 40) || "Our photo", scene: 1, photo: 1, a: p.a, b: p.b, t: p.t,
+                           dark: !!p.dark, ic: [p.a, p.b, p.t] });
+const themeOf = (id, meta) => {
+  if (id === "photo"){
+    const m = meta || (typeof CR !== "undefined" && CR.state && CR.state.meta) || {};
+    if (photoOk(m.photo)) return photoTheme(m.photo);
+  }
+  return THEMES.find(t => t.id === id) || THEMES[0];
+};
+const themeVars = (id, meta) => { const t = themeOf(id, meta); return "--me-a:" + t.a + ";--me-b:" + t.b + ";--me-t:" + t.t; };
+
+/* colours from a photo: the strongest colour in it for my bubbles, and whether
+   the picture is dark overall (so text and glass go light-on-dark) */
+function photoPalette(img){
+  const c = document.createElement("canvas"), N = 48;
+  c.width = N; c.height = N;
+  const g = c.getContext("2d");
+  g.drawImage(img, 0, 0, N, N);
+  const px = g.getImageData(0, 0, N, N).data;
+  const bins = Array.from({ length: 12 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+  let lum = 0;
+  for (let i = 0; i < px.length; i += 4){
+    const r = px[i] / 255, gg = px[i + 1] / 255, b = px[i + 2] / 255;
+    lum += 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+    const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), d = mx - mn, l = (mx + mn) / 2;
+    if (d < 0.08 || l < 0.08 || l > 0.94) continue;
+    let h = mx === r ? ((gg - b) / d) % 6 : mx === gg ? (b - r) / d + 2 : (r - gg) / d + 4;
+    h = (h * 60 + 360) % 360;
+    const sat = d / (1 - Math.abs(2 * l - 1)), w = sat * sat * (1 - Math.abs(l - 0.5));
+    const bin = bins[Math.floor(h / 30) % 12];
+    bin.w += w; bin.r += px[i] * w; bin.g += px[i + 1] * w; bin.b += px[i + 2] * w;
+  }
+  lum /= px.length / 4;
+  const top = bins.reduce((x, y) => y.w > x.w ? y : x);
+  let rgb = top.w > 0.5 ? [top.r / top.w, top.g / top.w, top.b / top.w] : [14, 159, 99];   /* a grey photo keeps mint */
+  /* settle it into a bubble colour: saturated, mid-dark, readable with white text */
+  const hsl = rgbToHsl(rgb), a = hslToHex(hsl[0], Math.max(0.45, hsl[1]), Math.min(0.46, Math.max(0.32, hsl[2])));
+  const b = hslToHex((hsl[0] + 12) % 360, Math.max(0.5, hsl[1]), Math.min(0.56, Math.max(0.42, hsl[2] + 0.1)));
+  return { a: a, b: b, t: "#FFFFFF", dark: lum < 0.48 };
+}
+function rgbToHsl([r, g, b]){
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  if (!d) return [0, 0, l];
+  const s = d / (1 - Math.abs(2 * l - 1));
+  let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [(h * 60 + 360) % 360, s, l];
+}
+function hslToHex(h, s, l){
+  const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+  const f = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))));
+  return "#" + [f(0), f(8), f(4)].map(v => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+}
+/* a chat's picture as a small square JPEG kept right in its details */
+async function iconPhoto(file){
+  const { url } = await shrinkPhoto(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+  const S = 160, c = document.createElement("canvas");
+  c.width = S; c.height = S;
+  const side = Math.min(img.naturalWidth, img.naturalHeight);
+  c.getContext("2d").drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, S, S);
+  return c.toDataURL("image/jpeg", 0.8);
+}
+const PIC_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
 function initials(name){
   const w = String(name || "").trim().split(/\s+/).filter(Boolean);
   return ((w[0] || "?")[0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
 }
 /* a chat's picture: its emoji, or its initials on the theme's colours */
 function iconHtml(meta, name){
+  if (meta && typeof meta.pic === "string" && meta.pic.length < 40000 && PIC_RE.test(meta.pic)) return '<img class="cv-pic" alt="" src="' + meta.pic + '">';
   return meta && meta.icon ? esc(meta.icon) : '<span class="cv-ini">' + esc(initials(name)) + '</span>';
 }
 
@@ -5331,11 +5714,25 @@ function crewDecor(){
   $("#crSub").textContent = crewLabel();
   const ic = $("#cvIcon");
   ic.innerHTML = iconHtml(meta, crewName());
-  ic.setAttribute("style", iconVars(meta.theme));
+  ic.setAttribute("style", iconVars(meta.theme, meta));
   const cv = $("#convo");
   cv.setAttribute("style", themeVars(meta.theme));
   cv.classList.toggle("dark-theme", !!t.dark);
   if (t.scene) cv.dataset.scene = t.id; else delete cv.dataset.scene;
+  /* a photo theme: the picture comes from the chat's photo store */
+  if (t.photo){
+    const id = meta.photo.img;
+    if (CR.photo && CR.photo.id === id && CR.photo.src) cv.style.setProperty("--cv-photo", 'url("' + CR.photo.src + '")');
+    else if (!CR.photo || CR.photo.id !== id){
+      CR.photo = { id: id, src: "" };
+      crewRich.media.get(id).then(src => {
+        if (!src || !CR.photo || CR.photo.id !== id) return;
+        CR.photo.src = src;
+        if ($("#convo").dataset.scene === "photo") $("#convo").style.setProperty("--cv-photo", 'url("' + src + '")');
+        if (!$("#infoSheet").classList.contains("hidden")) drawInfo();
+      });
+    }
+  }
   loadFont(t.font);
   if (CR.chat.reacts && CR.reacts !== t.id){ CR.reacts = t.id; CR.chat.reacts(t.rx || null); }
   if (!$("#infoSheet").classList.contains("hidden")) drawInfo();
@@ -5371,7 +5768,20 @@ async function refreshHome(){
     await pool(crewList(), 3, async c => {
       const d = HOME.data[c.code] = HOME.data[c.code] || {};
       try {
-        const meta = await getJSON(crewPath("/meta", c.code));
+        if (c.invited || c.asked){
+          d.gone = false; d.meta = { name: c.name };
+          if (c.asked){
+            /* let in since we last looked? or turned down? */
+            const mine = await getJSON(crewPath("/members/" + LIVE.pid, c.code)).catch(() => null);
+            if (mine){ crewRemember(c.code, c.name); return; }
+            const req = await getJSON(crewPath("/requests/" + LIVE.pid, c.code)).catch(() => "?");
+            if (req === null){ crewForget(c.code); d.gone = true; }
+          }
+          return;
+        }
+        let meta;
+        try { meta = await getJSON(crewPath("/meta", c.code)); }
+        catch (e){ if (/\(40[13]\)/.test(String(e.message))){ crewForget(c.code); d.gone = true; return; } throw e; }
         if (!meta){ d.gone = true; return; }
         d.gone = false; d.meta = meta;
         if (c.invited || c.code === CR.code) return;      /* the open chat is live already */
@@ -5422,6 +5832,7 @@ function fmtWhen(at){
 }
 function previewOf(r){
   if (r.c.invited) return "You’re invited. Tap to join.";
+  if (r.c.asked) return "Asked to join. Waiting for someone to let you in.";
   const m = r.last;
   if (!m) return "No messages yet";
   if (m.del) return "Message deleted";
@@ -5449,6 +5860,7 @@ function homeRows(){
     .sort((a, b) => ((b.c.invited ? 1 : 0) - (a.c.invited ? 1 : 0)) || (b.at - a.at));
 }
 function drawHome(){
+  drawMe();
   HOME.drawQ = false;
   const el = $("#ibList");
   if (!el) return;
@@ -5465,9 +5877,9 @@ function drawHome(){
   const showing = (wide() || $("#crew").classList.contains("v-chat")) && CR.chat ? CR.code : "";
   el.innerHTML = rows.map(r =>
     '<button type="button" class="ib-row' + (r.c.code === showing ? " on" : "") + (r.unread || r.c.invited ? " unread" : "") + '" role="listitem" data-code="' + esc(r.c.code) + '">' +
-      '<span class="cv-icon" style="' + iconVars(r.meta.theme) + '">' + iconHtml(r.meta, r.name) + (r.live ? '<i class="ib-livedot" aria-label="Game live"></i>' : "") + '</span>' +
+      '<span class="cv-icon" style="' + iconVars(r.meta.theme, r.meta) + '">' + iconHtml(r.meta, r.name) + (r.live ? '<i class="ib-livedot" aria-label="Game live"></i>' : "") + '</span>' +
       '<span class="ib-main">' +
-        '<span class="ib-l1"><b>' + esc(r.name) + '</b><time>' + esc(r.c.invited ? "New" : fmtWhen(r.at)) + '</time></span>' +
+        '<span class="ib-l1"><b>' + esc(r.name) + '</b><time>' + esc(r.c.invited ? "New" : r.c.asked ? "Asked" : fmtWhen(r.at)) + '</time></span>' +
         '<span class="ib-l2"><span class="ib-prev">' + (r.live ? '<em class="ib-live">Game live</em> ' : "") + esc(previewOf(r)) + '</span>' +
         (r.unread ? '<span class="ib-badge">' + (r.unread > 99 ? "99+" : r.unread) + '</span>' : "") + '</span>' +
       '</span></button>').join("");
@@ -5507,10 +5919,12 @@ function openHome(){
 async function openChat(code){
   const c = crewList().find(x => x.code === code);
   if (!c) return;
+  if (c.asked){ crewView("chat"); crewWaiting(code); return; }
   if (c.invited){
     const n = store.get("ds.name");
     if (!n){ crewView("chat"); crewSetup(code); return; }
     const err = await crewJoin(code, n);
+    if (err === JOIN_ASKED){ crewView("chat"); crewWaiting(code); return; }
     if (err){ toast(err); return; }
     crewRemember(code, c.name);
     if (authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/chats/" + code + ".json", { method: "DELETE" }).catch(() => {});
@@ -5594,13 +6008,29 @@ function drawInfo(){
   const meta = CR.state.meta || {};
   const ic = $("#infIcon");
   ic.innerHTML = iconHtml(meta, crewName());
-  ic.setAttribute("style", iconVars(meta.theme));
+  ic.setAttribute("style", iconVars(meta.theme, meta));
   const tile = t => '<button type="button" data-t="' + t.id + '" class="' + (themeOf(meta.theme).id === t.id ? "on" : "") + (t.scene ? " scene" : "") + '" aria-label="' + esc(t.n) + '" title="' + esc(t.n) + '">' +
     '<i style="background:' + (t.prev || "linear-gradient(135deg," + t.a + "," + t.b + ")") + '"></i><span>' + esc(t.n) + '</span></button>';
   $("#infThemes").innerHTML = THEMES.filter(t => !t.scene).map(tile).join("");
-  $("#infScenes").innerHTML = THEMES.filter(t => t.scene).map(tile).join("");
-  $("#infIcons").innerHTML = '<button type="button" data-i="" class="' + (meta.icon ? "" : "on") + '" aria-label="Initials">' + esc(initials(crewName())) + '</button>' +
-    CHAT_ICONS.map(i => '<button type="button" data-i="' + i + '" class="' + (meta.icon === i ? "on" : "") + '">' + i + '</button>').join("");
+  /* the chat's own photo, if it has one, then a tile to upload a new one */
+  const hasPhoto = photoOk(meta.photo), pt = hasPhoto ? photoTheme(meta.photo) : null;
+  const shot = hasPhoto && CR.photo && CR.photo.id === meta.photo.img && CR.photo.src ? CR.photo.src : "";
+  const photoTile = hasPhoto
+    ? '<button type="button" data-t="photo" class="scene photo' + (themeOf(meta.theme).id === "photo" ? " on" : "") + '" aria-label="' + esc(pt.n) + '" title="' + esc(pt.n) + '">' +
+      '<i style="background:' + (shot ? 'center/cover no-repeat url(&quot;' + shot + '&quot;)' : "linear-gradient(135deg," + pt.a + "," + pt.b + ")") + '"></i><span>' + esc(pt.n) + '</span></button>'
+    : "";
+  $("#infScenes").innerHTML = THEMES.filter(t => t.scene).map(tile).join("") + photoTile +
+    '<button type="button" data-t="photo-new" class="scene add" aria-label="Use a photo as the theme"><i>' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3l2-3h8l2 3h3v13H3zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg></i><span>' + (hasPhoto ? "New photo" : "Your photo") + '</span></button>';
+  const tn = $("#infThemeName");
+  $("#infThemeNameWrap").classList.toggle("hidden", !(hasPhoto && themeOf(meta.theme).id === "photo"));
+  if (hasPhoto && document.activeElement !== tn) tn.value = meta.photo.n || "";
+  const hasPic = typeof meta.pic === "string" && PIC_RE.test(meta.pic);
+  $("#infIcons").innerHTML = '<button type="button" data-i="" class="' + (meta.icon || hasPic ? "" : "on") + '" aria-label="Initials">' + esc(initials(crewName())) + '</button>' +
+    (hasPic ? '<button type="button" data-i="pic" class="on pic" aria-label="Chat photo"><img alt="" src="' + meta.pic + '"></button>' : "") +
+    '<button type="button" data-i="pic-new" class="pic-add" aria-label="Use a photo as the chat picture">' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3l2-3h8l2 3h3v13H3zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg></button>' +
+    CHAT_ICONS.map(i => '<button type="button" data-i="' + i + '" class="' + (!hasPic && meta.icon === i ? "on" : "") + '">' + i + '</button>').join("");
   const mem = CR.state.members || {};
   const ids = Object.keys(mem).filter(id => mem[id] && mem[id].n)
     .sort((a, b) => (b === LIVE.pid) - (a === LIVE.pid) || String(mem[a].n).localeCompare(String(mem[b].n)));
@@ -5610,7 +6040,10 @@ function drawInfo(){
     const p = mem[id];
     return '<label class="nick-row"><span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + esc(p.a || initials(p.n)) + '</span>' +
       '<span class="nick-real">' + esc(p.n) + (id === LIVE.pid ? " (you)" : "") + '</span>' +
-      '<input type="text" maxlength="30" data-uid="' + esc(id) + '" value="' + esc(crewNick(id)) + '" placeholder="Nickname" aria-label="Nickname for ' + esc(p.n) + '"></label>';
+      '<input type="text" maxlength="30" data-uid="' + esc(id) + '" value="' + esc(crewNick(id)) + '" placeholder="Nickname" aria-label="Nickname for ' + esc(p.n) + '">' +
+      (id === LIVE.pid || id === LIVE.oldPid ? "" : '<button type="button" class="nick-x" data-rm="' + esc(id) + '" aria-label="Remove ' + esc(p.n) + ' from the chat" title="Remove from the chat">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 11h6"/></svg></button>') +
+      '</label>';
   }).join("");
 }
 /* change one thing about the chat for everyone, and say so in the chat */
@@ -5640,6 +6073,12 @@ $("#infName").addEventListener("change", saveName);
 $("#infName").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); } });
 $("#infScenes").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.t === "photo-new"){ $("#infPhotoFile").click(); return; }
+  if (b.dataset.t === "photo"){
+    if (themeOf((CR.state.meta || {}).theme).id === "photo") return;
+    setMeta("theme", "photo", myName() + " switched to the photo theme" + (CR.state.meta.photo.n ? " “" + CR.state.meta.photo.n + "”" : ""));
+    return;
+  }
   const t = themeOf(b.dataset.t);
   if (themeOf((CR.state.meta || {}).theme).id === t.id) return;
   loadFont(t.font);
@@ -5653,7 +6092,48 @@ $("#infThemes").addEventListener("click", e => {
 });
 $("#infIcons").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.i === "pic-new"){ $("#infPicFile").click(); return; }
+  if (b.dataset.i === "pic") return;
+  if ((CR.state.meta || {}).pic) setMeta("pic", null, null);
   setMeta("icon", b.dataset.i || null, null);
+});
+/* a photo as the chat's theme: upload it, take its colours, switch to it */
+$("#infPhotoFile").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!f || !CR.code) return;
+  toast("Setting up your photo…");
+  try {
+    const { url } = await shrinkPhoto(f);
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const pal = photoPalette(img);
+    const id = await crewRich.media.put(url);
+    const old = (CR.state.meta || {}).photo;
+    CR.photo = { id: id, src: url };
+    await setMeta("photo", { img: id, n: (old && old.n) || "", a: pal.a, b: pal.b, t: pal.t, dark: pal.dark }, null);
+    await setMeta("theme", "photo", myName() + " set a photo as the theme");
+    $("#infThemeName").focus();
+  } catch (err){ toast(String((err && err.message) || "Couldn’t use that photo")); }
+});
+function saveThemeName(){
+  const meta = CR.state.meta || {};
+  if (!photoOk(meta.photo)) return;
+  const v = ($("#infThemeName").value || "").trim().slice(0, 40);
+  if (v === (meta.photo.n || "")) return;
+  if (v && isBanned(v)){ $("#infThemeName").value = meta.photo.n || ""; stopThat(); return; }
+  setMeta("photo/n", v || null, v ? myName() + " named the theme “" + v + "”" : null);
+}
+$("#infThemeName").addEventListener("change", saveThemeName);
+$("#infThemeName").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); } });
+$("#infPicFile").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!f || !CR.code) return;
+  try {
+    const pic = await iconPhoto(f);
+    if (pic.length >= 40000 || !PIC_RE.test(pic)){ toast("That picture is too detailed — try another"); return; }
+    await setMeta("pic", pic, myName() + " changed the chat photo");
+  } catch (err){ toast(String((err && err.message) || "Couldn’t use that photo")); }
 });
 $("#infNicks").addEventListener("change", e => {
   const inp = e.target.closest("input[data-uid]"); if (!inp) return;
@@ -5663,6 +6143,11 @@ $("#infNicks").addEventListener("change", e => {
   const real = String(((CR.state.members || {})[uid] || {}).n || "someone");
   const whose = uid === LIVE.pid ? "their own" : real + "’s";
   setMeta("nick/" + uid, v || null, v ? myName() + " set " + whose + " nickname to " + v : myName() + " cleared " + whose + " nickname");
+});
+$("#infNicks").addEventListener("click", e => {
+  const b = e.target.closest("[data-rm]"); if (!b) return;
+  e.preventDefault();
+  crewRemove(b.dataset.rm);
 });
 $("#infNicks").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input")){ e.preventDefault(); e.target.blur(); } });
 
@@ -5681,8 +6166,9 @@ const RP = { chat: null, deckId: "", sig: "", dockSig: "", editing: false, chatO
 
 function rpMount(state){
   if (RP.chat || !state.meta) return;
-  const crew = state.meta.crew || "";
-  /* a game opened for a crew uses the crew's chat, and joining it puts you in the crew */
+  /* a game opened for a crew uses the crew's chat, if this phone is in the crew;
+     anyone else who has the room code plays along without seeing the crew's chat */
+  const crew = state.meta.crew && crewList().some(c => c.code === state.meta.crew && !c.invited && !c.asked) ? state.meta.crew : "";
   if (crew && crew !== CR.code){
     CR.code = crew; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null;
     store.set("ds.crew", crew);
@@ -5946,12 +6432,11 @@ async function hostLoad(code){
 
 async function hostOpenRoom(){
   if (!RH.pkg) return;
-  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  LIVE.code = "";
-  for (let i = 0; i < 4; i++) LIVE.code += letters[Math.floor(Math.random() * letters.length)];
+  await authToken();
+  LIVE.code = randCode(4);
   const box = $("#hsCrewOn");
   const crew = (CR.code && box && box.checked) ? CR.code : "";
-  const meta = { opened: Date.now(), rounds: RH.pkg.rounds.length, remote: true };
+  const meta = hostTag({ opened: Date.now(), rounds: RH.pkg.rounds.length, remote: true });
   if (crew) meta.crew = crew;
   const ok = await dbPut("", { meta: meta, now: { r: -1, phase: "lobby", title: "" } });
   if (!ok){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
