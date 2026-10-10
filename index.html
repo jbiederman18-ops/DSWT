@@ -542,6 +542,19 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .prof-real .tiny{margin-left:auto}
 .prof-real svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.6;flex:0 0 auto}
 #infIcon{cursor:pointer;position:relative}
+.crop-card{max-width:380px;text-align:center}
+.crop-card h2{font-size:1.3rem;margin:0}
+.crop-view{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:.9rem auto .7rem;overflow:hidden;border-radius:16px;background:#0B1411;
+           touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;outline-offset:3px}
+.crop-view:active{cursor:grabbing}
+.crop-view img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;-webkit-user-drag:none}
+.crop-mask{position:absolute;inset:0;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.5);outline:2px solid rgba(255,255,255,.9);outline-offset:-1px}
+.crop-zoom{display:flex;align-items:center;gap:.6rem;margin:0 auto 1rem;width:min(78vw,300px);color:var(--m-soft)}
+.crop-zoom input{flex:1;accent-color:var(--m-green)}
+.crop-zoom svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
+.crop-zoom svg.big{width:22px;height:22px}
+.si-games{text-align:center;margin:1rem 0 0}
+.si-games a{color:var(--m-soft);font-weight:600}
 #infIcon::after,.icon-row button.pic::after{content:"";position:absolute;right:-2px;bottom:-2px;width:18px;height:18px;border-radius:50%;
   background:var(--m-ink) center/11px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3l2-3h8l2 3h3v13H3zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8'/%3E%3C/svg%3E");
   box-shadow:0 0 0 2px var(--m-surf)}
@@ -1469,6 +1482,20 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       <label class="field"><span>Real name</span><input type="text" id="realIn" maxlength="40" autocomplete="name" placeholder="First and last name"></label>
       <p class="tiny" id="realNote" role="status" style="margin:.5rem 0 0;color:var(--m-red)"></p>
       <div style="display:flex;gap:.5rem;margin-top:1rem"><button type="button" class="btn solid" id="realGo">Continue</button></div>
+    </div>
+  </div>
+  <div class="modal hidden" id="cropSheet" role="dialog" aria-modal="true" aria-labelledby="cropH">
+    <div class="card crop-card">
+      <h2 id="cropH">Move and scale</h2>
+      <p class="tiny" style="margin:.3rem 0 0">Drag to move. Pinch, scroll or use the slider to zoom.</p>
+      <div class="crop-view" id="cropView" tabindex="0" aria-label="Photo crop area: arrow keys move it, plus and minus zoom"><img id="cropImg" alt=""><div class="crop-mask" id="cropMask"></div></div>
+      <label class="crop-zoom"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>
+        <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+        <svg class="big" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/></svg></label>
+      <div style="display:flex;gap:.5rem;justify-content:center">
+        <button type="button" class="btn" id="cropCancel">Cancel</button>
+        <button type="button" class="btn solid" id="cropUse">Use photo</button>
+      </div>
     </div>
   </div>
 </section>
@@ -3836,7 +3863,9 @@ function crewSignIn(after){
       '<div class="si-paste"><input type="url" id="siPaste" placeholder="Paste the link" autocomplete="off"><button type="button" class="btn" id="siPasteGo">Sign in</button></div>' +
     '</div>' +
     '<p class="tiny" id="siNote" role="status" style="margin:.7rem 0 0;color:var(--m-red)"></p>' +
+    '<p class="tiny si-games"><a href="#games" id="siGames">Just here for a game? Go to Games</a></p>' +
   '</div></div>';
+  $("#siGames").addEventListener("click", e => { e.preventDefault(); menuCrew(); show("menu"); drawLiveBanner(); });
   const note = t => { $("#siNote").textContent = t || ""; };
   const done = () => { toast("Signed in"); store.set("ds.afterSignIn", ""); if (after) after(); else openHome(); };
   $("#siSend").addEventListener("click", async () => {
@@ -5895,6 +5924,7 @@ $("#profPicFile").addEventListener("change", async e => {
   if (!f) return;
   try {
     const ph = await facePhoto(f);
+    if (ph === null) return;                       /* cancelled */
     if (!faceOk(ph)){ toast("That picture is too detailed — try another"); return; }
     profPick.p = ph;
     drawProfAvs(); drawProfPick();
@@ -6717,25 +6747,111 @@ function hslToHex(h, s, l){
   const f = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))));
   return "#" + [f(0), f(8), f(4)].map(v => v.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
-/* a chat's picture as a small square JPEG kept right in its details */
-async function iconPhoto(file){
+/* ---------- the cropper: drag to move, pinch / scroll / slider to zoom ----------
+   cropPhoto(file, { round, size, title }) shows the photo in a square window
+   and resolves to a size×size canvas of what's inside it, or null if cancelled.
+   The photo always covers the window, so there's never an empty edge. */
+const CROP = { img: null, W: 0, H: 0, base: 1, k: 1, x: 0, y: 0, done: null, pts: new Map(), last: null };
+function cropDraw(){
+  const v = $("#cropView").clientWidth, s = CROP.base * CROP.k;
+  CROP.x = Math.min(0, Math.max(v - CROP.W * s, CROP.x));
+  CROP.y = Math.min(0, Math.max(v - CROP.H * s, CROP.y));
+  $("#cropImg").style.transform = "translate(" + CROP.x + "px," + CROP.y + "px) scale(" + s + ")";
+  $("#cropZoom").value = String(CROP.k);
+}
+function cropZoomAt(k, cx, cy){
+  k = Math.max(1, Math.min(4, k));
+  const s0 = CROP.base * CROP.k, s1 = CROP.base * k;
+  CROP.x = cx - (cx - CROP.x) * s1 / s0;
+  CROP.y = cy - (cy - CROP.y) * s1 / s0;
+  CROP.k = k;
+  cropDraw();
+}
+async function cropPhoto(file, opts){
+  opts = opts || {};
   const { url } = await shrinkPhoto(file);
-  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
-  const S = 160, c = document.createElement("canvas");
-  c.width = S; c.height = S;
-  const side = Math.min(img.naturalWidth, img.naturalHeight);
-  c.getContext("2d").drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, S, S);
-  return c.toDataURL("image/jpeg", 0.8);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("Couldn’t open that picture")); i.src = url; });
+  return new Promise(resolve => {
+    Object.assign(CROP, { img: img, W: img.naturalWidth, H: img.naturalHeight, k: 1, done: resolve, last: null });
+    CROP.pts.clear();
+    $("#cropH").textContent = opts.title || "Move and scale";
+    $("#cropMask").style.borderRadius = opts.round ? "50%" : "22%";
+    const el = $("#cropImg");
+    el.src = url; el.style.width = CROP.W + "px"; el.style.height = CROP.H + "px";
+    $("#cropSheet").classList.remove("hidden");
+    CROP.size = opts.size || 160;
+    requestAnimationFrame(() => {
+      const v = $("#cropView").clientWidth;
+      CROP.base = v / Math.min(CROP.W, CROP.H);
+      CROP.x = (v - CROP.W * CROP.base) / 2; CROP.y = (v - CROP.H * CROP.base) / 2;
+      cropDraw();
+      $("#cropView").focus({ preventScroll: true });
+    });
+  });
+}
+function cropFinish(use){
+  const done = CROP.done; CROP.done = null;
+  $("#cropSheet").classList.add("hidden");
+  if (!done) return;
+  if (!use){ done(null); return; }
+  const v = $("#cropView").clientWidth, s = CROP.base * CROP.k, S = CROP.size;
+  const c = document.createElement("canvas"); c.width = S; c.height = S;
+  const g = c.getContext("2d");
+  g.imageSmoothingQuality = "high";
+  g.drawImage(CROP.img, -CROP.x / s, -CROP.y / s, v / s, v / s, 0, 0, S, S);
+  done(c);
+}
+(() => {
+  const view = $("#cropView");
+  const at = e => { const r = view.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  view.addEventListener("pointerdown", e => { view.setPointerCapture(e.pointerId); CROP.pts.set(e.pointerId, at(e)); CROP.last = null; });
+  view.addEventListener("pointermove", e => {
+    if (!CROP.pts.has(e.pointerId)) return;
+    const prev = CROP.pts.get(e.pointerId), now = at(e);
+    if (CROP.pts.size === 1){
+      CROP.x += now.x - prev.x; CROP.y += now.y - prev.y;
+      CROP.pts.set(e.pointerId, now);
+      cropDraw();
+      return;
+    }
+    CROP.pts.set(e.pointerId, now);
+    const [a, b] = [...CROP.pts.values()];
+    const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, dist = Math.hypot(a.x - b.x, a.y - b.y);
+    if (CROP.last){
+      CROP.x += mid.x - CROP.last.mid.x; CROP.y += mid.y - CROP.last.mid.y;
+      cropZoomAt(CROP.k * dist / (CROP.last.dist || dist), mid.x, mid.y);
+    }
+    CROP.last = { mid: mid, dist: dist };
+  });
+  const up = e => { CROP.pts.delete(e.pointerId); CROP.last = null; };
+  view.addEventListener("pointerup", up);
+  view.addEventListener("pointercancel", up);
+  view.addEventListener("wheel", e => { e.preventDefault(); const p = at(e); cropZoomAt(CROP.k * Math.exp(-e.deltaY / 400), p.x, p.y); }, { passive: false });
+  view.addEventListener("keydown", e => {
+    const v = view.clientWidth / 2, step = 12;
+    if (e.key === "ArrowLeft") CROP.x += step; else if (e.key === "ArrowRight") CROP.x -= step;
+    else if (e.key === "ArrowUp") CROP.y += step; else if (e.key === "ArrowDown") CROP.y -= step;
+    else if (e.key === "+" || e.key === "=") return void (e.preventDefault(), cropZoomAt(CROP.k * 1.1, v, v));
+    else if (e.key === "-") return void (e.preventDefault(), cropZoomAt(CROP.k / 1.1, v, v));
+    else if (e.key === "Enter") return void (e.preventDefault(), cropFinish(true));
+    else return;
+    e.preventDefault(); cropDraw();
+  });
+  $("#cropZoom").addEventListener("input", e => { const v = view.clientWidth / 2; cropZoomAt(Number(e.target.value), v, v); });
+  $("#cropUse").addEventListener("click", () => cropFinish(true));
+  $("#cropCancel").addEventListener("click", () => cropFinish(false));
+})();
+
+/* a chat's picture as a small square JPEG kept right in its details (null: cancelled) */
+async function iconPhoto(file){
+  const c = await cropPhoto(file, { round: false, size: 160, title: "Move and scale the chat photo" });
+  return c ? c.toDataURL("image/jpeg", 0.8) : null;
 }
 const PIC_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
 /* a person's photo: small and square, so it rides along with their member entry */
 async function facePhoto(file){
-  const { url } = await shrinkPhoto(file);
-  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
-  const S = 128, c = document.createElement("canvas");
-  c.width = S; c.height = S;
-  const side = Math.min(img.naturalWidth, img.naturalHeight);
-  c.getContext("2d").drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, S, S);
+  const c = await cropPhoto(file, { round: true, size: 128, title: "Move and scale your photo" });
+  if (!c) return null;
   let q = 0.8, out = c.toDataURL("image/jpeg", q);
   while (out.length > 14000 && q > 0.4){ q -= 0.1; out = c.toDataURL("image/jpeg", q); }
   return out;
@@ -7220,6 +7336,7 @@ $("#infPicFile").addEventListener("change", async e => {
   if (!f || !CR.code) return;
   try {
     const pic = await iconPhoto(f);
+    if (pic === null) return;                      /* cancelled */
     if (pic.length >= 40000 || !PIC_RE.test(pic)){ toast("That picture is too detailed — try another"); return; }
     await setMeta("pic", pic, myName() + " changed the chat photo");
   } catch (err){ toast(String((err && err.message) || "Couldn’t use that photo")); }
@@ -7889,6 +8006,9 @@ $("#toPlayer").addEventListener("click", e => {
 if (CR.code && !crewList().some(c => c.code === CR.code)) crewRemember(CR.code);
 
 /* if someone lands here with #player, go straight to the phone view */
+/* the chats are the front door: show them straight away, not the game menu,
+   while the saved sign-in comes back */
+if (!location.hash && !/[?&]oobCode=/.test(location.search)) show("crew");
 /* where the app opens, once the saved sign-in is back (a few seconds at most) */
 authBoot().then(() => {
 const crewHash = (location.hash.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
@@ -7904,8 +8024,10 @@ if (/[?&]oobCode=/.test(location.search)){
   const saved = store.get("ds.game");
   if (saved) P.game = readJoinCode(saved);
   show("player"); renderPlayer();
-} else if (!location.hash && (CR.code || crewList().length || standalone())){
-  openHome();            /* JoshChat opens to your chats */
+} else if (location.hash === "#games"){
+  show("menu"); drawLiveBanner();
+} else {
+  openHome();            /* JoshChat opens to your chats; the game is behind Games */
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
