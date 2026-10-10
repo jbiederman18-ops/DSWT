@@ -4378,6 +4378,8 @@ async function sealMsg(code, m){
 /* a message in a chat, sealed on the way (system lines too) */
 async function crewPost(m, code){
   code = code || CR.code;
+  /* system lines go out under the sender's own account, so everyone can see who posted them */
+  if (m.pid === "host") m = Object.assign({}, m, { pid: LIVE.pid });
   try { m = await sealMsg(code, by(m)); } catch (e){ return null; }
   return fetch(crewPath("/chat", code), { method: "POST", body: JSON.stringify(m) }).catch(() => null);
 }
@@ -5369,6 +5371,15 @@ function makeChat(root, o){
   const canChange = m => rich && !m.sys && !m.del && (authOn() ? (!!m.by && m.by === AUTH.uid) : isMine(m));
   const who = m => (o.who && o.who(m.pid)) || { n: m.n };
   const nameOf = m => { const n = who(m).n || m.n || "Anonymous"; return isBanned(n) ? "nope" : n; };
+  /* a system line in the crew chat, signed by whoever posted it: anyone in
+     the chat can post one, so "Maria removed Alex" from someone else reads
+     "Sam · Maria removed Alex" */
+  const sysLine = m => {
+    const t = String(m.t || "");
+    if (!rich || !o.who || !m.pid || m.pid === "host") return t;
+    const w = o.who(m.pid), n = w && w.n ? String(w.n) : "";
+    return n && !t.startsWith(n) ? n + " · " + t : t;
+  };
   /* the name on a quoted reply: its author as they're called in this chat now,
      else the name saved with the reply */
   const quoteName = re => { const q = cur[re.k]; return q && !q.sys && q.pid ? nameOf(q) : String(re.n || ""); };
@@ -5813,7 +5824,7 @@ function makeChat(root, o){
     if (empty) empty.remove();
     if (m.sys){
       const d = document.createElement("div");
-      d.className = "ch-sys" + (m.live ? " live" : "") + (anim && fresh ? " fresh" : ""); d.textContent = m.t || "";
+      d.className = "ch-sys" + (m.live ? " live" : "") + (anim && fresh ? " fresh" : ""); d.textContent = sysLine(m);
       log.appendChild(d); lastPid = null;
       rows[key] = { el: d, sys: true };
       return;
@@ -6129,7 +6140,9 @@ const crewRich = {
       const code = CR.code;
       if (!CR.media.has(id)) CR.media.set(id, getJSON(crewPath("/media/" + id)).then(async v => {
         const d = (v && typeof v.d === "string") ? await openStr(code, v.d) : "";
-        return /^data:image\/(jpeg|png|gif|webp);base64,/.test(d) ? d : "";
+        /* the whole string, not just its start: a "picture" with anything
+           after the base64 (quotes, tags) could break out of the page */
+        return IMG_RE.test(d) ? d : "";
       }));
       return CR.media.get(id);
     },
@@ -7411,6 +7424,11 @@ async function iconPhoto(file){
   return c ? c.toDataURL("image/jpeg", 0.8) : null;
 }
 const PIC_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+/* any picture from the chat's photo store: an image type, then base64 and nothing else */
+const IMG_RE = /^data:image\/(jpeg|png|gif|webp);base64,[A-Za-z0-9+\/]+={0,2}$/;
+/* a picture as a CSS url() for an HTML string: only our own checked shapes,
+   so nothing in it can close the attribute it sits in */
+const cssPic = s => (IMG_RE.test(s) || /^blob:[\w.:\/-]+$/.test(s)) ? 'url(&quot;' + s + '&quot;)' : "";
 /* a person's photo: small and square, so it rides along with their member entry */
 async function facePhoto(file){
   const c = await cropPhoto(file, { round: true, size: 128, title: "Move and scale your photo" });
@@ -7582,7 +7600,7 @@ function frameVars(el, f){
   el.style.setProperty("--bg-pos", Math.round(x) + "px " + Math.round(y) + "px");
 }
 /* a short blob: address for a big data: picture, so restyling stays cheap */
-function blobOf(dataUrl){ return NATIVE_FETCH(dataUrl).then(r => r.blob()).then(b => URL.createObjectURL(b)).catch(() => dataUrl); }
+function blobOf(dataUrl){ return NATIVE_FETCH(dataUrl).then(r => r.blob()).then(b => URL.createObjectURL(b)).catch(() => IMG_RE.test(dataUrl) ? dataUrl : ""); }
 /* is the theme's text light? then the picture gets a dark wash, and the other way round */
 function inkIsLight(el){
   const m = /^#([0-9a-f]{6})$/i.exec(getComputedStyle(el).getPropertyValue("--m-ink").trim());
@@ -7725,7 +7743,11 @@ function previewOf(r){
   const m = r.last;
   if (!m) return "No messages yet";
   if (m.del) return "Message deleted";
-  if (m.sys) return String(m.t || "");
+  if (m.sys){
+    /* signed by whoever posted it, as in the chat itself */
+    const t = String(m.t || ""), n = m.pid && m.pid !== "host" && !isMe(m.pid) ? String(((r.meta.nick || {})[m.pid]) || ((r.members || {})[m.pid] || {}).n || "") : "";
+    return n && !t.startsWith(n) ? n + " · " + t : t;
+  }
   const who = isMe(m.pid) ? "You" : String(((r.meta.nick || {})[m.pid]) || ((r.members || {})[m.pid] || {}).n || m.n || "Someone");
   const body = m.img ? "\u{1F4F7} " + (m.t || "Photo") : String(m.t || "");
   return who + ": " + body;
@@ -7956,7 +7978,7 @@ function drawInfo(){
   const shot = hasPhoto && CR.photo && CR.photo.id === meta.photo.img && CR.photo.src ? CR.photo.src : "";
   const photoTile = hasPhoto
     ? '<button type="button" data-t="photo" class="scene photo' + (themeOf(meta.theme).id === "photo" ? " on" : "") + '" aria-label="' + esc(pt.n) + '" title="' + esc(pt.n) + '">' +
-      '<i style="background:' + (shot ? 'center/cover no-repeat url(&quot;' + shot + '&quot;)' : "linear-gradient(135deg," + pt.a + "," + pt.b + ")") + '"></i><span>' + esc(pt.n) + '</span></button>'
+      '<i style="background:' + (cssPic(shot) ? 'center/cover no-repeat ' + cssPic(shot) : "linear-gradient(135deg," + pt.a + "," + pt.b + ")") + '"></i><span>' + esc(pt.n) + '</span></button>'
     : "";
   $("#infScenes").innerHTML = THEMES.filter(t => t.scene).map(tile).join("") + photoTile +
     '<button type="button" data-t="photo-new" class="scene add" aria-label="Use a photo as the theme"><i>' +
@@ -7968,8 +7990,8 @@ function drawInfo(){
   /* the background: the theme's own, or a picture of the chat's own */
   const bg = bgOk(meta.bg) ? meta.bg : null, cur = themeOf(meta.theme);
   const bgShot = bg && CR.bg && CR.bg.id === bg.img && CR.bg.src ? CR.bg.src : "";
-  const thumb = bg ? (bgShot ? "center/cover no-repeat url(&quot;" + bgShot + "&quot;)" : "var(--m-other)")
-                   : cur.photo && shot ? "center/cover no-repeat url(&quot;" + shot + "&quot;)" : (cur.prev || "linear-gradient(160deg," + cur.a + "," + cur.b + ")");
+  const thumb = bg ? (cssPic(bgShot) ? "center/cover no-repeat " + cssPic(bgShot) : "var(--m-other)")
+                   : cur.photo && cssPic(shot) ? "center/cover no-repeat " + cssPic(shot) : (cur.prev || "linear-gradient(160deg," + cur.a + "," + cur.b + ")");
   $("#infBg").innerHTML = '<span class="bg-thumb" style="background:' + thumb + '"></span>' +
     '<span class="bg-txt"><b>' + (bg ? "Your picture" : "The theme’s own") + '</b>' +
     '<span>' + (bg ? "Behind whichever theme you pick. Everyone in the chat sees it." : "Put a picture of your own behind this theme. Its bubbles and colours stay.") + '</span>' +
@@ -8487,8 +8509,10 @@ function hostAttach(){
   RH.chat = makeChat($("#hsChat"), {
     title: RH.crew ? crewName() : "Chat",
     url: RH.crew ? crewChatUrl : roomChatUrl,
-    me: () => "host",
-    name: () => "Host",
+    /* in a crew chat the host talks as themselves (the rules only accept
+       a message under the sender's own account); a plain room keeps "Host" */
+    me: () => RH.crew ? LIVE.pid : "host",
+    name: () => RH.crew ? myName() : "Host",
     isOpen: () => RH.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#hsBadge"), n),
     onClose: () => hsSetChat(false),
