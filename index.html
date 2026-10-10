@@ -1053,9 +1053,8 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .convo[data-scene=arena] .ch-msg.me.fresh{animation:arenaSlam .42s cubic-bezier(.3,1.6,.5,1)}
 @keyframes arenaSlam{from{transform:scale(1.4);opacity:0}}
 
-/* --- Pep Rally of the Dead: the school hallway ---
-   Lime lockers on one side, pink on the other, halftone dots overhead and a
-   lilac floor. Yours are the pink cheer uniform with its white-and-green
+/* --- Pep Rally of the Dead: lime meets pink ---
+   Lime on one side, pink on the other, halftone dots overhead. Yours are the pink cheer uniform with its white-and-green
    trim; everyone else's are the maroon varsity jacket. Names sit on lime
    tags, like the green hair. */
 .msgr .convo[data-scene=pep]{
@@ -1063,14 +1062,9 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   color-scheme:light; --m-surf:#FFFFFF; --m-ink:#23121A; --m-soft:#6A5560; --m-line:rgba(35,18,26,.12); --m-mint:#F3E6EC; --m-other:#EEE7EA; --m-press:rgba(35,18,26,.06);
   --m-bg:#F7F2F4; --m-bubble:#7C1F31; --th-font:"Bungee",var(--m-name);
   --pep-lime:#8CD13F; --pep-pink:#F0388C;
-  background:
-    /* the hallway floor */
-    linear-gradient(180deg,transparent 0 80%,#DCD3E2 80%,#C9BED3) ,
-    /* locker vents near the top of each door, and the seams between doors */
-    repeating-linear-gradient(180deg,rgba(0,0,0,.07) 0 2px,transparent 2px 7px) 0 54px/100% 34px repeat-x,
-    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 2px,rgba(255,255,255,.28) 2px 4px,transparent 4px 66px),
-    /* lime lockers left, pink right */
-    linear-gradient(90deg,#BFE79A 0 50%,#FFC4DF 50% 100%);
+  /* lime on the left, pink on the right, nothing else: the halftone dots
+     (below) are all the texture it needs */
+  background:linear-gradient(90deg,#BFE79A 0 50%,#FFC4DF 50% 100%);
 }
 /* halftone dots: pink drifting in from the top left, lime from the top right */
 .msgr .convo[data-scene=pep]::before,.msgr .convo[data-scene=pep]::after{content:"";position:absolute;inset:0 0 45% 0;pointer-events:none}
