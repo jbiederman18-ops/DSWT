@@ -534,6 +534,12 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ch-b.pic-only,.msgr .ch-b.pic-only{padding:3px;border-radius:18px}
 .ch-b.pic-only .ch-img{margin:0;border-radius:15px}
 .ch-av{font-style:normal;margin-right:.3em}
+.ch-av.ph img{width:1.35em;height:1.35em;border-radius:50%;object-fit:cover;vertical-align:-.35em;display:inline-block}
+.nc-av img,.ib-me img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.ib-me.ph{padding:0;overflow:hidden;background:var(--m-other)}
+.prof-avs button.ph{padding:0;overflow:hidden;color:var(--m-soft)}
+.prof-avs button.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.prof-avs button.ph svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ch-msg.flash .ch-b{animation:chflash 1.2s ease}
 @keyframes chflash{0%,40%{box-shadow:0 0 0 4px var(--hl)}}
 .ch-ctx{display:flex;align-items:center;gap:.5rem;margin:.3rem .6rem 0;padding:.35rem .5rem .35rem .7rem;background:var(--paper-deep);
@@ -1428,6 +1434,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       <div class="prof-cols" id="profCols"></div>
       <div class="tiny" style="margin:.8rem 0 .3rem">Avatar</div>
       <div class="prof-avs" id="profAvs"></div>
+      <input type="file" accept="image/*" id="profPicFile" hidden>
       <div class="tiny" style="margin:.9rem 0 .35rem">Look</div>
       <div class="look-pick" id="profLook" role="radiogroup" aria-label="Look">
         <button type="button" role="radio" data-look="auto"><i class="lk lk-auto" aria-hidden="true"></i><span>Auto</span><small>Follows your phone</small></button>
@@ -5345,7 +5352,8 @@ function makeChat(root, o){
   function drawRow(key){
     const m = cur[key] || {}, row = rows[key];
     if (!row || row.sys) return;
-    const sig = [m.t, m.ed, m.del, m.img && m.img.id, m.re && m.re.k, m.n, JSON.stringify(o.who ? who(m) : 0)].join("|");
+    const sig = [m.t, m.ed, m.del, m.img && m.img.id, m.re && m.re.k, m.n,
+                 JSON.stringify(o.who ? Object.assign({}, who(m), { p: faceOk(who(m).p) ? who(m).p.length + who(m).p.slice(-24) : "" }) : 0)].join("|");
     if (sig === row.body) return;
     row.body = sig;
     const mine = isMine(m);
@@ -5356,7 +5364,7 @@ function makeChat(root, o){
     let h = "";
     if (row.showName){
       const col = p.c !== undefined && p.c !== null ? COLORS[Number(p.c) % COLORS.length] : "";
-      h += '<span class="ch-n"' + (col ? ' style="color:' + col + '"' : "") + '>' + (p.a ? '<i class="ch-av">' + esc(p.a) + '</i>' : "") + esc(nameOf(m)) + '</span>';
+      h += '<span class="ch-n"' + (col ? ' style="color:' + col + '"' : "") + '>' + (faceOk(p.p) ? '<i class="ch-av ph"><img alt="" src="' + p.p + '"></i>' : p.a ? '<i class="ch-av">' + esc(p.a) + '</i>' : "") + esc(nameOf(m)) + '</span>';
     }
     if (m.del){
       h += '<span class="ch-b gone">Message deleted</span>';
@@ -5661,7 +5669,7 @@ const crewRich = {
   who: pid => {
     const p = (CR.state.members || {})[pid], nick = crewNick(pid);
     if (!p && !nick) return null;
-    return { n: nick || (p && p.n), c: p && p.c, a: p && p.a };
+    return { n: nick || (p && p.n), c: p && p.c, a: p && p.a, p: p && p.p };
   },
   seal: m => sealMsg(CR.code, m),
   sealStr: t => seal(CR.code, t),
@@ -5762,20 +5770,45 @@ function crewSwitch(code){
 const AVATARS = ["\u{1F600}", "\u{1F60E}", "\u{1F920}", "\u{1F47D}", "\u{1F916}", "\u{1F98A}", "\u{1F438}", "\u{1F984}", "\u{1F355}", "\u{1F3B8}", "\u{1F680}", "\u{1F4B8}"];
 let profPick = {};
 function openProfile(){
-  profPick = { c: store.get("ds.color"), a: store.get("ds.avatar") || "" };
+  profPick = { c: store.get("ds.color"), a: store.get("ds.avatar") || "", p: store.get("ds.photo") || "" };
   $("#profName").value = store.get("ds.name") || "";
   $("#profCols").innerHTML = COLORS.map((c, i) => '<button type="button" data-c="' + i + '" style="background:' + c + '" aria-label="Colour ' + (i + 1) + '"></button>').join("");
-  $("#profAvs").innerHTML = '<button type="button" data-a="" aria-label="No avatar">–</button>' +
-    AVATARS.map(a => '<button type="button" data-a="' + a + '">' + a + '</button>').join("");
+  drawProfAvs();
   drawProfPick();
   $("#profSheet").classList.remove("hidden");
 }
+const CAMERA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3l2-3h8l2 3h3v13H3zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg>';
+function drawProfAvs(){
+  const has = faceOk(profPick.p);
+  $("#profAvs").innerHTML = '<button type="button" data-a="" aria-label="No avatar">–</button>' +
+    '<button type="button" data-a="ph" class="ph" aria-label="' + (has ? "Your photo" : "Use a photo") + '">' + (has ? '<img alt="" src="' + profPick.p + '">' : CAMERA) + '</button>' +
+    (has ? '<button type="button" data-a="ph-new" class="ph" aria-label="Choose a different photo">' + CAMERA + '</button>' : "") +
+    AVATARS.map(a => '<button type="button" data-a="' + a + '">' + a + '</button>').join("");
+}
 function drawProfPick(){
   $$("#profCols button").forEach(b => b.classList.toggle("on", String(profPick.c) === b.dataset.c));
-  $$("#profAvs button").forEach(b => b.classList.toggle("on", (profPick.a || "") === b.dataset.a));
+  const ph = faceOk(profPick.p);
+  $$("#profAvs button").forEach(b => b.classList.toggle("on", b.dataset.a === "ph" ? ph : b.dataset.a === "ph-new" ? false : !ph && (profPick.a || "") === b.dataset.a));
 }
 $("#profCols").addEventListener("click", e => { const b = e.target.closest("button"); if (b){ profPick.c = b.dataset.c; drawProfPick(); } });
-$("#profAvs").addEventListener("click", e => { const b = e.target.closest("button"); if (b){ profPick.a = b.dataset.a; drawProfPick(); } });
+$("#profAvs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.a === "ph-new" || (b.dataset.a === "ph" && !faceOk(profPick.p))){ $("#profPicFile").click(); return; }
+  if (b.dataset.a === "ph") return;
+  profPick.a = b.dataset.a; profPick.p = "";
+  drawProfAvs(); drawProfPick();
+});
+$("#profPicFile").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  try {
+    const ph = await facePhoto(f);
+    if (!faceOk(ph)){ toast("That picture is too detailed — try another"); return; }
+    profPick.p = ph;
+    drawProfAvs(); drawProfPick();
+  } catch (err){ toast(String((err && err.message) || "Couldn’t use that photo")); }
+});
 $("#profCancel").addEventListener("click", () => $("#profSheet").classList.add("hidden"));
 $("#profSave").addEventListener("click", async () => {
   const n = ($("#profName").value || "").trim().slice(0, 40);
@@ -5784,6 +5817,8 @@ $("#profSave").addEventListener("click", async () => {
   store.set("ds.name", n);
   if (profPick.c !== undefined && profPick.c !== null && profPick.c !== "") store.set("ds.color", String(profPick.c));
   store.set("ds.avatar", profPick.a || "");
+  const ph = faceOk(profPick.p) ? profPick.p : "";
+  if (ph !== (store.get("ds.photo") || "")){ store.set("ds.photo", ph); store.set("ds.photoV", Date.now().toString(36)); }
   $("#profSheet").classList.add("hidden");
   /* the same name, colour and avatar in every chat on this phone */
   const me = { n: n, c: profPick.c !== undefined && profPick.c !== null && profPick.c !== "" ? Number(profPick.c) : null, a: profPick.a || null };
@@ -5793,7 +5828,8 @@ $("#profSave").addEventListener("click", async () => {
       try { mine = Object.assign({}, me, { n: await seal(c.code, me.n), a: me.a ? await seal(c.code, me.a) : null }); }
       catch (e){ return; }
     }
-    return fetch(crewPath("/members/" + LIVE.pid, c.code), { method: "PATCH", body: JSON.stringify(mine) }).catch(() => {});
+    const r = await fetch(crewPath("/members/" + LIVE.pid, c.code), { method: "PATCH", body: JSON.stringify(mine) }).catch(() => null);
+    if (r && r.ok) await facePut(c.code);
   }));
   drawMe();
   toast("Saved");
@@ -6055,6 +6091,18 @@ async function crewRemove(id){
   crewSys(myName() + " removed " + nm + ".");
 }
 
+/* My photo in one chat, written only when it has changed since this phone
+   last put it there. It is its own write, so a database whose rules don't
+   know about photos yet refuses just the photo and nothing else. */
+async function facePut(code){
+  const ph = store.get("ds.photo") || "", v = store.get("ds.photoV") || "";
+  if (!code || (store.get("ds.photoIn:" + code) || "") === v) return;
+  let val = faceOk(ph) ? ph : null;
+  if (val && e2eOn()){ try { val = await seal(code, val); } catch (e){ return; } }
+  const r = await fetch(crewPath("/members/" + LIVE.pid + "/p", code),
+    val ? { method: "PUT", body: JSON.stringify(val) } : { method: "DELETE" }).catch(() => null);
+  if (r && r.ok) store.set("ds.photoIn:" + code, v);
+}
 async function crewTouch(){
   const name = store.get("ds.name") || "Someone";
   if (!CR.code) return;
@@ -6070,7 +6118,9 @@ async function crewTouch(){
     catch (e){ delete me.n; delete me.a; }
   }
   CR.seenSent = Date.now();
+  const touchCode = CR.code;
   const done = fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify(me) }).catch(() => {});
+  done.then(r => { if (r && r.ok) facePut(touchCode); });
   /* the one thing anyone can see about a chat: that it exists, so a join
      request can tell a real code from a typo */
   if (authOn() && CR.hereSent !== CR.code){
@@ -6564,6 +6614,21 @@ async function iconPhoto(file){
   return c.toDataURL("image/jpeg", 0.8);
 }
 const PIC_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+/* a person's photo: small and square, so it rides along with their member entry */
+async function facePhoto(file){
+  const { url } = await shrinkPhoto(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+  const S = 128, c = document.createElement("canvas");
+  c.width = S; c.height = S;
+  const side = Math.min(img.naturalWidth, img.naturalHeight);
+  c.getContext("2d").drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, S, S);
+  let q = 0.8, out = c.toDataURL("image/jpeg", q);
+  while (out.length > 14000 && q > 0.4){ q -= 0.1; out = c.toDataURL("image/jpeg", q); }
+  return out;
+}
+const faceOk = v => typeof v === "string" && v.length <= 14000 && PIC_RE.test(v);
+/* someone's little circle: their photo, else their emoji, else their initials */
+const faceHtml = (p, fallback) => faceOk(p && p.p) ? '<img alt="" src="' + p.p + '">' : esc(fallback);
 function initials(name){
   const w = String(name || "").trim().split(/\s+/).filter(Boolean);
   const first = s => Array.from(s || "")[0] || "";
@@ -6694,7 +6759,7 @@ async function refreshHome(){
     });
     /* everyone you share a chat with, for starting new ones */
     const people = {};
-    const add = mem => { for (const id in mem || {}) if (id !== LIVE.pid && id.length > 10 && mem[id] && mem[id].n) people[id] = { n: String(mem[id].n), a: mem[id].a, c: mem[id].c }; };
+    const add = mem => { for (const id in mem || {}) if (id !== LIVE.pid && id.length > 10 && mem[id] && mem[id].n) people[id] = { n: String(mem[id].n), a: mem[id].a, c: mem[id].c, p: mem[id].p }; };
     for (const code in HOME.data) add(HOME.data[code].members);
     add(CR.state.members);
     HOME.people = people;
@@ -6784,9 +6849,12 @@ function drawHomeSoon(){
 }
 function drawMe(){
   const b = $("#ibMe"), n = store.get("ds.name") || "", col = store.get("ds.color"), av = store.get("ds.avatar");
-  b.textContent = av || initials(n || "?");
-  b.style.background = col !== null && col !== undefined && col !== "" ? COLORS[Number(col) % COLORS.length] : "";
-  b.classList.toggle("emoji", !!av);
+  const ph = store.get("ds.photo") || "";
+  if (faceOk(ph)) b.innerHTML = '<img alt="" src="' + ph + '">';
+  else b.textContent = av || initials(n || "?");
+  b.style.background = !faceOk(ph) && col !== null && col !== undefined && col !== "" ? COLORS[Number(col) % COLORS.length] : "";
+  b.classList.toggle("emoji", !!av && !faceOk(ph));
+  b.classList.toggle("ph", faceOk(ph));
 }
 
 function openHome(){
@@ -6855,7 +6923,7 @@ function openNew(){
   $("#ncPeopleWrap").classList.toggle("hidden", !canAdd);
   $("#ncPeople").innerHTML = people.map(p =>
     '<label class="nc-person"><input type="checkbox" value="' + esc(p.id) + '">' +
-    '<span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + esc(p.a || initials(p.n)) + '</span>' +
+    '<span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + faceHtml(p, p.a || initials(p.n)) + '</span>' +
     '<span>' + esc(p.n) + '</span></label>').join("");
   $("#ncNote").textContent = canAdd ? "They’ll see it in their chats. You’ll also get an invite link for anyone else." : "You’ll get an invite link to send to your people.";
   $("#newSheet").classList.remove("hidden");
@@ -6932,7 +7000,7 @@ function drawInfo(){
   if (active) return;   /* don't redraw under someone typing a nickname */
   $("#infNicks").innerHTML = ids.map(id => {
     const p = mem[id];
-    return '<label class="nick-row"><span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + esc(p.a || initials(p.n)) + '</span>' +
+    return '<label class="nick-row"><span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + faceHtml(p, p.a || initials(p.n)) + '</span>' +
       '<span class="nick-real">' + esc(p.n) + (id === LIVE.pid ? " (you)" : "") + '</span>' +
       '<input type="text" maxlength="30" data-uid="' + esc(id) + '" value="' + esc(crewNick(id)) + '" placeholder="Nickname" aria-label="Nickname for ' + esc(p.n) + '">' +
       (id === LIVE.pid || id === LIVE.oldPid ? "" : '<button type="button" class="nick-x" data-rm="' + esc(id) + '" aria-label="Remove ' + esc(p.n) + ' from the chat" title="Remove from the chat">' +

@@ -283,7 +283,11 @@ your avatar opens your profile.
 - **Links** are clickable, and a message can run to 2,000 characters.
 - **Who's around:** "Sam is typing…" under the chat, "2 online" at the top, and
   "Seen by …" under your newest message.
-- **Profiles:** **⋯ → Your profile** sets your name, a colour and an avatar.
+- **Profiles:** tap your avatar → **Your profile** sets your name, a colour and an
+  avatar: an emoji, or a photo of you (the camera button). The photo is cropped
+  square, kept small, encrypted like everything else, and shows next to your
+  name in every chat on that phone. A chat's own photo is in **Chat settings**,
+  the camera button in the icon row.
 - **More than one crew:** **⋯** lists your crews to switch between, and **+ Join
   or start another**. Leaving one takes you to the next.
 - **No signal:** the app still opens, a message you send waits with
