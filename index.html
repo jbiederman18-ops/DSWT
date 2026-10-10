@@ -464,11 +464,61 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .rrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.92rem}
 .rrow .st{font-size:.7rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase}
 .rrow.cur{background:var(--hl);margin:0 -.5rem;padding:.45rem .5rem;border-radius:4px}
+
+/* ---------- crew chat ---------- */
+#crew{background:var(--paper-deep)}
+.cr-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr-body{flex:1;min-height:0;display:flex;justify-content:center;overflow:auto}
+.cr-setup{width:100%;max-width:560px;padding:12px 12px 32px}
+.rp-chat.cr-chat{position:static;transform:none;visibility:visible;transition:none;border-radius:0;box-shadow:none;border:0;
+                 width:100%;max-width:760px;flex:1;min-height:0}
+@media (min-width:900px){.rp-chat.cr-chat{border-left:2px solid var(--rule);border-right:2px solid var(--rule)}}
+.cr-chat .ch-x{display:none}
+.cr-chat .ch-head{padding-top:.65rem}
+.cr-more{position:absolute;right:10px;top:calc(52px + env(safe-area-inset-top));z-index:45;background:var(--card);border:2px solid var(--ink);
+         border-radius:var(--r);padding:.8rem 1rem;box-shadow:0 8px 30px rgba(0,0,0,.25);width:min(300px,calc(100vw - 20px))}
+.cr-code{font-family:var(--display);font-weight:800;font-size:2rem;letter-spacing:.12em;line-height:1.1}
+#crew{position:relative}
+.hs-crew{margin-top:1rem;padding:.6rem .7rem;background:var(--hl);border-radius:var(--r);font-size:.88rem}
+
+/* "game going live" */
+.live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
+             display:flex;align-items:center;gap:.6rem;width:min(560px,calc(100vw - 16px));padding:.55rem .55rem .55rem .9rem;
+             background:var(--stamp);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:700}
+.live-banner.pop{animation:lbpop .55s cubic-bezier(.2,1.5,.4,1)}
+@keyframes lbpop{from{transform:translate(-50%,-140%)}to{transform:translate(-50%,0)}}
+.lb-dot{width:.7rem;height:.7rem;border-radius:50%;background:#fff;flex:0 0 auto;animation:lbpulse 1.1s ease-in-out infinite}
+@keyframes lbpulse{50%{opacity:.25}}
+.lb-text{flex:1;min-width:0;font-size:.95rem}
+.lb-join{background:#fff;color:var(--stamp);border:0;border-radius:99px;padding:.45em 1em;font-weight:800;font-size:.9rem;flex:0 0 auto}
+.lb-x{background:transparent;border:0;color:#fff;opacity:.75;font-size:.95rem;padding:.2em .35em}
+@media (prefers-reduced-motion:reduce){.live-banner.pop,.lb-dot{animation:none}}
+
+/* message reactions */
+.ch-b{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ch-b:focus-visible{outline:2px solid var(--marker-deep);outline-offset:2px}
+.ch-pick{display:flex;gap:.1rem;margin:.3rem 0 .1rem;padding:.2rem .3rem;background:var(--card);border:2px solid var(--ink);border-radius:99px;
+         box-shadow:0 4px 14px rgba(0,0,0,.18);animation:pickin .16s ease-out}
+@keyframes pickin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+.ch-pick button{border:0;background:transparent;font-size:1.35rem;line-height:1.15;padding:.12em .2em;border-radius:50%}
+.ch-pick button:hover,.ch-pick button:active{background:var(--hl);transform:scale(1.15)}
+.ch-rx{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.2rem}
+.ch-pill{display:inline-flex;align-items:center;gap:.2em;border:1.5px solid var(--rule);background:var(--card);border-radius:99px;
+         padding:.05em .45em;font-size:.95rem;line-height:1.35}
+.ch-pill b{font-size:.75rem;font-variant-numeric:tabular-nums}
+.ch-pill.on{border-color:var(--marker-deep);background:var(--hl)}
+.ch-sys.live{background:var(--stamp);color:#fff}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;border-radius:var(--r);box-shadow:0 4px 0 rgba(0,0,0,.3)}
 </style>
 </head>
 <body>
 <div id="app">
+<div class="live-banner hidden" id="liveBanner" role="alert">
+  <span class="lb-dot"></span>
+  <span class="lb-text" id="lbText">Game going live</span>
+  <button type="button" class="lb-join" id="lbJoin">Join now</button>
+  <button type="button" class="lb-x" id="lbX" aria-label="Dismiss">✕</button>
+</div>
 
 <!-- ============ INTAKE ============ -->
 <!-- ============ MENU ============ -->
@@ -479,20 +529,24 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <p class="lede">A real crowdfunding page goes up on the screen with the money blacked out. Everyone guesses what it has raised and what it is asking for. Then you find out.</p>
 
     <nav class="menu">
-      <button class="mi" id="miNew">
+      <button class="mi" id="miCrew">
         <span class="mk">01</span>
+        <span class="mt"><b>Crew chat</b><em>A group chat that's always on. When a game goes live, everyone gets pinged and joins with one tap.</em></span>
+      </button>
+      <button class="mi" id="miNew">
+        <span class="mk">02</span>
         <span class="mt"><b>Start a new game</b><em>Drop in campaign pages saved as PDFs. One file per round.</em></span>
       </button>
       <button class="mi" id="miLoad">
-        <span class="mk">02</span>
+        <span class="mk">03</span>
         <span class="mt"><b>Load a saved game</b><em>Six characters, and a game you built on another computer comes back.</em></span>
       </button>
       <button class="mi" id="miJoin">
-        <span class="mk">03</span>
+        <span class="mk">04</span>
         <span class="mt"><b>Join on your phone</b><em>Playing, not hosting? Four letters from the host and you're in.</em></span>
       </button>
       <button class="mi" id="miHost">
-        <span class="mk">04</span>
+        <span class="mk">05</span>
         <span class="mt"><b>Host a remote game</b><em>Friends far away? Everyone sees the campaign on their own phone and argues about it in the chat. Run it from your phone or laptop.</em></span>
       </button>
     </nav>
@@ -698,6 +752,25 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <button id="resMenu">Main menu</button>
   </div>
   <div class="res-stage" id="resStage"></div>
+</section>
+
+<!-- ============ CREW CHAT ============ -->
+<section id="crew" class="screen hidden">
+  <div class="rp-top hs-top">
+    <button type="button" id="crBack">‹ Menu</button>
+    <span class="rp-r cr-name" id="crName">Crew chat</span>
+    <span style="flex:1"></span>
+    <button type="button" id="crAlerts" class="hidden">🔔 Alerts</button>
+    <button type="button" id="crInvite" class="hidden">Invite</button>
+    <button type="button" id="crMoreBtn" class="hidden" aria-label="More">⋯</button>
+  </div>
+  <div class="cr-more hidden" id="crMore">
+    <div class="tiny">Crew code</div>
+    <div class="cr-code" id="crCodeShow"></div>
+    <p class="tiny" style="margin:.2rem 0 .7rem">Anyone with this code (or the invite link) can join the chat.</p>
+    <button type="button" class="btn sm" id="crLeave" style="color:var(--stamp)">Leave this crew</button>
+  </div>
+  <div class="cr-body" id="crBody"></div>
 </section>
 
 <!-- ============ REMOTE: PLAYER ============ -->
@@ -2231,7 +2304,7 @@ $("#gmNextUp").addEventListener("click", () => {
    10. PLAY
    ============================================================ */
 function show(which){
-  ["menu","intake","check","gm","play","results","player","rplayer","host"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
+  ["menu","intake","check","gm","play","results","player","rplayer","host","crew"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
 }
 
 function loadRound(i){
@@ -3341,25 +3414,44 @@ async function loadDeckInto(id, deckEl, infoEl){
   });
 }
 
-/* ---------- chat, shared by players and host ---------- */
+/* ---------- chat, shared by the crew, players and host ----------
+   o.url(sub) is the chat node's REST address (sub "" for the node itself,
+   "/<key>/r/<reaction>/<pid>" for one person's reaction to one message).
+   Reactions live on the message: r.<name>.<pid> = that person's name. */
+const RX = [["laugh", "\u{1F602}"], ["money", "\u{1F911}"], ["dead", "\u{1F480}"], ["roll", "\u{1F644}"],
+            ["fire", "\u{1F525}"], ["eyes", "\u{1F440}"], ["heart", "❤️"], ["up", "\u{1F44D}"]];
+const CHAT_KEEP = 250;   // messages drawn; older ones stay in the database
+
 function makeChat(root, o){
   root.innerHTML =
-    '<div class="ch-head"><b>Chat</b><span class="ch-sub"></span><button type="button" class="ch-x" aria-label="Close chat">✕</button></div>' +
-    '<div class="ch-log" aria-live="polite"><p class="ch-empty">Nothing yet. Say something about this campaign.</p></div>' +
+    '<div class="ch-head"><b>' + esc(o.title || "Chat") + '</b><span class="ch-sub"></span><button type="button" class="ch-x" aria-label="Close chat">✕</button></div>' +
+    '<div class="ch-log" aria-live="polite"><p class="ch-empty">' + esc(o.empty || "Nothing yet. Say something — and tap any message to react to it.") + '</p></div>' +
     '<div class="ch-react">' + REACTS.map(e => '<button type="button" data-e="' + e + '" aria-label="Send ' + e + '">' + e + '</button>').join("") + '</div>' +
-    '<form class="ch-form"><input type="text" maxlength="280" placeholder="Talk it over…" autocomplete="off" enterkeyhint="send" aria-label="Message">' +
+    '<form class="ch-form"><input type="text" maxlength="280" placeholder="' + esc(o.placeholder || "Talk it over…") + '" autocomplete="off" enterkeyhint="send" aria-label="Message">' +
     '<button class="btn solid sm">Send</button></form>';
   const log = $(".ch-log", root), input = $(".ch-form input", root);
-  const seen = new Set();
-  let lastPid = null, unread = 0, primed = false;
+  const rows = {};
+  let cur = {}, lastPid = null, unread = 0, primed = false, picker = null;
 
+  async function post(url, method, body){
+    try { const res = await fetch(url, { method: method, body: JSON.stringify(body) }); return res.ok; }
+    catch (e){ return false; }
+  }
   async function send(t){
     t = String(t || "").trim().slice(0, 280);
     if (!t) return;
     if (isBanned(t)){ stopThat(); return; }
-    const ok = await dbPost("/chat", { pid: o.me(), n: o.name(), t: t, at: { ".sv": "timestamp" } });
+    const ok = await post(o.url(""), "POST", { pid: o.me(), n: o.name(), t: t, at: { ".sv": "timestamp" } });
     if (!ok) toast("That message didn’t send");
   }
+  async function react(key, name){
+    const m = cur[key];
+    if (!m) return;
+    const mine = !!(m.r && m.r[name] && m.r[name][o.me()]);
+    const ok = await post(o.url("/" + key + "/r/" + name + "/" + o.me()), "PUT", mine ? null : String(o.name()).slice(0, 40));
+    if (!ok) toast("Couldn’t add that reaction");
+  }
+
   $(".ch-form", root).addEventListener("submit", e => {
     e.preventDefault();
     const t = input.value; input.value = "";
@@ -3368,47 +3460,94 @@ function makeChat(root, o){
   $$(".ch-react button", root).forEach(b => b.addEventListener("click", () => send(b.dataset.e)));
   $(".ch-x", root).addEventListener("click", () => o.onClose && o.onClose());
 
-  function append(m){
+  function closePicker(){ if (picker){ picker.remove(); picker = null; } }
+  function openPicker(row){
+    const was = picker && picker.parentElement === row;
+    closePicker();
+    if (was) return;
+    picker = document.createElement("div");
+    picker.className = "ch-pick";
+    picker.innerHTML = RX.map(([n, e]) => '<button type="button" data-n="' + n + '" aria-label="React ' + e + '">' + e + '</button>').join("");
+    row.insertBefore(picker, row.querySelector(".ch-rx"));
+    const near = log.scrollHeight - log.scrollTop - log.clientHeight < 120;
+    if (near) log.scrollTop = log.scrollHeight;
+  }
+  log.addEventListener("click", e => {
+    const row = e.target.closest(".ch-msg");
+    if (!row){ closePicker(); return; }
+    const pill = e.target.closest(".ch-pill");
+    const pick = e.target.closest(".ch-pick button");
+    if (pill){ react(row.dataset.k, pill.dataset.n); return; }
+    if (pick){ react(row.dataset.k, pick.dataset.n); closePicker(); return; }
+    if (e.target.closest(".ch-b")) openPicker(row);
+  });
+  document.addEventListener("click", e => { if (picker && !root.contains(e.target)) closePicker(); });
+
+  function drawReactions(key){
+    const m = cur[key] || {}, row = rows[key];
+    const r = m.r || {};
+    const sig = JSON.stringify(r);
+    if (sig === row.sig) return;
+    row.sig = sig;
+    let h = "";
+    for (const [n, e] of RX){
+      const who = r[n] || {};
+      const ids = Object.keys(who);
+      if (!ids.length) continue;
+      const names = ids.map(id => isBanned(who[id]) ? "nope" : String(who[id] || "someone")).join(", ");
+      h += '<button type="button" class="ch-pill' + (who[o.me()] ? " on" : "") + '" data-n="' + n + '" title="' + esc(names) + '" aria-label="' + esc(e + " from " + names) + '">' +
+           e + (ids.length > 1 ? '<b>' + ids.length + '</b>' : "") + '</button>';
+    }
+    row.rx.innerHTML = h;
+    row.rx.classList.toggle("hidden", !h);
+  }
+
+  function append(key, m){
     const empty = $(".ch-empty", log);
     if (empty) empty.remove();
     if (m.sys){
       const d = document.createElement("div");
-      d.className = "ch-sys"; d.textContent = m.t || "";
+      d.className = "ch-sys" + (m.live ? " live" : ""); d.textContent = m.t || "";
       log.appendChild(d); lastPid = null;
+      rows[key] = { el: d, sys: true };
       return;
     }
     const mine = m.pid === o.me();
     const badName = isBanned(m.n), badText = isBanned(m.t);
     const row = document.createElement("div");
     row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "");
+    row.dataset.k = key;
     let h = "";
     if (m.pid !== lastPid && !mine) h += '<span class="ch-n">' + esc(badName ? "nope" : (m.n || "Anonymous")) + '</span>';
     const big = !badText && EMOJI_ONLY.test(m.t || "");
-    h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + '">' +
-         (badText ? "bippity’d" : esc(m.t || "")) + '</span>';
+    h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + '" role="button" tabindex="0">' +
+         (badText ? "bippity’d" : esc(m.t || "")) + '</span><div class="ch-rx hidden"></div>';
     row.innerHTML = h;
     log.appendChild(row);
+    rows[key] = { el: row, rx: $(".ch-rx", row), sig: "" };
+    drawReactions(key);
     lastPid = m.pid;
   }
 
-  function update(state){
-    const all = state.chat || {};
-    const keys = Object.keys(all).sort();
+  function update(chat, sub){
+    cur = chat || {};
+    const keys = Object.keys(cur).sort().slice(-CHAT_KEEP);
     const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
     let mineAdded = false, others = 0;
     for (const k of keys){
-      if (seen.has(k)) continue;
-      seen.add(k);
-      const m = all[k] || {};
-      append(m);
-      if (m.pid === o.me()) mineAdded = true;
-      else if (!m.sys) others++;
+      const m = cur[k] || {};
+      if (!rows[k]){
+        append(k, m);
+        if (m.pid === o.me()) mineAdded = true;
+        else if (!m.sys) others++;
+      } else if (!rows[k].sys) drawReactions(k);
     }
+    /* a message removed from the database (a closed room) goes too */
+    for (const k in rows) if (!(k in cur)){ rows[k].el.remove(); delete rows[k]; }
     if (keys.length && (nearBottom || mineAdded || !primed)) log.scrollTop = log.scrollHeight;
     if (primed && others && !o.isOpen()){ unread += others; o.onUnread(unread); }
     primed = true;
-    const n = Object.keys(state.players || {}).length;
-    $(".ch-sub", root).textContent = n ? n + " player" + (n === 1 ? "" : "s") : "";
+    $(".ch-sub", root).textContent = sub || "";
   }
 
   return {
@@ -3417,6 +3556,268 @@ function makeChat(root, o){
     toEnd(){ log.scrollTop = log.scrollHeight; }
   };
 }
+
+const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
+const roomChatUrl = sub => gamePath("/chat" + sub);
+
+/* ---------- the crew: a standing group chat ----------
+   Lives at /saves/<six chars>/crew, so the existing rules cover it.
+   When a host opens a room for the crew, it writes crew/live and the
+   whole crew gets a "going live" banner, wherever they are in the app.
+   Inside a game the crew chat carries on, so it is one conversation. */
+const CR = { code: store.get("ds.crew") || "", es: null, state: {}, chat: null, liveSeen: null, primed: false, flash: null };
+
+function crewPath(sub, code){ return savePath("/" + (code || CR.code) + "/crew" + (sub || "")); }
+const crewChatUrl = sub => crewPath("/chat" + sub);
+function crewLabel(){
+  const n = Object.keys(CR.state.members || {}).length;
+  return n ? plural(n, "member") : "";
+}
+function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
+
+function crewConnect(){
+  if (CR.es){ CR.es.close(); CR.es = null; }
+  if (!CR.code || !dbRoot()) return;
+  const es = new EventSource(crewPath(""));
+  CR.es = es;
+  const handle = isPatch => ev => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch (e){ return; }
+    if (!msg) return;
+    msg.isPatch = isPatch;
+    CR.state = applyEvent(CR.state, msg);
+    crewChanged();
+  };
+  es.addEventListener("put", handle(false));
+  es.addEventListener("patch", handle(true));
+}
+
+/* the open game, if the crew has one going (a stale one is ignored) */
+function crewLive(){
+  const l = CR.state.live;
+  if (!l || !l.room) return null;
+  if (l.at && Date.now() - Number(l.at) > 8 * 3600 * 1000) return null;
+  return l;
+}
+
+function crewChanged(){
+  const label = crewLabel();
+  if (CR.chat) CR.chat.update(CR.state.chat, label);
+  if (RP.chat && RP.crew) RP.chat.update(CR.state.chat, label);
+  if (RH.chat && RH.crew) RH.chat.update(CR.state.chat, label);
+  if (!$("#crew").classList.contains("hidden")) $("#crName").textContent = crewName();
+
+  const live = crewLive();
+  const key = live ? live.room + ":" + live.at : "";
+  if (CR.primed && key && key !== CR.liveSeen) liveAlert(live);
+  CR.liveSeen = key;
+  CR.primed = true;
+  drawLiveBanner();
+}
+
+/* the banner sits over every screen except the game it's announcing */
+function drawLiveBanner(){
+  const el = $("#liveBanner");
+  const live = crewLive();
+  const inIt = live && LIVE.code === live.room;
+  const hosting = LIVE.isHost && LIVE.code;
+  if (!live || inIt || hosting){ el.classList.add("hidden"); return; }
+  $("#lbText").textContent = "Game going live" + (live.rounds ? " · " + plural(Number(live.rounds), "campaign") : "");
+  el.classList.remove("hidden");
+}
+
+function liveAlert(live){
+  drawLiveBanner();
+  const el = $("#liveBanner");
+  el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+  try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e){}
+  try {
+    if ("Notification" in window && Notification.permission === "granted" && document.visibilityState === "hidden"){
+      new Notification("Dicksharter: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
+    }
+  } catch (e){ /* phones without a service worker refuse; the banner still shows */ }
+  if (document.visibilityState === "hidden"){
+    const base = document.title;
+    clearInterval(CR.flash);
+    let on = false;
+    CR.flash = setInterval(() => { on = !on; document.title = on ? "\u{1F534} Game live — join now" : base; }, 1000);
+    const stop = () => { if (document.visibilityState === "visible"){ clearInterval(CR.flash); document.title = base; document.removeEventListener("visibilitychange", stop); } };
+    document.addEventListener("visibilitychange", stop);
+  }
+}
+
+async function joinLive(){
+  const live = crewLive();
+  if (!live) return;
+  let name = store.get("ds.name") || "";
+  if (!name || isBanned(name)){
+    name = (prompt("Your name for the game?") || "").trim();
+    if (!name) return;
+    if (isBanned(name)){ stopThat(); return; }
+    store.set("ds.name", name);
+  }
+  $("#lbJoin").disabled = true;
+  const ok = await liveJoin(live.room, name);
+  $("#lbJoin").disabled = false;
+  if (!ok){ toast("Couldn’t get into room " + live.room); return; }
+  renderLivePlayer();
+  drawLiveBanner();
+}
+
+async function crewJoin(code, name){
+  code = String(code || "").toUpperCase().trim();
+  if (!/^[A-Z0-9]{6}$/.test(code)) return "That crew code should be six characters.";
+  let meta = null;
+  try { meta = await getJSON(crewPath("/meta", code)); } catch (e){ return "Couldn’t reach the database."; }
+  if (!meta) return "There’s no crew under that code.";
+  CR.code = code; CR.state = {}; CR.primed = false; CR.liveSeen = null;
+  store.set("ds.crew", code);
+  if (name) store.set("ds.name", name);
+  crewTouch();
+  crewConnect();
+  return "";
+}
+
+function crewTouch(){
+  const name = store.get("ds.name");
+  if (!CR.code || !name) return;
+  fetch(crewPath("/members/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: name, seen: { ".sv": "timestamp" } }) }).catch(() => {});
+}
+
+async function crewCreate(title, name){
+  const code = code6();
+  try {
+    await putJSON(crewPath("/meta", code), { name: title, created: Date.now() });
+  } catch (e){ return "Couldn’t reach the database."; }
+  const err = await crewJoin(code, name);
+  if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify({ sys: 1, pid: "host", t: name + " started " + title + ". Invite the rest of the crew.", at: { ".sv": "timestamp" } }) }).catch(() => {});
+  return err;
+}
+
+function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" + CR.code; }
+
+async function crewShare(){
+  const url = crewInviteUrl();
+  if (navigator.share){
+    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on Dicksharter", url: url }); return; }
+    catch (e){ if (e && e.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
+  catch (e){ prompt("Copy this link and send it to the crew:", url); }
+}
+
+/* ---------- crew screen ---------- */
+function openCrew(hintCode){
+  show("crew");
+  $("#crMore").classList.add("hidden");
+  if (CR.code && store.get("ds.name") && !(hintCode && hintCode !== CR.code)){
+    crewScreenChat();
+    return;
+  }
+  crewSetup(hintCode || "");
+}
+
+function crewSetup(hintCode, msg){
+  CR.chat = null;
+  $("#crName").textContent = "Crew chat";
+  $("#crInvite").classList.add("hidden"); $("#crMoreBtn").classList.add("hidden");
+  const name = store.get("ds.name") || "";
+  let h = '<div class="cr-setup">';
+  if (hintCode){
+    h += '<div class="card"><h2 style="font-size:1.6rem">You’re invited</h2>' +
+         '<p class="tiny" style="margin:.4rem 0 .9rem">A standing chat for the crew. When someone starts a game, it lights up here and you tap in.</p>' +
+         '<label class="field"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="Who are you"></label>' +
+         '<button class="btn solid hs-act" id="crJoinBtn" data-code="' + esc(hintCode) + '">Join the crew</button>' +
+         '<p class="tiny" id="crNote" style="margin:.5rem 0 0">' + esc(msg || "") + '</p></div>';
+  } else {
+    h += '<div class="card"><h2 style="font-size:1.6rem">Crew chat</h2>' +
+         '<p class="tiny" style="margin:.4rem 0 0">A group chat that’s always on. Talk between games; when the host opens a room, everyone gets a <b>game going live</b> banner and joins with one tap.</p>' +
+         '<label class="field" style="margin-top:1rem"><span>Your name</span><input type="text" id="crN" value="' + esc(name) + '" placeholder="Who are you"></label>' +
+         '<p class="tiny" id="crNote" style="margin:0;color:var(--stamp)">' + esc(msg || "") + '</p></div>' +
+         '<div class="card"><h3 style="font-size:1.15rem">Start a crew</h3>' +
+         '<label class="field" style="margin-top:.7rem"><span>Crew name</span><input type="text" id="crTitle" placeholder="e.g. The Diaspora"></label>' +
+         '<button class="btn solid" id="crMake">Start it</button></div>' +
+         '<div class="card"><h3 style="font-size:1.15rem">Join one</h3>' +
+         '<label class="field" style="margin-top:.7rem"><span>Crew code</span><input type="text" id="crCode" maxlength="6" placeholder="six characters" style="text-transform:uppercase"></label>' +
+         '<button class="btn" id="crJoinBtn">Join</button></div>';
+  }
+  h += '</div>';
+  $("#crBody").innerHTML = h;
+
+  const getName = () => {
+    const n = ($("#crN").value || "").trim();
+    if (!n){ $("#crNote").textContent = "Your name first."; $("#crN").focus(); return null; }
+    if (isBanned(n)){ $("#crN").value = ""; stopThat(); return null; }
+    return n;
+  };
+  $("#crJoinBtn").addEventListener("click", async e => {
+    const n = getName(); if (!n) return;
+    const code = e.currentTarget.dataset.code || $("#crCode").value;
+    const err = await crewJoin(code, n);
+    if (err){ $("#crNote").textContent = err; return; }
+    if (location.hash) history.replaceState(null, "", location.pathname);
+    crewScreenChat();
+  });
+  const mk = $("#crMake");
+  if (mk) mk.addEventListener("click", async () => {
+    const n = getName(); if (!n) return;
+    const t = ($("#crTitle").value || "").trim() || (n + "’s crew");
+    if (isBanned(t)){ stopThat(); return; }
+    mk.disabled = true;
+    const err = await crewCreate(t, n);
+    mk.disabled = false;
+    if (err){ $("#crNote").textContent = err; return; }
+    crewScreenChat();
+  });
+}
+
+function crewScreenChat(){
+  if (!CR.es) crewConnect();
+  crewTouch();
+  $("#crInvite").classList.remove("hidden"); $("#crMoreBtn").classList.remove("hidden");
+  $("#crName").textContent = crewName();
+  $("#crBody").innerHTML = '<aside class="rp-chat cr-chat" id="crChat"></aside>';
+  CR.chat = makeChat($("#crChat"), {
+    title: "Chat",
+    url: crewChatUrl,
+    me: () => LIVE.pid,
+    name: () => store.get("ds.name") || "Anonymous",
+    isOpen: () => !$("#crew").classList.contains("hidden"),
+    onUnread: () => {},
+    placeholder: "Message the crew…",
+    empty: "Quiet in here. Say hi — and tap any message to react to it."
+  });
+  CR.chat.update(CR.state.chat, crewLabel());
+  const al = $("#crAlerts");
+  al.classList.toggle("hidden", !("Notification" in window) || Notification.permission !== "default");
+  drawLiveBanner();
+}
+
+$("#crBack").addEventListener("click", () => { CR.chat = null; show("menu"); drawLiveBanner(); });
+$("#crInvite").addEventListener("click", crewShare);
+$("#crMoreBtn").addEventListener("click", () => {
+  const box = $("#crMore");
+  $("#crCodeShow").textContent = CR.code;
+  box.classList.toggle("hidden");
+});
+$("#crAlerts").addEventListener("click", async () => {
+  try { await Notification.requestPermission(); } catch (e){}
+  $("#crAlerts").classList.add("hidden");
+  toast(Notification.permission === "granted" ? "You’ll get an alert when a game goes live" : "Alerts are off — the banner still shows");
+});
+$("#crLeave").addEventListener("click", () => {
+  if (!confirm("Leave " + crewName() + "? You can rejoin with the code.")) return;
+  if (CR.es){ CR.es.close(); CR.es = null; }
+  if (CR.code) fetch(crewPath("/members/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
+  CR.code = ""; CR.state = {}; CR.chat = null; CR.liveSeen = null; CR.primed = false;
+  store.set("ds.crew", "");
+  drawLiveBanner();
+  crewSetup("");
+  $("#crMore").classList.add("hidden");
+});
+$("#lbJoin").addEventListener("click", joinLive);
+$("#lbX").addEventListener("click", () => $("#liveBanner").classList.add("hidden"));
+$("#miCrew").addEventListener("click", () => openCrew(""));
 
 function setBadge(el, n){
   el.textContent = n > 9 ? "9+" : String(n);
@@ -3427,23 +3828,35 @@ const wideScreen = () => window.matchMedia("(min-width: 900px)").matches;
 /* ---------- player ---------- */
 const RP = { chat: null, deckId: "", sig: "", dockSig: "", editing: false, chatOpen: false, revealedFor: "" };
 
-function rpMount(){
-  if (RP.chat) return;
+function rpMount(state){
+  if (RP.chat || !state.meta) return;
+  const crew = state.meta.crew || "";
+  /* a game opened for a crew uses the crew's chat, and joining it puts you in the crew */
+  if (crew && crew !== CR.code){
+    CR.code = crew; CR.state = {}; CR.primed = false; CR.liveSeen = null;
+    store.set("ds.crew", crew);
+    crewConnect();
+  }
+  if (crew) crewTouch();
+  RP.crew = !!crew;
   RP.chat = makeChat($("#rpChat"), {
+    title: crew ? crewName() : "Chat",
+    url: crew ? crewChatUrl : roomChatUrl,
     me: () => LIVE.pid,
     name: () => store.get("ds.name") || "Anonymous",
     isOpen: () => RP.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#rpBadge"), n),
     onClose: () => rpSetChat(false)
   });
+  if (crew) RP.chat.update(CR.state.chat, crewLabel());
 }
 function rpSetChat(on){
   RP.chatOpen = on;
   $("#rpChat").classList.toggle("open", on);
-  if (on){ RP.chat.clearUnread(); requestAnimationFrame(() => RP.chat.toEnd()); }
+  if (on && RP.chat){ RP.chat.clearUnread(); requestAnimationFrame(() => RP.chat.toEnd()); }
 }
 function rpReset(){
-  RP.chat = null; RP.deckId = ""; RP.sig = ""; RP.sawMeta = false; RP.dockSig = ""; RP.editing = false; RP.revealedFor = "";
+  RP.chat = null; RP.crew = false; RP.deckId = ""; RP.sig = ""; RP.sawMeta = false; RP.dockSig = ""; RP.editing = false; RP.revealedFor = "";
   rpSetChatClosed();
   $("#rpDeck").innerHTML = ""; $("#rpInfo").innerHTML = ""; $("#rpStatus").innerHTML = "";
   $("#rpDeck").dataset.deck = ""; $("#rpInfo").dataset.deck = "";
@@ -3453,9 +3866,10 @@ function rpSetChatClosed(){ RP.chatOpen = false; $("#rpChat").classList.remove("
 function renderLivePlayer(){
   if (!LIVE.code || LIVE.isHost) return;
   if ($("#rplayer").classList.contains("hidden")) show("rplayer");
-  rpMount();
   const state = LIVE.state || {};
-  RP.chat.update(state);
+  rpMount(state);
+  if (RP.chat && !RP.crew) RP.chat.update(state.chat, plural(Object.keys(state.players || {}).length, "player"));
+  drawLiveBanner();
   if (state.meta) RP.sawMeta = true;
   if (!state.meta && RP.sawMeta){
     $("#rpStatus").innerHTML = '<div class="card"><b style="font-size:1.15rem">The host closed this room.</b><p class="tiny" style="margin:.35rem 0 0">Thanks for playing.</p></div>';
@@ -3608,7 +4022,8 @@ $("#rpLeave").addEventListener("click", e => {
   LIVE.code = ""; LIVE.state = {};
   store.set("ds.room", "");
   rpReset();
-  show("player"); renderPlayer();
+  drawLiveBanner();
+  if (CR.code) openCrew(""); else { show("player"); renderPlayer(); }
 });
 
 /* ---------- host console ---------- */
@@ -3618,6 +4033,7 @@ function hostSession(){ try { return JSON.parse(store.get("ds.hostSess") || "nul
 
 function openHost(){
   show("host");
+  if (CR.code && !CR.es) crewConnect();
   if (LIVE.code && LIVE.isHost && RH.pkg){ hostRender(true); return; }
   hostSetup();
 }
@@ -3635,6 +4051,9 @@ function hostSetup(msg){
           '<p class="tiny" style="margin:.4rem 0 0">Everyone plays from their own phone, wherever they are. They see the campaign on their screen and talk it over in the chat while you run the rounds. You don’t play.</p>';
   if (RH.pkg){
     h += '<div class="hs-pkg"><b>' + RH.pkg.rounds.length + ' round' + (RH.pkg.rounds.length === 1 ? "" : "s") + ' ready</b> · host code ' + esc(RH.code) + '</div>' +
+         (CR.code
+           ? '<label class="chk hs-crew"><input type="checkbox" id="hsCrewOn" checked><span>Announce it to <b>' + esc(crewName()) + '</b> \u2014 the crew gets a \u201cgame going live\u201d banner and joins with one tap, and the crew chat carries on through the game.</span></label>'
+           : '<p class="tiny" style="margin:.8rem 0 0">Tip: start a <b>crew chat</b> from the menu and the whole group gets pinged when you go live.</p>') +
          '<button class="btn solid hs-act" id="hsOpen">Open a room</button>';
   }
   if (sess && sess.room && sess.code){
@@ -3678,13 +4097,20 @@ async function hostOpenRoom(){
   const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   LIVE.code = "";
   for (let i = 0; i < 4; i++) LIVE.code += letters[Math.floor(Math.random() * letters.length)];
-  const ok = await dbPut("", {
-    meta: { opened: Date.now(), rounds: RH.pkg.rounds.length, remote: true },
-    now: { r: -1, phase: "lobby", title: "" }
-  });
+  const box = $("#hsCrewOn");
+  const crew = (CR.code && box && box.checked) ? CR.code : "";
+  const meta = { opened: Date.now(), rounds: RH.pkg.rounds.length, remote: true };
+  if (crew) meta.crew = crew;
+  const ok = await dbPut("", { meta: meta, now: { r: -1, phase: "lobby", title: "" } });
   if (!ok){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
+  RH.crew = !!crew;
   hostAttach();
-  sysMsg("Room " + LIVE.code + " is open. " + RH.pkg.rounds.length + " campaigns tonight.");
+  if (crew){
+    await fetch(crewPath("/live"), { method: "PUT", body: JSON.stringify({ room: LIVE.code, rounds: RH.pkg.rounds.length, at: { ".sv": "timestamp" } }) }).catch(() => {});
+    sysMsg("\u{1F534} Game going live \u2014 room " + LIVE.code + ", " + plural(RH.pkg.rounds.length, "campaign") + ". Tap Join now up top.", true);
+  } else {
+    sysMsg("Room " + LIVE.code + " is open. " + RH.pkg.rounds.length + " campaigns tonight.");
+  }
 }
 
 async function hostResume(){
@@ -3698,6 +4124,10 @@ async function hostResume(){
   try {
     const meta = await getJSON(gamePath("/meta"));
     if (!meta){ LIVE.code = ""; store.set("ds.hostSess", ""); hostSetup("That room is gone. Open a new one."); return; }
+    RH.crew = !!meta.crew;
+    if (meta.crew && (meta.crew !== CR.code || !CR.es)){
+      CR.code = meta.crew; CR.state = {}; CR.primed = false; store.set("ds.crew", meta.crew); crewConnect();
+    }
   } catch (e){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
   hostAttach();
 }
@@ -3709,12 +4139,16 @@ function hostAttach(){
   store.set("ds.hostSess", JSON.stringify({ code: RH.code, room: LIVE.code }));
   $("#hsChat").classList.remove("hidden");
   RH.chat = makeChat($("#hsChat"), {
+    title: RH.crew ? crewName() : "Chat",
+    url: RH.crew ? crewChatUrl : roomChatUrl,
     me: () => "host",
     name: () => "Host",
     isOpen: () => RH.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#hsBadge"), n),
     onClose: () => hsSetChat(false)
   });
+  if (RH.crew) RH.chat.update(CR.state.chat, crewLabel());
+  drawLiveBanner();
   $("#hsRoom").textContent = LIVE.code;
   $("#hsShare").classList.remove("hidden");
   $("#hsChatBtn").classList.remove("hidden");
@@ -3728,14 +4162,22 @@ function hsSetChat(on){
   if (on && RH.chat){ RH.chat.clearUnread(); requestAnimationFrame(() => RH.chat.toEnd()); }
 }
 
-function sysMsg(t){ return dbPost("/chat", { sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } }); }
+function sysMsg(t, live){
+  const m = { sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } };
+  if (live) m.live = 1;
+  if (RH.crew && CR.code) return fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(m) }).then(r => r.ok, () => false);
+  return dbPost("/chat", m);
+}
+function crewLiveOff(){
+  if (RH.crew && CR.code) return fetch(crewPath("/live"), { method: "PUT", body: "null" }).catch(() => {});
+}
 
 function hostNow(){ return (LIVE.state && LIVE.state.now) || { phase: "lobby", r: -1 }; }
 
 function hostRender(force){
   if ($("#host").classList.contains("hidden") || !RH.pkg) return;
   const state = LIVE.state || {};
-  if (RH.chat) RH.chat.update(state);
+  if (RH.chat && !RH.crew) RH.chat.update(state.chat, plural(Object.keys(state.players || {}).length, "player"));
   const sig = JSON.stringify([state.now, state.players, state.guesses, state.scores, RH.showAns, RH.preview]);
   if (!force && sig === RH.sig) return;
   RH.sig = sig;
@@ -3878,6 +4320,7 @@ async function hostFinal(){
       r: now.r, phase: "final", title: "", winners: names, tie: names.length > 1,
       standings: s2.rows.map(r => ({ id: r.id, n: r.name, t: r.total, k: r.rank }))
     });
+    crewLiveOff();
     sysMsg("\u{1F3C6} " + names.join(" & ") + (names.length > 1 ? " win" : " wins") + " with " + top[0].total.toLocaleString("en-US") + " points.");
   }, 3800);
 }
@@ -3896,14 +4339,16 @@ function hostDetach(){
   clearTimeout(RH.timer);
   if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
   LIVE.code = ""; LIVE.state = {}; LIVE.isHost = false;
-  RH.chat = null; RH.chatOpen = false;
+  RH.chat = null; RH.chatOpen = false; RH.crew = false;
   $("#hsChat").classList.remove("open");
   $("#hsChat").innerHTML = "";
+  drawLiveBanner();
 }
 
 async function hostEnd(e){
   e.preventDefault();
-  if (!confirm("Close room " + LIVE.code + "? Everyone is dropped and the chat is deleted.")) return;
+  if (!confirm("Close room " + LIVE.code + "? Everyone is dropped" + (RH.crew ? " back to the crew chat." : " and the chat is deleted."))) return;
+  if (RH.crew){ await crewLiveOff(); await sysMsg("Room " + LIVE.code + " closed. Good game."); }
   await dbPut("", null);
   store.set("ds.hostSess", "");
   hostDetach();
@@ -3927,6 +4372,8 @@ $("#miHost").addEventListener("click", openHost);
 let hiddenAt = 0;
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden"){ hiddenAt = Date.now(); return; }
+  const long = Date.now() - hiddenAt > 15000;
+  if (CR.code && (!CR.es || CR.es.readyState === 2 || long)) crewConnect();
   if (!LIVE.code || !LIVE.onChange) return;
   const dead = !LIVE.es || LIVE.es.readyState === 2;
   if (dead || Date.now() - hiddenAt > 15000) liveConnect(LIVE.onChange);
@@ -4011,7 +4458,10 @@ $("#toPlayer").addEventListener("click", e => {
 });
 
 /* if someone lands here with #player, go straight to the phone view */
-if (/^#join=/i.test(location.hash)){
+const crewHash = (location.hash.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
+if (crewHash){
+  openCrew(crewHash.toUpperCase());
+} else if (/^#join=/i.test(location.hash)){
   show("player"); renderPlayer();
 } else if (location.hash === "#new"){
   openIntake("New game");
@@ -4019,7 +4469,10 @@ if (/^#join=/i.test(location.hash)){
   const saved = store.get("ds.game");
   if (saved) P.game = readJoinCode(saved);
   show("player"); renderPlayer();
+} else if (!location.hash && CR.code){
+  openCrew("");          /* in a crew: the app opens to the chat */
 }
+if (CR.code && !CR.es) crewConnect();
 
 /* handy when a page parses oddly: open the console and poke at the parser */
 window.DS = window.REDACTED = {

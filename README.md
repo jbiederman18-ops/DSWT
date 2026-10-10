@@ -11,7 +11,7 @@ and it works.
 
 ## How a game goes
 
-Opening the page gives you four doors: **start a new game**, **load a saved
+Opening the page gives you the **crew chat** (if you're in one) and four doors: **start a new game**, **load a saved
 game** by its six-character code, **join on your phone** if someone else is
 hosting, or **host a remote game** for friends who aren't in the room.
 
@@ -175,6 +175,31 @@ code, and a player only ever learns the code for the round being played, never
 the host code that holds the answers. A published game is mostly JPEG slides,
 roughly 1–3 MB a round. **Close this room** at the end deletes the room and
 its chat; published decks stay until you delete them from the Firebase console.
+
+### Crew chat
+
+A group chat that's always on, for between games. **Crew chat** on the menu →
+start one (give it a name) → **Invite** sends a link that drops each friend
+straight into it. Once you're in a crew, opening the site takes you right to the
+chat.
+
+- **Reactions:** tap any message for 😂 🤑 💀 🙄 🔥 👀 ❤️ 👍. Counts show under
+  the bubble; tap a pill to add or take back yours. Press and hold a pill (or
+  hover on a computer) to see who reacted.
+- **Going live:** when you host a remote game, tick **Announce it to the crew**
+  (on by default). Everyone in the crew gets a red **Game going live — Join
+  now** banner on whatever screen they're on, and one tap puts them in the
+  room. The crew chat carries on into the game, so the whole night is one
+  conversation, with rounds, reveals and the winner dropped in as dividers. The
+  banner clears when the game ends.
+- **Alerts:** the phone buzzes when the banner appears (Android) and the tab
+  title flashes if it's in the background. On a computer, **🔔 Alerts** turns on
+  a system notification. The page has to be open somewhere for any of this —
+  a phone with the site fully closed won't hear about it.
+- **⋯** shows the crew code and lets you leave.
+
+The chat lives under `/saves/<crew code>/crew`, so the database rules don't
+change. The newest 250 messages are shown; older ones stay in the database.
 
 ### Results and the winner
 
