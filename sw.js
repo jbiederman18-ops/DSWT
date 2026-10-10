@@ -1,4 +1,4 @@
-/* Dicksharter service worker: only here to receive push notifications.
+/* DS(WT) Crew service worker: only here to receive push notifications.
    It deliberately caches nothing, so the site is always the latest version. */
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
@@ -7,7 +7,7 @@ self.addEventListener("push", e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; }
   catch (err){ d = { body: e.data ? e.data.text() : "" }; }
-  e.waitUntil(self.registration.showNotification(d.title || "Dicksharter", {
+  e.waitUntil(self.registration.showNotification(d.title || "DS(WT) Crew", {
     body: d.body || "",
     icon: "icon-192.png",
     badge: "icon-192.png",

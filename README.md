@@ -1,8 +1,14 @@
-# Dicksharter (Working Title)
+# DS(WT) Crew
 
-A party game about crowdfunding hubris. You show the room a real campaign page
-with the money blacked out. Everyone guesses two numbers — how much it has
-raised, and how much it is asking for. Then you reveal both.
+The group chat for **Dicksharter (Working Title)**, a party game about
+crowdfunding hubris. You show the room a real campaign page with the money
+blacked out. Everyone guesses two numbers — how much it has raised, and how
+much it is asking for. Then you reveal both.
+
+DS(WT) Crew is where the group lives between games: an always-on chat that
+lights up with a **Join now** banner (and a push alert) the moment someone hosts.
+Add it to your phone's home screen and it opens straight to the chat; the game
+tools are one tap away under **Games**.
 
 One HTML file. No build step, no server, no install. Drop it on GitHub Pages
 and it works.
@@ -181,7 +187,8 @@ its chat; published decks stay until you delete them from the Firebase console.
 A group chat that's always on, for between games. **Crew chat** on the menu →
 start one (give it a name) → **Invite** sends a link that drops each friend
 straight into it. Once you're in a crew, opening the site takes you right to the
-chat.
+chat, and the home-screen app always opens there (or to joining one). **‹ Games**
+at the top goes to the game tools.
 
 - **Reactions:** tap any message for 😂 🤑 💀 🙄 🔥 👀 ❤️ 👍. Counts show under
   the bubble; tap a pill to add or take back yours. Press and hold a pill (or
@@ -199,7 +206,7 @@ chat.
   - **Android / computers:** tap the bell, allow notifications. Done.
   - **iPhone (iOS 16.4+):** Apple only allows this for sites on the home
     screen. Tapping the bell in Safari walks you through it: Share → Add to Home
-    Screen → open Dicksharter from the icon → join the crew with its code →
+    Screen → open DS(WT) Crew from the icon → join the crew with its code →
     tap the bell there.
   - Whoever hosts doesn't get pinged by their own game.
 - **⋯** shows the crew code and lets you leave.
