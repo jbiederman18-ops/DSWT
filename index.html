@@ -5141,8 +5141,9 @@ function makeChat(root, o){
   let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
   let replyTo = null, editing = null, photo = null;        /* the composer's state */
   const outbox = [];                                        /* { id, m, el } not yet stored */
-  /* motion is for the messenger only; game-room chats keep their old behaviour */
-  const anim = rich;
+  /* motion is for the messenger screen only. The crew chat also opens beside a
+     game (host console, remote player); there it keeps its old behaviour. */
+  const anim = rich && !!root.closest(".msgr");
   const hand = {};                                          /* key → a sent bubble waiting for its echo */
   /* o.keep: a storage key, so unsent messages survive closing the app */
   function saveOutbox(){
