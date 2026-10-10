@@ -16,7 +16,8 @@ and it works.
    dollar figure gets blacked out and the campaign's own claims get pulled into
    an info card.
 3. Click **Work through 2 rounds** and the suite walks you through them one at a
-   time, ticking each off as you go.
+   time, ticking each off as you go. Reorder rounds with the arrows, drop one
+   with the ✕, or add more PDFs at any point.
 4. The room guesses. You reveal. Somebody is wrong by an order of magnitude.
 
 ---

@@ -91,6 +91,11 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .round-row .sub{font-size:.82rem;color:var(--ink-soft);overflow:hidden}
 .round-row .answers{display:flex;gap:.5rem}
 .round-row .answers input{width:8.5em;font-variant-numeric:tabular-nums}
+.rowmove{display:flex;gap:2px;margin-left:.4rem}
+.rowmove .mini{border:1px solid var(--rule);background:transparent;padding:.15em .45em;font-size:.85rem;line-height:1.2}
+.rowmove .mini:hover:not([disabled]){background:var(--marker)}
+.rowmove .mini[disabled]{opacity:.25;cursor:default}
+.rowmove .mini.del:hover{background:var(--stamp);color:#fff;border-color:var(--stamp)}
 .bar-progress{height:6px;background:var(--paper-deep);margin-top:.6rem}
 .bar-progress i{display:block;height:100%;background:var(--ink);width:0;transition:width .2s}
 .startline{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.6rem;align-items:center}
@@ -253,6 +258,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <div id="roundlist"></div>
       <div class="startline">
         <button class="btn solid hidden" id="reviewBtn">Work through rounds</button>
+        <button class="btn" id="addMore">Add more PDFs</button>
         <button class="btn solid" id="start">Start the game</button>
         <button class="btn" id="exportBtn">Download slides</button>
         <button class="btn ghost" id="joinBtn">Get the join code</button>
@@ -1182,6 +1188,7 @@ async function ingestOne(file, opts){
 
   const round = {
     id: "r" + (G.rounds.length + 1),
+    uid: "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     file: file.name,
     title: info.title, creator: info.creator, pitch: info.pitch, showPitch: true, factOff: {}, reviewed: false,
     facts: info.facts, claims: info.claims, flags: info.flags, shots: shots,
@@ -1214,7 +1221,12 @@ function renderRoundList(quiet){
         '<input type="text" data-k="goal" placeholder="goal" value="' + (r.goal !== null ? money(r.goal) : "") + '">' +
       '</div>' +
       '<button class="btn sm' + (r.reviewed ? ' ghost' : '') + '" data-act="gm">' +
-        (r.reviewed ? '\u2713 Reviewed' : 'Edit slides') + '</button>';
+        (r.reviewed ? '\u2713 Reviewed' : 'Edit slides') + '</button>' +
+      '<span class="rowmove">' +
+        '<button class="mini" data-act="up" title="Move up">\u2191</button>' +
+        '<button class="mini" data-act="down" title="Move down">\u2193</button>' +
+        '<button class="mini del" data-act="del" title="Remove this round">\u2715</button>' +
+      '</span>';
     $(".title", row).textContent = r.title;
     const shortFile = r.file.length > 26 ? r.file.slice(0, 24) + "\u2026" : r.file;
     const bits = [r.creator, r.facts.Category, shortFile].filter(Boolean);
@@ -1245,6 +1257,12 @@ function renderRoundList(quiet){
       });
     });
     $("[data-act=gm]", row).addEventListener("click", () => openGM(i));
+    const up = $("[data-act=up]", row), down = $("[data-act=down]", row);
+    up.disabled = i === 0;
+    down.disabled = i === G.rounds.length - 1;
+    up.addEventListener("click", () => moveRound(i, -1));
+    down.addEventListener("click", () => moveRound(i, 1));
+    $("[data-act=del]", row).addEventListener("click", () => removeRound(i));
     list.appendChild(row);
   });
   const missing = G.rounds.filter(r => r.raised === null || r.goal === null).length;
@@ -1392,6 +1410,27 @@ $("#checkDone").addEventListener("click", async () => {
 });
 $("#checkPrev").addEventListener("click", () => openCheck(Math.max(0, checkIdx - 1)));
 
+
+function moveRound(i, d){
+  const j = i + d;
+  if (j < 0 || j >= G.rounds.length) return;
+  const t = G.rounds[i]; G.rounds[i] = G.rounds[j]; G.rounds[j] = t;
+  renderRoundList(true);
+}
+
+/* Free the blobs on the way out — a long page is a few megabytes of them. */
+function removeRound(i){
+  const r = G.rounds[i];
+  if (!r) return;
+  if (!confirm("Remove round " + (i + 1) + ", " + r.title + "?")) return;
+  [r.cleanTiles, r.tiles, r.slides].forEach(list => {
+    (list || []).forEach(x => { try { URL.revokeObjectURL(x.url); } catch (e){} });
+  });
+  G.rounds.splice(i, 1);
+  if (!G.rounds.length) $("#rounds").classList.add("hidden");
+  renderRoundList(true);
+  toast("Round removed.");
+}
 
 /* ============================================================
    9b. GAME MASTER SUITE
@@ -2014,8 +2053,10 @@ function livePlayers(){
   return Object.keys(p).map(k => ({ id: k, name: p[k] && p[k].name }));
 }
 
-function liveLockedCount(r){
-  const g = (LIVE.state.guesses || {})["r" + r] || {};
+function liveLockedCount(i){
+  const rd = G.rounds[i];
+  if (!rd) return 0;
+  const g = (LIVE.state.guesses || {})[rd.uid] || {};
   return Object.keys(g).length;
 }
 
@@ -2035,22 +2076,22 @@ function updateTally(){
 async function liveAnnounceRound(){
   if (!LIVE.isHost || !LIVE.code) return;
   const r = G.rounds[G.idx];
-  await dbPut("/now", { r: G.idx, phase: "guessing", title: r.title });
+  await dbPut("/now", { r: G.idx, uid: r.uid, phase: "guessing", title: r.title });
   updateTally();
 }
 
 async function liveReveal(){
   if (!LIVE.isHost || !LIVE.code) return;
   const r = G.rounds[G.idx];
-  const guesses = (LIVE.state.guesses || {})["r" + G.idx] || {};
+  const guesses = (LIVE.state.guesses || {})[r.uid] || {};
   const scores = {};
   for (const pid in guesses){
     const g = guesses[pid] || {};
     scores[pid] = scoreGuess(Number(g.raised), r.raised) + scoreGuess(Number(g.goal), r.goal);
   }
-  await dbPut("/scores/r" + G.idx, scores);
+  await dbPut("/scores/" + r.uid, scores);
   await dbPut("/now", {
-    r: G.idx, phase: "revealed", title: r.title,
+    r: G.idx, uid: r.uid, phase: "revealed", title: r.title,
     raised: r.raised, goal: r.goal
   });
 }
@@ -2067,8 +2108,8 @@ async function liveJoin(code, name){
   return true;
 }
 
-async function liveSubmit(r, raised, goal){
-  return dbPut("/guesses/r" + r + "/" + LIVE.pid, { raised: raised, goal: goal, at: Date.now() });
+async function liveSubmit(uid, raised, goal){
+  return dbPut("/guesses/" + uid + "/" + LIVE.pid, { raised: raised, goal: goal, at: Date.now() });
 }
 
 function liveTotal(){
@@ -2082,7 +2123,7 @@ function renderLivePlayer(){
   if ($("#player").classList.contains("hidden")) return;
   const el = $("#playerInner");
   const now = LIVE.state.now || { phase: "lobby", r: -1 };
-  const mine = ((LIVE.state.guesses || {})["r" + now.r] || {})[LIVE.pid];
+  const mine = ((LIVE.state.guesses || {})[now.uid] || {})[LIVE.pid];
   const total = liveTotal();
   const name = store.get("ds.name") || "You";
 
@@ -2109,7 +2150,7 @@ function renderLivePlayer(){
     }
     h += '</div>';
   } else if (now.phase === "revealed"){
-    const pts = ((LIVE.state.scores || {})["r" + now.r] || {})[LIVE.pid];
+    const pts = ((LIVE.state.scores || {})[now.uid] || {})[LIVE.pid];
     h += '<div class="card"><div style="font-weight:600">' + esc(now.title || "") + '</div>';
     if (mine){
       h += '<div class="score-line"><span>Raised · you said ' + money(mine.raised) + ', it was ' + money(now.raised) + '</span><b>' + scoreGuess(Number(mine.raised), Number(now.raised)) + '</b></div>' +
@@ -2129,7 +2170,7 @@ function renderLivePlayer(){
     const a = parseFloat($("#lgRaised").value), b = parseFloat($("#lgGoal").value);
     if (!isFinite(a) || !isFinite(b)){ toast("Both numbers, please"); return; }
     lock.disabled = true;
-    const ok = await liveSubmit(now.r, a, b);
+    const ok = await liveSubmit(now.uid, a, b);
     if (!ok){ lock.disabled = false; toast("Couldn't send that — try again"); }
   });
   const leave = $("#lgLeave");
@@ -2176,6 +2217,7 @@ $("#start").addEventListener("click", () => {
   show("play");
   loadRound(0);
 });
+$("#addMore").addEventListener("click", () => $("#file").click());
 $("#reviewBtn").addEventListener("click", () => {
   let first = G.rounds.findIndex(r => !r.reviewed);
   if (first < 0) first = 0;
