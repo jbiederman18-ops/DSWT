@@ -5859,7 +5859,7 @@ async function crewShare(){
    with the relay's public key and leaves its subscription under
    crew/push/<pid>. Going live asks the relay (push/worker.js, a Cloudflare
    Worker) to send to all of them. */
-const PUSH_URL = "";   /* the Worker's address, e.g. https://dswt-push.<you>.workers.dev */
+const PUSH_URL = "https://dswt-push.jbiederman18.workers.dev";   /* the Worker's address, e.g. https://dswt-push.<you>.workers.dev */
 const pushUrl = () => String(store.get("ds.push") || PUSH_URL).replace(/\/+$/, "");
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const standalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
