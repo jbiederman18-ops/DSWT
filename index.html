@@ -121,9 +121,14 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .topbar button{background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.3em .7em;font-size:.8rem;font-weight:600}
 .topbar button:hover{background:var(--marker);color:#000;border-color:var(--marker)}
 .viewwrap{flex:1;min-height:0;position:relative;overflow:hidden;display:flex;justify-content:center}
-.viewport{position:relative;overflow:hidden;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.22)}
-#slideImg{display:block;max-width:100%;max-height:100%;width:auto;height:auto;transition:opacity .16s}
-#slideImg.swap{opacity:0}
+.viewport{position:relative;overflow:hidden;height:100%;display:flex;align-items:center;justify-content:center}
+#slideRow{display:flex;gap:14px;align-items:flex-start;justify-content:center;height:100%;width:100%;transition:opacity .16s}
+#slideRow.swap{opacity:0}
+#slideRow img{display:block;max-height:100%;min-width:0;width:auto;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.22)}
+.upsel{display:inline-flex;border:1px solid rgba(255,255,255,.35)}
+.upsel button{background:transparent;border:0;color:var(--paper);font-size:.75rem;font-weight:700;padding:.2em .55em;line-height:1.4}
+.upsel button.on{background:var(--marker);color:#000}
+.upsel button:hover:not(.on){background:rgba(255,255,255,.18)}
 .panelbar{display:flex;align-items:center;gap:.6rem;padding:.5rem .9rem;background:var(--ink);color:var(--paper);font-size:.8rem}
 .dots{flex:1;display:flex;gap:3px;align-items:center;overflow:hidden}
 .dots i{flex:1;height:4px;background:rgba(255,255,255,.25);min-width:2px}
@@ -162,7 +167,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .reveal .amt{font-family:var(--display);font-weight:800;font-size:clamp(3rem,13vw,8rem);line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .reveal .amt.goal{color:var(--marker)}
 .reveal .verdict{font-size:1.05rem;color:#c9ccc3;max-width:34ch}
-@media (prefers-reduced-motion:reduce){.reveal .slot,.reveal .slot.in{animation:none;opacity:1;transform:none}#slideImg{transition:none}}
+@media (prefers-reduced-motion:reduce){.reveal .slot,.reveal .slot.in{animation:none;opacity:1;transform:none}#slideRow{transition:none}}
 
 /* ---------- player ---------- */
 #player{overflow:auto;padding:var(--pad);background:var(--ink);color:var(--paper)}
@@ -375,12 +380,15 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <span id="liveTally" class="hidden" style="font-variant-numeric:tabular-nums;color:var(--marker);font-weight:700"></span>
   </div>
   <div class="viewwrap">
-    <div class="viewport" id="viewport"><img id="slideImg" alt=""></div>
+    <div class="viewport" id="viewport"><div id="slideRow"></div></div>
     <aside class="drawer" id="drawer"></aside>
     <div class="reveal hidden" id="revealBox"></div>
   </div>
   <div class="panelbar">
     <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bPrev">←</button>
+    <span class="upsel" id="upSel" title="Slides on screen at once (V)">
+      <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
+    </span>
     <div class="dots" id="dots"></div>
     <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bNextPanel">→</button>
     <span id="panelCount" style="font-variant-numeric:tabular-nums;min-width:5em;text-align:right"></span>
@@ -1794,29 +1802,55 @@ function loadRound(i){
   requestAnimationFrame(() => { layoutColumns(); goPanel(0); });
 }
 
-/* The game master curates the deck in the suite; play just walks it. */
+/* The game master curates the deck in the suite; play just walks it.
+   A phone-width page leaves most of a 16:9 screen empty, so the deck can
+   be read two or three slides at a time. */
+function upCount(){
+  const n = parseInt(store.get("ds.up") || "1", 10);
+  return (n === 2 || n === 3) ? n : 1;
+}
+
 function layoutColumns(){
   const r = G.rounds[G.idx];
   G.deck = r.slides.filter(sl => sl.on);
   if (!G.deck.length) G.deck = r.slides.slice();
-  G.panels = Math.max(1, G.deck.length);
+  G.up = Math.min(upCount(), G.deck.length);
+  G.panels = Math.max(1, Math.ceil(G.deck.length / G.up));
+
+  const row = $("#slideRow");
+  row.innerHTML = "";
+  for (let i = 0; i < G.up; i++) row.appendChild(document.createElement("img"));
+
   const dots = $("#dots");
   dots.innerHTML = "";
   for (let i = 0; i < G.panels; i++) dots.appendChild(document.createElement("i"));
+
+  $$("#upSel button").forEach(b => b.classList.toggle("on", Number(b.dataset.up) === upCount()));
 }
 
 function goPanel(p){
   G.panel = clamp(p, 0, G.panels - 1);
-  const sl = G.deck[G.panel];
-  const im = $("#slideImg");
-  if (sl){
-    im.classList.add("swap");
-    im.src = sl.url;
-    requestAnimationFrame(() => im.classList.remove("swap"));
-  }
+  const row = $("#slideRow");
+  const imgs = $$("#slideRow img");
+  row.classList.add("swap");
+  imgs.forEach((im, c) => {
+    const sl = G.deck[G.panel * G.up + c];
+    if (sl){ im.src = sl.url; im.style.display = ""; }
+    else im.style.display = "none";
+  });
+  requestAnimationFrame(() => row.classList.remove("swap"));
   $$("#dots i").forEach((d, i) => d.classList.toggle("on", i <= G.panel));
-  $("#panelCount").textContent = (G.panel + 1) + " / " + G.panels;
+  const first = G.panel * G.up + 1;
+  const last = Math.min(first + G.up - 1, G.deck.length);
+  $("#panelCount").textContent = (G.up > 1 ? first + "\u2013" + last : String(first)) + " / " + G.deck.length;
   updateTally();
+}
+
+function setUp(n){
+  const keepFirst = (G.panel || 0) * (G.up || 1);
+  store.set("ds.up", String(n));
+  layoutColumns();
+  goPanel(Math.floor(keepFirst / G.up));
 }
 
 function buildDrawer(r){
@@ -1899,6 +1933,7 @@ $("#bNext").addEventListener("click", () => {
   else { toast("That was the last one"); }
 });
 $("#bQuit").addEventListener("click", () => { show("intake"); });
+$$("#upSel button").forEach(b => b.addEventListener("click", () => setUp(Number(b.dataset.up))));
 $("#bPrev").addEventListener("click", () => goPanel(G.panel - 1));
 $("#bNextPanel").addEventListener("click", () => goPanel(G.panel + 1));
 
@@ -1911,6 +1946,8 @@ window.addEventListener("keydown", e => {
   else if (k === "r" || k === "R"){ $("#bReveal").click(); }
   else if (k === "i" || k === "I"){ $("#bInfo").click(); }
   else if (k === "n" || k === "N"){ $("#bNext").click(); }
+  else if (k === "v" || k === "V"){ setUp(upCount() % 3 + 1); }
+  else if (k === "1" || k === "2" || k === "3"){ setUp(Number(k)); }
   else if (k === "Home"){ goPanel(0); }
   else if (k === "End"){ goPanel(G.panels - 1); }
 });

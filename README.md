@@ -79,7 +79,13 @@ answer key. They drop straight into PowerPoint if you'd rather present there.
 
 ## Playing
 
-Keyboard: `←` `→` slides · `R` reveal · `I` info card · `N` next round.
+Keyboard: `←` `→` slides · `R` reveal · `I` info card · `N` next round ·
+`1` `2` `3` or `V` for how many slides share the screen.
+
+A saved phone page is a tall ribbon, so a single slide leaves most of a 16:9 TV
+empty. The **1 / 2 / 3** control in the bottom bar puts two or three side by
+side — it fills the screen, gets through a round in a third of the clicks, and
+lets the room compare sections. The choice is remembered between games.
 
 Phones can play along in two ways.
 
