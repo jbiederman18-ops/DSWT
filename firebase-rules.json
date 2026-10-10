@@ -7,6 +7,17 @@
         ".validate": "$code.length === 4"
       }
     },
+    "users": {
+      "$uid": {
+        "chats": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$code": {
+            ".write": "auth != null && (auth.uid === $uid ? !newData.exists() : (newData.exists() && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
+            ".validate": "$code.length === 6 && newData.child('by').val() === auth.uid && newData.child('n').isString() && newData.child('n').val().length <= 60"
+          }
+        }
+      }
+    },
     "saves": {
       "$code": {
         ".validate": "$code.length === 6",
@@ -14,7 +25,12 @@
           "meta": {
             ".read": "auth != null",
             ".write": "auth != null && newData.exists() && (!data.exists() || root.child('saves/' + $code + '/crew/members/' + auth.uid).exists())",
-            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 60"
+            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 60",
+            "theme": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "icon": { ".validate": "newData.isString() && newData.val().length <= 16" },
+            "nick": {
+              "$uid": { ".validate": "newData.isString() && newData.val().length <= 30" }
+            }
           },
           "members": {
             ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
