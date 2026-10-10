@@ -557,6 +557,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
   --m-green:#0E9F63; --m-mint:#DCF3E7; --m-red:#E0352B; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05); --m-bubble:#FFFFFF;
   --m-text:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",system-ui,sans-serif;
   --m-name:"Bricolage Grotesque",var(--m-text);
+  --th-font:var(--m-name);
   --me-a:#0E9F63; --me-b:#1DBF7B; --me-t:#FFFFFF;
   font-family:var(--m-text); background:var(--m-bg); color:var(--m-ink);
 }
@@ -631,7 +632,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .cv-icon.big .cv-ini{font-size:1.35rem}
 
 /* ---------- the open chat ---------- */
-.msgr .convo{background:color-mix(in srgb,var(--me-a) 5%,var(--m-bg));position:relative}
+.msgr .convo{background:color-mix(in srgb,var(--me-a) 5%,var(--m-bg));position:relative;color:var(--m-ink)}
 .cv-top{display:flex;align-items:center;gap:.3rem;padding:max(8px,env(safe-area-inset-top)) 8px 8px;flex:0 0 auto;
         background:color-mix(in srgb,var(--m-surf) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);
         border-bottom:1px solid var(--m-line);position:relative;z-index:2}
@@ -644,7 +645,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .cv-who .cv-icon{width:38px;height:38px;border-radius:12px;font-size:1.2rem}
 .cv-who .cv-ini{font-size:.85rem}
 .cv-txt{min-width:0;display:flex;flex-direction:column}
-.cv-txt b{font-family:var(--m-name);font-weight:700;font-size:1.08rem;letter-spacing:-.01em;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-txt b{font-family:var(--th-font);font-weight:700;font-size:1.08rem;letter-spacing:-.01em;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cv-txt span{font-size:.76rem;color:var(--m-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cv-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--m-soft);font-size:.95rem;padding:2rem}
 .msgr .cr-body{background:transparent;justify-content:stretch}
@@ -652,7 +653,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .msgr .cr-chat .ch-head{display:none}
 .msgr .ch-log{padding:.9rem clamp(.7rem,3vw,2rem) .5rem;gap:2px}
 .msgr .ch-msg{max-width:min(78%,560px)}
-.msgr .ch-n{font-size:.74rem;color:var(--m-soft);margin:.7rem 0 .18rem .6rem;font-weight:600}
+.msgr .ch-n{font-family:var(--th-font);font-size:.74rem;color:var(--m-soft);margin:.7rem 0 .18rem .6rem;font-weight:600}
 .msgr .ch-b{background:var(--m-bubble);color:var(--m-ink);border-radius:20px;padding:.5em .9em;font-size:1rem;line-height:1.38;
             box-shadow:0 1px 1px rgba(18,34,27,.06)}
 .msgr .ch-msg.me .ch-b{background:linear-gradient(140deg,var(--me-a),var(--me-b));color:var(--me-t);box-shadow:none}
@@ -660,7 +661,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .msgr .ch-msg.host .ch-b{background:var(--m-ink);color:var(--m-surf)}
 .msgr .ch-b.big{background:transparent !important;box-shadow:none !important;font-size:2.4rem}
 .msgr .ch-b.gone{background:transparent !important;box-shadow:none;border:1px dashed var(--m-line);color:var(--m-soft) !important}
-.msgr .ch-sys{background:transparent;color:var(--m-soft);font-weight:600;font-size:.74rem;border:0;margin:.9rem 0 .4rem;padding:0 1rem}
+.msgr .ch-sys{font-family:var(--th-font);background:transparent;color:var(--m-soft);font-weight:600;font-size:.74rem;border:0;margin:.9rem 0 .4rem;padding:0 1rem}
 .msgr .ch-sys.live{color:var(--m-red)}
 .msgr .ch-quote{border-left-color:currentColor;opacity:.72}
 .msgr .ch-msg.mention .ch-b{box-shadow:0 0 0 2px var(--me-a)}
@@ -748,6 +749,125 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .msgr .alert-modes b{color:var(--m-ink)}
 .msgr .alert-modes span{color:var(--m-soft)}
 @media (prefers-reduced-motion:reduce){.ib-new:active{transform:none}}
+
+/* ============ scenes ============
+   Each scene restyles the whole open chat: background, header, bubbles,
+   names and announcements, composer and send button. Message text stays in
+   the phone's own font so it reads at a glance. */
+.theme-row.scenes{grid-template-columns:repeat(3,1fr)}
+.theme-row.scenes button i{width:100%;height:40px;border-radius:10px}
+
+/* --- Ink & Omen: a cursed notebook --- */
+.msgr .convo[data-scene=ink]{
+  --m-bg:#0E0D0C; --m-surf:#17150F; --m-ink:#EDE6D6; --m-soft:#9C927E; --m-line:rgba(237,230,214,.13);
+  --m-bubble:#1F1C16; --m-press:rgba(237,230,214,.06); --m-mint:#2A2117; --th-font:"Cinzel",Georgia,serif;
+  background:
+    linear-gradient(90deg,transparent 0 30px,rgba(179,20,27,.5) 30px 31px,transparent 31px),
+    repeating-linear-gradient(180deg,transparent 0 33px,rgba(237,230,214,.05) 33px 34px),
+    radial-gradient(ellipse at 50% 0%,#1E1A14,#0E0D0C 72%);
+}
+.msgr .convo[data-scene=ink] .cv-top{background:rgba(14,13,12,.88);border-bottom:1px solid rgba(179,20,27,.55)}
+.msgr .convo[data-scene=ink] .cv-txt b{letter-spacing:.06em}
+.msgr .convo[data-scene=ink] .ch-n{letter-spacing:.06em;color:#C9B98F}
+.msgr .convo[data-scene=ink] .ch-b{border-radius:3px 14px 14px 3px;box-shadow:inset 0 0 0 1px rgba(237,230,214,.07)}
+.msgr .convo[data-scene=ink] .ch-msg.me .ch-b{border-radius:14px 3px 3px 14px;background:linear-gradient(180deg,#F1E8D1,#E0D2AE);color:#1A1612;
+  box-shadow:0 2px 0 rgba(0,0,0,.45),inset 0 0 18px rgba(120,90,40,.18)}
+.msgr .convo[data-scene=ink] .ch-sys{font-style:italic;font-weight:600;color:#D23A40;letter-spacing:.05em;font-size:.8rem}
+.msgr .convo[data-scene=ink] .ch-form .btn,.msgr .convo[data-scene=ink] .ch-form .btn.solid{background:linear-gradient(140deg,#B3141B,#6E0B10);color:#F1E8D1}
+.msgr .convo[data-scene=ink] .ch-form input[type=text]{background:#17150F;border-color:rgba(237,230,214,.16)}
+.msgr .convo[data-scene=ink] .ch-msg.mention .ch-b{box-shadow:0 0 0 2px #B3141B}
+
+/* --- Pole Position: race day --- */
+.msgr .convo[data-scene=pole]{
+  --m-bg:#E9ECF0; --m-bubble:#FFFFFF; --th-font:"Russo One",var(--m-text);
+  background:
+    repeating-linear-gradient(-14deg,transparent 0 46px,rgba(18,24,38,.035) 46px 49px),
+    linear-gradient(180deg,#F5F7F9,#DFE4EA);
+}
+.msgr .convo[data-scene=pole] .cv-top{background:#FFFFFF;border-bottom:0;margin-bottom:9px}
+.msgr .convo[data-scene=pole] .cv-top::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:9px;
+  background:repeating-conic-gradient(#16161A 0 25%,#FFFFFF 0 50%) 0 0/9px 9px}
+.msgr .convo[data-scene=pole] .cv-txt b{font-style:italic;letter-spacing:.02em}
+.msgr .convo[data-scene=pole] .ch-n{text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:#16161A}
+.msgr .convo[data-scene=pole] .ch-b{border-radius:4px 18px 18px 18px;border-left:4px solid #16161A}
+.msgr .convo[data-scene=pole] .ch-msg.me .ch-b{border-left:0;border-radius:18px 4px 18px 18px;
+  background:
+    linear-gradient(104deg,transparent 0 86%,rgba(255,255,255,.55) 86% 88.5%,transparent 88.5% 91%,rgba(255,255,255,.55) 91% 93.5%,transparent 93.5%),
+    linear-gradient(104deg,#C40500,#E10600 55%,#FF3B1F)}
+.msgr .convo[data-scene=pole] .ch-sys{text-transform:uppercase;letter-spacing:.14em;color:#E10600;font-size:.72rem}
+.msgr .convo[data-scene=pole] .ch-msg.me.fresh{animation:poleIn .38s cubic-bezier(.15,.85,.25,1)}
+@keyframes poleIn{from{transform:translateX(-70px) skewX(-14deg);opacity:0;filter:blur(4px)}}
+
+/* --- Main Event: the arena --- */
+.msgr .convo[data-scene=arena]{
+  --m-bg:#07080F; --m-surf:#10121D; --m-ink:#EEF0FF; --m-soft:#8E95B8; --m-line:rgba(238,240,255,.11);
+  --m-bubble:#141729; --m-press:rgba(238,240,255,.06); --m-mint:#1B1F3A; --th-font:"Anton",Impact,"Arial Narrow",sans-serif;
+  background:
+    radial-gradient(ellipse 75% 38% at 50% -6%,rgba(120,140,255,.30),transparent 70%),
+    radial-gradient(ellipse 55% 34% at 0% 100%,rgba(30,80,255,.38),transparent 70%),
+    radial-gradient(ellipse 55% 34% at 100% 100%,rgba(255,30,70,.34),transparent 70%),
+    #07080F;
+}
+.msgr .convo[data-scene=arena] .cv-top{background:rgba(7,8,15,.86);border-bottom:0;margin-bottom:9px;
+  box-shadow:0 3px 0 #E3123B,0 6px 0 #ECEEF6,0 9px 0 #1840FF}
+.msgr .convo[data-scene=arena] .cv-txt b,.msgr .convo[data-scene=arena] .ch-n{text-transform:uppercase;letter-spacing:.05em;font-weight:400}
+.msgr .convo[data-scene=arena] .cv-txt b{font-size:1.2rem}
+.msgr .convo[data-scene=arena] .ch-b{border-radius:12px;border:1px solid rgba(80,110,255,.45);box-shadow:0 0 14px rgba(40,90,255,.18)}
+.msgr .convo[data-scene=arena] .ch-msg.me .ch-b{border-color:rgba(255,90,130,.65);box-shadow:0 0 18px rgba(255,46,99,.45)}
+.msgr .convo[data-scene=arena] .ch-sys{text-transform:uppercase;letter-spacing:.16em;color:#F5C84C;font-weight:400;font-size:.86rem}
+.msgr .convo[data-scene=arena] .ch-msg.me.fresh{animation:arenaSlam .42s cubic-bezier(.3,1.6,.5,1)}
+@keyframes arenaSlam{from{transform:scale(1.4);opacity:0}}
+
+/* --- Pep Rally of the Dead: zombie green meets cheer pink --- */
+.msgr .convo[data-scene=pep]{
+  --m-bg:#FAFAF5; --m-bubble:#7CC242; --th-font:"Bungee",var(--m-name);
+  background:
+    repeating-linear-gradient(180deg,transparent 0 11px,rgba(0,0,0,.035) 11px 13px),
+    linear-gradient(90deg,#E6F4D7 0 50%,#FFE4F0 50% 100%);
+}
+.msgr .convo[data-scene=pep] .cv-top{background:linear-gradient(90deg,#5FAF31 0 50%,#FF4F9A 50%);color:#fff;border-bottom:0}
+.msgr .convo[data-scene=pep] .cv-back,.msgr .convo[data-scene=pep] .cv-btn{color:#fff}
+.msgr .convo[data-scene=pep] .cv-txt span{color:rgba(255,255,255,.88)}
+.msgr .convo[data-scene=pep] .cv-txt b{font-weight:400;font-size:1rem}
+.msgr .convo[data-scene=pep] .ch-b{color:#10290A;border-radius:6px 20px 20px 20px;box-shadow:0 2px 0 #4E8F2A}
+.msgr .convo[data-scene=pep] .ch-msg.me .ch-b{border-radius:20px 6px 20px 20px;box-shadow:0 2px 0 #D63A7F}
+.msgr .convo[data-scene=pep] .ch-n{font-weight:400;color:#3F7E1C;font-size:.7rem}
+.msgr .convo[data-scene=pep] .ch-sys{font-weight:400;color:#5D5A63;letter-spacing:.04em}
+.msgr .convo[data-scene=pep] .ch-msg.me.fresh{animation:pomPop .5s ease-out}
+@keyframes pomPop{0%{transform:rotate(-6deg) scale(.7);opacity:0}55%{transform:rotate(3deg) scale(1.04)}100%{transform:none}}
+
+/* --- Family Weekend: blue velvet and lamplight --- */
+.msgr .convo[data-scene=family]{
+  --m-bg:#13223A; --m-surf:#1B2D4A; --m-ink:#F3EBDD; --m-soft:#A9B4C6; --m-line:rgba(243,235,221,.13);
+  --m-bubble:#22385A; --m-press:rgba(243,235,221,.06); --m-mint:#2A3D5C; --th-font:"Fraunces",Georgia,serif;
+  background:
+    radial-gradient(ellipse at 50% 22%,rgba(255,214,140,.13),transparent 58%),
+    radial-gradient(circle at 12px 12px,rgba(243,235,221,.06) 2px,transparent 2.6px) 0 0/24px 24px,
+    linear-gradient(180deg,#172946,#0E1A2E);
+}
+.msgr .convo[data-scene=family] .cv-top{background:rgba(19,34,58,.9);border-bottom:1px solid rgba(232,184,100,.38)}
+.msgr .convo[data-scene=family] .ch-b{border-radius:16px}
+.msgr .convo[data-scene=family] .ch-msg.me .ch-b{box-shadow:0 0 22px rgba(232,184,100,.28)}
+.msgr .convo[data-scene=family] .ch-n{color:#E8B864}
+.msgr .convo[data-scene=family] .ch-sys{font-style:italic;font-weight:500;color:#E8B864;font-size:.86rem}
+
+/* --- Eugene: dusk over the ridgelines --- */
+.msgr .convo[data-scene=eugene]{
+  --m-bg:#EEF0EC; --m-bubble:rgba(255,255,255,.92);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath d='M0 62 C70 58 110 22 165 14 C215 8 245 50 300 52 C340 54 372 40 400 44 V100 H0Z' fill='%232F5A3A' opacity='.16'/%3E%3Cpath d='M0 82 C60 70 120 58 180 70 C240 82 300 60 400 68 V100 H0Z' fill='%23244A30' opacity='.26'/%3E%3C/svg%3E") bottom/100% 230px no-repeat,
+    linear-gradient(180deg,#B9A3D6 0%,#D8CAE8 26%,#EDF0EB 58%,#E6EDE4 100%);
+}
+.msgr .convo[data-scene=eugene] .cv-top{background:rgba(255,255,255,.76);border-bottom:0;margin-bottom:4px}
+.msgr .convo[data-scene=eugene] .cv-top::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:4px;
+  background:linear-gradient(90deg,#E2483D 0 25%,#2FA4A9 25% 50%,#F2C14E 50% 75%,#5B7FD6 75%)}
+.msgr .convo[data-scene=eugene] .ch-n{color:#4B3D6B}
+.msgr .convo[data-scene=eugene] .ch-sys{color:#5B4A7A}
+.msgr .convo[data-scene=eugene] .ch-top{color:#5B4A7A}
+
+@media (prefers-reduced-motion:reduce){
+  .msgr .convo[data-scene] .ch-msg.me.fresh{animation:none}
+}
 
 /* "game going live" */
 .live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
@@ -1080,6 +1200,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       </div>
       <h3>Theme</h3>
       <div class="theme-row" id="infThemes"></div>
+      <h3>Scenes</h3>
+      <div class="theme-row scenes" id="infScenes"></div>
       <h3>Icon</h3>
       <div class="icon-row" id="infIcons"></div>
       <h3>Nicknames</h3>
@@ -3920,7 +4042,7 @@ function makeChat(root, o){
     '<div class="ch-head"><b>' + esc(o.title || "Chat") + '</b><span class="ch-sub"></span><button type="button" class="ch-x" aria-label="Close chat">✕</button></div>' +
     '<div class="ch-log" aria-live="polite"><p class="ch-empty">' + esc(o.empty || "Nothing yet. Say something — and tap any message to react to it.") + '</p></div>' +
     '<div class="ch-status" aria-live="polite"></div>' +
-    '<div class="ch-react">' + REACTS.map(e => '<button type="button" data-e="' + e + '" aria-label="Send ' + e + '">' + e + '</button>').join("") + '</div>' +
+    '<div class="ch-react"></div>' +
     '<div class="ch-ctx hidden"><div class="ch-ctx-t"></div><button type="button" class="ch-ctx-x" aria-label="Cancel">✕</button></div>' +
     '<div class="ch-ments hidden" role="listbox"></div>' +
     '<form class="ch-form">' +
@@ -4167,7 +4289,16 @@ function makeChat(root, o){
     send(t);
     if (editing) input.value = "";
   });
-  $$(".ch-react button", root).forEach(b => b.addEventListener("click", () => queue(by({ pid: mineId(), n: o.name(), t: b.dataset.e, at: { ".sv": "timestamp" } }))));
+  /* the one-tap emoji row: a theme can bring its own */
+  const reactRow = $(".ch-react", root);
+  function drawReacts(list){
+    reactRow.innerHTML = (list && list.length ? list : REACTS).map(e => '<button type="button" data-e="' + e + '" aria-label="Send ' + e + '">' + e + '</button>').join("");
+  }
+  drawReacts(null);
+  reactRow.addEventListener("click", e => {
+    const b = e.target.closest("button[data-e]");
+    if (b) queue(by({ pid: mineId(), n: o.name(), t: b.dataset.e, at: { ".sv": "timestamp" } }));
+  });
   $(".ch-x", root).addEventListener("click", () => o.onClose && o.onClose());
 
   /* ---------- the menu on a message: reactions, then actions ---------- */
@@ -4296,7 +4427,7 @@ function makeChat(root, o){
     const img = $(".ch-img", row.el);
     if (img && o.media) o.media.get(img.dataset.id).then(src => { if (src) img.src = src; }, () => img.classList.add("broken"));
   }
-  function append(key, m){
+  function append(key, m, fresh){
     const empty = $(".ch-empty", log);
     if (empty) empty.remove();
     if (m.sys){
@@ -4308,7 +4439,7 @@ function makeChat(root, o){
     }
     const mine = isMine(m);
     const row = document.createElement("div");
-    row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "");
+    row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "") + (fresh ? " fresh" : "");
     row.dataset.k = key;
     log.appendChild(row);
     rows[key] = { el: row, rx: null, sig: "", body: "", showName: m.pid !== lastPid && !mine };
@@ -4356,7 +4487,7 @@ function makeChat(root, o){
     for (const k of keys){
       const m = cur[k] || {};
       if (!rows[k]){
-        append(k, m);
+        append(k, m, primed);
         if (isMine(m)) mineAdded = true;
         else if (!m.sys) others++;
       } else if (!rows[k].sys){ drawRow(k); drawReactions(k); }
@@ -4382,6 +4513,7 @@ function makeChat(root, o){
     clearUnread(){ unread = 0; o.onUnread(0); reportRead(); },
     toEnd(){ log.scrollTop = log.scrollHeight; reportRead(); },
     status: () => drawStatus(),
+    reacts: drawReacts,
     /* messages left unsent last time the app was open */
     restore(){
       if (!o.keep || outbox.length) return;
@@ -5117,8 +5249,39 @@ const THEMES = [
   { id: "backer",   n: "Backer",       a: "#1F5EEA", b: "#4B8DF8", t: "#FFFFFF" },
   { id: "grape",    n: "Grape",        a: "#6D35E8", b: "#A158F2", t: "#FFFFFF" },
   { id: "neon",     n: "Neon",         a: "#E0157A", b: "#FF5FB4", t: "#FFFFFF" },
-  { id: "night",    n: "Night",        a: "#2B3A52", b: "#465A7A", t: "#E9EEF7", dark: true }
+  { id: "night",    n: "Night",        a: "#2B3A52", b: "#465A7A", t: "#E9EEF7", dark: true },
+  /* scenes: each restyles the whole chat (see .convo[data-scene] in the styles)
+     and brings its own font, icon colours and one-tap emoji */
+  { id: "ink", n: "Ink & Omen", scene: 1, a: "#EFE6CF", b: "#DCCDA8", t: "#1A1612", ic: ["#151310", "#8E1016", "#EDE6D6"],
+    font: "Cinzel:wght@600;700", prev: "linear-gradient(135deg,#0E0D0C 55%,#8E1016)",
+    rx: ["\u{1F58B}\u{FE0F}", "\u{1F4D3}", "\u{1F56F}\u{FE0F}", "\u{1F480}", "\u{2696}\u{FE0F}", "\u{1F311}", "\u{1F377}"] },
+  { id: "pole", n: "Pole Position", scene: 1, a: "#C40500", b: "#FF3B1F", t: "#FFFFFF", ic: ["#E10600", "#16161A", "#FFFFFF"],
+    font: "Russo+One", prev: "linear-gradient(115deg,#E10600 0 58%,#fff 58% 64%,#E10600 64% 70%,#fff 70% 76%,#16161A 76%)",
+    rx: ["\u{1F3C1}", "\u{1F3CE}\u{FE0F}", "\u{1F4A8}", "\u{1F527}", "\u{26FD}", "\u{1F3C6}", "\u{1F6A6}"] },
+  { id: "arena", n: "Main Event", scene: 1, a: "#E3123B", b: "#FF2E63", t: "#FFFFFF", ic: ["#1840FF", "#E3123B", "#FFFFFF"],
+    font: "Anton", prev: "linear-gradient(135deg,#1840FF,#07080F 45% 55%,#E3123B)",
+    rx: ["\u{1F514}", "\u{1F93C}", "\u{1F4A5}", "\u{1F3A4}", "\u{1F3C6}", "\u{1F624}", "\u{1F525}"] },
+  { id: "pep", n: "Pep Rally of the Dead", scene: 1, a: "#FF4F9A", b: "#FF8CC0", t: "#FFFFFF", ic: ["#6DBE3A", "#FF4F9A", "#FFFFFF"],
+    font: "Bungee", prev: "linear-gradient(90deg,#6DBE3A 50%,#FF4F9A 50%)",
+    rx: ["\u{1F9DF}", "\u{1F4E3}", "\u{1F380}", "\u{1F9E0}", "\u{1F49A}", "\u{1F497}", "\u{1F3C8}"] },
+  { id: "family", n: "Family Weekend", scene: 1, a: "#EBC170", b: "#D99A3E", t: "#2A1B06", ic: ["#1B2D4A", "#D99A3E", "#FFF6E6"],
+    font: "Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500", prev: "linear-gradient(135deg,#13223A 55%,#E8B864)",
+    rx: ["\u{1F377}", "\u{1F3E1}", "\u{1F436}", "\u{1F62C}", "\u{1F47B}", "\u{1F56F}\u{FE0F}", "\u{1F942}"] },
+  { id: "eugene", n: "Eugene", scene: 1, a: "#2F6B3A", b: "#3F8A4B", t: "#FFFFFF", ic: ["#8E79C2", "#2F6B3A", "#FFFFFF"],
+    prev: "linear-gradient(180deg,#B9A3D6 0 45%,#2F6B3A 45%)",
+    rx: ["\u{1F332}", "\u{1F986}", "\u{1F6B2}", "\u{2615}", "\u{1F327}\u{FE0F}", "\u{1F3D4}\u{FE0F}", "\u{1F308}"] }
 ];
+/* a chat's picture uses the scene's own colours, so the list shows its mood too */
+const iconVars = id => { const t = themeOf(id); return t.ic ? "--me-a:" + t.ic[0] + ";--me-b:" + t.ic[1] + ";--me-t:" + t.ic[2] : themeVars(id); };
+const fontsLoaded = new Set();
+function loadFont(spec){
+  if (!spec || fontsLoaded.has(spec)) return;
+  fontsLoaded.add(spec);
+  const l = document.createElement("link");
+  l.rel = "stylesheet";
+  l.href = "https://fonts.googleapis.com/css2?family=" + spec + "&display=swap";
+  document.head.appendChild(l);
+}
 const CHAT_ICONS = ["\u{1F98A}", "\u{1F4B8}", "\u{1F680}", "\u{1F3AF}", "\u{1F355}", "\u{1F3B2}", "\u{1F525}", "\u{1F30A}", "\u{1F33F}", "\u{1F47E}", "\u{1F3A4}", "\u{1F4BC}"];
 const themeOf = id => THEMES.find(t => t.id === id) || THEMES[0];
 const themeVars = id => { const t = themeOf(id); return "--me-a:" + t.a + ";--me-b:" + t.b + ";--me-t:" + t.t; };
@@ -5155,10 +5318,13 @@ function crewDecor(){
   $("#crSub").textContent = crewLabel();
   const ic = $("#cvIcon");
   ic.innerHTML = iconHtml(meta, crewName());
-  ic.setAttribute("style", themeVars(meta.theme));
+  ic.setAttribute("style", iconVars(meta.theme));
   const cv = $("#convo");
   cv.setAttribute("style", themeVars(meta.theme));
   cv.classList.toggle("dark-theme", !!t.dark);
+  if (t.scene) cv.dataset.scene = t.id; else delete cv.dataset.scene;
+  loadFont(t.font);
+  if (CR.chat.reacts && CR.reacts !== t.id){ CR.reacts = t.id; CR.chat.reacts(t.rx || null); }
   if (!$("#infoSheet").classList.contains("hidden")) drawInfo();
 }
 
@@ -5286,7 +5452,7 @@ function drawHome(){
   const showing = (wide() || $("#crew").classList.contains("v-chat")) && CR.chat ? CR.code : "";
   el.innerHTML = rows.map(r =>
     '<button type="button" class="ib-row' + (r.c.code === showing ? " on" : "") + (r.unread || r.c.invited ? " unread" : "") + '" role="listitem" data-code="' + esc(r.c.code) + '">' +
-      '<span class="cv-icon" style="' + themeVars(r.meta.theme) + '">' + iconHtml(r.meta, r.name) + (r.live ? '<i class="ib-livedot" aria-label="Game live"></i>' : "") + '</span>' +
+      '<span class="cv-icon" style="' + iconVars(r.meta.theme) + '">' + iconHtml(r.meta, r.name) + (r.live ? '<i class="ib-livedot" aria-label="Game live"></i>' : "") + '</span>' +
       '<span class="ib-main">' +
         '<span class="ib-l1"><b>' + esc(r.name) + '</b><time>' + esc(r.c.invited ? "New" : fmtWhen(r.at)) + '</time></span>' +
         '<span class="ib-l2"><span class="ib-prev">' + (r.live ? '<em class="ib-live">Game live</em> ' : "") + esc(previewOf(r)) + '</span>' +
@@ -5415,10 +5581,11 @@ function drawInfo(){
   const meta = CR.state.meta || {};
   const ic = $("#infIcon");
   ic.innerHTML = iconHtml(meta, crewName());
-  ic.setAttribute("style", themeVars(meta.theme));
-  $("#infThemes").innerHTML = THEMES.map(t =>
-    '<button type="button" data-t="' + t.id + '" class="' + (themeOf(meta.theme).id === t.id ? "on" : "") + '" aria-label="' + esc(t.n) + '" title="' + esc(t.n) + '">' +
-    '<i style="background:linear-gradient(135deg,' + t.a + ',' + t.b + ')"></i><span>' + esc(t.n) + '</span></button>').join("");
+  ic.setAttribute("style", iconVars(meta.theme));
+  const tile = t => '<button type="button" data-t="' + t.id + '" class="' + (themeOf(meta.theme).id === t.id ? "on" : "") + (t.scene ? " scene" : "") + '" aria-label="' + esc(t.n) + '" title="' + esc(t.n) + '">' +
+    '<i style="background:' + (t.prev || "linear-gradient(135deg," + t.a + "," + t.b + ")") + '"></i><span>' + esc(t.n) + '</span></button>';
+  $("#infThemes").innerHTML = THEMES.filter(t => !t.scene).map(tile).join("");
+  $("#infScenes").innerHTML = THEMES.filter(t => t.scene).map(tile).join("");
   $("#infIcons").innerHTML = '<button type="button" data-i="" class="' + (meta.icon ? "" : "on") + '" aria-label="Initials">' + esc(initials(crewName())) + '</button>' +
     CHAT_ICONS.map(i => '<button type="button" data-i="' + i + '" class="' + (meta.icon === i ? "on" : "") + '">' + i + '</button>').join("");
   const mem = CR.state.members || {};
@@ -5458,6 +5625,13 @@ function saveName(){
 }
 $("#infName").addEventListener("change", saveName);
 $("#infName").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); } });
+$("#infScenes").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const t = themeOf(b.dataset.t);
+  if (themeOf((CR.state.meta || {}).theme).id === t.id) return;
+  loadFont(t.font);
+  setMeta("theme", t.id, myName() + " changed the theme to " + t.n);
+});
 $("#infThemes").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   const t = themeOf(b.dataset.t);
