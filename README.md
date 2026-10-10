@@ -122,15 +122,50 @@ a **Realtime Database** (not Firestore), paste
 [`firebase-rules.json`](firebase-rules.json) into its Rules tab, and put the
 database URL in the field. Leaving the field empty returns to the built-in one.
 
-No SDK and no API key — the app talks to Firebase over plain REST, writing with
-`fetch` and reading with an `EventSource`. That is why there is nothing to
-build and nothing to install.
+No SDK — the app talks to Firebase over plain REST, writing with `fetch` and
+reading with an `EventSource`. That is why there is nothing to build and
+nothing to install.
 
-**On the rules:** they let anyone read and write under `/games/<code>`. That is
-deliberate — your friends' phones aren't signed into your Google account. The
-answers are never written to the database until the moment you reveal them, so
-a player poking at the raw data finds names and guesses and nothing worth
-cheating with. Don't reuse this database for anything that matters.
+**Accounts and the rules.** Every phone signs itself in with an anonymous
+Firebase account the first time it opens the app; nobody fills anything in.
+The rules in [`firebase-rules.json`](firebase-rules.json) use that account to
+decide who can do what:
+
+- **A crew's chat, members and live game** can only be read by its members. Anyone
+  with the crew code (or invite link) can join, which makes them a member.
+- **Messages:** you can only post as yourself, and only edit or delete your own.
+  You can react to anything, but only as yourself.
+- **Alert subscriptions** can't be read by anyone except the push relay.
+- **Game rooms and saved games** need a signed-in phone, and the code is the key,
+  as before. The answers are never written to a room until the moment you
+  reveal them, so a player poking at the raw data finds nothing worth cheating
+  with.
+
+Sign-in only applies to the built-in database. If you point the app at your own
+database, it uses no sign-in, and your database needs open rules.
+
+#### Turning accounts on (once, in this order)
+
+Order matters: the new rules refuse anyone who isn't signed in, so the app has
+to be signing people in before the rules go on.
+
+1. **Firebase console → Build → Authentication → Get started → Sign-in method →
+   Anonymous → Enable → Save.**
+2. **Project settings** (the gear) **→ General → Web API key.** Copy it into
+   `FB_API_KEY` near the top of the sign-in section of `index.html` and push to
+   GitHub. The key is meant to be public; it only identifies the project.
+3. Wait for GitHub Pages to update (a minute or two) and open the app once.
+   From then on every phone signs in on its own the next time it opens the app.
+   Old messages keep their names, and still count as yours on the phone that
+   sent them.
+4. If you run the push relay: **Project settings → Service accounts → Generate new
+   private key.** In the Worker, paste the latest `push/worker.js`, then add a
+   **Secret** named `FIREBASE_SA` holding the whole downloaded file. The relay's
+   address should now say "database login set".
+5. **Realtime Database → Rules:** paste `firebase-rules.json`, **Publish**.
+
+If something is refused after step 5, paste the previous rules back from the
+Rules tab's history; nothing in the database is lost either way.
 
 The free Spark tier is far more than a party needs. If you want to be tidy,
 delete old games from the Firebase console now and then.
@@ -232,13 +267,15 @@ Cloudflare Worker. No credit card, no command line.
 Until step 6 the bell falls back to an in-tab notification on computers, and
 the in-app banner works everywhere regardless.
 
+Once accounts are on, the relay also needs its own database login — step 4 of
+**Turning accounts on**, above.
+
 The relay only sends when the crew really has a game that opened in the last
 ten minutes, announces each game once, and drops subscriptions from phones
 that have uninstalled or revoked permission. Subscriptions are stored under
 `/saves/<crew code>/crew/push`.
 
-The chat lives under `/saves/<crew code>/crew`, so the database rules don't
-change. Opening the chat loads the newest 60 messages; scroll up and earlier ones load
+The chat lives under `/saves/<crew code>/crew`. Opening the chat loads the newest 60 messages; scroll up and earlier ones load
 60 at a time, back to the start. The crew's name, members and live game come
 in as separate small streams, so the app stays quick however long the history
 gets, and phones never download anyone's push subscription.

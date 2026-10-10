@@ -2,16 +2,59 @@
   "rules": {
     "games": {
       "$code": {
-        ".read": true,
-        ".write": true,
+        ".read": "auth != null",
+        ".write": "auth != null",
         ".validate": "$code.length === 4"
       }
     },
     "saves": {
       "$code": {
-        ".read": true,
-        ".write": true,
-        ".validate": "$code.length === 6"
+        ".validate": "$code.length === 6",
+        "crew": {
+          "meta": {
+            ".read": "auth != null",
+            ".write": "auth != null && newData.exists() && (!data.exists() || root.child('saves/' + $code + '/crew/members/' + auth.uid).exists())",
+            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 60"
+          },
+          "members": {
+            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            "$uid": {
+              ".write": "auth != null && (($uid === auth.uid && root.child('saves/' + $code + '/crew/meta').exists()) || (!newData.exists() && $uid.length < 12 && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
+              ".validate": "newData.child('n').isString() && newData.child('n').val().length <= 40"
+            }
+          },
+          "chat": {
+            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            "$msg": {
+              ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid))",
+              ".validate": "newData.hasChildren(['pid', 'at'])",
+              "t": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+              "n": { ".validate": "newData.isString() && newData.val().length <= 40" },
+              "r": {
+                "$name": {
+                  "$uid": {
+                    ".write": "auth != null && $uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+                    ".validate": "newData.isString() && newData.val().length <= 40"
+                  }
+                }
+              }
+            }
+          },
+          "push": {
+            "$uid": {
+              ".write": "auth != null && (($uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()) || (!newData.exists() && $uid.length < 12 && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))"
+            }
+          },
+          "pushSent": {},
+          "$other": {
+            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"
+          }
+        },
+        "$other": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
       }
     }
   }

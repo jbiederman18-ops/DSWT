@@ -861,6 +861,9 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
    ============================================================ */
 (function(){
 "use strict";
+/* the browser's own fetch and EventSource, before sign-in wraps them (section 14) */
+const NATIVE_FETCH = window.fetch.bind(window);
+const NATIVE_ES = window.EventSource;
 
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -2697,8 +2700,107 @@ if (!LIVE.pid){
   LIVE.pid = "p" + Math.random().toString(36).slice(2, 9);
   store.set("ds.pid", LIVE.pid);
 }
+/* the id this device used before accounts; its old messages still count as "mine" */
+LIVE.oldPid = LIVE.pid;
+const isMe = pid => pid === LIVE.pid || (!!LIVE.oldPid && pid === LIVE.oldPid);
 
 function dbRoot(){ return String(LIVE.db || "").replace(/\/+$/, ""); }
+
+/* ---------- sign-in ----------
+   Firebase Authentication, anonymous: each device gets an account the first
+   time it opens, with nothing for anyone to fill in. The database rules use it
+   to know who is in a crew and who wrote what, so only members can read a
+   crew's chat and nobody can post as somebody else.
+
+   No SDK, same as the database: one REST call signs up, another renews the
+   hour-long token. Every database request gets ?auth=<token> added on the way
+   out, and the live streams reconnect whenever the token renews.
+
+   FB_API_KEY is the project's Web API key (Firebase console → Project
+   settings → General). It is meant to be public. Empty = no sign-in, which
+   only works while the database still has the old open rules. */
+const FB_API_KEY = "";
+const AUTH = {
+  key: store.get("ds.fbKey") || FB_API_KEY,
+  host: store.get("ds.authHost") || "",          /* tests point this at a stand-in */
+  uid: store.get("ds.uid") || "",
+  refresh: store.get("ds.refresh") || "",
+  token: "", exp: 0, busy: null, timer: 0
+};
+/* only the built-in database belongs to this sign-in */
+const authOn = () => !!AUTH.key && (dbRoot() === DB_URL.replace(/\/+$/, "") || !!AUTH.host);
+if (authOn() && AUTH.uid) LIVE.pid = AUTH.uid;
+
+async function authCall(url, body, form){
+  const res = await NATIVE_FETCH(url, {
+    method: "POST",
+    headers: { "content-type": form ? "application/x-www-form-urlencoded" : "application/json" },
+    body: form ? body : JSON.stringify(body)
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((j.error && j.error.message) || ("sign-in failed (" + res.status + ")"));
+  return j;
+}
+function authSave(uid, token, refresh, expiresIn){
+  AUTH.uid = uid; AUTH.token = token; AUTH.refresh = refresh;
+  AUTH.exp = Date.now() + (Number(expiresIn) || 3600) * 1000;
+  store.set("ds.uid", uid); store.set("ds.refresh", refresh);
+  LIVE.pid = uid;
+  clearTimeout(AUTH.timer);
+  /* renew five minutes early, then pick the streams back up on the new token */
+  AUTH.timer = setTimeout(async () => { await authToken(true); authReconnect(); },
+                          Math.max(60000, AUTH.exp - Date.now() - 5 * 60000));
+}
+/* a current token, signing up or renewing first if needed ("" if offline) */
+function authToken(force){
+  if (!authOn()) return Promise.resolve("");
+  if (!force && AUTH.token && AUTH.exp - Date.now() > 2 * 60000) return Promise.resolve(AUTH.token);
+  if (AUTH.busy) return AUTH.busy;
+  const idt = AUTH.host || "https://identitytoolkit.googleapis.com";
+  const st = AUTH.host || "https://securetoken.googleapis.com";
+  AUTH.busy = (async () => {
+    if (AUTH.refresh){
+      try {
+        const j = await authCall(st + "/v1/token?key=" + AUTH.key,
+          "grant_type=refresh_token&refresh_token=" + encodeURIComponent(AUTH.refresh), true);
+        authSave(j.user_id, j.id_token, j.refresh_token, j.expires_in);
+        return AUTH.token;
+      } catch (e){
+        /* offline: try again later. Anything else (account gone): start fresh */
+        if (!navigator.onLine || /fetch|network/i.test(String(e.message))) return "";
+      }
+    }
+    try {
+      const j = await authCall(idt + "/v1/accounts:signUp?key=" + AUTH.key, { returnSecureToken: true });
+      authSave(j.localId, j.idToken, j.refreshToken, j.expiresIn);
+      return AUTH.token;
+    } catch (e){ return ""; }
+  })().finally(() => { AUTH.busy = null; });
+  return AUTH.busy;
+}
+function authReconnect(){
+  if (CR.code && CR.es) crewConnect();
+  if (LIVE.code && LIVE.es && LIVE.onChange) liveConnect(LIVE.onChange);
+}
+const isDb = url => typeof url === "string" && !!dbRoot() && url.startsWith(dbRoot() + "/");
+const withAuth = (url, t) => t ? url + (url.includes("?") ? "&" : "?") + "auth=" + encodeURIComponent(t) : url;
+/* who wrote a message, for the rules (they check it matches the signed-in account) */
+const by = m => (authOn() && AUTH.uid ? Object.assign(m, { by: AUTH.uid }) : m);
+
+/* Every database request goes through here on its way out. */
+window.fetch = async function(url, opts){
+  if (authOn() && isDb(url)) url = withAuth(url, await authToken());
+  return NATIVE_FETCH(url, opts);
+};
+/* Streams too. The token is added when the stream opens; Firebase ends a stream
+   whose token has expired with auth_revoked, and a refused one with cancel. */
+window.EventSource = function(url, opts){
+  const es = new NATIVE_ES(authOn() && isDb(url) ? withAuth(url, AUTH.token) : url, opts);
+  if (authOn() && isDb(url)){
+    es.addEventListener("auth_revoked", () => { es.close(); authToken(true).then(t => { if (t) authReconnect(); }); });
+  }
+  return es;
+};
 function gamePath(sub){ return dbRoot() + "/games/" + LIVE.code + (sub || "") + ".json"; }
 
 async function dbPut(sub, value){
@@ -2734,6 +2836,10 @@ function liveConnect(onChange){
   if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
   LIVE.onChange = onChange;
   if (!dbRoot() || !LIVE.code) return;
+  if (authOn() && !(AUTH.token && AUTH.exp - Date.now() > 2 * 60000)){
+    authToken().then(t => { if (t && LIVE.onChange === onChange && !LIVE.es) liveConnect(onChange); });
+    return;
+  }
   const es = new EventSource(gamePath(""));
   LIVE.es = es;
   const handle = isPatch => ev => {
@@ -3486,7 +3592,7 @@ function makeChat(root, o){
     t = String(t || "").trim().slice(0, 280);
     if (!t) return;
     if (isBanned(t)){ stopThat(); return; }
-    const ok = await post(o.url(""), "POST", { pid: o.me(), n: o.name(), t: t, at: { ".sv": "timestamp" } });
+    const ok = await post(o.url(""), "POST", by({ pid: o.me(), n: o.name(), t: t, at: { ".sv": "timestamp" } }));
     if (!ok) toast("That message didn’t send");
   }
   async function react(key, name){
@@ -3565,7 +3671,7 @@ function makeChat(root, o){
       rows[key] = { el: d, sys: true };
       return;
     }
-    const mine = m.pid === o.me();
+    const mine = m.pid === o.me() || (o.me() !== "host" && isMe(m.pid));
     const badName = isBanned(m.n), badText = isBanned(m.t);
     const row = document.createElement("div");
     row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "");
@@ -3606,7 +3712,7 @@ function makeChat(root, o){
       const m = cur[k] || {};
       if (!rows[k]){
         append(k, m);
-        if (m.pid === o.me()) mineAdded = true;
+        if (m.pid === o.me() || (o.me() !== "host" && isMe(m.pid))) mineAdded = true;
         else if (!m.sys) others++;
       } else if (!rows[k].sys) drawReactions(k);
     }
@@ -3654,9 +3760,19 @@ function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
    app downloads the crew's name, its members, whether a game is live and the
    newest CHAT_PAGE messages, not the whole history. Push subscriptions are
    never streamed. CR.es looks like one EventSource to the rest of the app. */
-function crewConnect(){
+async function crewConnect(){
   if (CR.es){ CR.es.close(); CR.es = null; }
   if (!CR.code || !dbRoot()) return;
+  const gen = CR.gen = (CR.gen || 0) + 1;     /* a newer call wins */
+  if (authOn()){
+    /* signed in, and on the member list, before asking to read the crew */
+    CR.es = { close(){}, readyState: 0 };
+    const t = await authToken();
+    if (gen !== CR.gen) return;
+    if (!t){ CR.es = null; return; }
+    await crewTouch();
+    if (gen !== CR.gen) return;
+  }
   const list = [];
   const open = (name, url, onMsg) => {
     const es = new EventSource(url);
@@ -3795,6 +3911,7 @@ async function joinLive(){
 }
 
 async function crewJoin(code, name){
+  await authToken();
   code = String(code || "").toUpperCase().trim();
   if (!/^[A-Z0-9]{6}$/.test(code)) return "That crew code should be six characters.";
   let meta = null;
@@ -3808,19 +3925,30 @@ async function crewJoin(code, name){
   return "";
 }
 
-function crewTouch(){
-  const name = store.get("ds.name");
-  if (!CR.code || !name) return;
-  fetch(crewPath("/members/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: name, seen: { ".sv": "timestamp" } }) }).catch(() => {});
+async function crewTouch(){
+  const name = store.get("ds.name") || "Someone";
+  if (!CR.code) return;
+  await authToken();        /* so the entry goes under the signed-in account */
+  if (!CR.code) return;
+  const done = fetch(crewPath("/members/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: name, seen: { ".sv": "timestamp" } }) }).catch(() => {});
+  /* first time signed in: drop this device's entries from before accounts */
+  if (authOn() && LIVE.oldPid && LIVE.oldPid !== LIVE.pid && store.get("ds.tidy") !== CR.code){
+    done.then(() => Promise.all([
+      fetch(crewPath("/members/" + LIVE.oldPid), { method: "DELETE" }),
+      fetch(crewPath("/push/" + LIVE.oldPid), { method: "DELETE" })
+    ])).then(() => store.set("ds.tidy", CR.code), () => {});
+  }
+  return done;
 }
 
 async function crewCreate(title, name){
+  await authToken();
   const code = code6();
   try {
     await putJSON(crewPath("/meta", code), { name: title, created: Date.now() });
   } catch (e){ return "Couldn’t reach the database."; }
   const err = await crewJoin(code, name);
-  if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify({ sys: 1, pid: "host", t: name + " started " + title + ". Invite the rest of the crew.", at: { ".sv": "timestamp" } }) }).catch(() => {});
+  if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: name + " started " + title + ". Invite the rest of the crew.", at: { ".sv": "timestamp" } })) }).catch(() => {});
   return err;
 }
 
@@ -4423,7 +4551,7 @@ function hsSetChat(on){
 }
 
 function sysMsg(t, live){
-  const m = { sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } };
+  const m = by({ sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } });
   if (live) m.live = 1;
   if (RH.crew && CR.code) return fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(m) }).then(r => r.ok, () => false);
   return dbPost("/chat", m);
@@ -4734,6 +4862,7 @@ if (crewHash){
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
+authToken();   /* sign in early, so the first message or guess doesn't wait */
 
 /* handy when a page parses oddly: open the console and poke at the parser */
 window.DS = window.REDACTED = {
