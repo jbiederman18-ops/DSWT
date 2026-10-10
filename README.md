@@ -283,11 +283,18 @@ your avatar opens your profile.
 - **Links** are clickable, and a message can run to 2,000 characters.
 - **Who's around:** "Sam is typing…" under the chat, "2 online" at the top, and
   "Seen by …" under your newest message.
-- **Profiles:** tap your avatar → **Your profile** sets your name, a colour and an
-  avatar: an emoji, or a photo of you (the camera button). The photo is cropped
-  square, kept small, encrypted like everything else, and shows next to your
-  name in every chat on that phone. A chat's own photo is in **Chat settings**,
-  the camera button in the icon row.
+- **Real names and nicknames:** everyone has a real name, set once and then
+  locked: it comes from your Google account, or you type it once if you signed
+  in by email. Your nickname is what people see first, with your real name small
+  beside it, so a name change never leaves anyone guessing. Anyone in a chat can
+  also give someone a nickname just for that chat (**Chat settings → People**).
+- **Profiles:** tap your avatar → **Your profile** sets your nickname, a colour
+  and an avatar: an emoji, or a photo of you (the camera button). The profile
+  belongs to your account: it's kept in your entry in each of your chats
+  (encrypted like everything else), so another phone you sign in on picks it up
+  as soon as it opens one of them.
+- **Chat photo:** in **Chat settings**, tap the chat's picture at the top (or the
+  camera button in the icon row) to choose a photo; tap it again to change it.
 - **More than one crew:** **⋯** lists your crews to switch between, and **+ Join
   or start another**. Leaving one takes you to the next.
 - **No signal:** the app still opens, a message you send waits with

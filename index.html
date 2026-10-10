@@ -534,6 +534,19 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ch-b.pic-only,.msgr .ch-b.pic-only{padding:3px;border-radius:18px}
 .ch-b.pic-only .ch-img{margin:0;border-radius:15px}
 .ch-av{font-style:normal;margin-right:.3em}
+.ch-real{font-weight:400;font-size:.88em;opacity:.75;margin-left:.4em;font-family:var(--m-ui,inherit);letter-spacing:0;text-transform:none}
+.nick-real small,.nc-real{font-weight:400;opacity:.65;font-size:.82em}
+.nc-real{display:block}
+.prof-real{display:flex;align-items:center;gap:.45rem;margin:.1rem 0 .7rem;padding:.6rem .75rem;border-radius:12px;background:var(--m-bg,var(--paper))}
+.prof-real b{font-size:1rem}
+.prof-real .tiny{margin-left:auto}
+.prof-real svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.6;flex:0 0 auto}
+#infIcon{cursor:pointer;position:relative}
+#infIcon::after,.icon-row button.pic::after{content:"";position:absolute;right:-2px;bottom:-2px;width:18px;height:18px;border-radius:50%;
+  background:var(--m-ink) center/11px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3l2-3h8l2 3h3v13H3zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8'/%3E%3C/svg%3E");
+  box-shadow:0 0 0 2px var(--m-surf)}
+.icon-row button.pic{position:relative;overflow:visible}
+.icon-row button.pic img{border-radius:inherit}
 .ch-av.ph img{width:1.35em;height:1.35em;border-radius:50%;object-fit:cover;vertical-align:-.35em;display:inline-block}
 .nc-av img,.ib-me img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
 .ib-me.ph{padding:0;overflow:hidden;background:var(--m-other)}
@@ -1429,7 +1442,8 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <div class="card">
       <h2 id="profH" style="font-size:1.4rem">Your profile</h2>
       <p class="tiny" style="margin:.3rem 0 .8rem">How the crew sees you. Applies to every crew on this phone.</p>
-      <label class="field"><span>Name</span><input type="text" id="profName" maxlength="40" autocomplete="nickname"></label>
+      <div class="prof-real hidden" id="profReal"></div>
+      <label class="field"><span id="profNameL">Name</span><input type="text" id="profName" maxlength="40" autocomplete="nickname"></label>
       <div class="tiny" style="margin:.6rem 0 .3rem">Colour</div>
       <div class="prof-cols" id="profCols"></div>
       <div class="tiny" style="margin:.8rem 0 .3rem">Avatar</div>
@@ -1446,6 +1460,15 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
         <button type="button" class="btn" id="profCancel">Cancel</button>
       </div>
       <div class="prof-acct" id="profAcct"></div>
+    </div>
+  </div>
+  <div class="modal hidden" id="realSheet" role="dialog" aria-modal="true" aria-labelledby="realH">
+    <div class="card">
+      <h2 id="realH" style="font-size:1.4rem">What’s your real name?</h2>
+      <p class="tiny" style="margin:.3rem 0 .8rem">So everyone can always tell who’s who. It’s locked once it’s set, but you can pick a nickname any time in your profile, and that’s what people see first.</p>
+      <label class="field"><span>Real name</span><input type="text" id="realIn" maxlength="40" autocomplete="name" placeholder="First and last name"></label>
+      <p class="tiny" id="realNote" role="status" style="margin:.5rem 0 0;color:var(--m-red)"></p>
+      <div style="display:flex;gap:.5rem;margin-top:1rem"><button type="button" class="btn solid" id="realGo">Continue</button></div>
     </div>
   </div>
 </section>
@@ -3480,6 +3503,8 @@ async function authFrom(u, force){
   /* anonymous, google.com or password (an email link): chats need a real account */
   AUTH.prov = (r.claims.firebase && r.claims.firebase.sign_in_provider) || (u.isAnonymous ? "anonymous" : "");
   AUTH.email = String(u.email || "");
+  /* a Google account's name is the real name, unless one is already set */
+  if (!u.isAnonymous && u.displayName && !store.get("ds.real")) realSet(u.displayName);
   store.set("ds.uid", AUTH.uid); store.set("ds.prov", AUTH.prov); store.set("ds.email", AUTH.email);
   LIVE.pid = AUTH.uid;
   if (before && before !== AUTH.uid){
@@ -5364,7 +5389,7 @@ function makeChat(root, o){
     let h = "";
     if (row.showName){
       const col = p.c !== undefined && p.c !== null ? COLORS[Number(p.c) % COLORS.length] : "";
-      h += '<span class="ch-n"' + (col ? ' style="color:' + col + '"' : "") + '>' + (faceOk(p.p) ? '<i class="ch-av ph"><img alt="" src="' + p.p + '"></i>' : p.a ? '<i class="ch-av">' + esc(p.a) + '</i>' : "") + esc(nameOf(m)) + '</span>';
+      h += '<span class="ch-n"' + (col ? ' style="color:' + col + '"' : "") + '>' + (faceOk(p.p) ? '<i class="ch-av ph"><img alt="" src="' + p.p + '"></i>' : p.a ? '<i class="ch-av">' + esc(p.a) + '</i>' : "") + esc(nameOf(m)) + (realOk(p.r) && p.r !== nameOf(m) ? '<small class="ch-real">' + esc(p.r) + '</small>' : "") + '</span>';
     }
     if (m.del){
       h += '<span class="ch-b gone">Message deleted</span>';
@@ -5669,7 +5694,7 @@ const crewRich = {
   who: pid => {
     const p = (CR.state.members || {})[pid], nick = crewNick(pid);
     if (!p && !nick) return null;
-    return { n: nick || (p && p.n), c: p && p.c, a: p && p.a, p: p && p.p };
+    return { n: nick || (p && p.n), c: p && p.c, a: p && p.a, p: p && p.p, r: p && p.r };
   },
   seal: m => sealMsg(CR.code, m),
   sealStr: t => seal(CR.code, t),
@@ -5766,12 +5791,78 @@ function crewSwitch(code){
   crewConnect();
   crewScreenChat();
 }
+/* ---------- real names, nicknames, and the profile on every phone ----------
+   Your real name is set once (from your Google account, or typed once if you
+   signed in by email) and then locked, so everyone can always tell who's who.
+   Your nickname is what people see first, with the real name small beside it.
+   ds.real is the real name; ds.name stays "what people see" (the nickname,
+   or the real name when there isn't one), as the rest of the app expects.
+
+   The profile travels between your phones through your chats, so it stays
+   end-to-end encrypted: your entry in each chat holds it, sealed, plus pv,
+   when you last changed it. A phone that finds a newer one adopts it. */
+const realName = () => store.get("ds.real") || "";
+const nickName = () => { const n = store.get("ds.name") || ""; return n && n !== realName() ? n : ""; };
+function realSet(v){
+  v = String(v || "").trim().replace(/\s+/g, " ").slice(0, 40);
+  if (!v) return;
+  store.set("ds.real", v);
+  if (!store.get("ds.name")) store.set("ds.name", v);
+}
+const needRealName = () => e2eOn() && signedIn() && !realName();
+function askRealName(then){
+  const sheet = $("#realSheet"), inp = $("#realIn");
+  inp.value = ""; $("#realNote").textContent = "";
+  sheet.classList.remove("hidden");
+  setTimeout(() => inp.focus(), 50);
+  const go = () => {
+    const v = inp.value.trim().replace(/\s+/g, " ");
+    if (v.length < 2){ $("#realNote").textContent = "Type your name as your friends know it."; inp.focus(); return; }
+    if (isBanned(v)){ inp.value = ""; stopThat(); return; }
+    realSet(v);
+    sheet.classList.add("hidden");
+    $("#realGo").removeEventListener("click", go);
+    inp.removeEventListener("keydown", key);
+    drawMe();
+    if (then) then();
+  };
+  const key = e => { if (e.key === "Enter"){ e.preventDefault(); go(); } };
+  $("#realGo").addEventListener("click", go);
+  inp.addEventListener("keydown", key);
+}
+/* my entry from one chat (opened): take its profile if it's newer than this phone's */
+function profAdopt(e, code){
+  if (!e || typeof e !== "object") return false;
+  const pv = Number(e.pv) || 0;
+  if (!pv || pv <= (Number(store.get("ds.pv")) || 0)) return false;
+  const ok = v => typeof v === "string" && v !== "" && v !== LOCKED && v !== "…" && !isSealed(v);
+  if (!ok(e.n)) return false;                       /* couldn't open it on this phone yet */
+  if (ok(e.r)) store.set("ds.real", e.r.slice(0, 40));
+  store.set("ds.name", e.n.slice(0, 40));
+  if (e.c !== undefined && e.c !== null) store.set("ds.color", String(e.c));
+  store.set("ds.avatar", ok(e.a) ? e.a : "");
+  const v = "pv" + pv;
+  store.set("ds.photo", faceOk(e.p) ? e.p : "");
+  store.set("ds.photoV", v);
+  if (code) store.set("ds.photoIn:" + code, v);
+  store.set("ds.pv", String(pv));
+  drawMe();
+  return true;
+}
 /* ---------- profile ---------- */
 const AVATARS = ["\u{1F600}", "\u{1F60E}", "\u{1F920}", "\u{1F47D}", "\u{1F916}", "\u{1F98A}", "\u{1F438}", "\u{1F984}", "\u{1F355}", "\u{1F3B8}", "\u{1F680}", "\u{1F4B8}"];
 let profPick = {};
 function openProfile(){
   profPick = { c: store.get("ds.color"), a: store.get("ds.avatar") || "", p: store.get("ds.photo") || "" };
-  $("#profName").value = store.get("ds.name") || "";
+  const real = realName(), locked = e2eOn() && signedIn();
+  $("#profReal").classList.toggle("hidden", !locked);
+  $("#profReal").innerHTML = !locked ? "" : real
+    ? '<span class="tiny">Real name</span><b>' + esc(real) + '</b><span class="tiny" title="Your real name is locked so everyone can tell who’s who">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:3px"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span>'
+    : '<label class="field" style="flex:1;margin:0"><span>Real name — set once, then locked</span><input type="text" id="profRealIn" maxlength="40" autocomplete="name" placeholder="First and last name"></label>';
+  $("#profNameL").textContent = locked ? "Nickname (optional)" : "Name";
+  $("#profName").placeholder = locked ? (real || "What people see first") : "";
+  $("#profName").value = locked ? nickName() : (store.get("ds.name") || "");
   $("#profCols").innerHTML = COLORS.map((c, i) => '<button type="button" data-c="' + i + '" style="background:' + c + '" aria-label="Colour ' + (i + 1) + '"></button>').join("");
   drawProfAvs();
   drawProfPick();
@@ -5811,25 +5902,37 @@ $("#profPicFile").addEventListener("change", async e => {
 });
 $("#profCancel").addEventListener("click", () => $("#profSheet").classList.add("hidden"));
 $("#profSave").addEventListener("click", async () => {
-  const n = ($("#profName").value || "").trim().slice(0, 40);
-  if (!n){ $("#profName").focus(); return; }
+  const realIn = $("#profRealIn");
+  if (realIn){
+    const v = realIn.value.trim();
+    if (v && isBanned(v)){ realIn.value = ""; stopThat(); return; }
+    if (v.length >= 2) realSet(v);
+  }
+  const n = ($("#profName").value || "").trim().slice(0, 40) || realName();
+  if (!n){ (realIn || $("#profName")).focus(); return; }
   if (isBanned(n)){ $("#profName").value = ""; stopThat(); return; }
   store.set("ds.name", n);
+  const pv = Date.now();
+  store.set("ds.pv", String(pv));
   if (profPick.c !== undefined && profPick.c !== null && profPick.c !== "") store.set("ds.color", String(profPick.c));
   store.set("ds.avatar", profPick.a || "");
   const ph = faceOk(profPick.p) ? profPick.p : "";
   if (ph !== (store.get("ds.photo") || "")){ store.set("ds.photo", ph); store.set("ds.photoV", Date.now().toString(36)); }
   $("#profSheet").classList.add("hidden");
   /* the same name, colour and avatar in every chat on this phone */
-  const me = { n: n, c: profPick.c !== undefined && profPick.c !== null && profPick.c !== "" ? Number(profPick.c) : null, a: profPick.a || null };
+  const me = { n: n, c: profPick.c !== undefined && profPick.c !== null && profPick.c !== "" ? Number(profPick.c) : null, a: profPick.a || null,
+              r: realName() || null, p: store.get("ds.photo") || null, pv: pv };
+  const v = store.get("ds.photoV") || "";
   await Promise.all(crewList().filter(c => !c.invited && !c.asked).map(async c => {
     let mine = me;
     if (e2eOn()){
-      try { mine = Object.assign({}, me, { n: await seal(c.code, me.n), a: me.a ? await seal(c.code, me.a) : null }); }
-      catch (e){ return; }
+      try {
+        mine = Object.assign({}, me, { n: await seal(c.code, me.n), a: me.a ? await seal(c.code, me.a) : null,
+                                       r: me.r ? await seal(c.code, me.r) : null, p: me.p ? await seal(c.code, me.p) : null });
+      } catch (e){ return; }
     }
     const r = await fetch(crewPath("/members/" + LIVE.pid, c.code), { method: "PATCH", body: JSON.stringify(mine) }).catch(() => null);
-    if (r && r.ok) await facePut(c.code);
+    if (r && r.ok) store.set("ds.photoIn:" + c.code, v);
   }));
   drawMe();
   toast("Saved");
@@ -6108,14 +6211,24 @@ async function crewTouch(){
   if (!CR.code) return;
   await authToken();        /* so the entry goes under the signed-in account */
   if (!CR.code) return;
-  const me = { n: name, seen: { ".sv": "timestamp" } };
+  /* another phone may have changed the profile since: take it before writing ours */
+  const touchFrom = CR.code;
+  try {
+    let mine = await getJSON(crewPath("/members/" + LIVE.pid, touchFrom));
+    if (mine && e2eOn()) mine = await deepOpen(touchFrom, mine);
+    profAdopt(mine, touchFrom);
+  } catch (e){}
+  if (CR.code !== touchFrom) return;
+  const me = { n: store.get("ds.name") || name, seen: { ".sv": "timestamp" } };
   const col = store.get("ds.color");
   me.c = col !== null && col !== undefined && col !== "" ? Number(col) : null;
   me.a = store.get("ds.avatar") || null;
+  me.r = realName() || null;
+  if (Number(store.get("ds.pv")) > 0) me.pv = Number(store.get("ds.pv"));
   if (e2eOn()){
     /* sealed; until this phone has the chat's key, leave the name as it is */
-    try { me.n = await seal(CR.code, me.n); me.a = me.a ? await seal(CR.code, me.a) : null; }
-    catch (e){ delete me.n; delete me.a; }
+    try { me.n = await seal(CR.code, me.n); me.a = me.a ? await seal(CR.code, me.a) : null; me.r = me.r ? await seal(CR.code, me.r) : null; }
+    catch (e){ delete me.n; delete me.a; delete me.r; }
   }
   CR.seenSent = Date.now();
   const touchCode = CR.code;
@@ -6328,6 +6441,7 @@ $("#iosOk").addEventListener("click", () => $("#iosSheet").classList.add("hidden
 /* #crew=<code> (an invite link or a notification), or the home screen */
 function openCrew(hintCode){
   if (e2eOn() && !signedIn()){ crewSignIn(() => openCrew(hintCode)); return; }
+  if (needRealName()){ show("crew"); askRealName(() => openCrew(hintCode)); return; }
   show("crew");
   const hint = String(hintCode || "").toUpperCase();
   const asked = hint && crewList().find(c => c.code === hint && c.asked);
@@ -6627,6 +6741,7 @@ async function facePhoto(file){
   return out;
 }
 const faceOk = v => typeof v === "string" && v.length <= 14000 && PIC_RE.test(v);
+const realOk = v => typeof v === "string" && v !== "" && v !== LOCKED && v !== "…" && !isSealed(v) && !isBanned(v);
 /* someone's little circle: their photo, else their emoji, else their initials */
 const faceHtml = (p, fallback) => faceOk(p && p.p) ? '<img alt="" src="' + p.p + '">' : esc(fallback);
 function initials(name){
@@ -6750,6 +6865,7 @@ async function refreshHome(){
         d.lastKey = k; d.last = k ? (e2eOn() ? await deepOpen(c.code, last[k]) : last[k]) : null;
         d.live = !!(live && live.room && Date.now() - Number(live.at || 0) < 8 * 3600 * 1000);
         d.members = (e2eOn() ? await deepOpen(c.code, mem) : mem) || {};
+        profAdopt(d.members[LIVE.pid], c.code);
         const rk = readMap()[c.code];
         if (k && rk && k > rk){
           const after = await getJSON(crewPath("/chat", c.code) + byKey("&startAt=" + encodeURIComponent(JSON.stringify(rk)) + "&limitToFirst=100"));
@@ -6759,7 +6875,7 @@ async function refreshHome(){
     });
     /* everyone you share a chat with, for starting new ones */
     const people = {};
-    const add = mem => { for (const id in mem || {}) if (id !== LIVE.pid && id.length > 10 && mem[id] && mem[id].n) people[id] = { n: String(mem[id].n), a: mem[id].a, c: mem[id].c, p: mem[id].p }; };
+    const add = mem => { for (const id in mem || {}) if (id !== LIVE.pid && id.length > 10 && mem[id] && mem[id].n) people[id] = { n: String(mem[id].n), a: mem[id].a, c: mem[id].c, p: mem[id].p, r: mem[id].r }; };
     for (const code in HOME.data) add(HOME.data[code].members);
     add(CR.state.members);
     HOME.people = people;
@@ -6859,6 +6975,7 @@ function drawMe(){
 
 function openHome(){
   if (e2eOn() && !signedIn()){ crewSignIn(); return; }
+  if (needRealName()){ show("crew"); askRealName(openHome); return; }
   show("crew");
   crewView("list");
   drawMe();
@@ -6924,7 +7041,7 @@ function openNew(){
   $("#ncPeople").innerHTML = people.map(p =>
     '<label class="nc-person"><input type="checkbox" value="' + esc(p.id) + '">' +
     '<span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + faceHtml(p, p.a || initials(p.n)) + '</span>' +
-    '<span>' + esc(p.n) + '</span></label>').join("");
+    '<span>' + esc(p.n) + (realOk(p.r) && p.r !== p.n ? '<small class="nc-real">' + esc(p.r) + '</small>' : "") + '</span></label>').join("");
   $("#ncNote").textContent = canAdd ? "They’ll see it in their chats. You’ll also get an invite link for anyone else." : "You’ll get an invite link to send to your people.";
   $("#newSheet").classList.remove("hidden");
   setTimeout(() => (named ? $("#ncName") : $("#ncMe")).focus(), 50);
@@ -6989,7 +7106,7 @@ function drawInfo(){
   if (hasPhoto && document.activeElement !== tn) tn.value = meta.photo.n || "";
   const hasPic = typeof meta.pic === "string" && PIC_RE.test(meta.pic);
   $("#infIcons").innerHTML = '<button type="button" data-i="" class="' + (meta.icon || hasPic ? "" : "on") + '" aria-label="Initials">' + esc(initials(crewName())) + '</button>' +
-    (hasPic ? '<button type="button" data-i="pic" class="on pic" aria-label="Chat photo"><img alt="" src="' + meta.pic + '"></button>' : "") +
+    (hasPic ? '<button type="button" data-i="pic" class="on pic" aria-label="Change the chat photo" title="Change the chat photo"><img alt="" src="' + meta.pic + '"></button>' : "") +
     '<button type="button" data-i="pic-new" class="pic-add" aria-label="Use a photo as the chat picture">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3l2-3h8l2 3h3v13H3zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg></button>' +
     CHAT_ICONS.map(i => '<button type="button" data-i="' + i + '" class="' + (!hasPic && meta.icon === i ? "on" : "") + '">' + i + '</button>').join("");
@@ -7001,7 +7118,7 @@ function drawInfo(){
   $("#infNicks").innerHTML = ids.map(id => {
     const p = mem[id];
     return '<label class="nick-row"><span class="nc-av" style="' + (p.c !== undefined && p.c !== null ? "background:" + COLORS[Number(p.c) % COLORS.length] : "") + '">' + faceHtml(p, p.a || initials(p.n)) + '</span>' +
-      '<span class="nick-real">' + esc(p.n) + (id === LIVE.pid ? " (you)" : "") + '</span>' +
+      '<span class="nick-real">' + esc(p.n) + (id === LIVE.pid ? " (you)" : "") + (realOk(p.r) && p.r !== p.n ? ' <small>· ' + esc(p.r) + '</small>' : "") + '</span>' +
       '<input type="text" maxlength="30" data-uid="' + esc(id) + '" value="' + esc(crewNick(id)) + '" placeholder="Nickname" aria-label="Nickname for ' + esc(p.n) + '">' +
       (id === LIVE.pid || id === LIVE.oldPid ? "" : '<button type="button" class="nick-x" data-rm="' + esc(id) + '" aria-label="Remove ' + esc(p.n) + ' from the chat" title="Remove from the chat">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 11h6"/></svg></button>') +
@@ -7059,10 +7176,13 @@ $("#infThemes").addEventListener("click", e => {
   if (themeOf((CR.state.meta || {}).theme).id === t.id) return;
   setMeta("theme", t.id, myName() + " changed the theme to " + t.n);
 });
+/* the big picture at the top of Chat settings: tap it to choose a photo */
+$("#infIcon").addEventListener("click", () => $("#infPicFile").click());
+$("#infIcon").setAttribute("title", "Change the chat photo");
 $("#infIcons").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.i === "pic-new"){ $("#infPicFile").click(); return; }
-  if (b.dataset.i === "pic") return;
+  if (b.dataset.i === "pic"){ $("#infPicFile").click(); return; }
   if ((CR.state.meta || {}).pic) setMeta("pic", null, null);
   setMeta("icon", b.dataset.i || null, null);
 });

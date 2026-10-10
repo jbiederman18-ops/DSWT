@@ -129,6 +129,12 @@
               "p": {
                 ".validate": "newData.isString() && newData.val().length <= 20000 && (newData.val().beginsWith('data:image/jpeg;base64,') || newData.val().beginsWith('e2ee:v1:'))"
               },
+              "r": {
+                ".validate": "newData.isString() && newData.val().length <= 400"
+              },
+              "pv": {
+                ".validate": "newData.isNumber()"
+              },
               "c": {
                 ".validate": "newData.isNumber()"
               },
