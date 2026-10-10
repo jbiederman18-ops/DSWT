@@ -22,9 +22,14 @@
    only works under the old open rules.
 
    Endpoints:
-     GET  /key     public key the site subscribes with
-     GET  /setup   one-time key generator (refuses once VAPID_JWK is set)
-     POST /notify  {crew, room, from, site}
+     GET  /key      public key the site subscribes with
+     GET  /setup    one-time key generator (refuses once VAPID_JWK is set)
+     POST /notify   {crew, room, from, site}   a game is going live
+     POST /message  {crew, key, site}          a new chat message
+
+   Each phone's subscription carries a mode: "all" (every message and every
+   game, the default), "mentions" (messages that @mention you, and games) or
+   "games" (games only).
 */
 const DEFAULT_DB = "https://dswt-eff47-default-rtdb.firebaseio.com";
 const SUBJECT = "https://github.com/jbiederman18-ops/DSWT";
@@ -172,6 +177,73 @@ function text(t, status, type){
   return new Response(t, { status: status || 200, headers: Object.assign({ "content-type": type || "text/plain; charset=utf-8" }, CORS) });
 }
 
+/* send one payload to every subscription that wants it; drop dead ones */
+async function sendAll(subs, wants, payload, env, at){
+  const jwk = JSON.parse(env.VAPID_JWK);
+  const out = { sent: 0, gone: 0, failed: 0, skipped: 0 };
+  await Promise.all(Object.keys(subs || {}).map(async uid => {
+    const rec = subs[uid] || {}, sub = rec.sub;
+    if (!sub || !sub.endpoint || !sub.keys) return;
+    if (!wants(uid, rec.mode || "all")){ out.skipped++; return; }
+    try {
+      const status = await sendPush(sub, typeof payload === "function" ? payload(uid) : payload, jwk);
+      if (status >= 200 && status < 300) out.sent++;
+      else if (status === 404 || status === 410){
+        out.gone++;
+        await fetch(await at("push/" + uid), { method: "DELETE" });
+      } else out.failed++;
+    } catch (e){ out.failed++; }
+  }));
+  return out;
+}
+
+async function crewReader(env, crew){
+  const base = "/saves/" + crew + "/crew";
+  const at = async k => dbUrl(env, base + "/" + k);
+  const get = async k => {
+    const r = await fetch(await at(k));
+    if (r.status === 401 || r.status === 403) throw new Error("the database refused the relay: add the FIREBASE_SA secret (see the top of this file)");
+    return r.ok ? r.json() : null;
+  };
+  return { at, get };
+}
+
+const MSG_WINDOW = 2 * 60 * 1000;    // only alert about a message sent in the last two minutes
+
+async function message(req, env){
+  let b = null;
+  try { b = JSON.parse(await req.text()); } catch (e){}
+  if (!b) return json({ error: "bad request" }, 400);
+  const crew = String(b.crew || ""), key = String(b.key || ""), site = String(b.site || "");
+  if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[-\w]{1,40}$/.test(key)) return json({ error: "bad codes" }, 400);
+  if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
+  const { at, get } = await crewReader(env, crew);
+  let m, subs, meta;
+  try { [m, subs, meta] = await Promise.all([get("chat/" + key), get("push"), get("meta")]); }
+  catch (e){ return json({ error: String(e.message || e) }, 502); }
+  if (!m || m.sys || m.del) return json({ skipped: "no such message" }, 404);
+  if (m.p) return json({ skipped: "already sent" });
+  if (Date.now() - Number(m.at || 0) > MSG_WINDOW) return json({ skipped: "too old" }, 409);
+  await fetch(await at("chat/" + key + "/p"), { method: "PUT", body: "1" });
+
+  const from = String(m.by || m.pid || "");
+  const who = String(m.n || "Someone").slice(0, 40);
+  const crewName = String((meta && meta.name) || "Your crew").slice(0, 60);
+  let text = String(m.t || "").replace(/\s+/g, " ").trim();
+  if (text.length > 140) text = text.slice(0, 139) + "…";
+  if (m.img) text = "\u{1F4F7} " + (text || "Photo");
+  const mentioned = uid => !!(m.m && m.m[uid]);
+  const out = await sendAll(subs,
+    (uid, mode) => uid !== from && (mode === "all" || (mode === "mentions" && mentioned(uid))),
+    uid => JSON.stringify({
+      title: mentioned(uid) ? who + " mentioned you in " + crewName : crewName,
+      body: (mentioned(uid) ? "" : who + ": ") + text,
+      url: site + "#crew=" + crew,
+      tag: "ds-chat-" + crew
+    }), env, at);
+  return json(out);
+}
+
 async function notify(req, env){
   let b = null;
   try { b = JSON.parse(await req.text()); } catch (e){}
@@ -181,13 +253,7 @@ async function notify(req, env){
   if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[A-Z0-9]{4}$/.test(room)) return json({ error: "bad codes" }, 400);
   if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
 
-  const base = "/saves/" + crew + "/crew";
-  const at = async k => dbUrl(env, base + "/" + k);
-  const get = async k => {
-    const r = await fetch(await at(k));
-    if (r.status === 401 || r.status === 403) throw new Error("the database refused the relay: add the FIREBASE_SA secret (see the top of this file)");
-    return r.ok ? r.json() : null;
-  };
+  const { at, get } = await crewReader(env, crew);
   let live, sent, subs, meta;
   try { [live, sent, subs, meta] = await Promise.all([get("live"), get("pushSent"), get("push"), get("meta")]); }
   catch (e){ return json({ error: String(e.message || e) }, 502); }
@@ -197,7 +263,6 @@ async function notify(req, env){
   if (sent && Date.now() - Number(sent.at || 0) < MIN_GAP) return json({ skipped: "too soon" }, 429);
   await fetch(await at("pushSent"), { method: "PUT", body: JSON.stringify({ room: room, at: Date.now() }) });
 
-  const jwk = JSON.parse(env.VAPID_JWK);
   const crewName = String((meta && meta.name) || "Your crew").slice(0, 60);
   const n = Number(live.rounds) || 0;
   const payload = JSON.stringify({
@@ -206,21 +271,8 @@ async function notify(req, env){
     url: site + "#crew=" + crew,
     tag: "ds-live-" + crew
   });
-
-  const out = { sent: 0, gone: 0, failed: 0 };
-  await Promise.all(Object.keys(subs || {}).map(async pid => {
-    if (pid === from) return;
-    const sub = (subs[pid] || {}).sub;
-    if (!sub || !sub.endpoint || !sub.keys) return;
-    try {
-      const status = await sendPush(sub, payload, jwk);
-      if (status >= 200 && status < 300) out.sent++;
-      else if (status === 404 || status === 410){
-        out.gone++;
-        await fetch(await at("push/" + pid), { method: "DELETE" });
-      } else out.failed++;
-    } catch (e){ out.failed++; }
-  }));
+  /* every mode wants games */
+  const out = await sendAll(subs, uid => uid !== from, payload, env, at);
   return json(out);
 }
 
@@ -251,6 +303,10 @@ export default {
     if (url.pathname === "/notify" && req.method === "POST"){
       if (!env.VAPID_JWK) return json({ error: "not set up yet" }, 503);
       return notify(req, env);
+    }
+    if (url.pathname === "/message" && req.method === "POST"){
+      if (!env.VAPID_JWK) return json({ error: "not set up yet" }, 503);
+      return message(req, env);
     }
     return text("DS(WT) Crew push relay. " + (env.VAPID_JWK ? "Ready" : "Not set up yet — visit /setup") +
                 (env.FIREBASE_SA ? " · database login set." : " · no database login (FIREBASE_SA), so it needs the old open rules."));

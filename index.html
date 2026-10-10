@@ -541,6 +541,13 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .prof-avs button{width:2.3rem;height:2.3rem;border-radius:10px;border:2px solid var(--rule);background:var(--paper);font-size:1.25rem;line-height:1}
 .prof-avs button.on{border-color:var(--ink);background:var(--hl)}
 
+.alert-modes{display:flex;flex-direction:column;gap:.4rem}
+.alert-modes label{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem .7rem;border:2px solid var(--rule);border-radius:10px;cursor:pointer}
+.alert-modes label:has(input:checked){border-color:var(--ink);background:var(--hl)}
+.alert-modes input{margin-top:.2rem}
+.alert-modes span{font-size:.85rem;color:var(--ink-soft)}
+.alert-modes b{display:block;color:var(--ink);font-size:.95rem}
+
 /* "game going live" */
 .live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
              display:flex;align-items:center;gap:.6rem;width:min(560px,calc(100vw - 16px));padding:.55rem .55rem .55rem .9rem;
@@ -840,6 +847,21 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <div class="cr-code" id="crCodeShow"></div>
     <p class="tiny" style="margin:.2rem 0 .7rem">Anyone with this code (or the invite link) can join the chat.</p>
     <button type="button" class="btn sm" id="crLeave" style="color:var(--stamp)">Leave this crew</button>
+  </div>
+  <div class="modal hidden" id="alertSheet" role="dialog" aria-modal="true" aria-labelledby="alertH">
+    <div class="card">
+      <h2 id="alertH" style="font-size:1.4rem">Alerts on this phone</h2>
+      <p class="tiny" style="margin:.3rem 0 .8rem">For <b id="alertCrew"></b>. Each phone has its own setting.</p>
+      <div class="alert-modes" id="alertModes">
+        <label><input type="radio" name="am" value="all"><span><b>Every message</b>and every game</span></label>
+        <label><input type="radio" name="am" value="mentions"><span><b>Only when I’m @mentioned</b>and every game</span></label>
+        <label><input type="radio" name="am" value="games"><span><b>Only games going live</b>no chat alerts</span></label>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+        <button type="button" class="btn solid" id="alertSave">Done</button>
+        <button type="button" class="btn" id="alertOff" style="color:var(--stamp)">Turn alerts off</button>
+      </div>
+    </div>
   </div>
   <div class="modal hidden" id="profSheet" role="dialog" aria-modal="true" aria-labelledby="profH">
     <div class="card">
@@ -4564,7 +4586,7 @@ async function pushSubscribe(){
     if (!cur || b64uEnc(cur) !== key){ await sub.unsubscribe(); sub = null; }
   }
   if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uDec(key) });
-  await putJSON(crewPath("/push/" + LIVE.pid), { sub: sub.toJSON(), n: store.get("ds.name") || "", at: Date.now() });
+  await putJSON(crewPath("/push/" + LIVE.pid), { sub: sub.toJSON(), n: store.get("ds.name") || "", at: Date.now(), mode: pushMode() });
 }
 
 async function pushEnable(){
@@ -4579,7 +4601,7 @@ async function pushEnable(){
       : "Alerts need your permission.");
     await pushSubscribe();
     store.set("ds.pushOn", CR.code);
-    toast("Alerts on. You’ll get a notification when a game goes live.", 3200);
+    toast("Alerts on: new messages and games going live. Tap the bell to change that.", 3600);
   } catch (e){
     toast(e.message || "Couldn’t turn alerts on", 4200);
   }
@@ -4614,12 +4636,40 @@ function alertsButton(){
   }
   const on = pushIsOn();
   b.textContent = on ? "\u{1F514} On" : "\u{1F514}";
-  b.title = on ? "Game alerts are on for this device" : "Get a notification when a game goes live";
+  b.title = on ? "Alerts are on for this phone — tap for settings" : "Get notifications for new messages and games";
   b.setAttribute("aria-label", b.title);
   b.classList.toggle("on", on);
   b.setAttribute("aria-pressed", on ? "true" : "false");
   b.classList.remove("hidden");
 }
+
+/* what this phone wants to hear about, per crew: all | mentions | games */
+function pushMode(){
+  let m = {};
+  try { m = JSON.parse(store.get("ds.pushMode") || "{}"); } catch (e){}
+  return ["all", "mentions", "games"].includes(m[CR.code]) ? m[CR.code] : "all";
+}
+function openAlerts(){
+  $("#alertCrew").textContent = crewName();
+  const cur = pushMode();
+  $$("#alertModes input").forEach(r => { r.checked = r.value === cur; });
+  $("#alertSheet").classList.remove("hidden");
+}
+$("#alertSave").addEventListener("click", async () => {
+  const pick = ($$("#alertModes input").find(r => r.checked) || {}).value || "all";
+  $("#alertSheet").classList.add("hidden");
+  if (pick === pushMode()) return;
+  let m = {};
+  try { m = JSON.parse(store.get("ds.pushMode") || "{}"); } catch (e){}
+  m[CR.code] = pick;
+  store.set("ds.pushMode", JSON.stringify(m));
+  const r = await fetch(crewPath("/push/" + LIVE.pid), { method: "PATCH", body: JSON.stringify({ mode: pick }) }).catch(() => null);
+  toast(r && r.ok ? "Saved" : "Couldn’t save that — try again", 2400);
+});
+$("#alertOff").addEventListener("click", async () => {
+  $("#alertSheet").classList.add("hidden");
+  await pushDisable();
+});
 
 /* a new crew message: the relay alerts everyone whose settings ask for it */
 function pushMessage(key){
@@ -4758,7 +4808,7 @@ $("#crAlerts").addEventListener("click", async () => {
     toast(Notification.permission === "granted" ? "You’ll get an alert while this tab is open" : "Alerts are off — the banner still shows");
     return;
   }
-  if (pushIsOn()){ if (confirm("Turn off game alerts on this device?")) await pushDisable(); return; }
+  if (pushIsOn()){ openAlerts(); return; }
   await pushEnable();
 });
 $("#crLeave").addEventListener("click", () => {
