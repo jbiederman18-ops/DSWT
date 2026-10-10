@@ -458,9 +458,13 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ch-react button{border:0;background:transparent;font-size:1.4rem;padding:.12em .28em;border-radius:8px;line-height:1.2}
 .ch-react button:active,.ch-react button:hover{background:var(--hl)}
 .ch-form{display:flex;gap:.5rem;padding:.45rem .6rem;padding-bottom:max(.5rem,env(safe-area-inset-bottom));flex:0 0 auto}
-.ch-form input[type=text]{flex:1;min-width:0;border-radius:99px;font-size:16px;padding:.5em .9em}
+.ch-form{align-items:flex-end}
+.ch-form .ch-in{flex:1;min-width:0;border-radius:1.3em;font-size:16px;padding:.5em .9em;
+  font-family:inherit;border:2px solid var(--ink);background:var(--card);color:inherit;
+  display:block;resize:none;overflow-y:auto;line-height:1.35;max-height:40vh;max-height:40dvh;
+  overflow-wrap:anywhere;scrollbar-width:thin}
 .ch-form .btn{border-radius:99px}
-.ch-form input[type=text]:focus{outline:none;border-color:var(--marker-deep);box-shadow:0 0 0 3px var(--hl)}
+.ch-form .ch-in:focus{outline:none;border-color:var(--marker-deep);box-shadow:0 0 0 3px var(--hl)}
 @media (max-width:899px){
   /* a tall sheet, so the top of the campaign stays in view while you argue about it */
   .rp-chat{position:fixed;left:0;right:0;bottom:0;top:22%;z-index:40;transform:translateY(102%);visibility:hidden;
@@ -579,7 +583,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ch-ctx-x{border:0;background:transparent;font-size:.95rem;padding:.2rem .4rem}
 .ch-ments{display:flex;flex-wrap:wrap;gap:.3rem;margin:.3rem .6rem 0;flex:0 0 auto}
 .ch-ments button{border:1px solid var(--marker-deep);background:var(--hl);color:#06281A;border-radius:99px;padding:.25em .8em;font-weight:700;font-size:.85rem}
-.ch-att{display:flex;align-items:center;justify-content:center;width:2.4rem;flex:0 0 auto;font-size:1.3rem;cursor:pointer;border-radius:99px}
+.ch-att{display:flex;align-items:center;justify-content:center;width:2.4rem;height:2.5rem;flex:0 0 auto;font-size:1.3rem;cursor:pointer;border-radius:99px}
 .ch-att:hover{background:var(--hl)}
 .lightbox{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:12px}
 .lightbox img{max-width:100%;max-height:100%;object-fit:contain}
@@ -762,9 +766,9 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .ch-ctx{background:var(--m-surf);border-left-color:var(--me-a);margin:.3rem clamp(.6rem,3vw,2rem) 0}
 .msgr .ch-ments{margin:.3rem clamp(.6rem,3vw,2rem) 0}
 .msgr .ch-ments button{background:var(--m-surf);border:1px solid var(--m-line);color:var(--m-ink)}
-.msgr .ch-form{gap:.4rem;padding:.45rem clamp(.5rem,3vw,2rem);padding-bottom:max(.6rem,env(safe-area-inset-bottom));align-items:center}
-.msgr .ch-form input[type=text]{border:1px solid var(--m-line);background:var(--m-surf);color:var(--m-ink);border-radius:22px;padding:.62em 1em;font-size:16px}
-.msgr .ch-form input[type=text]:focus{border-color:var(--me-a);box-shadow:0 0 0 3px color-mix(in srgb,var(--me-a) 22%,transparent)}
+.msgr .ch-form{gap:.4rem;padding:.45rem clamp(.5rem,3vw,2rem);padding-bottom:max(.6rem,env(safe-area-inset-bottom));align-items:flex-end}
+.msgr .ch-form .ch-in{border:1px solid var(--m-line);background:var(--m-surf);color:var(--m-ink);border-radius:22px;padding:.62em 1em;font-size:16px}
+.msgr .ch-form .ch-in:focus{border-color:var(--me-a);box-shadow:0 0 0 3px color-mix(in srgb,var(--me-a) 22%,transparent)}
 .msgr .ch-form .btn,.msgr .ch-form .btn.solid{width:42px;height:42px;padding:0;border:0;border-radius:50%;box-shadow:none;font-size:0;flex:0 0 auto;
                     background:linear-gradient(140deg,var(--me-a),var(--me-b));color:var(--me-t);position:relative}
 .msgr .ch-form .btn::after{content:"";position:absolute;inset:0;margin:auto;width:18px;height:18px;background:currentColor;
@@ -940,7 +944,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   --cv-shade:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.2) 40%,rgba(0,0,0,.5));
 }
 .msgr .convo[data-scene=photo] .cv-top{background:var(--m-surf);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border-bottom-color:transparent}
-.msgr .convo[data-scene=photo] .ch-b:not(.big),.msgr .convo[data-scene=photo] .ch-form input[type=text],.msgr .convo[data-scene=photo] .ch-pick-rx,.msgr .convo[data-scene=photo] .ch-pick-act{
+.msgr .convo[data-scene=photo] .ch-b:not(.big),.msgr .convo[data-scene=photo] .ch-form .ch-in,.msgr .convo[data-scene=photo] .ch-pick-rx,.msgr .convo[data-scene=photo] .ch-pick-act{
   -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4)}
 .msgr .convo[data-scene=photo] .ch-sys{align-self:center;background:var(--m-surf);color:var(--m-ink);border-radius:99px;padding:.3em .9em;
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
@@ -973,7 +977,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   box-shadow:0 2px 0 rgba(0,0,0,.45),inset 0 0 18px rgba(120,90,40,.18)}
 .msgr .convo[data-scene=ink] .ch-sys{font-style:italic;font-weight:600;color:#D23A40;letter-spacing:.05em;font-size:.8rem}
 .msgr .convo[data-scene=ink] .ch-form .btn,.msgr .convo[data-scene=ink] .ch-form .btn.solid{background:linear-gradient(140deg,#B3141B,#6E0B10);color:#F1E8D1}
-.msgr .convo[data-scene=ink] .ch-form input[type=text]{background:#17150F;border-color:rgba(237,230,214,.16)}
+.msgr .convo[data-scene=ink] .ch-form .ch-in{background:#17150F;border-color:rgba(237,230,214,.16)}
 .msgr .convo[data-scene=ink] .ch-msg.mention .ch-b{box-shadow:0 0 0 2px #B3141B}
 
 /* --- Pole Position: a race through a candy-coloured city ---
@@ -1027,7 +1031,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .convo[data-scene=pole] .ch-status,.msgr .convo[data-scene=pole] .ch-react,.msgr .convo[data-scene=pole] .ch-form{background:rgba(11,13,19,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .msgr .convo[data-scene=pole] .ch-status{color:#C9D0DD}
 .msgr .convo[data-scene=pole] .ch-react{padding-top:.4rem}
-.msgr .convo[data-scene=pole] .ch-form input[type=text]{background:#1C212C;border-color:rgba(255,255,255,.12);color:#F4F6FA}
+.msgr .convo[data-scene=pole] .ch-form .ch-in{background:#1C212C;border-color:rgba(255,255,255,.12);color:#F4F6FA}
 .msgr .convo[data-scene=pole] .ch-form .btn,.msgr .convo[data-scene=pole] .ch-form .btn.solid{background:linear-gradient(140deg,#FF3A2A,#C40B12);color:#fff}
 .msgr .convo[data-scene=pole] .ch-msg.me.fresh{animation:poleIn .38s cubic-bezier(.15,.85,.25,1)}
 @keyframes poleIn{from{transform:translateX(-70px) skewX(-14deg);opacity:0;filter:blur(4px)}}
@@ -1140,7 +1144,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .convo[data-scene=family] .ch-seen,.msgr .convo[data-scene=family] .ch-meta{color:#B7C8D6}
 .msgr .convo[data-scene=family] .ch-status,.msgr .convo[data-scene=family] .ch-react,.msgr .convo[data-scene=family] .ch-form{background:rgba(14,25,38,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .msgr .convo[data-scene=family] .ch-react{padding-top:.4rem}
-.msgr .convo[data-scene=family] .ch-form input[type=text]{background:#1A2C40;border-color:rgba(242,236,226,.14)}
+.msgr .convo[data-scene=family] .ch-form .ch-in{background:#1A2C40;border-color:rgba(242,236,226,.14)}
 .msgr .convo[data-scene=family] .ch-form .btn,.msgr .convo[data-scene=family] .ch-form .btn.solid{background:linear-gradient(140deg,#A13244,#6A1826);color:#FBF3EA}
 
 /* --- Eugene: dusk over the ridgelines --- */
@@ -1319,7 +1323,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   41%{transform:translate(-16px,16px) scale(.55);opacity:0}
   100%{transform:none;opacity:1}
 }
-.msgr .ch-form input[type=text]{transition:border-color .15s,box-shadow .2s}
+.msgr .ch-form .ch-in{transition:border-color .15s,box-shadow .2s}
 .msgr .ch-att{transition:transform .12s var(--ease-out),background-color .15s}
 .msgr .ch-att:active{transform:scale(.88)}
 
@@ -5323,9 +5327,42 @@ function makeChat(root, o){
     '<div class="ch-ments hidden" role="listbox"></div>' +
     '<form class="ch-form">' +
       (rich && o.media ? '<label class="ch-att" aria-label="Add a photo"><input type="file" accept="image/*" hidden>\u{1F4F7}</label>' : '') +
-      '<input type="text" maxlength="' + (rich ? CHAT_MAX : 280) + '" placeholder="' + esc(o.placeholder || "Talk it over…") + '" autocomplete="off" enterkeyhint="send" aria-label="Message">' +
+      '<textarea class="ch-in" rows="1" maxlength="' + (rich ? CHAT_MAX : 280) + '" placeholder="' + esc(o.placeholder || "Talk it over…") + '" autocomplete="off" enterkeyhint="send" aria-label="Message"></textarea>' +
       '<button class="btn solid sm">Send</button></form>';
-  const log = $(".ch-log", root), input = $(".ch-form input[type=text]", root);
+  const log = $(".ch-log", root), input = $(".ch-form .ch-in", root);
+  /* the box grows with the message, a line at a time, so the whole thing is
+     in view before it goes; past about 40% of the screen it scrolls instead.
+     Messages stay one paragraph: Return sends, and a pasted line break turns
+     into a space (as the old one-line box did). */
+  function fit(){
+    const atEnd = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+    input.style.height = "auto";
+    /* scrollHeight leaves out the border, and the box is sized border-box */
+    input.style.height = input.scrollHeight + (input.offsetHeight - input.clientHeight) + "px";
+    if (atEnd) log.scrollTop = log.scrollHeight;
+  }
+  {
+    /* anything that sets the text from code (send, edit, @mention) refits too */
+    const v = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value");
+    Object.defineProperty(input, "value", { configurable: true, get(){ return v.get.call(this); }, set(x){ v.set.call(this, x); fit(); } });
+  }
+  input.addEventListener("input", () => {
+    const t = input.value;
+    if (/[\r\n]/.test(t)){
+      const at = input.selectionStart;
+      const before = t.slice(0, at).replace(/\r\n?|\n/g, " ");
+      input.value = before + t.slice(at).replace(/\r\n?|\n/g, " ");
+      input.setSelectionRange(before.length, before.length);
+    } else fit();
+  });
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229){
+      e.preventDefault();
+      const f = input.form;
+      if (f.requestSubmit) f.requestSubmit(); else f.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
+  });
+  if (window.ResizeObserver){ let w = 0; new ResizeObserver(() => { if (input.clientWidth !== w){ w = input.clientWidth; if (input.value) fit(); } }).observe(input); }
   const ctxBar = $(".ch-ctx", root), mentBox = $(".ch-ments", root), statusEl = $(".ch-status", root);
   const rows = {};
   let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
