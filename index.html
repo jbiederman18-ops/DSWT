@@ -547,6 +547,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .crop-view{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:.9rem auto .7rem;overflow:hidden;border-radius:16px;background:#0B1411;
            touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;outline-offset:3px}
 .crop-view:active{cursor:grabbing}
+.crop-view:focus{outline:none}
+.crop-view:focus-visible{outline:2px solid var(--m-green)}
 .crop-view img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;-webkit-user-drag:none}
 .crop-mask{position:absolute;inset:0;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.5);outline:2px solid rgba(255,255,255,.9);outline-offset:-1px}
 .crop-zoom{display:flex;align-items:center;gap:.6rem;margin:0 auto 1rem;width:min(78vw,300px);color:var(--m-soft)}
@@ -6791,10 +6793,10 @@ async function cropPhoto(file, opts){
 }
 function cropFinish(use){
   const done = CROP.done; CROP.done = null;
+  const v = $("#cropView").clientWidth, s = CROP.base * CROP.k, S = CROP.size;   /* measured while it's still showing */
   $("#cropSheet").classList.add("hidden");
   if (!done) return;
   if (!use){ done(null); return; }
-  const v = $("#cropView").clientWidth, s = CROP.base * CROP.k, S = CROP.size;
   const c = document.createElement("canvas"); c.width = S; c.height = S;
   const g = c.getContext("2d");
   g.imageSmoothingQuality = "high";
