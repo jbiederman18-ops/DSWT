@@ -1078,6 +1078,146 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .ios-steps li{margin-bottom:.45rem}
 .ios-code{font-family:var(--display);letter-spacing:.08em}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;border-radius:var(--r);box-shadow:0 4px 0 rgba(0,0,0,.3)}
+/* ============ messenger motion ============
+   Everything here is transform and opacity, so it runs on the GPU and never
+   holds anything up: views switch, messages land and lists redraw at once,
+   and the motion plays over the top. All of it stays inside the messenger
+   (.msgr); the game screens are left exactly as they were. */
+.msgr{--ease-out:cubic-bezier(.2,.8,.25,1);--ease-pop:cubic-bezier(.2,1.5,.4,1)}
+
+/* ---------- into and out of a chat (phones) ---------- */
+@media (max-width:899px){
+  #crew.nav-push .inbox,#crew.nav-pop .inbox,#crew.nav-drag .inbox{display:flex}
+  #crew.nav-push .convo,#crew.nav-pop .convo,#crew.nav-drag .convo{display:flex;z-index:3;box-shadow:-10px 0 28px rgba(8,20,15,.16)}
+  /* the list dims a little as the chat comes over it */
+  .msgr .inbox::after{content:"";position:absolute;inset:0;background:rgba(8,20,15,.22);opacity:0;pointer-events:none;z-index:4}
+  #crew.nav-push .convo{animation:navIn .34s var(--ease-out) both}
+  #crew.nav-push .inbox{animation:navUnder .34s var(--ease-out) both}
+  #crew.nav-push .inbox::after{animation:navDim .34s var(--ease-out) both}
+  #crew.nav-pop .convo{animation:navOut .28s cubic-bezier(.3,.6,.35,1) both}
+  #crew.nav-pop .inbox{animation:navOver .28s cubic-bezier(.3,.6,.35,1) both}
+  #crew.nav-pop .inbox::after{animation:navDim .28s cubic-bezier(.3,.6,.35,1) reverse both}
+  #crew.nav-push .convo,#crew.nav-pop .convo,#crew.nav-push .inbox,#crew.nav-pop .inbox{will-change:transform}
+  /* the edge swipe follows your finger (--nav-p: 0 = chat open, 1 = gone) */
+  #crew.nav-drag .convo{transform:translateX(calc(var(--nav-p,0) * 100%))}
+  #crew.nav-drag .inbox{transform:translateX(calc((1 - var(--nav-p,0)) * -28%))}
+  #crew.nav-drag .inbox::after{opacity:calc(1 - var(--nav-p,0))}
+  #crew.nav-drag .convo,#crew.nav-drag .inbox{will-change:transform}
+  #crew.nav-settle .convo,#crew.nav-settle .inbox{transition:transform .22s var(--ease-out)}
+  #crew.nav-settle .inbox::after{transition:opacity .22s var(--ease-out)}
+}
+@keyframes navIn{from{transform:translateX(100%)}to{transform:none}}
+@keyframes navOut{from{transform:none}to{transform:translateX(100%)}}
+@keyframes navUnder{from{transform:none}to{transform:translateX(-28%)}}
+@keyframes navOver{from{transform:translateX(-28%)}to{transform:none}}
+@keyframes navDim{from{opacity:0}to{opacity:1}}
+/* side by side: switching chats crossfades the conversation */
+@media (min-width:900px){
+  .msgr .cr-chat .ch-log{animation:logIn .24s var(--ease-out)}
+  .msgr .ib-row{transition:background-color .18s}
+}
+@keyframes logIn{from{opacity:0;transform:translateY(6px)}}
+
+/* ---------- the chat list ---------- */
+.msgr .ib-row{transition:transform .14s var(--ease-out),background-color .18s}
+.msgr .ib-row:active{transform:scale(.985)}
+.msgr .ib-badge.pop{animation:badgePop .4s var(--ease-pop)}
+@keyframes badgePop{0%{transform:scale(.4)}60%{transform:scale(1.25)}100%{transform:none}}
+.msgr .ib-new{transition:transform .14s var(--ease-out),box-shadow .2s}
+.msgr .ib-games,.msgr .ib-me,.msgr .cv-back,.msgr .cv-btn,.msgr .cv-who{transition:transform .12s var(--ease-out),background-color .15s}
+.msgr .ib-games:active,.msgr .ib-me:active,.msgr .cv-back:active,.msgr .cv-btn:active{transform:scale(.9)}
+.msgr .cv-who:active{transform:scale(.98)}
+
+/* ---------- messages arriving ---------- */
+/* theirs rise in from the left, yours from the composer on the right */
+.msgr .ch-msg.fresh{animation:msgIn .3s cubic-bezier(.2,.85,.3,1.12) both;transform-origin:0 100%}
+.msgr .ch-msg.me.fresh{animation-name:msgOut;transform-origin:100% 100%}
+@keyframes msgIn{from{opacity:0;transform:translate(-6px,10px) scale(.92)}}
+@keyframes msgOut{from{opacity:0;transform:translate(10px,18px) scale(.86)}}
+/* an emoji on its own gets a proper pop */
+.msgr .ch-msg.fresh .ch-b.big{animation:emojiPop .6s var(--ease-pop) both;transform-origin:50% 85%}
+.msgr .ch-msg.me.fresh .ch-b.big{transform-origin:70% 85%}
+@keyframes emojiPop{0%{transform:scale(.2) rotate(-14deg);opacity:0}55%{transform:scale(1.22) rotate(5deg);opacity:1}78%{transform:scale(.95) rotate(-2deg)}100%{transform:none}}
+.msgr .ch-sys.fresh{animation:sysIn .35s var(--ease-out) both}
+@keyframes sysIn{from{opacity:0;transform:scale(.9)}}
+.msgr .ch-seen.fresh{animation:fadeUp .3s var(--ease-out) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}}
+/* photos fade in as they arrive rather than snapping on */
+.msgr .ch-img[src]{animation:imgIn .3s ease-out}
+@keyframes imgIn{from{opacity:0}}
+.msgr .ch-msg.handed .ch-img[src]{animation:none}   /* already showing: the sent photo carries straight over */
+
+/* ---------- sending ---------- */
+/* A message only looks "sending" if it's actually slow: it stays solid for
+   the first half second, which is usually all it takes. */
+.msgr .ch-msg.pending .ch-b{opacity:1;animation:pendDim .3s .5s both}
+.msgr .ch-msg.pending .ch-sending{display:block;max-height:0;opacity:0;overflow:hidden;animation:sendingIn .2s .6s forwards}
+@keyframes pendDim{to{opacity:.6}}
+@keyframes sendingIn{to{max-height:1.4em;opacity:1}}
+/* stored: solid again (gently, if it had dimmed) while the real one takes its place */
+.msgr .ch-msg.pending.sent .ch-b{animation:none;opacity:1}
+.msgr .ch-msg.pending.sent.slow .ch-b{animation:undim .25s ease-out both}
+.msgr .ch-msg.pending.sent .ch-sending{display:none}
+.msgr .ch-msg.landed .ch-b{animation:undim .25s ease-out}
+@keyframes undim{from{opacity:.6}}
+/* a pending big emoji pops the same as a stored one */
+.msgr .ch-msg.pending.fresh .ch-b.big{animation:emojiPop .6s var(--ease-pop) both}
+/* the send button: a press, and the paper plane takes off */
+.msgr .ch-form .btn{transition:transform .12s var(--ease-out),filter .15s}
+.msgr .ch-form .btn:active{transform:scale(.88)}
+.msgr .ch-form .btn.fly::after{animation:planeFly .5s cubic-bezier(.45,0,.2,1)}
+@keyframes planeFly{
+  0%{transform:none;opacity:1}
+  40%{transform:translate(18px,-18px) rotate(-8deg) scale(.55);opacity:0}
+  41%{transform:translate(-16px,16px) scale(.55);opacity:0}
+  100%{transform:none;opacity:1}
+}
+.msgr .ch-form input[type=text]{transition:border-color .15s,box-shadow .2s}
+.msgr .ch-att{transition:transform .12s var(--ease-out),background-color .15s}
+.msgr .ch-att:active{transform:scale(.88)}
+
+/* ---------- emoji ---------- */
+/* the one-tap row */
+.msgr .ch-react button{transition:transform .14s var(--ease-pop)}
+.msgr .ch-react button:hover{transform:scale(1.15)}
+.msgr .ch-react button.tap{animation:tapBounce .38s var(--ease-pop)}
+@keyframes tapBounce{0%{transform:scale(.7)}55%{transform:scale(1.35) rotate(-6deg)}100%{transform:none}}
+/* the react menu: emoji ripple in, everything tucks away on close */
+.msgr .ch-pick-rx button{animation:rxIn .34s var(--ease-pop) backwards;animation-delay:calc(var(--i,0) * 22ms)}
+@keyframes rxIn{from{opacity:0;transform:scale(.3) translateY(8px)}}
+.msgr .ch-pick-act{animation:fadeUp .24s .08s var(--ease-out) backwards}
+.msgr .ch-pick.out{animation:pickOut .13s ease-in forwards;pointer-events:none}
+@keyframes pickOut{to{opacity:0;transform:scale(.94) translateY(-3px)}}
+/* reactions on a message */
+.msgr .ch-pill{transition:transform .14s var(--ease-out),background-color .15s,border-color .15s}
+.msgr .ch-pill:active{transform:scale(.9)}
+.msgr .ch-pill.pop{animation:pillPop .42s var(--ease-pop) both}
+.msgr .ch-pill.bump{animation:pillBump .34s var(--ease-pop)}
+@keyframes pillPop{0%{transform:scale(0);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pillBump{45%{transform:scale(1.2)}}
+/* the emoji that floats up when you react */
+.ch-float{position:fixed;z-index:95;pointer-events:none;font-size:26px;line-height:1;transform:translate(-50%,-50%);will-change:transform,opacity;
+          font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+
+/* ---------- the composer's extras ---------- */
+.msgr .ch-ctx:not(.hidden),.msgr .ch-ments:not(.hidden){animation:barUp .22s var(--ease-out)}
+@keyframes barUp{from{opacity:0;transform:translateY(8px)}}
+.msgr .ch-status:not(:empty){animation:fadeUp .2s var(--ease-out)}
+
+/* ---------- sheets and the photo viewer ---------- */
+.msgr .modal:not(.hidden){animation:sheetFade .2s ease-out}
+.msgr .modal:not(.hidden) > .card{animation:sheetUp .34s var(--ease-out)}
+@keyframes sheetFade{from{opacity:0}}
+@keyframes sheetUp{from{opacity:.4;transform:translateY(36px) scale(.98)}}
+.lightbox.soft{animation:sheetFade .2s ease-out}
+.lightbox.soft img{animation:lbZoom .3s var(--ease-out)}
+@keyframes lbZoom{from{opacity:0;transform:scale(.9)}}
+
+/* ---------- no motion, if the phone asks for none ---------- */
+@media (prefers-reduced-motion:reduce){
+  .msgr *,.msgr *::before,.msgr *::after,.lightbox.soft,.lightbox.soft img{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}
+  .msgr .ch-msg.pending .ch-sending{max-height:none;opacity:1}
+}
 </style>
 </head>
 <body>
@@ -5001,6 +5141,9 @@ function makeChat(root, o){
   let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
   let replyTo = null, editing = null, photo = null;        /* the composer's state */
   const outbox = [];                                        /* { id, m, el } not yet stored */
+  /* motion is for the messenger only; game-room chats keep their old behaviour */
+  const anim = rich;
+  const hand = {};                                          /* key → a sent bubble waiting for its echo */
   /* o.keep: a storage key, so unsent messages survive closing the app */
   function saveOutbox(){
     if (!o.keep) return;
@@ -5088,7 +5231,18 @@ function makeChat(root, o){
       if (!r || !r.name){ it.failed = true; break; }
       outbox.shift();
       saveOutbox();
-      if (it.el) it.el.remove();
+      if (it.el){
+        /* stored, but the database hasn't echoed it back yet: leave the bubble
+           where it is and let the real message take its place, so it never
+           blinks out and back in */
+        if (anim && !it.ghost && !rows[r.name] && it.el.isConnected){
+          const k = r.name, el = it.el;
+          el.classList.add("sent");
+          if (Date.now() - (it.t0 || 0) > 450) el.classList.add("slow");
+          hand[k] = el;
+          setTimeout(() => { if (hand[k] === el){ el.remove(); delete hand[k]; } }, 6000);
+        } else it.el.remove();
+      }
       if (o.onSent) o.onSent(r.name, it.m);
     }
     flushing = false;
@@ -5104,20 +5258,45 @@ function makeChat(root, o){
   window.addEventListener("online", () => { drawStatus(); flush(); });
   window.addEventListener("offline", drawStatus);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && outbox.length) flush(); });
+  /* pending messages stay at the end. In the messenger they're only moved
+     when something has landed after them: moving one restarts its animation */
+  function keepTail(){
+    if (anim){
+      let n = log.lastElementChild, ok = true;
+      for (let i = outbox.length - 1; i >= 0 && ok; i--){
+        const it = outbox[i];
+        if (!it.el || it.ghost) continue;
+        if (n !== it.el) ok = false; else n = n.previousElementSibling;
+      }
+      if (ok) return;
+    }
+    for (const it of outbox) if (it.el && !it.ghost) log.appendChild(it.el);
+  }
   function drawOutbox(){
     for (const it of outbox){
+      if (it.ghost && !it.failed) continue;     /* already on screen as the real message */
+      if (it.ghost){ it.ghost = false; it.drawn = null; }
       if (!it.el){
         it.el = document.createElement("div");
-        it.el.className = "ch-msg me pending";
+        it.el.className = "ch-msg me pending" + (anim && primed ? " fresh" : "");
+        it.t0 = Date.now();
         log.appendChild(it.el);
         const empty = $(".ch-empty", log); if (empty) empty.remove();
+        /* one entrance only: drop the class before anything can move the row */
+        if (anim) setTimeout(() => it.el && it.el.classList.remove("fresh"), 650);
       }
-      it.el.innerHTML = '<span class="ch-b">' + (it.pic ? '<img class="ch-img" alt="" src="' + it.pic.url + '">' : '') + richText(it.m.t || "") + '</span>' +
-        '<span class="ch-meta">' + (it.failed ? '<button type="button" class="ch-retry">Not sent — tap to retry</button>' : "Sending…") + '</span>';
-      const rb = $(".ch-retry", it.el);
-      if (rb) rb.addEventListener("click", () => { it.failed = false; drawOutbox(); flush(); });
-      log.appendChild(it.el);   /* pending messages stay at the end */
+      const state = it.failed ? "failed" : "sending";
+      if (!anim || it.drawn !== state){
+        it.drawn = state;
+        const t = it.m.t || "";
+        const big = anim && !it.pic && EMOJI_ONLY.test(t);
+        it.el.innerHTML = '<span class="ch-b' + (big ? " big" : "") + '">' + (it.pic ? '<img class="ch-img" alt="" src="' + it.pic.url + '">' : '') + richText(t) + '</span>' +
+          (it.failed ? '<span class="ch-meta"><button type="button" class="ch-retry">Not sent — tap to retry</button></span>' : '<span class="ch-meta ch-sending">Sending…</span>');
+        const rb = $(".ch-retry", it.el);
+        if (rb) rb.addEventListener("click", () => { it.failed = false; drawOutbox(); flush(); });
+      }
     }
+    keepTail();
     if (outbox.length) log.scrollTop = log.scrollHeight;
   }
 
@@ -5143,10 +5322,11 @@ function makeChat(root, o){
     if (!r){ Object.assign(m, keep); delete m.del; drawRow(k); toast("Couldn’t delete that"); return; }
     if (keep.img && o.media && o.media.drop) o.media.drop(keep.img.id);
   }
-  async function react(key, name){
+  async function react(key, name, src){
     const m = cur[key];
     if (!m) return;
     const mine = !!(m.r && m.r[name] && m.r[name][mineId()]);
+    if (!mine && src) floatEmoji(src, (RX.find(x => x[0] === name) || [])[1]);
     /* show it now: messages older than the live window get no echo from the database */
     const set = on => {
       m.r = m.r || {};
@@ -5159,6 +5339,27 @@ function makeChat(root, o){
     if (val && o.sealStr) val = await o.sealStr(val).catch(() => null);
     const ok = (mine || val) && await post(o.url("/" + key + "/r/" + name + "/" + mineId()), "PUT", val);
     if (!ok){ set(mine); toast("Couldn’t add that reaction"); }
+  }
+
+  /* an emoji that floats up from where you tapped it */
+  function floatEmoji(src, ch){
+    if (!anim || !ch || !src || !src.getBoundingClientRect || !motionOk()) return;
+    const r = src.getBoundingClientRect();
+    if (!r.width) return;
+    const f = document.createElement("span");
+    f.className = "ch-float"; f.textContent = ch; f.setAttribute("aria-hidden", "true");
+    f.style.left = (r.left + r.width / 2) + "px"; f.style.top = (r.top + r.height / 2) + "px";
+    document.body.appendChild(f);
+    const gone = () => f.remove();
+    if (!f.animate){ setTimeout(gone, 50); return; }
+    const dx = Math.round((Math.random() - 0.5) * 36);
+    const a = f.animate([
+      { transform: "translate(-50%,-50%) scale(.5)", opacity: 0 },
+      { transform: "translate(-50%,-95%) scale(1.45)", opacity: 1, offset: 0.28 },
+      { transform: "translate(calc(-50% + " + dx + "px),-270%) scale(1.8)", opacity: 0 }
+    ], { duration: 720, easing: "cubic-bezier(.2,.7,.3,1)" });
+    a.onfinish = gone; a.oncancel = gone;
+    setTimeout(gone, 1200);
   }
 
   /* ---------- the composer: reply / edit bar, photo, mentions ---------- */
@@ -5232,9 +5433,17 @@ function makeChat(root, o){
   input.addEventListener("keydown", e => { if (e.key === "Escape"){ if (!mentBox.classList.contains("hidden")) mentBox.classList.add("hidden"); else if (replyTo || editing) clearContext(); } });
   input.addEventListener("blur", () => setTimeout(() => mentBox.classList.add("hidden"), 150));
 
+  const sendBtn = $(".ch-form .btn", root);
+  let flyT = 0;
   $(".ch-form", root).addEventListener("submit", e => {
     e.preventDefault();
     const t = input.value;
+    if (anim && (t.trim() || photo) && motionOk()){
+      /* the paper plane takes off, and a fresh one slides back in */
+      clearTimeout(flyT);
+      sendBtn.classList.remove("fly"); void sendBtn.offsetWidth; sendBtn.classList.add("fly");
+      flyT = setTimeout(() => sendBtn.classList.remove("fly"), 520);
+    }
     if (!editing) input.value = "";
     mentBox.classList.add("hidden");
     send(t);
@@ -5248,12 +5457,22 @@ function makeChat(root, o){
   drawReacts(null);
   reactRow.addEventListener("click", e => {
     const b = e.target.closest("button[data-e]");
-    if (b) queue(by({ pid: mineId(), n: o.name(), t: b.dataset.e, at: { ".sv": "timestamp" } }));
+    if (!b) return;
+    if (anim){ b.classList.remove("tap"); void b.offsetWidth; b.classList.add("tap"); }
+    queue(by({ pid: mineId(), n: o.name(), t: b.dataset.e, at: { ".sv": "timestamp" } }));
   });
   $(".ch-x", root).addEventListener("click", () => o.onClose && o.onClose());
 
   /* ---------- the menu on a message: reactions, then actions ---------- */
-  function closePicker(){ if (picker){ picker.remove(); picker = null; } }
+  function closePicker(){
+    if (!picker) return;
+    const p = picker;
+    picker = null;
+    if (anim && p.isConnected && motionOk()){
+      p.classList.add("out");
+      setTimeout(() => p.remove(), 130);
+    } else p.remove();
+  }
   function openPicker(row){
     const was = picker && picker.parentElement === row;
     closePicker();
@@ -5262,7 +5481,7 @@ function makeChat(root, o){
     if (m.del) return;
     picker = document.createElement("div");
     picker.className = "ch-pick";
-    let h = '<div class="ch-pick-rx">' + RX.map(([n, e]) => '<button type="button" data-n="' + n + '" aria-label="React ' + e + '">' + e + '</button>').join("") + '</div>';
+    let h = '<div class="ch-pick-rx">' + RX.map(([n, e], i) => '<button type="button" data-n="' + n + '" aria-label="React ' + e + '"' + (anim ? ' style="--i:' + i + '"' : '') + '>' + e + '</button>').join("") + '</div>';
     if (rich){
       const ic = d => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>';
       h += '<div class="ch-pick-act">' +
@@ -5285,8 +5504,8 @@ function makeChat(root, o){
     const act = e.target.closest(".ch-pick-act button");
     const quote = e.target.closest(".ch-quote");
     const img = e.target.closest(".ch-img");
-    if (pill){ react(k, pill.dataset.n); return; }
-    if (pick){ react(k, pick.dataset.n); closePicker(); return; }
+    if (pill){ react(k, pill.dataset.n, pill); return; }
+    if (pick){ react(k, pick.dataset.n, pick); closePicker(); return; }
     if (act){
       closePicker();
       const a = act.dataset.a;
@@ -5297,7 +5516,7 @@ function makeChat(root, o){
       return;
     }
     if (quote){ jumpTo(quote.dataset.k); return; }
-    if (img && img.src){ lightbox(img.src); return; }
+    if (img && img.src){ lightbox(img.src, anim); return; }
     if (e.target.closest("a")) return;
     if (e.target.closest(".ch-b")) openPicker(row);
   });
@@ -5337,14 +5556,19 @@ function makeChat(root, o){
     if (sig === row.sig) return;
     row.sig = sig;
     let h = "";
+    /* a reaction that's new since last time pops in; a count that changed bumps */
+    const was = anim ? row.rxc : null, now = {};
     for (const [n, e] of RX){
       const whoR = r[n] || {};
       const ids = Object.keys(whoR);
       if (!ids.length) continue;
+      now[n] = ids.length;
+      const fx = was ? (!(n in was) ? " pop" : was[n] !== ids.length ? " bump" : "") : "";
       const names = ids.map(id => isBanned(whoR[id]) ? "nope" : String(whoR[id] || "someone")).join(", ");
-      h += '<button type="button" class="ch-pill' + (whoR[mineId()] ? " on" : "") + '" data-n="' + n + '" title="' + esc(names) + '" aria-label="' + esc(e + " from " + names) + '">' +
+      h += '<button type="button" class="ch-pill' + (whoR[mineId()] ? " on" : "") + fx + '" data-n="' + n + '" title="' + esc(names) + '" aria-label="' + esc(e + " from " + names) + '">' +
            e + (ids.length > 1 ? '<b>' + ids.length + '</b>' : "") + '</button>';
     }
+    if (anim) row.rxc = now;
     row.rx.innerHTML = h;
     row.rx.classList.toggle("hidden", !h);
   }
@@ -5386,29 +5610,44 @@ function makeChat(root, o){
     row.sig = "";
     drawReactions(key);
     const img = $(".ch-img", row.el);
-    if (img && o.media) o.media.get(img.dataset.id).then(src => { if (src) img.src = src; }, () => img.classList.add("broken"));
+    if (img && row.pre) img.src = row.pre;
+    if (img && o.media) o.media.get(img.dataset.id).then(src => { if (src){ if (src !== img.getAttribute("src")) img.src = src; row.pre = null; } }, () => { if (!row.pre) img.classList.add("broken"); });
   }
   function append(key, m, fresh){
     const empty = $(".ch-empty", log);
     if (empty) empty.remove();
     if (m.sys){
       const d = document.createElement("div");
-      d.className = "ch-sys" + (m.live ? " live" : ""); d.textContent = m.t || "";
+      d.className = "ch-sys" + (m.live ? " live" : "") + (anim && fresh ? " fresh" : ""); d.textContent = m.t || "";
       log.appendChild(d); lastPid = null;
       rows[key] = { el: d, sys: true };
       return;
     }
     const mine = isMine(m);
+    /* the bubble already on screen for this message, if it was sent from here:
+       either stored and waiting for this echo, or still waiting on its own reply */
+    let stand = null;
+    if (anim && mine){
+      if (hand[key]){ stand = hand[key]; delete hand[key]; }
+      else if (fresh){
+        const it = outbox.find(x => x.el && !x.ghost && x.el.isConnected && (x.m.t || "") === (m.t || "") && !!x.pic === !!m.img);
+        if (it){ stand = it.el; it.ghost = true; }
+      }
+    }
     const row = document.createElement("div");
-    row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "") + (fresh ? " fresh" : "");
+    row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "") + (fresh && !stand ? " fresh" : "") + (stand ? " handed" : "") + (stand && stand.classList.contains("slow") ? " landed" : "");
     row.dataset.k = key;
-    log.appendChild(row);
+    if (stand && stand.parentNode === log) log.replaceChild(row, stand);
+    else { if (stand) stand.remove(); log.appendChild(row); }
     rows[key] = { el: row, rx: null, sig: "", body: "", showName: m.pid !== lastPid && !mine };
+    /* keep the photo that was already showing, so it doesn't blank while the stored copy loads */
+    const pre = stand && stand.querySelector(".ch-img[src]");
+    if (pre) rows[key].pre = pre.getAttribute("src");
     drawRow(key);
     lastPid = m.pid;
   }
   /* "Seen by" under your newest message */
-  let seenEl = null;
+  let seenEl = null, seenTxt = "";
   function drawSeen(keys){
     if (seenEl){ seenEl.remove(); seenEl = null; }
     if (!o.seenBy || !keys.length) return;
@@ -5418,8 +5657,9 @@ function makeChat(root, o){
     const names = o.seenBy(k);
     if (!names.length) return;
     seenEl = document.createElement("span");
-    seenEl.className = "ch-seen";
-    seenEl.textContent = "Seen by " + (names.length > 3 ? names.slice(0, 3).join(", ") + " +" + (names.length - 3) : names.join(", "));
+    const txt = "Seen by " + (names.length > 3 ? names.slice(0, 3).join(", ") + " +" + (names.length - 3) : names.join(", "));
+    seenEl.className = "ch-seen" + (anim && primed && txt !== seenTxt ? " fresh" : "");
+    seenEl.textContent = seenTxt = txt;
     rows[k].el.appendChild(seenEl);
   }
 
@@ -5437,7 +5677,8 @@ function makeChat(root, o){
       for (const k of keys) append(k, cur[k] || {});
       first = keys[0];
       drawTop(keys.length);
-      for (const it of outbox) if (it.el) log.appendChild(it.el);
+      for (const k in hand) log.appendChild(hand[k]);   /* sent, still waiting for their echo */
+      keepTail();
       drawSeen(keys);
       log.scrollTop = log.scrollHeight - fromBottom;
       $(".ch-sub", root).textContent = sub || "";
@@ -5455,7 +5696,7 @@ function makeChat(root, o){
     }
     /* a message removed from the database (a closed room) goes too */
     for (const k in rows) if (!(k in cur)){ rows[k].el.remove(); delete rows[k]; }
-    for (const it of outbox) if (it.el) log.appendChild(it.el);
+    keepTail();
     drawSeen(keys);
     if (keys.length && (nearBottom || mineAdded || !primed)) log.scrollTop = log.scrollHeight;
     if (primed && others && !o.isOpen()){ unread += others; o.onUnread(unread); }
@@ -5510,9 +5751,9 @@ async function shrinkPhoto(file){
 }
 
 /* tap a photo to see it full screen */
-function lightbox(src){
+function lightbox(src, soft){
   const d = document.createElement("div");
-  d.className = "lightbox";
+  d.className = "lightbox" + (soft ? " soft" : "");
   const im = document.createElement("img");
   im.alt = "Photo"; im.src = src;
   const x = document.createElement("button");
@@ -6449,7 +6690,7 @@ function crewScreenChat(){
   drawLiveBanner();
 }
 
-$("#crBack").addEventListener("click", () => { crewView("list"); refreshHome(); drawLiveBanner(); });
+$("#crBack").addEventListener("click", () => crewBack());
 
 /* the menu's first item: your crew by name once you're in one */
 function menuCrew(){
@@ -6641,11 +6882,87 @@ function iconHtml(meta, name){
 }
 
 const wide = () => window.matchMedia("(min-width:900px)").matches;
-function crewView(v){
+/* Motion is decoration only: the view switches at once and the classes
+   below just animate what's already there, so nothing waits on them. */
+function motionOk(){ return !window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+var navTimer = 0;   /* var: crewView can run before this line during start-up */
+function crewView(v, quiet){
   const c = $("#crew");
+  const was = c.classList.contains("v-chat") ? "chat" : "list";
   c.classList.toggle("v-list", v === "list");
   c.classList.toggle("v-chat", v === "chat");
+  if (quiet || was === v || wide() || c.classList.contains("hidden") || !motionOk()) return;
+  /* on a phone: the chat slides in over the list, and back out again */
+  clearTimeout(navTimer);
+  c.classList.remove("nav-push", "nav-pop", "nav-drag", "nav-settle");
+  c.style.removeProperty("--nav-p");
+  void c.offsetWidth;                         /* restart the animation if one was mid-way */
+  c.classList.add(v === "chat" ? "nav-push" : "nav-pop");
+  navTimer = setTimeout(() => c.classList.remove("nav-push", "nav-pop"), 420);
 }
+/* back to the list, from the arrow or a swipe */
+function crewBack(quiet){
+  const a = document.activeElement;
+  if (a && a.closest && a.closest("#convo")) a.blur();     /* drop the keyboard as the chat leaves */
+  crewView("list", quiet);
+  refreshHome();
+  drawLiveBanner();
+}
+
+/* Installed on a phone there's no browser back-swipe, so the chat gets its
+   own: drag from the left edge to slide it away. (In a browser tab the
+   edge belongs to the browser, so this stays off there.) */
+(function edgeSwipe(){
+  const crew = $("#crew"), convo = $("#convo");
+  let sx = 0, sy = 0, st = 0, on = false, drag = false, w = 1, lx = 0, lt = 0, vx = 0;
+  const reset = () => { on = false; drag = false; };
+  convo.addEventListener("touchstart", e => {
+    reset();
+    if (e.touches.length !== 1 || wide() || !standalone() || !crew.classList.contains("v-chat")) return;
+    const t = e.touches[0];
+    if (t.clientX > 28) return;
+    sx = lx = t.clientX; sy = t.clientY; st = lt = e.timeStamp; vx = 0;
+    w = crew.clientWidth || window.innerWidth;
+    on = true;
+  }, { passive: true });
+  convo.addEventListener("touchmove", e => {
+    if (!on) return;
+    const t = e.touches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if (!drag){
+      if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)){ reset(); return; }   /* a scroll, not a swipe */
+      if (dx < 10) return;
+      drag = true;
+      clearTimeout(navTimer);
+      crew.classList.remove("nav-push", "nav-pop", "nav-settle");
+      crew.classList.add("nav-drag");
+    }
+    e.preventDefault();
+    const dt = e.timeStamp - lt;
+    if (dt >= 4){   /* a flick counts as much as a long drag; too-close samples are noise */
+      vx = 0.7 * vx + 0.3 * Math.max(-5, Math.min(5, (t.clientX - lx) / dt));
+      lx = t.clientX; lt = e.timeStamp;
+    }
+    crew.style.setProperty("--nav-p", Math.max(0, Math.min(1, dx / w)).toFixed(4));
+  }, { passive: false });
+  const end = () => {
+    if (!on) return;
+    const wasDrag = drag;
+    reset();
+    if (!wasDrag) return;
+    const p = Number(crew.style.getPropertyValue("--nav-p")) || 0;
+    const go = p > 0.4 || (vx > 0.45 && p > 0.08);
+    crew.classList.add("nav-settle");
+    crew.style.setProperty("--nav-p", go ? "1" : "0");
+    clearTimeout(navTimer);
+    navTimer = setTimeout(() => {
+      crew.classList.remove("nav-drag", "nav-settle");
+      crew.style.removeProperty("--nav-p");
+      if (go) crewBack(true);
+    }, 240);
+  };
+  convo.addEventListener("touchend", end);
+  convo.addEventListener("touchcancel", end);
+})();
 function chatVisible(){
   const c = $("#crew");
   return !!CR.chat && !c.classList.contains("hidden") && (c.classList.contains("v-chat") || wide()) && document.visibilityState === "visible";
@@ -6833,6 +7150,7 @@ function drawHome(){
   }
   if (!rows.length){ el.innerHTML = '<div class="ib-empty"><p class="tiny">No chats called “' + esc(q) + '”.</p></div>'; return; }
   const showing = (wide() || $("#crew").classList.contains("v-chat")) && CR.chat ? CR.code : "";
+  const before = listSnap(el, q);
   el.innerHTML = rows.map(r =>
     '<button type="button" class="ib-row' + (r.c.code === showing ? " on" : "") + (r.unread || r.c.invited ? " unread" : "") + '" role="listitem" data-code="' + esc(r.c.code) + '">' +
       '<span class="cv-icon" style="' + iconVars(r.meta.theme, r.meta) + '">' + iconHtml(r.meta, r.name) + (r.live ? '<i class="ib-livedot" aria-label="Game live"></i>' : "") + '</span>' +
@@ -6841,6 +7159,47 @@ function drawHome(){
         '<span class="ib-l2"><span class="ib-prev">' + (r.live ? '<em class="ib-live">Game live</em> ' : "") + esc(previewOf(r)) + '</span>' +
         (r.unread ? '<span class="ib-badge">' + (r.unread > 99 ? "99+" : r.unread) + '</span>' : "") + '</span>' +
       '</span></button>').join("");
+  listMotion(el, before);
+}
+/* The list is redrawn whole, so motion is worked out by comparing: where
+   each chat sat before and its badge count, against where it is now. A chat
+   that jumps to the top glides there; a badge that went up pops. */
+function listSnap(el, q){
+  if (q || !el.offsetParent || !el.animate || !motionOk()) return null;
+  const snap = { rows: {}, any: false };
+  for (const r of el.querySelectorAll(".ib-row")){
+    const b = r.querySelector(".ib-badge");
+    snap.rows[r.dataset.code] = { y: r.offsetTop, n: b ? parseInt(b.textContent, 10) || 0 : 0 };
+    snap.any = true;
+  }
+  return snap;
+}
+function listMotion(el, before){
+  if (!before) return;
+  const list = el.querySelectorAll(".ib-row");
+  /* the first time the list fills in: the rows ripple in from the top */
+  if (!before.any){
+    if (HOME.rippled) return;
+    HOME.rippled = true;
+    list.forEach((r, i) => { if (i < 12) r.animate([{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }],
+      { duration: 300, delay: i * 28, easing: "cubic-bezier(.2,.8,.3,1)", fill: "backwards" }); });
+    return;
+  }
+  HOME.rippled = true;
+  for (const r of list){
+    const was = before.rows[r.dataset.code];
+    if (!was){
+      r.animate([{ opacity: 0, transform: "scale(.97)" }, { opacity: 1, transform: "none" }], { duration: 260, easing: "ease-out" });
+      continue;
+    }
+    const dy = was.y - r.offsetTop;
+    if (Math.abs(dy) > 1){
+      const a = r.animate([{ transform: "translateY(" + dy + "px)" }, { transform: "none" }], { duration: 340, easing: "cubic-bezier(.2,.8,.2,1)" });
+      if (dy > 40){ r.style.position = "relative"; r.style.zIndex = "1"; a.onfinish = a.oncancel = () => { r.style.position = ""; r.style.zIndex = ""; }; }
+    }
+    const b = r.querySelector(".ib-badge");
+    if (b && (parseInt(b.textContent, 10) || 0) > was.n) b.classList.add("pop");
+  }
 }
 function drawHomeSoon(){
   if (HOME.drawQ) return;
