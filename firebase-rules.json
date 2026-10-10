@@ -49,10 +49,24 @@
     "users": {
       "$uid": {
         "chats": {
-          ".read": "auth != null && auth.uid === $uid",
+          ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid",
           "$code": {
-            ".write": "auth != null && (auth.uid === $uid ? !newData.exists() : (newData.exists() && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && (auth.uid === $uid ? !newData.exists() : (newData.exists() && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
             ".validate": "$code.length === 6 && newData.child('by').val() === auth.uid && newData.child('n').isString() && newData.child('n').val().length <= 60"
+          }
+        },
+        "crews": {
+          ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid",
+          "$code": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid",
+            ".validate": "$code.length === 6"
+          }
+        },
+        "devices": {
+          ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+          "$dev": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid",
+            ".validate": "$dev.length <= 24 && newData.child('pub').isString() && newData.child('pub').val().length <= 200"
           }
         }
       }
@@ -62,9 +76,9 @@
         ".validate": "$code.length === 6",
         "crew": {
           "meta": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
-            ".write": "auth != null && newData.exists() && (!data.exists() || root.child('saves/' + $code + '/crew/members/' + auth.uid).exists())",
-            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 60",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && newData.exists() && (!data.exists() || root.child('saves/' + $code + '/crew/members/' + auth.uid).exists())",
+            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 400",
             "theme": {
               ".validate": "newData.isString() && newData.val().length <= 20"
             },
@@ -73,11 +87,11 @@
             },
             "nick": {
               "$uid": {
-                ".validate": "newData.isString() && newData.val().length <= 30"
+                ".validate": "newData.isString() && newData.val().length <= 300"
               }
             },
             "pic": {
-              ".validate": "newData.isString() && newData.val().length <= 40000 && newData.val().beginsWith('data:image/jpeg;base64,')"
+              ".validate": "newData.isString() && newData.val().length <= 60000 && (newData.val().beginsWith('data:image/jpeg;base64,') || newData.val().beginsWith('e2ee:v1:'))"
             },
             "photo": {
               ".validate": "newData.hasChildren(['img', 'a', 'b', 't'])",
@@ -85,7 +99,7 @@
                 ".validate": "newData.isString() && newData.val().length <= 40"
               },
               "n": {
-                ".validate": "newData.isString() && newData.val().length <= 40"
+                ".validate": "newData.isString() && newData.val().length <= 400"
               },
               "a": {
                 ".validate": "newData.isString() && newData.val().matches(/^#[0-9a-fA-F]{6}$/)"
@@ -105,35 +119,35 @@
             }
           },
           "members": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$uid": {
-              ".write": "auth != null && (($uid === auth.uid && data.exists()) || ($uid === auth.uid && root.child('saves/' + $code + '/crew/meta').exists() && ((!root.child('saves/' + $code + '/crew/members').exists() && !root.child('saves/' + $code + '/crew/chat').exists()) || root.child('users/' + auth.uid + '/chats/' + $code).exists())) || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !data.exists() && root.child('saves/' + $code + '/crew/requests/' + $uid).exists()) || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()))",
-              ".validate": "newData.child('n').isString() && newData.child('n').val().length <= 40",
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && (($uid === auth.uid && data.exists()) || ($uid === auth.uid && root.child('saves/' + $code + '/crew/meta').exists() && ((!root.child('saves/' + $code + '/crew/members').exists() && !root.child('saves/' + $code + '/crew/chat').exists()) || root.child('users/' + auth.uid + '/chats/' + $code).exists())) || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !data.exists() && root.child('saves/' + $code + '/crew/requests/' + $uid).exists()) || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()))",
+              ".validate": "newData.child('n').isString() && newData.child('n').val().length <= 400",
               "a": {
-                ".validate": "newData.isString() && newData.val().length <= 16"
+                ".validate": "newData.isString() && newData.val().length <= 400"
               },
               "c": {
                 ".validate": "newData.isNumber()"
               },
-              ".read": "auth != null && auth.uid === $uid"
+              ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid"
             }
           },
           "chat": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$msg": {
-              ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || (newData.child('by').val() === auth.uid && newData.child('pid').val() === data.child('pid').val()))))",
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || (newData.child('by').val() === auth.uid && newData.child('pid').val() === data.child('pid').val()))))",
               ".validate": "newData.hasChildren(['pid', 'at'])",
               "t": {
-                ".validate": "newData.isString() && newData.val().length <= 2000"
+                ".validate": "newData.isString() && newData.val().length <= 12000"
               },
               "n": {
-                ".validate": "newData.isString() && newData.val().length <= 40"
+                ".validate": "newData.isString() && newData.val().length <= 400"
               },
               "r": {
                 "$name": {
                   "$uid": {
-                    ".write": "auth != null && $uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
-                    ".validate": "newData.isString() && newData.val().length <= 40"
+                    ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && $uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+                    ".validate": "newData.isString() && newData.val().length <= 400"
                   }
                 }
               }
@@ -141,39 +155,59 @@
           },
           "push": {
             "$uid": {
-              ".write": "auth != null && (($uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()) || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()))",
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && (($uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()) || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()))",
               ".validate": "!newData.child('sub/endpoint').exists() || (newData.child('sub/endpoint').isString() && newData.child('sub/endpoint').val().beginsWith('https://') && newData.child('sub/endpoint').val().length <= 1000)"
             }
           },
           "pushSent": {},
           "typing": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$uid": {
-              ".write": "auth != null && $uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && $uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"
             }
           },
           "media": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$id": {
-              ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('by').val() === auth.uid))",
-              ".validate": "newData.child('d').isString() && newData.child('d').val().length <= 1700000 && newData.child('d').val().matches(/^data:image\\/(jpeg|png|gif|webp);base64,/)"
-            }
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || newData.child('by').val() === auth.uid)))",
+              ".validate": "newData.child('d').isString() && newData.child('d').val().length <= 2400000 && (newData.child('d').val().matches(/^data:image\\/(jpeg|png|gif|webp);base64,/) || newData.child('d').val().beginsWith('e2ee:v1:'))"
+            },
+            ".indexOn": [
+              "by"
+            ]
           },
           "$other": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
-            ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()"
           },
           "here": {
-            ".read": "auth != null",
-            ".write": "auth != null",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
             ".validate": "newData.val() === true"
           },
           "requests": {
-            ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$uid": {
-              ".read": "auth != null && auth.uid === $uid",
-              ".write": "auth != null && ($uid === auth.uid || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()))",
+              ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid",
+              ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && ($uid === auth.uid || (root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()))",
               ".validate": "newData.child('n').isString() && newData.child('n').val().length >= 1 && newData.child('n').val().length <= 40"
+            }
+          },
+          "keyv": {
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            ".validate": "newData.isString() && newData.val().length <= 20"
+          },
+          "keys": {
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
+            "$kid": {
+              "$uid": {
+                ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !newData.exists()",
+                "$dev": {
+                  ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && !data.exists() && root.child('saves/' + $code + '/crew/members/' + $uid).exists() && root.child('users/' + $uid + '/devices/' + $dev).exists()",
+                  ".validate": "newData.child('e').isString() && newData.child('e').val().length <= 200 && newData.child('w').isString() && newData.child('w').val().length <= 200"
+                }
+              }
             }
           }
         },

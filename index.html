@@ -2,14 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>DS(WT) Crew</title>
+<!-- interactive-widget: on Android the keyboard shrinks the page, so the message box stays above it -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>JoshChat</title>
+<meta name="description" content="Group chats for the crew, end-to-end encrypted, with Dicksharter (Working Title) built in.">
+<meta name="application-name" content="JoshChat">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="icon-192.png">
-<meta name="theme-color" content="#000000">
+<!-- the browser and status-bar colour follows the chat list's own colour in light and dark -->
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14211B" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<!-- added to an iPhone's home screen: full screen, its own name, and a splash while it opens -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="DS(WT) Crew">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JoshChat">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-startup-image" href="splash/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +52,8 @@
   --display:"Fredoka","Archivo Black",Archivo,"Helvetica Neue",sans-serif;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,label,[role=button]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{
   margin:0;background:var(--paper);color:var(--ink);
   font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -65,7 +87,7 @@ label.field{display:block;margin-bottom:.9rem}
 label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.3em;color:var(--ink-soft)}
 
 /* ---------- app shell ---------- */
-#app{height:100%;display:flex;flex-direction:column}
+#app{height:var(--app-h,100%);display:flex;flex-direction:column}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column}
 
 /* ---------- intake ---------- */
@@ -693,8 +715,10 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .msgr .card h3{font-family:var(--m-name);font-weight:700;font-size:1rem;letter-spacing:-.01em;margin:1.2rem 0 .55rem}
 .msgr .card .tiny,.msgr .tiny{color:var(--m-soft)}
 .msgr label.field > span{color:var(--m-soft);font-weight:600}
-.msgr input[type=text]{border:1px solid var(--m-line);background:var(--m-bg);color:var(--m-ink);border-radius:12px;padding:.65em .85em;font-size:16px}
-.msgr input[type=text]:focus{outline:none;border-color:var(--m-green);box-shadow:0 0 0 3px color-mix(in srgb,var(--m-green) 20%,transparent)}
+.msgr input[type=text],.msgr input[type=email],.msgr input[type=url]{border:1px solid var(--m-line);background:var(--m-bg);color:var(--m-ink);border-radius:12px;padding:.65em .85em;font-size:16px}
+.msgr input[type=email],.msgr .si-card input[type=url]{width:100%;box-sizing:border-box}
+.msgr .si-paste input[type=url]{width:auto;flex:1}
+.msgr input[type=email]:focus,.msgr input[type=url]:focus,.msgr input[type=text]:focus{outline:none;border-color:var(--m-green);box-shadow:0 0 0 3px color-mix(in srgb,var(--m-green) 20%,transparent)}
 .msgr .btn{border:1px solid var(--m-line);background:var(--m-surf);color:var(--m-ink);border-radius:99px;box-shadow:none;padding:.62em 1.15em;font-weight:600}
 .msgr .btn:hover{background:var(--m-press)}
 .msgr .btn.solid{background:var(--m-ink);color:var(--m-surf);border-color:var(--m-ink)}
@@ -765,6 +789,25 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A9690' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z'/%3E%3C/svg%3E")}
 .info-hero input[type=text]:focus{border-bottom-style:solid;border-bottom-color:var(--me-a,var(--m-green))}
 
+/* sign-in */
+.si-card{max-width:440px;margin:0 auto}
+.si-card h2{font-size:1.5rem}
+.si-ic{width:24px!important;height:24px!important}
+.si-google{display:flex;justify-content:center;min-height:44px;margin:.2rem 0 .3rem}
+.si-or{display:flex;align-items:center;gap:.7rem;color:var(--m-soft);font-size:.8rem;margin:.8rem 0}
+.si-or::before,.si-or::after{content:"";flex:1;height:1px;background:var(--m-line)}
+.si-sent{margin-top:1rem;padding:.9rem 1rem;border-radius:16px;background:var(--m-mint)}
+.si-sent.hidden{display:none}
+.si-sent p{margin:0 0 .4rem}
+.si-paste{display:flex;gap:.4rem;margin-top:.5rem}
+.si-paste input{flex:1;min-width:0}
+.prof-acct{margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--rule)}
+.prof-acct:empty{display:none}
+.prof-acct p{margin:0 0 .5rem}
+/* waiting for a chat's key */
+.rq-t.wrap{white-space:normal;line-height:1.35;font-size:.86rem}
+.rq-av.lk{background:var(--m-mint);font-size:1rem}
+.ch-locked{opacity:.7;font-style:italic}
 /* someone asking to join: a quiet bar under the header, for members */
 .cr-req{display:flex;flex-direction:column;gap:6px;padding:8px clamp(.6rem,3vw,2rem);background:var(--m-surf);border-bottom:1px solid var(--m-line);
         -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);position:relative;z-index:2}
@@ -1003,8 +1046,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <!-- ============ MENU ============ -->
 <section id="menu" class="screen">
   <div class="menu-inner">
-    <div class="wordmark"><h1>DS(WT) CREW</h1><div class="bar" id="wmbar"></div></div>
-    <p class="submark">Dicksharter (working title), with the group chat built in</p>
+    <div class="wordmark"><h1>DS(WT)</h1><div class="bar" id="wmbar"></div></div>
+    <p class="submark">Dicksharter (Working Title) · a JoshChat game</p>
     <p class="lede">A real crowdfunding page goes up on the screen with the money blacked out. Everyone guesses what it has raised and what it is asking for. Then you find out.</p>
 
     <nav class="menu">
@@ -1237,7 +1280,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <section id="crew" class="screen hidden msgr v-list">
   <aside class="inbox" aria-label="Chats">
     <header class="ib-top">
-      <h1 class="ib-mark">DS<small>(WT)</small> Crew<i class="ib-bar" aria-hidden="true"></i></h1>
+      <h1 class="ib-mark">JoshChat<i class="ib-bar" aria-hidden="true"></i></h1>
       <button type="button" class="ib-games" id="ibGames">Games</button>
       <button type="button" class="ib-me" id="ibMe" aria-label="Your profile"></button>
     </header>
@@ -1313,7 +1356,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <ol class="ios-steps">
         <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
         <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-        <li>Open <b>DS(WT) Crew</b> from the new icon on your home screen.</li>
+        <li>Open <b>JoshChat</b> from the new icon on your home screen.</li>
         <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
       </ol>
       <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
@@ -1348,6 +1391,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
         <button type="button" class="btn solid" id="profSave">Save</button>
         <button type="button" class="btn" id="profCancel">Cancel</button>
       </div>
+      <div class="prof-acct" id="profAcct"></div>
     </div>
   </div>
 </section>
@@ -3305,6 +3349,7 @@ const AUTH = {
   key: store.get("ds.fbKey") || FB_API_KEY,
   host: store.get("ds.authHost") || "",          /* tests point this at a stand-in */
   uid: store.get("ds.uid") || "",
+  prov: store.get("ds.prov") || "", email: store.get("ds.email") || "",
   refresh: store.get("ds.refresh") || "",
   token: "", exp: 0, busy: null, timer: 0,
   /* set when Firebase says anonymous sign-in isn't switched on for the project:
@@ -3331,6 +3376,11 @@ function authSave(uid, token, refresh, expiresIn){
   AUTH.uid = uid; AUTH.token = token; AUTH.refresh = refresh;
   AUTH.exp = Date.now() + (Number(expiresIn) || 3600) * 1000;
   store.set("ds.uid", uid); store.set("ds.refresh", refresh);
+  /* anonymous, google.com or password (an email link): chats need a real account */
+  const claims = jwtClaims(token);
+  AUTH.prov = (claims.firebase && claims.firebase.sign_in_provider) || "";
+  AUTH.email = String(claims.email || "");
+  store.set("ds.prov", AUTH.prov); store.set("ds.email", AUTH.email);
   LIVE.pid = uid;
   clearTimeout(AUTH.timer);
   /* renew five minutes early, then pick the streams back up on the new token */
@@ -3395,6 +3445,513 @@ window.EventSource = function(url, opts){
   }
   return es;
 };
+/* ============================================================
+   ACCOUNTS: Google, or a link sent by email
+   Every phone starts with an anonymous account (above). Signing in *links*
+   that account to Google or an email address, so its id (and every chat it is
+   in) stays the same; on a second phone the same sign-in finds the same
+   account. Chats need a signed-in account: the rules refuse anonymous ones.
+
+   GOOGLE_CLIENT_ID: Firebase console → Authentication → Sign-in method →
+   Google → Web SDK configuration → Web client ID. Empty = email only.
+   ============================================================ */
+const GOOGLE_CLIENT_ID = "829468643014-3v2hjnb60pblnn0hkqor4ld2qcc89omp.apps.googleusercontent.com";
+function jwtClaims(t){
+  try { return JSON.parse(decodeURIComponent(escape(atob(String(t).split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))))); }
+  catch (e){ return {}; }
+}
+/* chats are end-to-end encrypted, and need a real account, on the built-in database */
+const e2eOn = () => authOn();
+const signedIn = () => !authOn() || (!!AUTH.uid && !!AUTH.prov && AUTH.prov !== "anonymous");
+const idtHost = () => AUTH.host || "https://identitytoolkit.googleapis.com";
+
+/* a sign-in that worked: this is the account from now on */
+function authSignedIn(j){
+  const before = AUTH.uid;
+  authSave(j.localId, j.idToken, j.refreshToken, j.expiresIn);
+  if (before && before !== AUTH.uid){
+    /* a different account than this phone had: its chats aren't ours */
+    store.set("ds.crews", "[]"); store.set("ds.crew", ""); store.set("ds.home", "{}");
+    CR.code = ""; CR.state = {}; CR.chat = null;
+    HOME.data = {};
+  }
+  if (!store.get("ds.name")){
+    const c = jwtClaims(AUTH.token);
+    let n = String(c.name || (c.email || "").split("@")[0].replace(/[._-]+/g, " ") || "").trim().slice(0, 40);
+    if (!c.name) n = n.replace(/(^|\s)\S/g, x => x.toUpperCase());
+    if (n && !isBanned(n)) store.set("ds.name", n);
+  }
+  e2eDevice();
+  authReconnect();
+}
+
+async function signInGoogle(credential){
+  await authToken();
+  const url = idtHost() + "/v1/accounts:signInWithIdp?key=" + AUTH.key;
+  const body = { postBody: "id_token=" + encodeURIComponent(credential) + "&providerId=google.com",
+                 requestUri: location.origin, returnSecureToken: true, returnIdpCredential: true };
+  let j;
+  try { j = await authCall(url, AUTH.token && !signedIn() ? Object.assign({ idToken: AUTH.token }, body) : body); }
+  catch (e){
+    /* that Google account already has an account here (from another phone): use it */
+    if (!/FEDERATED_USER_ID_ALREADY_LINKED|CREDENTIAL_ALREADY_IN_USE|EMAIL_EXISTS/.test(String(e.message))) throw e;
+    j = await authCall(url, body);
+  }
+  if (j.needConfirmation || !j.idToken) throw new Error("That email already signs in with an email link. Use the email option instead.");
+  authSignedIn(j);
+}
+
+async function emailSend(email){
+  await authToken();
+  await authCall(idtHost() + "/v1/accounts:sendOobCode?key=" + AUTH.key, {
+    requestType: "EMAIL_SIGNIN", email: email, continueUrl: location.origin + location.pathname, canHandleCodeInApp: true });
+  store.set("ds.emailPending", email);
+}
+/* the code in a sign-in link: the link as it arrives, or as pasted from the email */
+function oobFrom(s){
+  try {
+    const u = new URL(String(s).trim());
+    const c = u.searchParams.get("oobCode");
+    if (c) return c;
+    for (const k of ["link", "continueUrl", "deep_link_id"]) if (u.searchParams.get(k)){ const r = oobFrom(u.searchParams.get(k)); if (r) return r; }
+  } catch (e){}
+  return "";
+}
+async function emailFinish(oob, email){
+  await authToken();
+  const url = idtHost() + "/v1/accounts:signInWithEmailLink?key=" + AUTH.key;
+  const plain = { email: email, oobCode: oob, returnSecureToken: true };
+  const link = AUTH.token && !signedIn() && store.get("ds.emailNoLink") !== email;
+  let j;
+  try { j = await authCall(url, link ? Object.assign({ idToken: AUTH.token }, plain) : plain); }
+  catch (e){
+    const m = String(e.message);
+    if (link && /EMAIL_EXISTS|CREDENTIAL_ALREADY_IN_USE|already/i.test(m)){
+      /* the email has an account already (another phone): sign in to that one */
+      try { j = await authCall(url, plain); }
+      catch (e2){
+        store.set("ds.emailNoLink", email);
+        await emailSend(email);
+        throw new Error("That email already has an account. We’ve sent a fresh link — tap it to sign in.");
+      }
+    } else if (/INVALID_OOB_CODE|EXPIRED_OOB_CODE/.test(m)) throw new Error("That link has expired or was already used. Send yourself a new one.");
+    else if (/INVALID_EMAIL/.test(m)) throw new Error("That link was sent to a different email address.");
+    else throw e;
+  }
+  store.set("ds.emailPending", ""); store.set("ds.emailNoLink", "");
+  authSignedIn(j);
+}
+function signOut(){
+  if (!confirm("Sign out on this phone? Your chats stay in your account; sign in again to see them.")) return;
+  if (CR.es){ CR.es.close(); CR.es = null; }
+  for (const k of ["ds.uid", "ds.refresh", "ds.prov", "ds.email", "ds.crews", "ds.crew", "ds.home", "ds.readMap", "ds.pushOn"]) store.set(k, "");
+  e2eForget();
+  location.hash = "";
+  location.reload();
+}
+
+/* the sign-in screen, in place of the chats */
+function crewSignIn(after){
+  /* an invite link opened before signing in: remember it through the trip to the email */
+  if (/^#crew=/.test(location.hash)) store.set("ds.afterSignIn", location.hash);
+  show("crew");
+  crewView("chat");
+  CR.chat = null;
+  $("#crName").textContent = "Sign in"; $("#crSub").textContent = "";
+  $("#cvIcon").innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" class="si-ic"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>';
+  $("#cvIcon").removeAttribute("style");
+  $("#crAlerts").classList.add("hidden"); $("#crInfo").classList.add("hidden"); $("#crReq").classList.add("hidden");
+  const pending = store.get("ds.emailPending") || "";
+  $("#crBody").innerHTML = '<div class="cr-setup"><div class="card si-card">' +
+    '<h2>Sign in to your chats</h2>' +
+    '<p class="tiny" style="margin:.4rem 0 1.1rem">Chats are end-to-end encrypted, so only the people in them can read them — not even whoever runs the database. Signing in keeps your account, and your chats, the same on every phone.</p>' +
+    (GOOGLE_CLIENT_ID ? '<div id="siGoogle" class="si-google"></div><div class="si-or"><span>or</span></div>' : "") +
+    '<label class="field"><span>Email</span><input type="email" id="siEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" value="' + esc(pending) + '"></label>' +
+    '<button type="button" class="btn solid hs-act" id="siSend">Email me a sign-in link</button>' +
+    '<div id="siSent" class="si-sent' + (pending ? "" : " hidden") + '">' +
+      '<p><b>Check your email.</b> Tap the link in it to sign in.</p>' +
+      '<p class="tiny">Using JoshChat from your home screen? Press and hold the link in the email, copy it, and paste it here:</p>' +
+      '<div class="si-paste"><input type="url" id="siPaste" placeholder="Paste the link" autocomplete="off"><button type="button" class="btn" id="siPasteGo">Sign in</button></div>' +
+    '</div>' +
+    '<p class="tiny" id="siNote" role="status" style="margin:.7rem 0 0;color:var(--m-red)"></p>' +
+  '</div></div>';
+  const note = t => { $("#siNote").textContent = t || ""; };
+  const done = () => { toast("Signed in"); store.set("ds.afterSignIn", ""); if (after) after(); else openHome(); };
+  $("#siSend").addEventListener("click", async () => {
+    const em = ($("#siEmail").value || "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ note("That doesn’t look like an email address."); $("#siEmail").focus(); return; }
+    $("#siSend").disabled = true; note("");
+    try { await emailSend(em); $("#siSent").classList.remove("hidden"); $("#siSend").textContent = "Send it again"; }
+    catch (e){ note(/fetch|network/i.test(String(e.message)) ? "Couldn’t reach the sign-in service. Check your connection." : "Couldn’t send that: " + e.message); }
+    $("#siSend").disabled = false;
+  });
+  $("#siPasteGo").addEventListener("click", async () => {
+    const oob = oobFrom($("#siPaste").value);
+    const em = ($("#siEmail").value || "").trim() || store.get("ds.emailPending") || "";
+    if (!oob){ note("That isn’t the sign-in link. Copy the whole link from the email."); return; }
+    if (!em){ note("Type the email address the link was sent to first."); return; }
+    $("#siPasteGo").disabled = true;
+    try { await emailFinish(oob, em); done(); } catch (e){ note(e.message); }
+    $("#siPasteGo").disabled = false;
+  });
+  if (GOOGLE_CLIENT_ID) googleButton($("#siGoogle"), async cred => {
+    note("");
+    try { await signInGoogle(cred); done(); } catch (e){ note(e.message); }
+  });
+}
+function googleButton(el, onCred){
+  const draw = () => {
+    if (!window.google || !google.accounts || !el.isConnected) return;
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: r => onCred(r.credential), ux_mode: "popup", use_fedcm_for_button: true });
+    google.accounts.id.renderButton(el, { theme: matchMedia("(prefers-color-scheme: dark)").matches ? "filled_black" : "outline",
+      size: "large", shape: "pill", text: "continue_with", width: Math.min(360, el.clientWidth || 320) });
+  };
+  if (window.google && google.accounts) return draw();
+  if (!document.getElementById("gsiScript")){
+    const s = document.createElement("script");
+    s.id = "gsiScript"; s.src = "https://accounts.google.com/gsi/client"; s.async = true;
+    document.head.appendChild(s);
+  }
+  document.getElementById("gsiScript").addEventListener("load", draw);
+}
+/* arriving from the link in the email */
+async function emailLanding(){
+  const oob = new URLSearchParams(location.search).get("oobCode");
+  if (!oob || new URLSearchParams(location.search).get("mode") !== "signIn") return false;
+  history.replaceState(null, "", location.pathname);
+  let em = store.get("ds.emailPending") || "";
+  if (!em) em = (prompt("Which email address did you send the sign-in link to?") || "").trim();
+  if (!em) return false;
+  try {
+    await emailFinish(oob, em);
+    toast("Signed in");
+    const next = store.get("ds.afterSignIn") || "";
+    store.set("ds.afterSignIn", "");
+    const code = (next.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
+    if (code){ history.replaceState(null, "", location.pathname + next); openCrew(code.toUpperCase()); }
+    else openHome();
+  }
+  catch (e){ crewSignIn(); $("#siNote").textContent = e.message; }
+  return true;
+}
+
+/* ============================================================
+   END-TO-END ENCRYPTION
+   Each phone makes an ECDH (P-256) key pair the first time it signs in. The
+   private half is created non-extractable and kept in this browser's
+   IndexedDB; it never leaves the phone. The public half is published at
+   /users/<uid>/devices/<device>.
+
+   Each chat has a 256-bit AES-GCM key (sometimes several: a new one is made
+   whenever someone is removed). For every member's every phone, a copy of it
+   is locked to that phone's public key (ECDH with a throwaway key, then
+   AES-GCM) under crew/keys/<key>/<uid>/<device>. crew/keyv names the key new
+   things are locked with.
+
+   Everything a chat holds that people wrote is sealed before it leaves the
+   phone: message text, names, replies, reactions, photos, the chat's name,
+   nicknames, its photo theme and chat photo. Sealed text looks like
+   "e2ee:v1:<key id>:<base64 of iv + ciphertext>". What stays readable is only
+   what the app needs to work: who is a member (by account id), timestamps,
+   colours, which scene, and a game room's code.
+
+   Keys are shared automatically: whenever a member's app has a chat open, it
+   locks every key it holds for any member phone that hasn't got one yet — a
+   newly let-in member, or someone's new phone.
+   ============================================================ */
+const ENC = "e2ee:v1:";
+const LOCKED = "\u{1F512}";
+const E2E = { dev: "", priv: null, pub: "", uid: "", ready: null, keys: new Map(), kv: new Map(), devs: new Map(), db: null,
+              missing: new Set() /* "code:key" this phone met sealed text for but couldn't open */ };
+const te = new TextEncoder(), td = new TextDecoder();
+function u8ToB64(u8){ let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function b64ToU8(b){ const s = atob(b); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+function cat(a, b){ const o = new Uint8Array(a.length + b.length); o.set(a, 0); o.set(b, a.length); return o; }
+const randId = n => { const b = new Uint8Array(n); crypto.getRandomValues(b); return Array.from(b, x => "abcdefghijklmnopqrstuvwxyz0123456789"[x % 36]).join(""); };
+const isSealed = v => typeof v === "string" && v.startsWith(ENC);
+
+/* a small key-value store in IndexedDB; in memory if the browser won't give us one */
+const MEMKV = new Map();
+function idb(){
+  if (!E2E.db) E2E.db = new Promise((res, rej) => {
+    try {
+      const r = indexedDB.open("dswt-e2e", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("kv");
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    } catch (e){ rej(e); }
+  });
+  return E2E.db;
+}
+async function kvGet(k){
+  try { const db = await idb(); return await new Promise((res, rej) => { const q = db.transaction("kv").objectStore("kv").get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+  catch (e){ return MEMKV.get(k); }
+}
+async function kvSet(k, v){
+  MEMKV.set(k, v);
+  try { const db = await idb(); await new Promise((res, rej) => { const t = db.transaction("kv", "readwrite"); t.objectStore("kv").put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+  catch (e){}
+}
+async function e2eForget(){
+  MEMKV.clear(); E2E.keys.clear(); E2E.kv.clear(); E2E.priv = null; E2E.ready = null;
+  try { const db = await idb(); db.transaction("kv", "readwrite").objectStore("kv").clear(); } catch (e){}
+}
+function deviceLabel(){
+  const ua = navigator.userAgent;
+  return /iPhone/.test(ua) ? "iPhone" : /iPad/.test(ua) ? "iPad" : /Android/.test(ua) ? "Android" : /Mac/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : "Browser";
+}
+
+/* this phone's key pair, made once per account, and published */
+function e2eDevice(){
+  if (!e2eOn() || !signedIn() || !AUTH.uid) return Promise.resolve(null);
+  if (E2E.ready && E2E.uid === AUTH.uid) return E2E.ready;
+  E2E.uid = AUTH.uid;
+  E2E.ready = (async () => {
+    let rec = await kvGet("dev:" + AUTH.uid);
+    if (!rec || !rec.priv){
+      const kp = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, false, ["deriveKey"]);
+      rec = { id: randId(12), priv: kp.privateKey, pub: u8ToB64(new Uint8Array(await crypto.subtle.exportKey("raw", kp.publicKey))) };
+      await kvSet("dev:" + AUTH.uid, rec);
+    }
+    E2E.dev = rec.id; E2E.priv = rec.priv; E2E.pub = rec.pub;
+    const r = await fetch(dbRoot() + "/users/" + AUTH.uid + "/devices/" + rec.id + ".json",
+      { method: "PUT", body: JSON.stringify({ pub: rec.pub, at: { ".sv": "timestamp" }, kind: deviceLabel() }) }).catch(() => null);
+    if (!r || !r.ok){ E2E.ready = null; return null; }
+    return E2E;
+  })().catch(() => { E2E.ready = null; return null; });
+  return E2E.ready;
+}
+
+/* lock a chat key to one phone's public key */
+async function wrapFor(raw, pubB64){
+  const their = await crypto.subtle.importKey("raw", b64ToU8(pubB64), { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const eph = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveKey"]);
+  const k = await crypto.subtle.deriveKey({ name: "ECDH", public: their }, eph.privateKey, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, raw));
+  return { e: u8ToB64(new Uint8Array(await crypto.subtle.exportKey("raw", eph.publicKey))), w: u8ToB64(cat(iv, ct)) };
+}
+async function unwrapMine(rec){
+  const eph = await crypto.subtle.importKey("raw", b64ToU8(rec.e), { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const k = await crypto.subtle.deriveKey({ name: "ECDH", public: eph }, E2E.priv, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const blob = b64ToU8(rec.w);
+  const raw = await crypto.subtle.decrypt({ name: "AES-GCM", iv: blob.subarray(0, 12) }, k, blob.subarray(12));
+  return crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
+}
+
+/* one of a chat's keys, if this phone has been given it */
+function chatKey(code, kid){
+  if (!/^[a-z0-9]{2,20}$/.test(String(kid))) return Promise.resolve(null);
+  let m = E2E.keys.get(code);
+  if (!m) E2E.keys.set(code, m = new Map());
+  if (m.has(kid)) return m.get(kid);
+  const p = (async () => {
+    const saved = await kvGet("ck:" + AUTH.uid + ":" + code + ":" + kid);
+    if (saved) return saved;
+    const d = await e2eDevice();
+    if (!d) return null;
+    const rec = await getJSON(crewPath("/keys/" + kid + "/" + AUTH.uid + "/" + d.dev, code)).catch(() => null);
+    if (!rec || typeof rec.e !== "string" || typeof rec.w !== "string") return null;
+    const key = await unwrapMine(rec).catch(() => null);
+    if (key) kvSet("ck:" + AUTH.uid + ":" + code + ":" + kid, key);
+    return key;
+  })();
+  m.set(kid, p);
+  p.then(k => { if (!k && m.get(kid) === p) m.delete(kid); });     /* not yet: ask again later */
+  return p;
+}
+async function currentKid(code){
+  if (code === CR.code && typeof CR.state.keyv === "string") return CR.state.keyv;
+  if (E2E.kv.has(code)) return E2E.kv.get(code);
+  const kv = await getJSON(crewPath("/keyv", code)).catch(() => null);
+  if (typeof kv === "string") E2E.kv.set(code, kv);
+  return typeof kv === "string" ? kv : null;
+}
+/* seal some text for a chat; throws if this phone can't yet */
+async function seal(code, text){
+  if (!e2eOn()) return text;
+  const kid = await currentKid(code);
+  const key = kid && await chatKey(code, kid);
+  if (!key) throw new Error("This chat isn’t unlocked on this phone yet.");
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, te.encode(String(text))));
+  return ENC + kid + ":" + u8ToB64(cat(iv, ct));
+}
+async function openStr(code, s){
+  if (!isSealed(s)) return s;
+  const rest = s.slice(ENC.length), i = rest.indexOf(":");
+  const key = i > 0 ? await chatKey(code, rest.slice(0, i)) : null;
+  if (!key){ if (i > 0) E2E.missing.add(code + ":" + rest.slice(0, i)); return LOCKED; }
+  try {
+    const blob = b64ToU8(rest.slice(i + 1));
+    return td.decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: blob.subarray(0, 12) }, key, blob.subarray(12)));
+  } catch (e){ return LOCKED; }
+}
+/* every sealed string anywhere in some data, opened */
+async function deepOpen(code, v){
+  if (typeof v === "string") return openStr(code, v);
+  if (!v || typeof v !== "object") return v;
+  const out = Array.isArray(v) ? [] : {};
+  await Promise.all(Object.keys(v).map(async k => { out[k] = (k === "keys" || k === "keyv") ? v[k] : await deepOpen(code, v[k]); }));
+  return out;
+}
+/* the parts of a message people wrote */
+async function sealMsg(code, m){
+  if (!e2eOn()) return m;
+  const o = Object.assign({}, m);
+  if (typeof o.t === "string" && o.t) o.t = await seal(code, o.t);
+  if (typeof o.n === "string" && o.n) o.n = await seal(code, o.n);
+  if (o.re && typeof o.re === "object"){
+    o.re = { k: o.re.k, n: o.re.n ? await seal(code, o.re.n) : "", t: o.re.t ? await seal(code, o.re.t) : "" };
+  }
+  return o;
+}
+/* a message in a chat, sealed on the way (system lines too) */
+async function crewPost(m, code){
+  code = code || CR.code;
+  try { m = await sealMsg(code, by(m)); } catch (e){ return null; }
+  return fetch(crewPath("/chat", code), { method: "POST", body: JSON.stringify(m) }).catch(() => null);
+}
+
+/* a brand-new key for a chat: when it's made, and after removing someone */
+async function newChatKey(code){
+  const d = await e2eDevice();
+  if (!d) return null;
+  const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+  const kid = "k" + randId(8);
+  const rec = await wrapFor(new Uint8Array(await crypto.subtle.exportKey("raw", key)), d.pub);
+  const r = await fetch(crewPath("/keys/" + kid + "/" + AUTH.uid + "/" + d.dev, code), { method: "PUT", body: JSON.stringify(rec) }).catch(() => null);
+  if (!r || !r.ok) return null;
+  let m = E2E.keys.get(code); if (!m) E2E.keys.set(code, m = new Map());
+  m.set(kid, Promise.resolve(key));
+  kvSet("ck:" + AUTH.uid + ":" + code + ":" + kid, key);
+  await fetch(crewPath("/keyv", code), { method: "PUT", body: JSON.stringify(kid) }).catch(() => {});
+  E2E.kv.set(code, kid);
+  if (code === CR.code) CR.state.keyv = kid;
+  return kid;
+}
+
+/* a member's phones and their public keys: looked up again whenever that member
+   checks in (every phone does when it opens the chat), so a new phone is seen at once */
+async function memberDevices(uid, seen){
+  const c = E2E.devs.get(uid);
+  if (c && c.seen === seen && Date.now() - c.at < 10 * 60000) return c.list;
+  const list = await getJSON(dbRoot() + "/users/" + uid + "/devices.json").catch(() => null) || {};
+  E2E.devs.set(uid, { at: Date.now(), seen: seen, list: list });
+  return list;
+}
+
+/* the key keeper: hand every key this phone holds to any member phone that lacks it */
+let keeperBusy = false, keeperAgain = false, keeperTimer = 0;
+function keyKeeperSoon(){ clearTimeout(keeperTimer); keeperTimer = setTimeout(keyKeeper, 700); }
+async function keyKeeper(){
+  if (keeperBusy){ keeperAgain = true; return; }
+  if (!e2eOn() || !signedIn() || !CR.code || !CR.chat || !CR.state.members) return;
+  keeperBusy = true;
+  const code = CR.code;
+  try {
+    const d = await e2eDevice();
+    if (!d || code !== CR.code) return;
+    const tree = CR.state.keys || {};
+    /* a chat from before encryption: whoever opens it first makes its key */
+    if (!Object.keys(tree).length && !CR.state.keyv){ await newChatKey(code); return; }
+    const held = [];
+    for (const kid of Object.keys(tree)){ const k = await chatKey(code, kid); if (k) held.push([kid, k]); }
+    /* a key this phone was waiting for has arrived: read the chat again, unlocked */
+    if (held.some(([kid]) => E2E.missing.has(code + ":" + kid))){
+      for (const [kid] of held) E2E.missing.delete(code + ":" + kid);
+      CR.locked = false;
+      CR.media = new Map(); CR.photo = null;
+      CR.state = {}; CR.chat = null;
+      crewConnect();
+      crewScreenChat();
+      refreshHome();
+      return;
+    }
+    e2eLockState();
+    if (!held.length) return;
+    if (!CR.state.keyv) await fetch(crewPath("/keyv", code), { method: "PUT", body: JSON.stringify(held[held.length - 1][0]) }).catch(() => {});
+    const mem = CR.state.members || {};
+    for (const uid of Object.keys(mem)){
+      if (uid.length < 20) continue;                       /* ids from before accounts */
+      const devs = await memberDevices(uid, mem[uid] && mem[uid].seen);
+      for (const dev of Object.keys(devs)){
+        const pub = devs[dev] && devs[dev].pub;
+        if (typeof pub !== "string" || pub.length > 200) continue;
+        for (const [kid, key] of held){
+          if (tree[kid] && tree[kid][uid] && tree[kid][uid][dev]) continue;
+          const rec = await wrapFor(new Uint8Array(await crypto.subtle.exportKey("raw", key)), pub);
+          if (code !== CR.code) return;
+          await fetch(crewPath("/keys/" + kid + "/" + uid + "/" + dev, code), { method: "PUT", body: JSON.stringify(rec) }).catch(() => {});
+        }
+      }
+    }
+    e2eMigrate(code);
+  } catch (e){ /* try again on the next change */ }
+  finally {
+    keeperBusy = false;
+    if (keeperAgain){ keeperAgain = false; keyKeeperSoon(); }
+  }
+}
+/* can this phone read the open chat yet? if it just became able to, reload it */
+async function e2eLockState(){
+  if (!e2eOn() || !CR.code || !CR.chat) return;
+  const kv = CR.state.keyv;
+  const ok = !kv || !!(await chatKey(CR.code, kv));
+  CR.locked = !ok;
+  drawRequests();
+}
+
+/* Re-encrypting what was written before encryption: this account's own
+   messages, reactions, photos and member entry, plus the chat's details.
+   Runs once per chat per phone, quietly, after the chat is unlocked. */
+async function e2eMigrate(code){
+  const flag = "ds.mig:" + AUTH.uid + ":" + code;
+  if (!e2eOn() || !signedIn() || store.get(flag) === "1" || E2E.migrating === code) return;
+  const kid = await currentKid(code);
+  if (!kid || !(await chatKey(code, kid))) return;
+  E2E.migrating = code;
+  const me = AUTH.uid, plain = v => typeof v === "string" && v !== "" && !isSealed(v);
+  let failed = 0;
+  const put = async (path, val, method) => { const r = await fetch(crewPath(path, code), { method: method || "PUT", body: JSON.stringify(val) }).catch(() => null); if (!r || !r.ok) failed++; };
+  try {
+    const chat = await getJSON(crewPath("/chat", code)).catch(() => null) || {};
+    for (const k of Object.keys(chat)){
+      const m = chat[k] || {};
+      if (m.by === me){
+        const patch = {};
+        if (plain(m.t)) patch.t = await seal(code, m.t);
+        if (plain(m.n)) patch.n = await seal(code, m.n);
+        if (m.re && (plain(m.re.n) || plain(m.re.t))) patch.re = { k: m.re.k, n: m.re.n ? await seal(code, m.re.n) : "", t: m.re.t ? await seal(code, m.re.t) : "" };
+        if (Object.keys(patch).length) await put("/chat/" + k, patch, "PATCH");
+      }
+      for (const rn of Object.keys(m.r || {})){
+        const v = m.r[rn] && m.r[rn][me];
+        if (plain(v)) await put("/chat/" + k + "/r/" + rn + "/" + me, await seal(code, v));
+      }
+    }
+    const media = await getJSON(crewPath("/media", code) + '?orderBy="by"&equalTo=' + encodeURIComponent(JSON.stringify(me))).catch(() => null) || {};
+    for (const id of Object.keys(media)){
+      const x = media[id] || {};
+      if (x.by === me && plain(x.d)) await put("/media/" + id, { by: me, d: await seal(code, x.d), at: x.at || Date.now() });
+    }
+    const mine = await getJSON(crewPath("/members/" + me, code)).catch(() => null);
+    if (mine){
+      const patch = {};
+      if (plain(mine.n) && mine.n !== "…") patch.n = await seal(code, mine.n);
+      else if (mine.n === "…") patch.n = await seal(code, store.get("ds.name") || "Someone");
+      if (plain(mine.a)) patch.a = await seal(code, mine.a);
+      if (Object.keys(patch).length) await put("/members/" + me, patch, "PATCH");
+    }
+    const meta = await getJSON(crewPath("/meta", code)).catch(() => null) || {};
+    if (plain(meta.name) && meta.name !== "…") await put("/meta/name", await seal(code, meta.name));
+    if (plain(meta.pic)) await put("/meta/pic", await seal(code, meta.pic));
+    if (meta.photo && plain(meta.photo.n)) await put("/meta/photo/n", await seal(code, meta.photo.n));
+    for (const uid of Object.keys(meta.nick || {})) if (plain(meta.nick[uid])) await put("/meta/nick/" + uid, await seal(code, meta.nick[uid]));
+    if (!failed) store.set(flag, "1");
+  } catch (e){}
+  E2E.migrating = "";
+}
+
 /* the room belongs to the account that opened it: the rules let only that
    account change the room, and each player only their own entry */
 const hostTag = meta => (authOn() && AUTH.uid ? Object.assign(meta, { host: AUTH.uid }) : meta);
@@ -4279,7 +4836,8 @@ function makeChat(root, o){
         if (!id){ it.failed = true; break; }
         it.m.img = { id: id, w: it.pic.w, h: it.pic.h };
       }
-      const r = await post(o.url(""), "POST", it.m);
+      const body = o.seal ? await o.seal(it.m).catch(() => null) : it.m;
+      const r = body && await post(o.url(""), "POST", body);
       if (!r || !r.name){ it.failed = true; break; }
       outbox.shift();
       saveOutbox();
@@ -4323,7 +4881,9 @@ function makeChat(root, o){
     if (isBanned(t)){ stopThat(); return; }
     const old = m.t;
     m.t = t; m.ed = Date.now(); drawRow(k);
-    const r = await post(o.url("/" + k), "PATCH", { t: t, ed: { ".sv": "timestamp" }, m: rich ? mentionsIn(t) : null });
+    let body = { t: t, ed: { ".sv": "timestamp" }, m: rich ? mentionsIn(t) : null };
+    if (o.seal) body = await o.seal(body).catch(() => null);
+    const r = body && await post(o.url("/" + k), "PATCH", body);
     if (!r){ m.t = old; delete m.ed; drawRow(k); toast("Couldn’t save that edit"); }
   }
   async function remove(k){
@@ -4348,7 +4908,9 @@ function makeChat(root, o){
       if (rows[key]) drawReactions(key);
     };
     set(!mine);
-    const ok = await post(o.url("/" + key + "/r/" + name + "/" + mineId()), "PUT", mine ? null : String(o.name()).slice(0, 40));
+    let val = mine ? null : String(o.name()).slice(0, 40);
+    if (val && o.sealStr) val = await o.sealStr(val).catch(() => null);
+    const ok = (mine || val) && await post(o.url("/" + key + "/r/" + name + "/" + mineId()), "PUT", val);
     if (!ok){ set(mine); toast("Couldn’t add that reaction"); }
   }
 
@@ -4559,14 +5121,14 @@ function makeChat(root, o){
     if (m.del){
       h += '<span class="ch-b gone">Message deleted</span>';
     } else {
-      const big = !badText && !m.img && !m.re && EMOJI_ONLY.test(m.t || "");
+      const big = !badText && !m.img && !m.re && m.t !== LOCKED && EMOJI_ONLY.test(m.t || "");
       h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + (m.img && !badText && !m.re && !String(m.t || "").trim() ? " pic-only" : "") + '" role="button" tabindex="0">';
       if (m.re && !badText) h += '<span class="ch-quote" data-k="' + esc(m.re.k) + '"><b>' + esc(m.re.n || "") + '</b><span class="ch-qt">' + esc(m.re.t || "") + '</span></span>';
       if (m.img && !badText){
         const w = Math.max(1, Number(m.img.w) || 4), hh = Math.max(1, Number(m.img.h) || 3);
         h += '<img class="ch-img" alt="Photo" data-id="' + esc(m.img.id) + '" style="aspect-ratio:' + w + '/' + hh + '">';
       }
-      h += badText ? "bippity’d" : richText(m.t || "");
+      h += badText ? "bippity’d" : m.t === LOCKED ? '<span class="ch-locked">\u{1F512} Locked — this phone is waiting for the chat’s key</span>' : richText(m.t || "");
       h += '</span>';
       if (m.ed) h += '<span class="ch-meta">edited</span>';
     }
@@ -4738,7 +5300,12 @@ function crewLabel(){
   const on = crewOnline().length;
   return plural(n, "member") + (on > 1 ? ", " + on + " online" : "");
 }
-function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
+function crewName(){
+  const n = (CR.state.meta || {}).name;
+  if (n && n !== LOCKED && n !== "…") return n;
+  const known = crewList().find(c => c.code === CR.code);
+  return known && known.name && known.name !== "Chat" ? known.name : (n === LOCKED ? "Locked chat" : "Chat");
+}
 
 /* The crew is several small streams rather than one big one, so opening the
    app downloads the crew's name, its members, whether a game is live and the
@@ -4747,7 +5314,9 @@ function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
 async function crewConnect(){
   if (CR.es){ CR.es.close(); CR.es = null; }
   if (!CR.code || !dbRoot()) return;
+  if (e2eOn() && !signedIn()) return;          /* chats need a signed-in account */
   const gen = CR.gen = (CR.gen || 0) + 1;     /* a newer call wins */
+  const code0 = CR.code;
   if (authOn()){
     /* signed in, and on the member list, before asking to read the crew */
     CR.es = { close(){}, readyState: 0 };
@@ -4761,13 +5330,19 @@ async function crewConnect(){
   const list = [];
   const open = (name, url, onMsg) => {
     const es = new EventSource(url);
+    let q = Promise.resolve();
     const handle = isPatch => ev => {
       let msg;
       try { msg = JSON.parse(ev.data); } catch (e){ return; }
       if (!msg || typeof msg.path !== "string") return;
       msg.isPatch = isPatch;
-      onMsg(msg);
-      crewChanged();
+      /* sealed text is opened before anything sees it, one event at a time */
+      q = q.then(async () => {
+        if (e2eOn() && name !== "keys" && name !== "keyv") msg.data = await deepOpen(code0, msg.data);
+        if (gen !== CR.gen) return;
+        onMsg(msg);
+        crewChanged();
+      });
     };
     es.addEventListener("put", handle(false));
     es.addEventListener("patch", handle(true));
@@ -4776,7 +5351,7 @@ async function crewConnect(){
     list.push(es);
   };
   /* meta, live, members and typing: each kept as CR.state[name] */
-  for (const name of ["meta", "live", "members", "typing", "requests"]){
+  for (const name of ["meta", "live", "members", "typing", "requests", "keyv", "keys"]){
     open(name, crewPath("/" + name), msg => {
       const box = applyEvent({ v: CR.state[name] }, { path: "/v" + (msg.path === "/" ? "" : msg.path), data: msg.data, isPatch: msg.isPatch });
       CR.state[name] = box.v;
@@ -4823,7 +5398,9 @@ async function crewOlder(){
   CR.olderBusy = true;
   crewChanged();
   try {
-    const got = await getJSON(crewPath("/chat") + byKey("&endAt=" + encodeURIComponent(JSON.stringify(keys[0])) + "&limitToLast=" + (CHAT_PAGE + 1)));
+    const code = CR.code;
+    let got = await getJSON(crewPath("/chat") + byKey("&endAt=" + encodeURIComponent(JSON.stringify(keys[0])) + "&limitToLast=" + (CHAT_PAGE + 1)));
+    if (e2eOn()) got = await deepOpen(code, got);
     const n = got ? Object.keys(got).length : 0;
     if (got) CR.state.chat = Object.assign(got, CR.state.chat || {});
     CR.chatMore = n > CHAT_PAGE;
@@ -4846,13 +5423,17 @@ const crewRich = {
     if (!p && !nick) return null;
     return { n: nick || (p && p.n), c: p && p.c, a: p && p.a };
   },
+  seal: m => sealMsg(CR.code, m),
+  sealStr: t => seal(CR.code, t),
   members: () => {
     const mem = CR.state.members || {};
     return Object.keys(mem).filter(id => mem[id] && mem[id].n).map(id => ({ id: id, n: dispName(id) }));
   },
   media: {
     async put(url){
-      const r = await fetch(crewPath("/media"), { method: "POST", body: JSON.stringify(by({ d: url, at: { ".sv": "timestamp" } })) });
+      const code = CR.code;
+      const d = await seal(code, url);
+      const r = await fetch(crewPath("/media", code), { method: "POST", body: JSON.stringify(by({ d: d, at: { ".sv": "timestamp" } })) });
       if (!r.ok) throw new Error("upload failed");
       const id = (await r.json()).name;
       CR.media.set(id, Promise.resolve(url));
@@ -4861,8 +5442,9 @@ const crewRich = {
     get(id){
       if (!/^[-\w]{1,40}$/.test(String(id))) return Promise.resolve("");
       /* only ever a picture: anything stored there that isn't an image is ignored */
-      if (!CR.media.has(id)) CR.media.set(id, getJSON(crewPath("/media/" + id)).then(v => {
-        const d = (v && typeof v.d === "string") ? v.d : "";
+      const code = CR.code;
+      if (!CR.media.has(id)) CR.media.set(id, getJSON(crewPath("/media/" + id)).then(async v => {
+        const d = (v && typeof v.d === "string") ? await openStr(code, v.d) : "";
         return /^data:image\/(jpeg|png|gif|webp);base64,/.test(d) ? d : "";
       }));
       return CR.media.get(id);
@@ -4876,7 +5458,7 @@ const crewRich = {
   onTyping(){
     if (Date.now() - typingSent < 3000) return;
     typingSent = Date.now();
-    fetch(crewPath("/typing/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ n: store.get("ds.name") || "", at: Date.now() }) }).catch(() => {});
+    fetch(crewPath("/typing/" + LIVE.pid), { method: "PUT", body: JSON.stringify({ at: Date.now() }) }).catch(() => {});
   },
   onRead(key){
     markRead(CR.code, key);
@@ -4917,6 +5499,7 @@ function crewSeen(){
    ds.crews remembers every crew you've joined, so you can switch between them. */
 function crewList(){ try { return JSON.parse(store.get("ds.crews") || "[]").filter(c => c && /^[A-Z0-9]{6}$/.test(c.code)); } catch (e){ return []; } }
 function crewRemember(code, name, invited, asked){
+  if (name === LOCKED || name === "…") name = "";
   const old = crewList().find(c => c.code === code);
   const list = crewList().filter(c => c.code !== code);
   const rec = { code: code, name: name || (old && old.name) || "Chat" };
@@ -4964,12 +5547,28 @@ $("#profSave").addEventListener("click", async () => {
   $("#profSheet").classList.add("hidden");
   /* the same name, colour and avatar in every chat on this phone */
   const me = { n: n, c: profPick.c !== undefined && profPick.c !== null && profPick.c !== "" ? Number(profPick.c) : null, a: profPick.a || null };
-  await Promise.all(crewList().filter(c => !c.invited).map(c =>
-    fetch(crewPath("/members/" + LIVE.pid, c.code), { method: "PATCH", body: JSON.stringify(me) }).catch(() => {})));
+  await Promise.all(crewList().filter(c => !c.invited && !c.asked).map(async c => {
+    let mine = me;
+    if (e2eOn()){
+      try { mine = Object.assign({}, me, { n: await seal(c.code, me.n), a: me.a ? await seal(c.code, me.a) : null }); }
+      catch (e){ return; }
+    }
+    return fetch(crewPath("/members/" + LIVE.pid, c.code), { method: "PATCH", body: JSON.stringify(mine) }).catch(() => {});
+  }));
   drawMe();
   toast("Saved");
 });
 $("#ibMe").addEventListener("click", openProfile);
+function drawAccount(){
+  const el = $("#profAcct");
+  if (!el) return;
+  if (!e2eOn() || !signedIn()){ el.innerHTML = ""; return; }
+  const how = AUTH.prov === "google.com" ? "Google" : "email link";
+  el.innerHTML = '<p class="tiny">Signed in' + (AUTH.email ? " as <b>" + esc(AUTH.email) + "</b>" : "") + " with " + how + '. Your chats are end-to-end encrypted.</p>' +
+    '<button type="button" class="btn sm" id="profOut">Sign out</button>';
+  $("#profOut").addEventListener("click", signOut);
+}
+$("#ibMe").addEventListener("click", drawAccount);
 
 /* the open game, if the crew has one going (a stale one is ignored) */
 function crewLive(){
@@ -4992,6 +5591,7 @@ function crewChanged(){
   }
   crewDecor();
   drawRequests();
+  if (e2eOn() && CR.chat) keyKeeperSoon();
   drawHomeSoon();
 
   const live = crewLive();
@@ -5020,7 +5620,7 @@ function liveAlert(live){
   try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e){}
   try {
     if (!pushIsOn() && "Notification" in window && Notification.permission === "granted" && document.visibilityState === "hidden"){
-      new Notification("DS(WT) Crew: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
+      new Notification("JoshChat: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
     }
   } catch (e){ /* phones without a service worker refuse; the banner still shows */ }
   if (document.visibilityState === "hidden"){
@@ -5057,10 +5657,10 @@ async function joinLive(){
    sits under crew/requests until someone in the chat lets them in. */
 const JOIN_ASKED = "asked";
 async function crewEnter(code, name){
-  const me = { n: String(name || "Someone").slice(0, 40), seen: { ".sv": "timestamp" } };
+  const me = { n: e2eOn() ? "…" : String(name || "Someone").slice(0, 40), seen: { ".sv": "timestamp" } };
   const col = store.get("ds.color");
   me.c = col !== null && col !== undefined && col !== "" ? Number(col) : null;
-  me.a = store.get("ds.avatar") || null;
+  me.a = e2eOn() ? null : store.get("ds.avatar") || null;
   try {
     const r = await fetch(crewPath("/members/" + LIVE.pid, code), { method: "PATCH", body: JSON.stringify(me) });
     return r.ok ? "in" : (r.status === 401 || r.status === 403 ? "no" : "net");
@@ -5091,9 +5691,11 @@ async function crewJoin(code, name){
 async function crewEntered(code){
   let meta = null;
   try { meta = await getJSON(crewPath("/meta", code)); } catch (e){}
+  if (e2eOn() && meta) meta = await deepOpen(code, meta);
   CR.code = code; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null;
   store.set("ds.crew", code);
-  crewRemember(code, meta && meta.name);
+  crewRemember(code, meta && meta.name !== "…" && meta.name !== LOCKED ? meta.name : "");
+  if (authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/crews/" + code + ".json", { method: "PUT", body: JSON.stringify({ at: { ".sv": "timestamp" } }) }).catch(() => {});
   if (authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/chats/" + code + ".json", { method: "DELETE" }).catch(() => {});
   crewConnect();
 }
@@ -5158,11 +5760,13 @@ function drawRequests(){
   const req = CR.chat ? (CR.state.requests || {}) : {}, mem = CR.state.members || {};
   const ids = Object.keys(req).filter(id => req[id] && typeof req[id].n === "string" && !mem[id])
     .sort((a, b) => (Number(req[a].at) || 0) - (Number(req[b].at) || 0));
-  el.classList.toggle("hidden", !ids.length);
-  const sig = ids.map(id => id + ":" + req[id].n).join("|");
+  const locked = !!(CR.chat && CR.locked);
+  el.classList.toggle("hidden", !ids.length && !locked);
+  const sig = (locked ? "L|" : "") + ids.map(id => id + ":" + req[id].n).join("|");
   if (el.dataset.sig === sig) return;
   el.dataset.sig = sig;
-  el.innerHTML = ids.slice(0, 3).map(id =>
+  el.innerHTML = (locked ? '<div class="rq lockbar"><span class="rq-av lk" aria-hidden="true">\u{1F512}</span><span class="rq-t wrap"><b>Unlocking this chat on this phone.</b> It opens as soon as someone else in the chat has the app open.</span></div>' : "") +
+    ids.slice(0, 3).map(id =>
     '<div class="rq"><span class="rq-av" aria-hidden="true">' + esc(initials(req[id].n)) + '</span>' +
     '<span class="rq-t"><b>' + esc(req[id].n) + '</b> wants to join</span>' +
     '<button type="button" class="rq-no" data-no="' + esc(id) + '">Not now</button>' +
@@ -5170,7 +5774,7 @@ function drawRequests(){
     (ids.length > 3 ? '<p class="rq-more">and ' + plural(ids.length - 3, "more") + '</p>' : "");
 }
 async function crewSys(t){
-  return fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } })) }).catch(() => {});
+  return crewPost({ sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } });
 }
 $("#crReq").addEventListener("click", async e => {
   const yes = e.target.closest("[data-yes]"), no = e.target.closest("[data-no]");
@@ -5180,7 +5784,9 @@ $("#crReq").addEventListener("click", async e => {
   const b = yes || no;
   b.disabled = true;
   if (yes){
-    const r = await fetch(crewPath("/members/" + id), { method: "PUT", body: JSON.stringify({ n: nm, at: { ".sv": "timestamp" } }) }).catch(() => null);
+    let sn = nm;
+    if (e2eOn()){ try { sn = await seal(CR.code, nm); } catch (e){ sn = "…"; } }
+    const r = await fetch(crewPath("/members/" + id), { method: "PUT", body: JSON.stringify({ n: sn, at: { ".sv": "timestamp" } }) }).catch(() => null);
     if (!r || !r.ok){ b.disabled = false; toast("Couldn’t let them in. Try again."); return; }
     await fetch(crewPath("/requests/" + id), { method: "DELETE" }).catch(() => {});
     crewSys(myName() + " let " + nm + " in.");
@@ -5195,6 +5801,11 @@ async function crewRemove(id){
   const r = await fetch(crewPath("/members/" + id), { method: "DELETE" }).catch(() => null);
   if (!r || !r.ok){ toast("Couldn’t remove them. Check your connection."); return; }
   fetch(crewPath("/push/" + id), { method: "DELETE" }).catch(() => {});
+  if (e2eOn()){
+    for (const kid of Object.keys(CR.state.keys || {})) fetch(crewPath("/keys/" + kid + "/" + id), { method: "DELETE" }).catch(() => {});
+    await newChatKey(CR.code);
+    keyKeeperSoon();
+  }
   crewSys(myName() + " removed " + nm + ".");
 }
 
@@ -5207,6 +5818,11 @@ async function crewTouch(){
   const col = store.get("ds.color");
   me.c = col !== null && col !== undefined && col !== "" ? Number(col) : null;
   me.a = store.get("ds.avatar") || null;
+  if (e2eOn()){
+    /* sealed; until this phone has the chat's key, leave the name as it is */
+    try { me.n = await seal(CR.code, me.n); me.a = me.a ? await seal(CR.code, me.a) : null; }
+    catch (e){ delete me.n; delete me.a; }
+  }
   CR.seenSent = Date.now();
   const done = fetch(crewPath("/members/" + LIVE.pid), { method: "PATCH", body: JSON.stringify(me) }).catch(() => {});
   /* the one thing anyone can see about a chat: that it exists, so a join
@@ -5229,12 +5845,23 @@ async function crewCreate(title, name){
   await authToken();
   const code = code6();
   try {
-    await putJSON(crewPath("/meta", code), { name: title, created: Date.now() });
+    await putJSON(crewPath("/meta", code), { name: e2eOn() ? "…" : title, created: Date.now() });
     await putJSON(crewPath("/here", code), true);
   } catch (e){ return "Couldn’t reach the database."; }
   const err = await crewJoin(code, name);
-  if (!err) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: name + " started " + title + ".", at: { ".sv": "timestamp" } })) }).catch(() => {});
-  return err;
+  if (err) return err;
+  if (e2eOn()){
+    /* the chat's first key, made on this phone; everything after is sealed */
+    if (!(await newChatKey(code))) return "Couldn’t set up encryption for this chat.";
+    try {
+      await putJSON(crewPath("/meta/name", code), await seal(code, title));
+      await putJSON(crewPath("/members/" + LIVE.pid + "/n", code), await seal(code, name));
+    } catch (e){}
+    store.set("ds.mig:" + AUTH.uid + ":" + code, "1");
+    crewRemember(code, title);
+  }
+  await crewPost({ sys: 1, pid: "host", t: name + " started " + title + ".", at: { ".sv": "timestamp" } }, code);
+  return "";
 }
 
 function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" + CR.code + "&n=" + encodeURIComponent(crewName()); }
@@ -5242,7 +5869,7 @@ function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" 
 async function crewShare(){
   const url = crewInviteUrl();
   if (navigator.share){
-    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on DS(WT) Crew", url: url }); return; }
+    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on JoshChat", url: url }); return; }
     catch (e){ if (e && e.name === "AbortError") return; }
   }
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
@@ -5254,7 +5881,7 @@ async function crewShare(){
    with the relay's public key and leaves its subscription under
    crew/push/<pid>. Going live asks the relay (push/worker.js, a Cloudflare
    Worker) to send to all of them. */
-const PUSH_URL = "";   /* the Worker's address, e.g. https://dswt-push.<you>.workers.dev */
+const PUSH_URL = "https://dswt-push.jbiederman18.workers.dev";   /* the Worker's address, e.g. https://dswt-push.<you>.workers.dev */
 const pushUrl = () => String(store.get("ds.push") || PUSH_URL).replace(/\/+$/, "");
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const standalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
@@ -5288,7 +5915,7 @@ async function pushSubscribe(){
     if (!cur || b64uEnc(cur) !== key){ await sub.unsubscribe(); sub = null; }
   }
   if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uDec(key) });
-  await putJSON(crewPath("/push/" + LIVE.pid), { sub: sub.toJSON(), n: store.get("ds.name") || "", at: Date.now(), mode: pushMode() });
+  await putJSON(crewPath("/push/" + LIVE.pid), { sub: sub.toJSON(), at: Date.now(), mode: pushMode() });
 }
 
 async function pushEnable(){
@@ -5395,6 +6022,7 @@ $("#iosOk").addEventListener("click", () => $("#iosSheet").classList.add("hidden
 /* ---------- crew screen ---------- */
 /* #crew=<code> (an invite link or a notification), or the home screen */
 function openCrew(hintCode){
+  if (e2eOn() && !signedIn()){ crewSignIn(() => openCrew(hintCode)); return; }
   show("crew");
   const hint = String(hintCode || "").toUpperCase();
   const asked = hint && crewList().find(c => c.code === hint && c.asked);
@@ -5548,6 +6176,7 @@ $("#crLeave").addEventListener("click", () => {
   if (CR.es){ CR.es.close(); CR.es = null; }
   if (CR.code) fetch(crewPath("/members/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
   if (CR.code) fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
+  if (CR.code && authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/crews/" + CR.code + ".json", { method: "DELETE" }).catch(() => {});
   store.set("ds.pushOn", "");
   CR.code = ""; CR.state = {}; CR.chat = null; CR.liveSeen = null; CR.primed = false;
   store.set("ds.crew", "");
@@ -5682,7 +6311,8 @@ async function iconPhoto(file){
 const PIC_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
 function initials(name){
   const w = String(name || "").trim().split(/\s+/).filter(Boolean);
-  return ((w[0] || "?")[0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
+  const first = s => Array.from(s || "")[0] || "";
+  return ((first(w[0]) || "?") + (w.length > 1 ? first(w[w.length - 1]) : "")).toUpperCase();
 }
 /* a chat's picture: its emoji, or its initials on the theme's colours */
 function iconHtml(meta, name){
@@ -5758,6 +6388,12 @@ async function refreshHome(){
   HOME.busy = true;
   try {
     await authToken();
+    if (e2eOn() && !signedIn()) return;
+    /* chats this account is in (another phone may have joined them) */
+    if (authOn() && AUTH.uid){
+      const mine = await getJSON(dbRoot() + "/users/" + AUTH.uid + "/crews.json").catch(() => null);
+      for (const code in mine || {}) if (/^[A-Z0-9]{6}$/.test(code) && !crewList().some(c => c.code === code)) crewRemember(code, "Chat");
+    }
     /* chats someone added you to */
     if (authOn() && AUTH.uid){
       const inv = await getJSON(dbRoot() + "/users/" + AUTH.uid + "/chats.json").catch(() => null);
@@ -5780,7 +6416,7 @@ async function refreshHome(){
           return;
         }
         let meta;
-        try { meta = await getJSON(crewPath("/meta", c.code)); }
+        try { meta = await getJSON(crewPath("/meta", c.code)); if (e2eOn()) meta = await deepOpen(c.code, meta); }
         catch (e){ if (/\(40[13]\)/.test(String(e.message))){ crewForget(c.code); d.gone = true; return; } throw e; }
         if (!meta){ d.gone = true; return; }
         d.gone = false; d.meta = meta;
@@ -5791,9 +6427,9 @@ async function refreshHome(){
           getJSON(crewPath("/members", c.code))
         ]);
         const k = Object.keys(last || {})[0] || "";
-        d.lastKey = k; d.last = k ? last[k] : null;
+        d.lastKey = k; d.last = k ? (e2eOn() ? await deepOpen(c.code, last[k]) : last[k]) : null;
         d.live = !!(live && live.room && Date.now() - Number(live.at || 0) < 8 * 3600 * 1000);
-        d.members = mem || {};
+        d.members = (e2eOn() ? await deepOpen(c.code, mem) : mem) || {};
         const rk = readMap()[c.code];
         if (k && rk && k > rk){
           const after = await getJSON(crewPath("/chat", c.code) + byKey("&startAt=" + encodeURIComponent(JSON.stringify(rk)) + "&limitToFirst=100"));
@@ -5833,6 +6469,7 @@ function fmtWhen(at){
 function previewOf(r){
   if (r.c.invited) return "You’re invited. Tap to join.";
   if (r.c.asked) return "Asked to join. Waiting for someone to let you in.";
+  if (r.last && (r.last.t === LOCKED || r.last.n === LOCKED)) return "\u{1F512} Unlocking on this phone…";
   const m = r.last;
   if (!m) return "No messages yet";
   if (m.del) return "Message deleted";
@@ -5854,7 +6491,8 @@ function homeRows(){
       members = CR.state.members;
       unread = chatVisible() || !rk[c.code] ? 0 : ks.filter(k => k > rk[c.code] && chat[k] && !chat[k].sys && !isMe(chat[k].pid)).length;
     }
-    return { c: c, meta: meta, name: String(meta.name || c.name || "Chat"), last: last, unread: unread, live: live, members: members,
+    const mn = meta.name && meta.name !== LOCKED && meta.name !== "…" ? meta.name : "";
+    return { c: c, meta: meta, name: String(mn || c.name || "Chat"), last: last, unread: unread, live: live, members: members,
              at: last ? Number(last.at) || 0 : 0, gone: !!d.gone };
   }).filter(r => !r.gone)
     .sort((a, b) => ((b.c.invited ? 1 : 0) - (a.c.invited ? 1 : 0)) || (b.at - a.at));
@@ -5897,6 +6535,7 @@ function drawMe(){
 }
 
 function openHome(){
+  if (e2eOn() && !signedIn()){ crewSignIn(); return; }
   show("crew");
   crewView("list");
   drawMe();
@@ -5987,7 +6626,7 @@ $("#ncGo").addEventListener("click", async () => {
   if (err){ $("#ncNote").textContent = err; return; }
   /* put it in their list */
   await Promise.all(picked.map(id => fetch(dbRoot() + "/users/" + id + "/chats/" + CR.code + ".json",
-    { method: "PUT", body: JSON.stringify(by({ n: title, at: { ".sv": "timestamp" } })) }).catch(() => {})));
+    { method: "PUT", body: JSON.stringify(by({ n: e2eOn() ? "New chat" : title, at: { ".sv": "timestamp" } })) }).catch(() => {})));
   $("#newSheet").classList.add("hidden");
   crewRemember(CR.code, title);
   crewView("chat");
@@ -6054,9 +6693,16 @@ async function setMeta(path, val, said){
   else if (val === null) delete meta[path]; else meta[path] = val;
   crewChanged();
   drawInfo();
-  const r = await fetch(crewPath("/meta/" + path), { method: "PUT", body: JSON.stringify(val) }).catch(() => null);
+  let send = val;
+  if (e2eOn() && val !== null){
+    try {
+      if (path === "name" || path === "pic" || path === "photo/n" || path.startsWith("nick/")) send = await seal(CR.code, val);
+      else if (path === "photo" && val.n) send = Object.assign({}, val, { n: await seal(CR.code, val.n) });
+    } catch (e){ toast(e.message); return; }
+  }
+  const r = await fetch(crewPath("/meta/" + path), { method: "PUT", body: JSON.stringify(send) }).catch(() => null);
   if (!r || !r.ok){ toast("Couldn’t save that. Check your connection."); return; }
-  if (said) fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(by({ sys: 1, pid: "host", t: said, at: { ".sv": "timestamp" } })) }).catch(() => {});
+  if (said) crewSys(said);
 }
 const myName = () => store.get("ds.name") || "Someone";
 $("#cvWho").addEventListener("click", openInfo);
@@ -6504,7 +7150,7 @@ function hsSetChat(on){
 function sysMsg(t, live){
   const m = by({ sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } });
   if (live) m.live = 1;
-  if (RH.crew && CR.code) return fetch(crewChatUrl(""), { method: "POST", body: JSON.stringify(m) }).then(r => r.ok, () => false);
+  if (RH.crew && CR.code) return crewPost(m).then(r => !!(r && r.ok));
   return dbPost("/chat", m);
 }
 function crewLiveOff(){
@@ -6667,7 +7313,7 @@ async function hostFinal(){
 async function shareRoom(){
   const url = roomUrl();
   if (navigator.share){
-    try { await navigator.share({ title: "DS(WT) Crew", text: "Join my game — room " + LIVE.code, url: url }); return; }
+    try { await navigator.share({ title: "Dicksharter (Working Title)", text: "Join my game — room " + LIVE.code, url: url }); return; }
     catch (e){ if (e && e.name === "AbortError") return; }
   }
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
@@ -6801,7 +7447,9 @@ if (CR.code && !crewList().some(c => c.code === CR.code)) crewRemember(CR.code);
 
 /* if someone lands here with #player, go straight to the phone view */
 const crewHash = (location.hash.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
-if (crewHash){
+if (/[?&]oobCode=/.test(location.search)){
+  show("crew"); emailLanding();          /* back from the sign-in link in an email */
+} else if (crewHash){
   openCrew(crewHash.toUpperCase());
 } else if (/^#join=/i.test(location.hash)){
   show("player"); renderPlayer();
@@ -6812,11 +7460,23 @@ if (crewHash){
   if (saved) P.game = readJoinCode(saved);
   show("player"); renderPlayer();
 } else if (!location.hash && (CR.code || crewList().length || standalone())){
-  openHome();            /* DS(WT) Crew opens to your chats */
+  openHome();            /* JoshChat opens to your chats */
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
 authToken();   /* sign in early, so the first message or guess doesn't wait */
+/* iPhones don't shrink the page when the keyboard opens, so the message box
+   would end up under it: size the app to the part of the screen that's visible */
+if (window.visualViewport){
+  const fit = () => {
+    const vv = window.visualViewport;
+    document.documentElement.style.setProperty("--app-h", Math.round(vv.height) + "px");
+    if (vv.offsetTop) window.scrollTo(0, 0);
+  };
+  window.visualViewport.addEventListener("resize", fit);
+  window.visualViewport.addEventListener("scroll", fit);
+  fit();
+}
 /* the service worker lets the app open with no signal (and carries alerts) */
 if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
 

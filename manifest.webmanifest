@@ -1,15 +1,25 @@
 {
-  "name": "DS(WT) Crew",
-  "short_name": "DS(WT) Crew",
-  "description": "The crew chat for Dicksharter (Working Title): talk between games, jump in when one goes live.",
+  "id": "./",
+  "name": "JoshChat",
+  "short_name": "JoshChat",
+  "description": "Group chats for the crew, end-to-end encrypted, with Dicksharter (Working Title) built in.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F4F6F3",
-  "theme_color": "#000000",
+  "background_color": "#0E9F63",
+  "theme_color": "#0E9F63",
+  "categories": ["social", "games"],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "badge-96.png", "sizes": "96x96", "type": "image/png", "purpose": "monochrome" }
+  ],
+  "shortcuts": [
+    { "name": "Chats", "url": "./", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Join a game", "short_name": "Join game", "url": "./#player", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Start a new game", "short_name": "New game", "url": "./#new", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
   ]
 }
