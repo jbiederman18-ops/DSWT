@@ -13,6 +13,9 @@
      3. Worker → Settings → Variables and Secrets → add a Secret named
         VAPID_JWK, paste the key, Deploy.
    Optional variable DB_URL points it at a different Firebase database.
+   Optional variable SITE is the app's address (default below). Alerts only
+   ever link there, whatever a request claims, so nobody can use the relay to
+   send the crew a notification that opens some other site.
 
    Once the database has the locked-down rules (firebase-rules.json), the
    worker needs its own login to read the crew's alert subscriptions: add a
@@ -33,6 +36,17 @@
 */
 const DEFAULT_DB = "https://dswt-eff47-default-rtdb.firebaseio.com";
 const SUBJECT = "https://github.com/jbiederman18-ops/DSWT";
+const DEFAULT_SITE = "https://jbiederman18-ops.github.io/";
+/* the page a notification opens: the request's own address if it is on the
+   app's site (so a copy at /dswt/ or /DSWT/ both work), otherwise the site */
+function siteFor(env, claimed){
+  const home = String(env.SITE || DEFAULT_SITE);
+  try {
+    const h = new URL(home), c = new URL(claimed);
+    if (c.origin === h.origin && c.pathname.startsWith(h.pathname)) return c.origin + c.pathname;
+  } catch (e){}
+  return home;
+}
 const LIVE_WINDOW = 10 * 60 * 1000;   // only announce a game opened in the last 10 minutes
 const MIN_GAP = 3 * 60 * 1000;        // and not more often than this per crew
 
@@ -214,7 +228,7 @@ async function message(req, env){
   let b = null;
   try { b = JSON.parse(await req.text()); } catch (e){}
   if (!b) return json({ error: "bad request" }, 400);
-  const crew = String(b.crew || ""), key = String(b.key || ""), site = String(b.site || "");
+  const crew = String(b.crew || ""), key = String(b.key || ""), site = siteFor(env, String(b.site || ""));
   if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[-\w]{1,40}$/.test(key)) return json({ error: "bad codes" }, 400);
   if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
   const { at, get } = await crewReader(env, crew);
@@ -249,7 +263,7 @@ async function notify(req, env){
   try { b = JSON.parse(await req.text()); } catch (e){}
   if (!b) return json({ error: "bad request" }, 400);
   const crew = String(b.crew || ""), room = String(b.room || ""), from = String(b.from || "");
-  const site = String(b.site || "");
+  const site = siteFor(env, String(b.site || ""));
   if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[A-Z0-9]{4}$/.test(room)) return json({ error: "bad codes" }, 400);
   if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
 

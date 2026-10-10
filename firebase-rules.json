@@ -3,8 +3,47 @@
     "games": {
       "$code": {
         ".read": "auth != null",
-        ".write": "auth != null",
-        ".validate": "$code.length === 4"
+        ".write": "auth != null && (!data.exists() || !data.child('meta/host').exists() || data.child('meta/host').val() === auth.uid)",
+        ".validate": "$code.length === 4",
+        "meta": {
+          "host": {
+            ".validate": "newData.isString() && (newData.val() === auth.uid || newData.val() === data.val())"
+          }
+        },
+        "players": {
+          "$pid": {
+            ".write": "auth != null && $pid === auth.uid",
+            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 40"
+          }
+        },
+        "guesses": {
+          "$round": {
+            "$pid": {
+              ".write": "auth != null && $pid === auth.uid",
+              ".validate": "newData.child('raised').isNumber() && newData.child('goal').isNumber()"
+            }
+          }
+        },
+        "chat": {
+          "$msg": {
+            ".write": "auth != null && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || (newData.child('by').val() === auth.uid && newData.child('pid').val() === data.child('pid').val()))))",
+            ".validate": "newData.hasChildren(['pid', 'at'])",
+            "t": {
+              ".validate": "newData.isString() && newData.val().length <= 2000"
+            },
+            "n": {
+              ".validate": "newData.isString() && newData.val().length <= 40"
+            },
+            "r": {
+              "$name": {
+                "$uid": {
+                  ".write": "auth != null && $uid === auth.uid",
+                  ".validate": "newData.isString() && newData.val().length <= 40"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "users": {
@@ -26,26 +65,42 @@
             ".read": "auth != null",
             ".write": "auth != null && newData.exists() && (!data.exists() || root.child('saves/' + $code + '/crew/members/' + auth.uid).exists())",
             ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 60",
-            "theme": { ".validate": "newData.isString() && newData.val().length <= 20" },
-            "icon": { ".validate": "newData.isString() && newData.val().length <= 16" },
+            "theme": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            },
+            "icon": {
+              ".validate": "newData.isString() && newData.val().length <= 16"
+            },
             "nick": {
-              "$uid": { ".validate": "newData.isString() && newData.val().length <= 30" }
+              "$uid": {
+                ".validate": "newData.isString() && newData.val().length <= 30"
+              }
             }
           },
           "members": {
             ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$uid": {
               ".write": "auth != null && (($uid === auth.uid && root.child('saves/' + $code + '/crew/meta').exists()) || (!newData.exists() && $uid.length < 12 && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
-              ".validate": "newData.child('n').isString() && newData.child('n').val().length <= 40"
+              ".validate": "newData.child('n').isString() && newData.child('n').val().length <= 40",
+              "a": {
+                ".validate": "newData.isString() && newData.val().length <= 16"
+              },
+              "c": {
+                ".validate": "newData.isNumber()"
+              }
             }
           },
           "chat": {
             ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$msg": {
-              ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid))",
+              ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid && (newData.child('pid').val() === auth.uid || newData.child('pid').val() === 'host')) || (data.exists() && data.child('by').val() === auth.uid && (!newData.exists() || (newData.child('by').val() === auth.uid && newData.child('pid').val() === data.child('pid').val()))))",
               ".validate": "newData.hasChildren(['pid', 'at'])",
-              "t": { ".validate": "newData.isString() && newData.val().length <= 2000" },
-              "n": { ".validate": "newData.isString() && newData.val().length <= 40" },
+              "t": {
+                ".validate": "newData.isString() && newData.val().length <= 2000"
+              },
+              "n": {
+                ".validate": "newData.isString() && newData.val().length <= 40"
+              },
               "r": {
                 "$name": {
                   "$uid": {
@@ -58,7 +113,8 @@
           },
           "push": {
             "$uid": {
-              ".write": "auth != null && (($uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()) || (!newData.exists() && $uid.length < 12 && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))"
+              ".write": "auth != null && (($uid === auth.uid && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()) || (!newData.exists() && $uid.length < 12 && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
+              ".validate": "!newData.child('sub/endpoint').exists() || (newData.child('sub/endpoint').isString() && newData.child('sub/endpoint').val().beginsWith('https://') && newData.child('sub/endpoint').val().length <= 1000)"
             }
           },
           "pushSent": {},
@@ -72,7 +128,7 @@
             ".read": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()",
             "$id": {
               ".write": "auth != null && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists() && ((!data.exists() && newData.child('by').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('by').val() === auth.uid))",
-              ".validate": "newData.child('d').isString() && newData.child('d').val().length <= 1700000"
+              ".validate": "newData.child('d').isString() && newData.child('d').val().length <= 1700000 && newData.child('d').val().matches(/^data:image\\/(jpeg|png|gif|webp);base64,/)"
             }
           },
           "$other": {

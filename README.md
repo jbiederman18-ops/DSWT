@@ -136,8 +136,11 @@ decide who can do what:
 - **Messages:** you can only post as yourself, and only edit or delete your own.
   You can react to anything, but only as yourself.
 - **Alert subscriptions** can't be read by anyone except the push relay.
-- **Game rooms and saved games** need a signed-in phone, and the code is the key,
-  as before. The answers are never written to a room until the moment you
+- **Game rooms** need a signed-in phone, and the code is the key. The room
+  belongs to whoever opened it: only the host can start rounds, reveal, score or
+  close it, and each player can only write their own name and their own guesses.
+- **Photos** must be pictures, and an edited message stays with whoever wrote it.
+- **Saved games** need a signed-in phone, and the code is the key, as before. The answers are never written to a room until the moment you
   reveal them, so a player poking at the raw data finds nothing worth cheating
   with.
 
@@ -302,6 +305,10 @@ Cloudflare Worker. No credit card, no command line.
 6. Put the Worker's address in `PUSH_URL` near the top of the push section in
    `index.html` and push to GitHub.
 
+If the app lives anywhere other than `https://jbiederman18-ops.github.io/`, add a
+plain variable named `SITE` to the Worker with its address. Alerts only ever
+link there, so nobody can use the relay to send the crew somewhere else.
+
 Until step 6 the bell falls back to an in-tab notification on computers, and
 the in-app banner works everywhere regardless.
 
@@ -359,7 +366,7 @@ uploading is the PDFs.
 ## Hosting it
 
 GitHub Pages: **Settings → Pages → Source: deploy from branch → `main` / root**.
-It'll be at `https://<you>.github.io/dicksharter/`.
+It'll be at `https://<you>.github.io/DSWT/`.
 
 Anything that serves a static file works just as well — Netlify, a USB stick,
 opening the file off your desktop. The only requirement for live play is that
