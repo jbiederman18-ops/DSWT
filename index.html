@@ -959,26 +959,59 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .convo[data-scene=ink] .ch-form input[type=text]{background:#17150F;border-color:rgba(237,230,214,.16)}
 .msgr .convo[data-scene=ink] .ch-msg.mention .ch-b{box-shadow:0 0 0 2px #B3141B}
 
-/* --- Pole Position: race day --- */
+/* --- Pole Position: a race through a candy-coloured city ---
+   Cobalt sky, a sunset glow behind a glittering skyline, and a perforated
+   steel track with red-and-white kerbs. Your messages are the white car with
+   a red stripe; everyone else's are the yellow rival. Bubbles stay solid, so
+   the scenery never gets in the way of reading. */
 .msgr .convo[data-scene=pole]{
-  /* a light scene stays light when the phone is in dark mode */
-  color-scheme:light; --m-surf:#FFFFFF; --m-ink:#12221B; --m-soft:#5E6E66; --m-line:rgba(18,34,27,.10); --m-mint:#DCF3E7; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05);
-  --m-bg:#E9ECF0; --m-bubble:#FFFFFF; --th-font:"Russo One",var(--m-text);
+  color-scheme:dark; --m-surf:#151A24; --m-ink:#F4F6FA; --m-soft:#B5BED0; --m-line:rgba(244,246,250,.12); --m-mint:#262F3F; --m-other:#1D2430;
+  --m-press:rgba(244,246,250,.08); --m-bg:#10141C; --m-bubble:#FFD84A; --th-font:"Russo One",var(--m-text);
+  --pole-red:#E3141B;
   background:
-    repeating-linear-gradient(-14deg,transparent 0 46px,rgba(18,24,38,.035) 46px 49px),
-    linear-gradient(180deg,#F5F7F9,#DFE4EA);
+    radial-gradient(ellipse 85% 16% at 50% 52%,rgba(255,180,90,.5),transparent 75%),
+    linear-gradient(180deg,#0F3488 0%,#1C58C4 20%,#4A8AD9 33%,#9BB6DA 40%,#F2B477 47%,#E57C5C 51%,#5A3558 55%,#1E2230 57%,#15181F 100%);
 }
-.msgr .convo[data-scene=pole] .cv-top{background:#FFFFFF;border-bottom:0;margin-bottom:9px}
-.msgr .convo[data-scene=pole] .cv-top::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:9px;
-  background:repeating-conic-gradient(#16161A 0 25%,#FFFFFF 0 50%) 0 0/9px 9px}
-.msgr .convo[data-scene=pole] .cv-txt b{font-style:italic;letter-spacing:.02em}
-.msgr .convo[data-scene=pole] .ch-n{text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:#16161A}
-.msgr .convo[data-scene=pole] .ch-b{border-radius:4px 18px 18px 18px;border-left:4px solid #16161A}
-.msgr .convo[data-scene=pole] .ch-msg.me .ch-b{border-left:0;border-radius:18px 4px 18px 18px;
+/* the skyline, standing right on the edge of the track */
+.msgr .convo[data-scene=pole]::after{content:"";position:absolute;left:-6%;right:-6%;bottom:44%;height:96px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 96' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cpattern id='w' width='6' height='7' patternUnits='userSpaceOnUse'%3E%3Crect x='1.5' y='1.5' width='2' height='3' fill='%23FFD98A'/%3E%3C/pattern%3E%3ClinearGradient id='h' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23B98BC9'/%3E%3Cstop offset='1' stop-color='%236B4F9A'/%3E%3C/linearGradient%3E%3ClinearGradient id='f' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23503E86'/%3E%3Cstop offset='1' stop-color='%232A2350'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23h)' opacity='.75' d='M0 96V54h14V32h10v22h12V20h6V6h4v14h6v34h14V42h18v54zM88 96V26h8V12h10v14h8v70zM122 96V48h12V22l9-14 9 14v26h12v48zM176 96V32h20v-8h6v8h12v64zM222 96V14h4V0h3v14h4v82zM240 96V40h16V28h22v68zM286 96V22h10l6-12 6 12h10v74zM326 96V46h14V34h16v62zM362 96V28h8V16h12v12h8v68h10z'/%3E%3Cg%3E%3Cpath id='t' d='M0 96V66h22V52h16v44zM44 96V60h20V46h12v50zM84 96V64h26v32zM118 96V54h14V38h10v58zM152 96V62h30v34zM190 96V50h12V40h8v56zM216 96V60h28v36zM250 96V48h10V32h14v64zM282 96V62h24v34zM312 96V52h16V42h10v54zM344 96V64h22V50h12v46h22z' fill='url(%23f)'/%3E%3Cpath d='M0 96V66h22V52h16v44zM44 96V60h20V46h12v50zM84 96V64h26v32zM118 96V54h14V38h10v58zM152 96V62h30v34zM190 96V50h12V40h8v56zM216 96V60h28v36zM250 96V48h10V32h14v64zM282 96V62h24v34zM312 96V52h16V42h10v54zM344 96V64h22V50h12v46h22z' fill='url(%23w)' opacity='.55'/%3E%3C/g%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+/* the track: steel plate with holes, its kerb along the top edge */
+.msgr .convo[data-scene=pole]::before{content:"";position:absolute;left:0;right:0;top:56%;bottom:0;pointer-events:none;
   background:
-    linear-gradient(104deg,transparent 0 86%,rgba(255,255,255,.55) 86% 88.5%,transparent 88.5% 91%,rgba(255,255,255,.55) 91% 93.5%,transparent 93.5%),
-    linear-gradient(104deg,#C40500,#E10600 55%,#FF3B1F)}
-.msgr .convo[data-scene=pole] .ch-sys{text-transform:uppercase;letter-spacing:.14em;color:#E10600;font-size:.72rem}
+    repeating-linear-gradient(90deg,var(--pole-red) 0 22px,#F2F2F2 22px 44px) 0 0/100% 7px no-repeat,
+    radial-gradient(circle,#06080C 0 2.6px,transparent 3.2px) 0 14px/15px 15px,
+    linear-gradient(180deg,#4A5262,#262B35 40%,#171A21);
+  -webkit-mask:linear-gradient(180deg,#000 0,#000 30%,rgba(0,0,0,.55));mask:linear-gradient(180deg,#000 0,#000 30%,rgba(0,0,0,.55))}
+.msgr .convo[data-scene=pole] > :not(.cv-top){position:relative;z-index:1}
+.msgr .convo[data-scene=pole] .cv-top{background:linear-gradient(180deg,#FFFFFF,#E4E8EF);color:#14171E;border-bottom:0;margin-bottom:7px}
+.msgr .convo[data-scene=pole] .cv-top::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;
+  background:repeating-linear-gradient(-60deg,var(--pole-red) 0 10px,#FFFFFF 10px 20px);box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.msgr .convo[data-scene=pole] .cv-back,.msgr .convo[data-scene=pole] .cv-btn{color:#14171E}
+.msgr .convo[data-scene=pole] .cv-txt b{font-style:italic;letter-spacing:.02em;color:#14171E}
+.msgr .convo[data-scene=pole] .cv-txt span{color:#5A6274}
+/* names ride on small dark tags, so they read over sky, sunset or track */
+.msgr .convo[data-scene=pole] .ch-n{text-transform:uppercase;letter-spacing:.09em;font-size:.64rem;color:#FFFFFF !important;
+  background:rgba(12,15,22,.62);padding:.22em .65em .18em;border-radius:99px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.msgr .convo[data-scene=pole] .ch-b{background:linear-gradient(180deg,#FFE25E,#F7C600);color:#15130A;border-radius:16px 16px 16px 4px;
+  box-shadow:inset 0 -3px 0 rgba(20,20,24,.85),0 3px 12px rgba(0,0,0,.28)}
+.msgr .convo[data-scene=pole] .ch-msg.me .ch-b{background:linear-gradient(180deg,#FFFFFF 0%,#F1F3F7 55%,#DCE1E9 100%);color:#14171E;border-radius:16px 16px 4px 16px;
+  box-shadow:inset 0 -3px 0 var(--pole-red),0 3px 12px rgba(0,0,0,.28)}
+.msgr .convo[data-scene=pole] .ch-msg.me .ch-b a{color:#B40E14}
+.msgr .convo[data-scene=pole] .ch-b.big{box-shadow:none}
+.msgr .convo[data-scene=pole] .ch-quote{opacity:.8}
+.msgr .convo[data-scene=pole] .ch-msg.mention .ch-b{box-shadow:inset 0 -3px 0 rgba(20,20,24,.85),0 0 0 2.5px var(--pole-red),0 3px 12px rgba(0,0,0,.28)}
+.msgr .convo[data-scene=pole] .ch-sys{font-family:var(--th-font);text-transform:uppercase;letter-spacing:.14em;font-size:.66rem;font-weight:400;color:#FFFFFF;
+  background:linear-gradient(90deg,var(--pole-red),#B40E14);padding:.4em 1.1em;border-radius:4px;transform:skewX(-12deg);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.msgr .convo[data-scene=pole] .ch-pill{background:rgba(16,19,27,.78);border-color:rgba(255,255,255,.16);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.msgr .convo[data-scene=pole] .ch-pill.on{background:var(--pole-red);border-color:var(--pole-red)}
+.msgr .convo[data-scene=pole] .ch-seen,.msgr .convo[data-scene=pole] .ch-meta{color:#D9DEE8;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.msgr .convo[data-scene=pole] .ch-top{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+/* the dock along the bottom: smoked glass over the track */
+.msgr .convo[data-scene=pole] .ch-status,.msgr .convo[data-scene=pole] .ch-react,.msgr .convo[data-scene=pole] .ch-form{background:rgba(11,13,19,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.msgr .convo[data-scene=pole] .ch-status{color:#C9D0DD}
+.msgr .convo[data-scene=pole] .ch-react{padding-top:.4rem}
+.msgr .convo[data-scene=pole] .ch-form input[type=text]{background:#1C212C;border-color:rgba(255,255,255,.12);color:#F4F6FA}
+.msgr .convo[data-scene=pole] .ch-form .btn,.msgr .convo[data-scene=pole] .ch-form .btn.solid{background:linear-gradient(140deg,#FF3A2A,#C40B12);color:#fff}
 .msgr .convo[data-scene=pole] .ch-msg.me.fresh{animation:poleIn .38s cubic-bezier(.15,.85,.25,1)}
 @keyframes poleIn{from{transform:translateX(-70px) skewX(-14deg);opacity:0;filter:blur(4px)}}
 
@@ -1002,39 +1035,102 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .convo[data-scene=arena] .ch-msg.me.fresh{animation:arenaSlam .42s cubic-bezier(.3,1.6,.5,1)}
 @keyframes arenaSlam{from{transform:scale(1.4);opacity:0}}
 
-/* --- Pep Rally of the Dead: zombie green meets cheer pink --- */
+/* --- Pep Rally of the Dead: the school hallway ---
+   Lime lockers on one side, pink on the other, halftone dots overhead and a
+   lilac floor. Yours are the pink cheer uniform with its white-and-green
+   trim; everyone else's are the maroon varsity jacket. Names sit on lime
+   tags, like the green hair. */
 .msgr .convo[data-scene=pep]{
   /* a light scene stays light when the phone is in dark mode */
-  color-scheme:light; --m-surf:#FFFFFF; --m-ink:#12221B; --m-soft:#5E6E66; --m-line:rgba(18,34,27,.10); --m-mint:#DCF3E7; --m-other:#E8EEEA; --m-press:rgba(18,34,27,.05);
-  --m-bg:#FAFAF5; --m-bubble:#7CC242; --th-font:"Bungee",var(--m-name);
+  color-scheme:light; --m-surf:#FFFFFF; --m-ink:#23121A; --m-soft:#6A5560; --m-line:rgba(35,18,26,.12); --m-mint:#F3E6EC; --m-other:#EEE7EA; --m-press:rgba(35,18,26,.06);
+  --m-bg:#F7F2F4; --m-bubble:#7C1F31; --th-font:"Bungee",var(--m-name);
+  --pep-lime:#8CD13F; --pep-pink:#F0388C;
   background:
-    linear-gradient(90deg,#E6F4D7 0 50%,#FFE4F0 50% 100%);
+    /* the hallway floor */
+    linear-gradient(180deg,transparent 0 80%,#DCD3E2 80%,#C9BED3) ,
+    /* locker vents near the top of each door, and the seams between doors */
+    repeating-linear-gradient(180deg,rgba(0,0,0,.07) 0 2px,transparent 2px 7px) 0 54px/100% 34px repeat-x,
+    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 2px,rgba(255,255,255,.28) 2px 4px,transparent 4px 66px),
+    /* lime lockers left, pink right */
+    linear-gradient(90deg,#BFE79A 0 50%,#FFC4DF 50% 100%);
 }
-.msgr .convo[data-scene=pep] .cv-top{background:linear-gradient(90deg,#5FAF31 0 50%,#FF4F9A 50%);color:#fff;border-bottom:0}
-.msgr .convo[data-scene=pep] .cv-back,.msgr .convo[data-scene=pep] .cv-btn{color:#fff}
-.msgr .convo[data-scene=pep] .cv-txt span{color:rgba(255,255,255,.88)}
-.msgr .convo[data-scene=pep] .cv-txt b{font-weight:400;font-size:1rem}
-.msgr .convo[data-scene=pep] .ch-b{color:#10290A;border-radius:6px 20px 20px 20px;box-shadow:0 2px 0 #4E8F2A}
-.msgr .convo[data-scene=pep] .ch-msg.me .ch-b{border-radius:20px 6px 20px 20px;box-shadow:0 2px 0 #D63A7F}
-.msgr .convo[data-scene=pep] .ch-n{font-weight:400;color:#3F7E1C;font-size:.7rem}
-.msgr .convo[data-scene=pep] .ch-sys{font-weight:400;color:#5D5A63;letter-spacing:.04em}
+/* halftone dots: pink drifting in from the top left, lime from the top right */
+.msgr .convo[data-scene=pep]::before,.msgr .convo[data-scene=pep]::after{content:"";position:absolute;inset:0 0 45% 0;pointer-events:none}
+.msgr .convo[data-scene=pep]::before{background:radial-gradient(circle,rgba(240,56,140,.55) 0 3.4px,transparent 4px) 0 0/15px 15px;
+  -webkit-mask:radial-gradient(ellipse 75% 85% at 0 0,#000,transparent 70%);mask:radial-gradient(ellipse 75% 85% at 0 0,#000,transparent 70%)}
+.msgr .convo[data-scene=pep]::after{background:radial-gradient(circle,rgba(116,190,40,.6) 0 3.4px,transparent 4px) 7px 7px/15px 15px;
+  -webkit-mask:radial-gradient(ellipse 75% 85% at 100% 0,#000,transparent 70%);mask:radial-gradient(ellipse 75% 85% at 100% 0,#000,transparent 70%)}
+.msgr .convo[data-scene=pep] > :not(.cv-top){position:relative;z-index:1}
+.msgr .convo[data-scene=pep] .cv-top{background:rgba(255,255,255,.94);border-bottom:0;box-shadow:0 3px 0 var(--pep-pink),0 6px 0 var(--pep-lime);margin-bottom:6px}
+.msgr .convo[data-scene=pep] .cv-txt b{font-weight:400;font-size:1rem;color:#6CC22C;text-shadow:1.5px 1.5px 0 var(--pep-pink);letter-spacing:.02em}
+.msgr .convo[data-scene=pep] .cv-txt span{color:#7A6370}
+.msgr .convo[data-scene=pep] .ch-n{font-weight:400;font-size:.64rem;letter-spacing:.04em;color:#1F3A0B !important;background:var(--pep-lime);
+  padding:.25em .65em .2em;border-radius:6px;box-shadow:0 2px 0 rgba(31,58,11,.25)}
+.msgr .convo[data-scene=pep] .ch-n .ch-av{filter:none}
+.msgr .convo[data-scene=pep] .ch-b{background:linear-gradient(180deg,#8E2639,#6D1A2A);color:#FFF4F7;border-radius:6px 20px 20px 20px;
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08),0 3px 0 #4A1019,0 6px 14px rgba(74,16,25,.18)}
+.msgr .convo[data-scene=pep] .ch-msg.me .ch-b{background:linear-gradient(180deg,#FF5AA6,#EC2D86);color:#FFFFFF;border-radius:20px 6px 20px 20px;
+  padding-bottom:calc(.5em + 6px);box-shadow:inset 0 -3px 0 var(--pep-lime),inset 0 -6px 0 #FFFFFF,0 3px 0 #B91866,0 6px 14px rgba(185,24,102,.2)}
+.msgr .convo[data-scene=pep] .ch-b a{color:#FFFFFF}
+.msgr .convo[data-scene=pep] .ch-b .ch-at{color:#C7F58D}
+.msgr .convo[data-scene=pep] .ch-b.big,.msgr .convo[data-scene=pep] .ch-msg.me .ch-b.big{box-shadow:none;padding-bottom:0}
+.msgr .convo[data-scene=pep] .ch-msg.mention .ch-b{box-shadow:0 0 0 2.5px var(--pep-lime),0 3px 0 #4A1019}
+.msgr .convo[data-scene=pep] .ch-sys{font-family:var(--th-font);font-weight:400;font-size:.68rem;letter-spacing:.06em;color:var(--pep-pink);
+  background:#FFFFFF;border:2px solid var(--pep-lime);padding:.35em 1em;border-radius:99px;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.msgr .convo[data-scene=pep] .ch-pill{background:#FFFFFF;border-color:rgba(35,18,26,.12)}
+.msgr .convo[data-scene=pep] .ch-pill.on{background:#FFE3F0;border-color:var(--pep-pink)}
+.msgr .convo[data-scene=pep] .ch-seen,.msgr .convo[data-scene=pep] .ch-meta{color:#5D4A55}
+.msgr .convo[data-scene=pep] .ch-status,.msgr .convo[data-scene=pep] .ch-react,.msgr .convo[data-scene=pep] .ch-form{background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.msgr .convo[data-scene=pep] .ch-react{padding-top:.4rem}
+.msgr .convo[data-scene=pep] .ch-form .btn,.msgr .convo[data-scene=pep] .ch-form .btn.solid{background:linear-gradient(140deg,#FF5AA6,#E0247C);color:#fff}
 .msgr .convo[data-scene=pep] .ch-msg.me.fresh{animation:pomPop .5s ease-out}
 @keyframes pomPop{0%{transform:rotate(-6deg) scale(.7);opacity:0}55%{transform:rotate(3deg) scale(1.04)}100%{transform:none}}
 
-/* --- Family Weekend: blue velvet and lamplight --- */
+/* --- Family Weekend: meeting the parents ---
+   A blue-panelled sitting room at dusk, cold light through a tall window,
+   and something not quite right outside it. Yours are the burgundy velvet
+   armchair; everyone else's are frosted blue glass. Cream type, serif names. */
 .msgr .convo[data-scene=family]{
-  --m-bg:#13223A; --m-surf:#1B2D4A; --m-ink:#F3EBDD; --m-soft:#A9B4C6; --m-line:rgba(243,235,221,.13);
-  --m-bubble:#22385A; --m-press:rgba(243,235,221,.06); --m-mint:#2A3D5C; --th-font:"Fraunces",Georgia,serif;
+  --m-bg:#1C3046; --m-surf:#1F344B; --m-ink:#F2ECE2; --m-soft:#A9BCCB; --m-line:rgba(242,236,226,.12);
+  --m-bubble:rgba(42,66,90,.9); --m-press:rgba(242,236,226,.07); --m-mint:#2D4660; --m-other:#2A4058; --th-font:"Fraunces",Georgia,serif;
+  --fam-cream:#F2ECE2; --fam-wine:#8C2433;
   background:
-    radial-gradient(ellipse at 50% 22%,rgba(255,214,140,.13),transparent 58%),
-    radial-gradient(circle at 12px 12px,rgba(243,235,221,.06) 2px,transparent 2.6px) 0 0/24px 24px,
-    linear-gradient(180deg,#172946,#0E1A2E);
+    /* the window: pale light, mullions, and a figure that probably isn't there */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 170'%3E%3Cdefs%3E%3CradialGradient id='g' cx='.5' cy='.45' r='.6'%3E%3Cstop offset='0' stop-color='%23EEF5FA' stop-opacity='.7'/%3E%3Cstop offset='1' stop-color='%23A8C3D6' stop-opacity='.22'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M10 170V60a50 50 0 0 1 100 0v110z' fill='url(%23g)'/%3E%3Cpath d='M60 62c-6 0-9 5-9 10 0 4 2 7 4 8-8 3-12 10-13 22l-2 30h40l-2-30c-1-12-5-19-13-22 2-1 4-4 4-8 0-5-3-10-9-10z' fill='%23182A3C' opacity='.32'/%3E%3Cpath d='M10 170V60a50 50 0 0 1 100 0v110M60 10v160M10 92h100M10 130h100' fill='none' stroke='%2314263A' stroke-width='4' opacity='.85'/%3E%3C/svg%3E") 50% 5%/158px auto no-repeat,
+    radial-gradient(ellipse 70% 40% at 50% 16%,rgba(200,222,238,.26),transparent 72%),
+    /* the room fades to shadow at the edges */
+    radial-gradient(ellipse 120% 90% at 50% 35%,transparent 45%,rgba(6,12,20,.55)),
+    linear-gradient(180deg,#2E5070 0%,#22405C 45%,#172C42 100%);
 }
-.msgr .convo[data-scene=family] .cv-top{background:rgba(19,34,58,.9);border-bottom:1px solid rgba(232,184,100,.38)}
-.msgr .convo[data-scene=family] .ch-b{border-radius:16px}
-.msgr .convo[data-scene=family] .ch-msg.me .ch-b{box-shadow:0 0 22px rgba(232,184,100,.28)}
-.msgr .convo[data-scene=family] .ch-n{color:#E8B864}
-.msgr .convo[data-scene=family] .ch-sys{font-style:italic;font-weight:500;color:#E8B864;font-size:.86rem}
+/* panelled walls below the dado rail */
+.msgr .convo[data-scene=family]::before{content:"";position:absolute;left:0;right:0;top:58%;bottom:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(242,236,226,.10) 0 2px,rgba(0,0,0,.25) 2px 4px,transparent 4px),
+    repeating-linear-gradient(90deg,transparent 0 10px,rgba(242,236,226,.05) 10px 11px,transparent 11px 74px,rgba(0,0,0,.18) 74px 75px,transparent 75px 84px),
+    linear-gradient(180deg,rgba(10,20,32,.15),rgba(10,20,32,.45))}
+.msgr .convo[data-scene=family] > :not(.cv-top){position:relative;z-index:1}
+.msgr .convo[data-scene=family] .cv-top{background:rgba(16,28,42,.86);border-bottom:1px solid rgba(242,236,226,.14)}
+.msgr .convo[data-scene=family] .cv-txt b{font-weight:600;letter-spacing:-.005em;font-size:1.12rem}
+.msgr .convo[data-scene=family] .ch-n{font-style:italic;font-weight:500;color:#C9DAE8 !important;font-size:.8rem;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.msgr .convo[data-scene=family] .ch-b{background:rgba(38,60,84,.9);color:var(--fam-cream);border-radius:18px 18px 18px 6px;
+  border:1px solid rgba(200,220,235,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 18px rgba(4,10,18,.3);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.msgr .convo[data-scene=family] .ch-msg.me .ch-b{background:linear-gradient(160deg,#982B3B 0%,#771D2C 50%,#5C1421 100%);color:#FBF3EA;border-color:rgba(255,200,190,.16);
+  border-radius:18px 18px 6px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 6px 18px rgba(30,4,10,.35)}
+.msgr .convo[data-scene=family] .ch-b.big{border:0;-webkit-backdrop-filter:none;backdrop-filter:none}
+.msgr .convo[data-scene=family] .ch-b .ch-at{color:#F6D7B0}
+.msgr .convo[data-scene=family] .ch-msg.mention .ch-b{box-shadow:0 0 0 2px #E7C9A0,0 6px 18px rgba(4,10,18,.3)}
+/* announcements read like a title card */
+.msgr .convo[data-scene=family] .ch-sys{display:flex;align-items:center;gap:.7em;font-family:var(--th-font);font-style:italic;font-weight:500;
+  color:var(--fam-cream);font-size:.86rem;letter-spacing:.01em;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.msgr .convo[data-scene=family] .ch-sys::before,.msgr .convo[data-scene=family] .ch-sys::after{content:"";flex:0 0 30px;height:1px;background:currentColor;opacity:.45}
+.msgr .convo[data-scene=family] .ch-pill{background:rgba(22,38,56,.85);border-color:rgba(242,236,226,.16);color:var(--fam-cream)}
+.msgr .convo[data-scene=family] .ch-pill.on{background:rgba(140,36,51,.55);border-color:#C25566}
+.msgr .convo[data-scene=family] .ch-seen,.msgr .convo[data-scene=family] .ch-meta{color:#B7C8D6}
+.msgr .convo[data-scene=family] .ch-status,.msgr .convo[data-scene=family] .ch-react,.msgr .convo[data-scene=family] .ch-form{background:rgba(14,25,38,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.msgr .convo[data-scene=family] .ch-react{padding-top:.4rem}
+.msgr .convo[data-scene=family] .ch-form input[type=text]{background:#1A2C40;border-color:rgba(242,236,226,.14)}
+.msgr .convo[data-scene=family] .ch-form .btn,.msgr .convo[data-scene=family] .ch-form .btn.solid{background:linear-gradient(140deg,#A13244,#6A1826);color:#FBF3EA}
 
 /* --- Eugene: dusk over the ridgelines --- */
 .msgr .convo[data-scene=eugene]{
@@ -7079,17 +7175,17 @@ const THEMES = [
   { id: "ink", n: "Ink & Omen", scene: 1, a: "#EFE6CF", b: "#DCCDA8", t: "#1A1612", ic: ["#151310", "#8E1016", "#EDE6D6"],
     font: "Cinzel:wght@600;700", prev: "linear-gradient(135deg,#0E0D0C 55%,#8E1016)",
     rx: ["\u{1F58B}\u{FE0F}", "\u{1F4D3}", "\u{1F56F}\u{FE0F}", "\u{1F480}", "\u{2696}\u{FE0F}", "\u{1F311}", "\u{1F377}"] },
-  { id: "pole", n: "Pole Position", scene: 1, a: "#C40500", b: "#FF3B1F", t: "#FFFFFF", ic: ["#E10600", "#16161A", "#FFFFFF"],
-    font: "Russo+One", prev: "linear-gradient(115deg,#E10600 0 58%,#fff 58% 64%,#E10600 64% 70%,#fff 70% 76%,#16161A 76%)",
+  { id: "pole", n: "Pole Position", scene: 1, a: "#E3141B", b: "#FF3A2A", t: "#FFFFFF", ic: ["#FFFFFF", "#C3CAD6", "#E3141B"],
+    font: "Russo+One", prev: "linear-gradient(180deg,#1F5FC9 0 38%,#E59A57 38% 50%,#FFFFFF 50% 64%,#E3141B 64% 72%,#FFD84A 72% 86%,#1E2230 86%)",
     rx: ["\u{1F3C1}", "\u{1F3CE}\u{FE0F}", "\u{1F4A8}", "\u{1F527}", "\u{26FD}", "\u{1F3C6}", "\u{1F6A6}"] },
   { id: "arena", n: "Main Event", scene: 1, a: "#E3123B", b: "#FF2E63", t: "#FFFFFF", ic: ["#1840FF", "#E3123B", "#FFFFFF"],
     font: "Anton", prev: "linear-gradient(135deg,#1840FF,#07080F 45% 55%,#E3123B)",
     rx: ["\u{1F514}", "\u{1F93C}", "\u{1F4A5}", "\u{1F3A4}", "\u{1F3C6}", "\u{1F624}", "\u{1F525}"] },
-  { id: "pep", n: "Pep Rally of the Dead", scene: 1, a: "#FF4F9A", b: "#FF8CC0", t: "#FFFFFF", ic: ["#6DBE3A", "#FF4F9A", "#FFFFFF"],
-    font: "Bungee", prev: "linear-gradient(90deg,#6DBE3A 50%,#FF4F9A 50%)",
+  { id: "pep", n: "Pep Rally of the Dead", scene: 1, a: "#FF5AA6", b: "#EC2D86", t: "#FFFFFF", ic: ["#8CD13F", "#F0388C", "#FFFFFF"],
+    font: "Bungee", prev: "radial-gradient(circle,rgba(255,255,255,.5) 0 2px,transparent 2.5px) 0 0/8px 8px,linear-gradient(90deg,#8CD13F 50%,#F0388C 50%)",
     rx: ["\u{1F9DF}", "\u{1F4E3}", "\u{1F380}", "\u{1F9E0}", "\u{1F49A}", "\u{1F497}", "\u{1F3C8}"] },
-  { id: "family", n: "Family Weekend", scene: 1, a: "#EBC170", b: "#D99A3E", t: "#2A1B06", ic: ["#1B2D4A", "#D99A3E", "#FFF6E6"],
-    font: "Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500", prev: "linear-gradient(135deg,#13223A 55%,#E8B864)",
+  { id: "family", n: "Family Weekend", scene: 1, a: "#982B3B", b: "#5C1421", t: "#FBF3EA", ic: ["#2E5070", "#8C2433", "#F2ECE2"],
+    font: "Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500", prev: "radial-gradient(ellipse 30% 40% at 50% 30%,rgba(230,240,247,.6),transparent),linear-gradient(160deg,#2E5070 55%,#8C2433 55%)",
     rx: ["\u{1F377}", "\u{1F3E1}", "\u{1F436}", "\u{1F62C}", "\u{1F47B}", "\u{1F56F}\u{FE0F}", "\u{1F942}"] },
   { id: "eugene", n: "Eugene", scene: 1, a: "#2F6B3A", b: "#3F8A4B", t: "#FFFFFF", ic: ["#8E79C2", "#2F6B3A", "#FFFFFF"],
     prev: "linear-gradient(180deg,#B9A3D6 0 45%,#2F6B3A 45%)",
