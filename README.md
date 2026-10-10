@@ -254,7 +254,7 @@ your avatar opens your profile.
   sees the changes, and the chat says who made them. **People** lists everyone
   in the chat, with a button to remove someone. The invite link and code, and
   **Leave chat**, are here too.
-- Light and dark follow your phone's setting.
+- **Look:** tap your avatar → **Look** to choose **Daylight** (always light), **Night Shift** (always dark), or **Auto**, which follows your phone.
 - **Scenes** restyle the whole chat (background, header, bubbles, the font
   for names, the send button and the one-tap emoji row):
   - **Ink & Omen:** a cursed notebook with parchment bubbles on dark ruled paper.

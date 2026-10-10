@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <!-- the browser and status-bar colour follows the chat list's own colour in light and dark -->
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14211B" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#13201A" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <!-- added to an iPhone's home screen: full screen, its own name, and a splash while it opens -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -87,7 +87,9 @@ label.field{display:block;margin-bottom:.9rem}
 label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.3em;color:var(--ink-soft)}
 
 /* ---------- app shell ---------- */
-#app{height:var(--app-h,100%);display:flex;flex-direction:column}
+/* pinned to what's actually on screen: --app-h is the visible height, --app-y
+   how far iOS has slid the view down to make room for the keyboard */
+#app{position:fixed;left:0;right:0;top:0;height:var(--app-h,100%);transform:translateY(var(--app-y,0px));display:flex;flex-direction:column}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column}
 
 /* ---------- intake ---------- */
@@ -580,9 +582,15 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
   --me-a:#0E9F63; --me-b:#1DBF7B; --me-t:#FFFFFF;
   font-family:var(--m-text); background:var(--m-bg); color:var(--m-ink);
 }
+/* Two looks, Daylight and Night Shift. "Auto" (the default) follows the
+   phone: Daylight in light mode, Night Shift in dark. Profile → Look can pin
+   either one. html[data-look] carries the choice. */
+html[data-look=day] .msgr{color-scheme:light}
+html[data-look=night] .msgr{--m-bg:#0B1411; --m-surf:#13201A; --m-ink:#E8F2EC; --m-soft:#93A79C; --m-line:rgba(232,242,236,.10);
+        --m-mint:#16241E; --m-other:#16241E; --m-press:rgba(232,242,236,.06); --m-bubble:#1A2A22; --m-green:#19C37D; color-scheme:dark}
 @media (prefers-color-scheme:dark){
-  .msgr{--m-bg:#0B1612; --m-surf:#14211B; --m-ink:#E6F0EB; --m-soft:#90A49A; --m-line:rgba(230,240,235,.10);
-        --m-mint:#173528; --m-other:#1D2C25; --m-press:rgba(230,240,235,.06); --m-bubble:#22342C}
+  html:not([data-look=day]) .msgr{--m-bg:#0B1411; --m-surf:#13201A; --m-ink:#E8F2EC; --m-soft:#93A79C; --m-line:rgba(232,242,236,.10);
+        --m-mint:#16241E; --m-other:#16241E; --m-press:rgba(232,242,236,.06); --m-bubble:#1A2A22; --m-green:#19C37D; color-scheme:dark}
 }
 .msgr .convo.dark-theme{--m-bg:#101826; --m-surf:#172131; --m-ink:#E9EEF7; --m-soft:#94A3B8; --m-line:rgba(233,238,247,.10);
   --m-other:#223047; --m-press:rgba(233,238,247,.06); --m-bubble:#26354D}
@@ -641,6 +649,23 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
         border:0;border-radius:99px;padding:.8rem 1.15rem .8rem .95rem;background:var(--m-ink);color:var(--m-surf);font-weight:700;font-size:.98rem;
         box-shadow:0 10px 26px rgba(14,40,28,.28)}
 .ib-new svg{width:20px;height:20px}
+/* Daylight: unread chats lift onto a card */
+html:not([data-look=night]) .msgr .ib-row.unread{background:var(--m-surf);box-shadow:0 1px 2px rgba(18,34,27,.07)}
+@media (prefers-color-scheme:dark){html[data-look=auto] .msgr .ib-row.unread,html:not([data-look]) .msgr .ib-row.unread{background:transparent;box-shadow:none}}
+/* Night Shift: round faces, the green bar marks what's unread, a green compose button */
+html[data-look=night] .msgr .ib-row .cv-icon{border-radius:50%}
+@media (prefers-color-scheme:dark){html:not([data-look=day]) .msgr .ib-row .cv-icon{border-radius:50%}}
+html[data-look=night] .msgr .ib-row.unread{position:relative;background:var(--m-surf)}
+@media (prefers-color-scheme:dark){html:not([data-look=day]) .msgr .ib-row.unread{position:relative;background:var(--m-surf)}}
+html[data-look=night] .msgr .ib-row.unread::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:4px;border-radius:0 4px 4px 0;background:var(--m-green)}
+@media (prefers-color-scheme:dark){html:not([data-look=day]) .msgr .ib-row.unread::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:4px;border-radius:0 4px 4px 0;background:var(--m-green)}}
+html[data-look=night] .msgr .ib-badge{color:#06281A}
+@media (prefers-color-scheme:dark){html:not([data-look=day]) .msgr .ib-badge{color:#06281A}}
+html[data-look=night] .msgr .ib-new{background:var(--m-green);color:#06281A;border-radius:22px;box-shadow:0 12px 30px rgba(25,195,125,.28)}
+@media (prefers-color-scheme:dark){html:not([data-look=day]) .msgr .ib-new{background:var(--m-green);color:#06281A;border-radius:22px;box-shadow:0 12px 30px rgba(25,195,125,.28)}}
+html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);box-shadow:inset 0 0 0 2px var(--m-green)}
+@media (prefers-color-scheme:dark){html:not([data-look=day]) .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);box-shadow:inset 0 0 0 2px var(--m-green)}}
+
 .ib-new:active{transform:scale(.97)}
 
 /* chat pictures: emoji or initials on the chat's theme */
@@ -801,6 +826,20 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .si-sent p{margin:0 0 .4rem}
 .si-paste{display:flex;gap:.4rem;margin-top:.5rem}
 .si-paste input{flex:1;min-width:0}
+.look-pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.look-pick button{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.6rem .3rem .55rem;border-radius:16px;
+  border:2px solid transparent;background:var(--m-bg,#F3F6F4);color:var(--m-ink,#12221B);font-size:.86rem;font-weight:700}
+.look-pick button[aria-checked=true]{border-color:var(--m-green,#0E9F63)}
+.look-pick small{font-size:.7rem;font-weight:500;color:var(--m-soft,#5E6E66)}
+.look-pick .lk{width:100%;height:46px;border-radius:10px;display:block;position:relative;overflow:hidden}
+.lk-day{background:#F3F6F4;box-shadow:inset 0 0 0 1px rgba(18,34,27,.12)}
+.lk-night{background:#0B1411}
+.lk-auto{background:linear-gradient(115deg,#F3F6F4 0 50%,#0B1411 50%);box-shadow:inset 0 0 0 1px rgba(18,34,27,.12)}
+.lk::before,.lk::after{content:"";position:absolute;height:9px;border-radius:5px}
+.lk::before{left:8px;top:10px;width:46%;background:#FFFFFF;box-shadow:0 0 0 1px rgba(18,34,27,.1)}
+.lk::after{right:8px;bottom:10px;width:40%;background:#0A7A4C}
+.lk-night::before{background:#1A2A22;box-shadow:none}
+.lk-night::after{background:#19C37D}
 .prof-acct{margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--rule)}
 .prof-acct:empty{display:none}
 .prof-acct p{margin:0 0 .5rem}
@@ -975,7 +1014,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 }
 
 /* "game going live" */
-.live-banner{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:60;
+.live-banner{position:fixed;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + var(--app-y,0px));transform:translateX(-50%);z-index:60;
              display:flex;align-items:center;gap:.6rem;width:min(560px,calc(100vw - 16px));padding:.55rem .55rem .55rem .9rem;
              background:var(--stamp);color:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:700}
 .live-banner.pop{animation:lbpop .55s cubic-bezier(.2,1.5,.4,1)}
@@ -1024,7 +1063,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 
 /* push alerts */
 #crAlerts.on{background:var(--marker) !important;color:#06281A !important;border-color:var(--marker) !important}
-.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.modal{position:fixed;left:0;right:0;top:var(--app-y,0px);height:var(--app-h,100%);z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
 .modal .card{width:100%;max-width:460px;margin:0 !important;border-radius:16px !important}
 @media (min-width:600px){.modal{align-items:center}}
 .ios-steps{margin:0;padding-left:1.3rem;font-size:.95rem}
@@ -1387,6 +1426,12 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <div class="prof-cols" id="profCols"></div>
       <div class="tiny" style="margin:.8rem 0 .3rem">Avatar</div>
       <div class="prof-avs" id="profAvs"></div>
+      <div class="tiny" style="margin:.9rem 0 .35rem">Look</div>
+      <div class="look-pick" id="profLook" role="radiogroup" aria-label="Look">
+        <button type="button" role="radio" data-look="auto"><i class="lk lk-auto" aria-hidden="true"></i><span>Auto</span><small>Follows your phone</small></button>
+        <button type="button" role="radio" data-look="day"><i class="lk lk-day" aria-hidden="true"></i><span>Daylight</span><small>Always light</small></button>
+        <button type="button" role="radio" data-look="night"><i class="lk lk-night" aria-hidden="true"></i><span>Night Shift</span><small>Always dark</small></button>
+      </div>
       <div style="display:flex;gap:.5rem;margin-top:1rem">
         <button type="button" class="btn solid" id="profSave">Save</button>
         <button type="button" class="btn" id="profCancel">Cancel</button>
@@ -1520,6 +1565,21 @@ const store = {
   get(k){ try { return localStorage.getItem(k); } catch(e){ return k in mem ? mem[k] : null; } },
   set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k] = v; } }
 };
+
+/* ---------- the look: Auto, Daylight or Night Shift (Profile → Look) ---------- */
+function applyLook(){
+  const v = ["day", "night"].includes(store.get("ds.look")) ? store.get("ds.look") : "auto";
+  document.documentElement.dataset.look = v;
+  /* the phone's status bar and browser chrome take the chat list's colour */
+  const metas = document.querySelectorAll('meta[name="theme-color"]');
+  if (metas.length >= 2){
+    if (v === "auto"){ metas[0].setAttribute("media", "(prefers-color-scheme: light)"); metas[0].content = "#FFFFFF";
+                       metas[1].setAttribute("media", "(prefers-color-scheme: dark)"); metas[1].content = "#13201A"; }
+    else metas.forEach(m => { m.removeAttribute("media"); m.content = v === "night" ? "#13201A" : "#FFFFFF"; });
+  }
+  document.querySelectorAll("#profLook [data-look]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.look === v)));
+}
+applyLook();
 
 /* ---------- state ---------- */
 const G = {
@@ -3490,22 +3550,41 @@ async function signInGoogle(credential){
   const url = idtHost() + "/v1/accounts:signInWithIdp?key=" + AUTH.key;
   const body = { postBody: "id_token=" + encodeURIComponent(credential) + "&providerId=google.com",
                  requestUri: location.origin, returnSecureToken: true, returnIdpCredential: true };
-  let j;
-  try { j = await authCall(url, AUTH.token && !signedIn() ? Object.assign({ idToken: AUTH.token }, body) : body); }
-  catch (e){
-    /* that Google account already has an account here (from another phone): use it */
-    if (!/FEDERATED_USER_ID_ALREADY_LINKED|CREDENTIAL_ALREADY_IN_USE|EMAIL_EXISTS/.test(String(e.message))) throw e;
-    j = await authCall(url, body);
+  /* That Google account already belongs to an account here (made in another
+     browser or on another phone): sign in to that one instead of attaching it
+     to this browser's guest account. Firebase says so either as an error, or
+     as an "OK" carrying errorMessage, depending on the request. */
+  const taken = m => /FEDERATED_USER_ID_ALREADY_LINKED|CREDENTIAL_ALREADY_IN_USE|EMAIL_EXISTS/.test(String(m || ""));
+  let j = null;
+  if (AUTH.token && !signedIn()){
+    try { j = await authCall(url, Object.assign({ idToken: AUTH.token }, body)); }
+    catch (e){ if (!taken(e.message)) throw e; j = null; }
+    if (j && (taken(j.errorMessage) || j.needConfirmation || !j.idToken)) j = null;
   }
-  if (j.needConfirmation || !j.idToken) throw new Error("That email already signs in with an email link. Use the email option instead.");
+  if (!j) j = await authCall(url, body);
+  if (j.errorMessage && !j.idToken) throw new Error("Google sign-in didn’t go through (" + j.errorMessage + "). Try again, or use the email option.");
+  if (j.needConfirmation || !j.idToken) throw new Error("That email address already signs in with an email link. Use the email option instead.");
   authSignedIn(j);
 }
 
 async function emailSend(email){
   await authToken();
-  await authCall(idtHost() + "/v1/accounts:sendOobCode?key=" + AUTH.key, {
-    requestType: "EMAIL_SIGNIN", email: email, continueUrl: location.origin + location.pathname, canHandleCodeInApp: true });
+  try {
+    await authCall(idtHost() + "/v1/accounts:sendOobCode?key=" + AUTH.key, {
+      requestType: "EMAIL_SIGNIN", email: email, continueUrl: location.origin + location.pathname, canHandleCodeInApp: true });
+  } catch (e){ throw new Error(emailError(String(e.message))); }
   store.set("ds.emailPending", email);
+  store.set("ds.emailSentAt", String(Date.now()));
+}
+/* Firebase's reasons, in plain words */
+function emailError(m){
+  if (/QUOTA_EXCEEDED|DAILY_LIMIT/i.test(m)) return "Sign-in emails have run out for today: Firebase’s free plan sends 5 a day for the whole app. Use Google instead, or try again tomorrow.";
+  if (/TOO_MANY_ATTEMPTS/i.test(m)) return "Too many tries in a row. Wait a few minutes, or use Google instead.";
+  if (/UNAUTHORIZED_DOMAIN|INVALID_CONTINUE_URI|UNAUTHORIZED_CONTINUE_URI/i.test(m)) return "This site isn’t on the app’s list of allowed sign-in sites yet (Firebase → Authentication → Settings → Authorized domains).";
+  if (/OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/i.test(m)) return "Email sign-in isn’t switched on yet (Firebase → Authentication → Sign-in method → Email link).";
+  if (/INVALID_EMAIL/i.test(m)) return "That email address doesn’t look right.";
+  if (/fetch|network/i.test(m)) return "Couldn’t reach the sign-in service. Check your connection.";
+  return "Couldn’t send that (" + m + ").";
 }
 /* the code in a sign-in link: the link as it arrives, or as pasted from the email */
 function oobFrom(s){
@@ -3562,14 +3641,18 @@ function crewSignIn(after){
   $("#cvIcon").removeAttribute("style");
   $("#crAlerts").classList.add("hidden"); $("#crInfo").classList.add("hidden"); $("#crReq").classList.add("hidden");
   const pending = store.get("ds.emailPending") || "";
+  /* only say "check your email" for a link actually sent in the last hour */
+  const sentAt = Number(store.get("ds.emailSentAt") || 0);
+  const recent = pending && Date.now() - sentAt < 3600000;
   $("#crBody").innerHTML = '<div class="cr-setup"><div class="card si-card">' +
     '<h2>Sign in to your chats</h2>' +
     '<p class="tiny" style="margin:.4rem 0 1.1rem">Chats are end-to-end encrypted, so only the people in them can read them — not even whoever runs the database. Signing in keeps your account, and your chats, the same on every phone.</p>' +
     (GOOGLE_CLIENT_ID ? '<div id="siGoogle" class="si-google"></div><div class="si-or"><span>or</span></div>' : "") +
     '<label class="field"><span>Email</span><input type="email" id="siEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" value="' + esc(pending) + '"></label>' +
     '<button type="button" class="btn solid hs-act" id="siSend">Email me a sign-in link</button>' +
-    '<div id="siSent" class="si-sent' + (pending ? "" : " hidden") + '">' +
-      '<p><b>Check your email.</b> Tap the link in it to sign in.</p>' +
+    '<div id="siSent" class="si-sent' + (recent ? "" : " hidden") + '">' +
+      '<p id="siSentWhat"><b>Check your email.</b> Tap the link in it to sign in.</p>' +
+      '<p class="tiny">It comes from <b>noreply@dswt-eff47.firebaseapp.com</b>. Not there after a minute? Look in Spam or Promotions.</p>' +
       '<p class="tiny">Using JoshChat from your home screen? Press and hold the link in the email, copy it, and paste it here:</p>' +
       '<div class="si-paste"><input type="url" id="siPaste" placeholder="Paste the link" autocomplete="off"><button type="button" class="btn" id="siPasteGo">Sign in</button></div>' +
     '</div>' +
@@ -3581,8 +3664,13 @@ function crewSignIn(after){
     const em = ($("#siEmail").value || "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ note("That doesn’t look like an email address."); $("#siEmail").focus(); return; }
     $("#siSend").disabled = true; note("");
-    try { await emailSend(em); $("#siSent").classList.remove("hidden"); $("#siSend").textContent = "Send it again"; }
-    catch (e){ note(/fetch|network/i.test(String(e.message)) ? "Couldn’t reach the sign-in service. Check your connection." : "Couldn’t send that: " + e.message); }
+    $("#siSent").classList.add("hidden");
+    try {
+      await emailSend(em);
+      $("#siSentWhat").innerHTML = "<b>Sent to " + esc(em) + ".</b> Tap the link in it to sign in.";
+      $("#siSent").classList.remove("hidden"); $("#siSend").textContent = "Send it again";
+    }
+    catch (e){ note(e.message); }
     $("#siSend").disabled = false;
   });
   $("#siPasteGo").addEventListener("click", async () => {
@@ -5569,6 +5657,12 @@ function drawAccount(){
   $("#profOut").addEventListener("click", signOut);
 }
 $("#ibMe").addEventListener("click", drawAccount);
+$("#ibMe").addEventListener("click", applyLook);
+$("#profLook").addEventListener("click", e => {
+  const b = e.target.closest("[data-look]"); if (!b) return;
+  store.set("ds.look", b.dataset.look === "auto" ? "" : b.dataset.look);
+  applyLook();
+});
 
 /* the open game, if the crew has one going (a stale one is ignored) */
 function crewLive(){
@@ -7469,9 +7563,12 @@ authToken();   /* sign in early, so the first message or guess doesn't wait */
    would end up under it: size the app to the part of the screen that's visible */
 if (window.visualViewport){
   const fit = () => {
-    const vv = window.visualViewport;
-    document.documentElement.style.setProperty("--app-h", Math.round(vv.height) + "px");
-    if (vv.offsetTop) window.scrollTo(0, 0);
+    const vv = window.visualViewport, de = document.documentElement;
+    de.style.setProperty("--app-h", Math.round(vv.height) + "px");
+    /* iOS slides the view down to make room for the keyboard rather than
+       shrinking the page: move the app down by the same amount so the
+       message box sits right on top of the keyboard */
+    de.style.setProperty("--app-y", Math.max(0, Math.round(vv.offsetTop)) + "px");
   };
   window.visualViewport.addEventListener("resize", fit);
   window.visualViewport.addEventListener("scroll", fit);
