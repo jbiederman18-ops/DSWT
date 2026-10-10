@@ -183,6 +183,25 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .score-line b{font-variant-numeric:tabular-nums}
 .total{font-family:var(--display);font-weight:800;font-size:2.6rem;color:var(--marker);line-height:1}
 
+/* ---------- main menu ---------- */
+#menu{overflow:auto;padding:var(--pad);display:flex}
+.menu-inner{max-width:720px;margin:auto;width:100%;padding:clamp(1rem,4vh,2.5rem) 0}
+.menu{display:flex;flex-direction:column;gap:.7rem;margin:2.2rem 0 0}
+.mi{display:flex;align-items:stretch;gap:0;text-align:left;border:2px solid var(--ink);background:var(--card);
+    padding:0;box-shadow:var(--shadow);width:100%;overflow:hidden}
+.mi .mk{flex:0 0 auto;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:800;
+        font-size:1.05rem;display:flex;align-items:center;padding:0 .85em;letter-spacing:.02em}
+.mi .mt{padding:.75em .95em;display:block}
+.mi b{display:block;font-size:1.08rem;font-weight:700;line-height:1.2}
+.mi em{display:block;font-style:normal;font-size:.86rem;color:var(--ink-soft);margin-top:.12em}
+.mi:hover{background:var(--marker)}
+.mi:hover em{color:#55502a}
+.mi:active{transform:translateY(1px);box-shadow:none}
+.foot{max-width:56ch;margin-top:2.4rem}
+.backbar{display:flex;align-items:center;gap:.9rem;margin-bottom:1.6rem}
+.backbar h2{font-size:1.5rem}
+@media (max-width:520px){.mi b{font-size:1rem}.mi .mk{padding:0 .6em}}
+
 /* ---------- game master suite ---------- */
 #gm{background:var(--paper-deep)}
 .gm-top{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.6rem .9rem;background:var(--ink);color:var(--paper);flex:0 0 auto}
@@ -240,11 +259,38 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <div id="app">
 
 <!-- ============ INTAKE ============ -->
-<section id="intake" class="screen">
-  <div class="intake-inner">
+<!-- ============ MENU ============ -->
+<section id="menu" class="screen">
+  <div class="menu-inner">
     <div class="wordmark"><h1>DICKSHARTER</h1><div class="bar" id="wmbar"></div></div>
     <p class="submark">(working title)</p>
-    <p class="lede">Drop in saved crowdfunding pages. The money disappears, the good stuff gets pulled out, and your friends guess how much a stranger on the internet has raised.</p>
+    <p class="lede">A real crowdfunding page goes up on the screen with the money blacked out. Everyone guesses what it has raised and what it is asking for. Then you find out.</p>
+
+    <nav class="menu">
+      <button class="mi" id="miNew">
+        <span class="mk">01</span>
+        <span class="mt"><b>Start a new game</b><em>Drop in campaign pages saved as PDFs. One file per round.</em></span>
+      </button>
+      <button class="mi" id="miLoad">
+        <span class="mk">02</span>
+        <span class="mt"><b>Load a saved game</b><em>Six characters, and a game you built on another computer comes back.</em></span>
+      </button>
+      <button class="mi" id="miJoin">
+        <span class="mk">03</span>
+        <span class="mt"><b>Join on your phone</b><em>Playing, not hosting? Four letters off the TV and you're in.</em></span>
+      </button>
+    </nav>
+
+    <p class="tiny foot">Save a page from any browser with Print → Save as PDF. Everything happens on this device; nothing is uploaded unless you ask it to be.</p>
+  </div>
+</section>
+
+<section id="intake" class="screen hidden">
+  <div class="intake-inner">
+    <div class="backbar">
+      <button class="btn sm ghost" id="toMenu">‹ Menu</button>
+      <h2 id="intakeTitle">New game</h2>
+    </div>
 
     <div class="drop" id="drop">
       <h2>Drop your PDFs here</h2>
@@ -259,7 +305,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <label class="opt"><input type="checkbox" id="optImgs" checked><span>Pull out the campaign's own photos for the info card.</span></label>
     </div>
 
-    <p class="tiny" style="margin:-.6rem 0 1.4rem">Made this game on another computer? <button class="btn sm ghost" id="cloudBtn">Cloud save &amp; load…</button></p>
+    <p class="tiny" style="margin:-.6rem 0 1.4rem">Keep this game for another computer: <button class="btn sm ghost" id="cloudBtn">Cloud save &amp; load…</button></p>
     <div class="sheet hidden" id="cloudSheet" style="margin-top:-.8rem;margin-bottom:1.4rem">
         <h3 style="font-size:1rem;margin-bottom:.2rem">Cloud save</h3>
         <p class="tiny">Saves the source PDFs and every decision you've made — answers, blackout bars, which slides are in, what the info card shows. Open the code on another computer and the game comes back exactly as you left it, still editable. Rebuilding re-renders the pages, so allow a few seconds a round.</p>
@@ -1819,7 +1865,7 @@ $("#gmNextUp").addEventListener("click", () => {
    10. PLAY
    ============================================================ */
 function show(which){
-  ["intake","check","gm","play","player"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
+  ["menu","intake","check","gm","play","player"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
 }
 
 function loadRound(i){
@@ -1964,7 +2010,7 @@ $("#bNext").addEventListener("click", () => {
   if (G.idx + 1 < G.rounds.length) loadRound(G.idx + 1);
   else { toast("That was the last one"); }
 });
-$("#bQuit").addEventListener("click", () => { show("intake"); });
+$("#bQuit").addEventListener("click", () => { openIntake("Your game"); renderRoundList(true); });
 $$("#upSel button").forEach(b => b.addEventListener("click", () => setUp(Number(b.dataset.up))));
 $("#bPrev").addEventListener("click", () => goPanel(G.panel - 1));
 $("#bNextPanel").addEventListener("click", () => goPanel(G.panel + 1));
@@ -2531,6 +2577,27 @@ $("#copySave").addEventListener("click", () => {
 /* ============================================================
    13. WIRING
    ============================================================ */
+
+/* ---------- main menu ---------- */
+function openIntake(title){
+  show("intake");
+  $("#intakeTitle").textContent = title || "New game";
+}
+
+$("#miNew").addEventListener("click", () => {
+  openIntake(G.rounds.length ? "Your game" : "New game");
+  $("#cloudSheet").classList.add("hidden");
+});
+$("#miLoad").addEventListener("click", () => {
+  openIntake("Load a saved game");
+  $("#cloudSheet").classList.remove("hidden");
+  const box = $("#loadCode");
+  box.scrollIntoView({ block: "center" });
+  box.focus();
+});
+$("#miJoin").addEventListener("click", () => { show("player"); renderPlayer(); });
+$("#toMenu").addEventListener("click", () => show("menu"));
+
 $("#pick").addEventListener("click", () => $("#file").click());
 $("#file").addEventListener("change", e => { if (e.target.files.length) ingest(Array.from(e.target.files)); });
 
@@ -2573,6 +2640,8 @@ $("#toPlayer").addEventListener("click", e => {
 /* if someone lands here with #player, go straight to the phone view */
 if (/^#join=/i.test(location.hash)){
   show("player"); renderPlayer();
+} else if (location.hash === "#new"){
+  openIntake("New game");
 } else if (location.hash === "#player"){
   const saved = store.get("ds.game");
   if (saved) P.game = readJoinCode(saved);

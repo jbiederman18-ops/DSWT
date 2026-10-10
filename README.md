@@ -11,6 +11,11 @@ and it works.
 
 ## How a game goes
 
+Opening the page gives you three doors: **start a new game**, **load a saved
+game** by its six-character code, or **join on your phone** if someone else is
+hosting.
+
+
 1. Save some crowdfunding pages as PDFs (any browser's Print → Save as PDF).
 2. Open the page and drop them all in at once. Each file becomes a round: every
    dollar figure gets blacked out and the campaign's own claims get pulled into
