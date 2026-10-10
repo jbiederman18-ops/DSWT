@@ -474,6 +474,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 /* ---------- crew chat ---------- */
 #crew{background:var(--paper-deep)}
 .cr-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-top{text-align:center;font-size:.75rem;color:var(--ink-soft);padding:.4rem 0 .6rem}
 .cr-body{flex:1;min-height:0;display:flex;justify-content:center;overflow:auto}
 .cr-setup{width:100%;max-width:560px;padding:12px 12px 32px}
 .rp-chat.cr-chat{position:static;transform:none;visibility:visible;transition:none;border-radius:0;box-shadow:none;border:0;
@@ -3449,7 +3450,7 @@ async function loadDeckInto(id, deckEl, infoEl){
    Reactions live on the message: r.<name>.<pid> = that person's name. */
 const RX = [["laugh", "\u{1F602}"], ["money", "\u{1F911}"], ["dead", "\u{1F480}"], ["roll", "\u{1F644}"],
             ["fire", "\u{1F525}"], ["eyes", "\u{1F440}"], ["heart", "❤️"], ["up", "\u{1F44D}"]];
-const CHAT_KEEP = 250;   // messages drawn; older ones stay in the database
+const CHAT_KEEP = 250;   // messages drawn in a game room; the crew chat pages instead
 
 function makeChat(root, o){
   root.innerHTML =
@@ -3460,7 +3461,22 @@ function makeChat(root, o){
     '<button class="btn solid sm">Send</button></form>';
   const log = $(".ch-log", root), input = $(".ch-form input", root);
   const rows = {};
-  let cur = {}, lastPid = null, unread = 0, primed = false, picker = null;
+  let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
+  /* o.loadOlder (optional): fetch earlier messages when scrolled to the top.
+     o.hasMore() says whether there are any left to fetch. */
+  let top = null;
+  function drawTop(n){
+    if (!o.loadOlder || !n){ if (top){ top.remove(); top = null; } return; }
+    if (!top){ top = document.createElement("div"); top.className = "ch-top"; }
+    if (log.firstChild !== top) log.insertBefore(top, log.firstChild);
+    top.textContent = o.loading && o.loading() ? "Loading earlier messages…" :
+                      o.hasMore() ? "Scroll up for earlier messages" : "That’s the start of the chat";
+  }
+  function wantOlder(){
+    if (!o.loadOlder || !o.hasMore() || (o.loading && o.loading())) return;
+    if (log.scrollTop < 80 || log.scrollHeight <= log.clientHeight + 4) o.loadOlder();
+  }
+  if (o.loadOlder) log.addEventListener("scroll", wantOlder, { passive: true });
 
   async function post(url, method, body){
     try { const res = await fetch(url, { method: method, body: JSON.stringify(body) }); return res.ok; }
@@ -3477,8 +3493,16 @@ function makeChat(root, o){
     const m = cur[key];
     if (!m) return;
     const mine = !!(m.r && m.r[name] && m.r[name][o.me()]);
+    /* show it now: messages older than the live window get no echo from the database */
+    const set = on => {
+      m.r = m.r || {};
+      if (on){ m.r[name] = m.r[name] || {}; m.r[name][o.me()] = String(o.name()).slice(0, 40); }
+      else if (m.r[name]){ delete m.r[name][o.me()]; if (!Object.keys(m.r[name]).length) delete m.r[name]; }
+      if (rows[key]) drawReactions(key);
+    };
+    set(!mine);
     const ok = await post(o.url("/" + key + "/r/" + name + "/" + o.me()), "PUT", mine ? null : String(o.name()).slice(0, 40));
-    if (!ok) toast("Couldn’t add that reaction");
+    if (!ok){ set(mine); toast("Couldn’t add that reaction"); }
   }
 
   $(".ch-form", root).addEventListener("submit", e => {
@@ -3560,7 +3584,22 @@ function makeChat(root, o){
 
   function update(chat, sub){
     cur = chat || {};
-    const keys = Object.keys(cur).sort().slice(-CHAT_KEEP);
+    const all = Object.keys(cur).sort();
+    const keys = o.loadOlder ? all : all.slice(-CHAT_KEEP);
+    /* earlier messages arrived: redraw in order, keeping the view where it was */
+    if (first && keys.length && keys[0] < first){
+      const fromBottom = log.scrollHeight - log.scrollTop;
+      for (const k in rows) rows[k].el.remove();
+      for (const k in rows) delete rows[k];
+      closePicker();
+      lastPid = null;
+      for (const k of keys) append(k, cur[k] || {});
+      first = keys[0];
+      drawTop(keys.length);
+      log.scrollTop = log.scrollHeight - fromBottom;
+      $(".ch-sub", root).textContent = sub || "";
+      return;
+    }
     const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
     let mineAdded = false, others = 0;
     for (const k of keys){
@@ -3576,7 +3615,11 @@ function makeChat(root, o){
     if (keys.length && (nearBottom || mineAdded || !primed)) log.scrollTop = log.scrollHeight;
     if (primed && others && !o.isOpen()){ unread += others; o.onUnread(unread); }
     primed = true;
+    first = keys[0] || "";
+    drawTop(keys.length);
     $(".ch-sub", root).textContent = sub || "";
+    /* a short chat that doesn't fill the screen can't be scrolled, so fetch more now */
+    if (o.loadOlder) setTimeout(wantOlder, 0);
   }
 
   return {
@@ -3594,7 +3637,10 @@ const roomChatUrl = sub => gamePath("/chat" + sub);
    When a host opens a room for the crew, it writes crew/live and the
    whole crew gets a "going live" banner, wherever they are in the app.
    Inside a game the crew chat carries on, so it is one conversation. */
-const CR = { code: store.get("ds.crew") || "", es: null, state: {}, chat: null, liveSeen: null, primed: false, flash: null };
+const CR = { code: store.get("ds.crew") || "", es: null, state: {}, chat: null, liveSeen: null, primed: false, flash: null,
+             chatMore: false, olderBusy: false };
+const CHAT_PAGE = 60;    // the crew chat streams the newest 60 and fetches earlier ones on demand
+const byKey = extra => "?orderBy=" + encodeURIComponent('"$key"') + extra;
 
 function crewPath(sub, code){ return savePath("/" + (code || CR.code) + "/crew" + (sub || "")); }
 const crewChatUrl = sub => crewPath("/chat" + sub);
@@ -3604,22 +3650,76 @@ function crewLabel(){
 }
 function crewName(){ return ((CR.state.meta || {}).name) || "Crew"; }
 
+/* The crew is several small streams rather than one big one, so opening the
+   app downloads the crew's name, its members, whether a game is live and the
+   newest CHAT_PAGE messages, not the whole history. Push subscriptions are
+   never streamed. CR.es looks like one EventSource to the rest of the app. */
 function crewConnect(){
   if (CR.es){ CR.es.close(); CR.es = null; }
   if (!CR.code || !dbRoot()) return;
-  const es = new EventSource(crewPath(""));
-  CR.es = es;
-  const handle = isPatch => ev => {
-    let msg;
-    try { msg = JSON.parse(ev.data); } catch (e){ return; }
-    if (!msg) return;
-    msg.isPatch = isPatch;
-    CR.state = applyEvent(CR.state, msg);
-    crewChanged();
+  const list = [];
+  const open = (name, url, onMsg) => {
+    const es = new EventSource(url);
+    const handle = isPatch => ev => {
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch (e){ return; }
+      if (!msg || typeof msg.path !== "string") return;
+      msg.isPatch = isPatch;
+      onMsg(msg);
+      crewChanged();
+    };
+    es.addEventListener("put", handle(false));
+    es.addEventListener("patch", handle(true));
+    list.push(es);
   };
-  es.addEventListener("put", handle(false));
-  es.addEventListener("patch", handle(true));
+  /* meta, live and members: each kept as CR.state[name] */
+  for (const name of ["meta", "live", "members"]){
+    open(name, crewPath("/" + name), msg => {
+      const box = applyEvent({ v: CR.state[name] }, { path: "/v" + (msg.path === "/" ? "" : msg.path), data: msg.data, isPatch: msg.isPatch });
+      CR.state[name] = box.v;
+    });
+  }
+  let firstLoad = true;
+  open("chat", crewPath("/chat") + byKey("&limitToLast=" + CHAT_PAGE), msg => {
+    const chat = CR.state.chat || (CR.state.chat = {});
+    if (msg.path === "/"){
+      /* the newest page; anything fetched earlier stays */
+      const got = msg.data || {};
+      if (firstLoad) CR.chatMore = Object.keys(got).length >= CHAT_PAGE;
+      firstLoad = false;
+      if (msg.isPatch || msg.data) Object.assign(chat, got);
+      return;
+    }
+    /* a whole message turning null is the window sliding past it: keep it */
+    if (msg.data === null && msg.path.split("/").filter(Boolean).length === 1) return;
+    applyEvent(CR.state, { path: "/chat" + msg.path, data: msg.data, isPatch: msg.isPatch });
+  });
+  CR.es = {
+    close(){ list.forEach(es => es.close()); },
+    get readyState(){ return list.some(es => es.readyState === 2) ? 2 : 1; }
+  };
 }
+
+/* the next page of earlier messages, before the oldest one we have */
+async function crewOlder(){
+  const keys = Object.keys(CR.state.chat || {}).sort();
+  if (!CR.chatMore || CR.olderBusy || !keys.length || !CR.code) return;
+  CR.olderBusy = true;
+  crewChanged();
+  try {
+    const got = await getJSON(crewPath("/chat") + byKey("&endAt=" + encodeURIComponent(JSON.stringify(keys[0])) + "&limitToLast=" + (CHAT_PAGE + 1)));
+    const n = got ? Object.keys(got).length : 0;
+    if (got) CR.state.chat = Object.assign(got, CR.state.chat || {});
+    CR.chatMore = n > CHAT_PAGE;
+  } catch (e){ toast("Couldn’t load earlier messages"); }
+  CR.olderBusy = false;
+  crewChanged();
+}
+const crewPaging = {
+  loadOlder: crewOlder,
+  hasMore: () => CR.chatMore,
+  loading: () => CR.olderBusy
+};
 
 /* the open game, if the crew has one going (a stale one is ignored) */
 function crewLive(){
@@ -3700,7 +3800,7 @@ async function crewJoin(code, name){
   let meta = null;
   try { meta = await getJSON(crewPath("/meta", code)); } catch (e){ return "Couldn’t reach the database."; }
   if (!meta) return "There’s no crew under that code.";
-  CR.code = code; CR.state = {}; CR.primed = false; CR.liveSeen = null;
+  CR.code = code; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null;
   store.set("ds.crew", code);
   if (name) store.set("ds.name", name);
   crewTouch();
@@ -3921,7 +4021,8 @@ function crewScreenChat(){
     isOpen: () => !$("#crew").classList.contains("hidden"),
     onUnread: () => {},
     placeholder: "Message the crew…",
-    empty: "Quiet in here. Say hi — and tap any message to react to it."
+    empty: "Quiet in here. Say hi — and tap any message to react to it.",
+    ...crewPaging
   });
   CR.chat.update(CR.state.chat, crewLabel());
   alertsButton();
@@ -3989,7 +4090,7 @@ function rpMount(state){
   const crew = state.meta.crew || "";
   /* a game opened for a crew uses the crew's chat, and joining it puts you in the crew */
   if (crew && crew !== CR.code){
-    CR.code = crew; CR.state = {}; CR.primed = false; CR.liveSeen = null;
+    CR.code = crew; CR.state = {}; CR.chatMore = false; CR.primed = false; CR.liveSeen = null;
     store.set("ds.crew", crew);
     crewConnect();
   }
@@ -4002,7 +4103,8 @@ function rpMount(state){
     name: () => store.get("ds.name") || "Anonymous",
     isOpen: () => RP.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#rpBadge"), n),
-    onClose: () => rpSetChat(false)
+    onClose: () => rpSetChat(false),
+    ...(crew ? crewPaging : {})
   });
   if (crew) RP.chat.update(CR.state.chat, crewLabel());
 }
@@ -4283,7 +4385,7 @@ async function hostResume(){
     if (!meta){ LIVE.code = ""; store.set("ds.hostSess", ""); hostSetup("That room is gone. Open a new one."); return; }
     RH.crew = !!meta.crew;
     if (meta.crew && (meta.crew !== CR.code || !CR.es)){
-      CR.code = meta.crew; CR.state = {}; CR.primed = false; store.set("ds.crew", meta.crew); crewConnect();
+      CR.code = meta.crew; CR.state = {}; CR.chatMore = false; CR.primed = false; store.set("ds.crew", meta.crew); crewConnect();
     }
   } catch (e){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
   hostAttach();
@@ -4302,7 +4404,8 @@ function hostAttach(){
     name: () => "Host",
     isOpen: () => RH.chatOpen || wideScreen(),
     onUnread: n => setBadge($("#hsBadge"), n),
-    onClose: () => hsSetChat(false)
+    onClose: () => hsSetChat(false),
+    ...(RH.crew ? crewPaging : {})
   });
   if (RH.crew) RH.chat.update(CR.state.chat, crewLabel());
   drawLiveBanner();
