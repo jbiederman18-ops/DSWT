@@ -116,6 +116,63 @@
               "$other": {
                 ".validate": false
               }
+            },
+            "bg": {
+              ".validate": "newData.hasChildren(['img'])",
+              "img": {
+                ".validate": "newData.isString() && newData.val().length <= 40"
+              },
+              "fr": {
+                ".validate": "newData.hasChildren(['x', 'y', 'w', 'h', 'iw', 'ih'])",
+                "x": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+                },
+                "y": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+                },
+                "w": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+                },
+                "h": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+                },
+                "iw": {
+                  ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 20000"
+                },
+                "ih": {
+                  ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 20000"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+            "pf": {
+              ".validate": "newData.hasChildren(['x', 'y', 'w', 'h', 'iw', 'ih'])",
+              "x": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+              },
+              "y": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+              },
+              "w": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+              },
+              "h": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+              },
+              "iw": {
+                ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 20000"
+              },
+              "ih": {
+                ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 20000"
+              },
+              "$other": {
+                ".validate": false
+              }
             }
           },
           "members": {

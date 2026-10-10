@@ -547,6 +547,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .crop-view{position:relative;width:min(78vw,300px);aspect-ratio:1;margin:.9rem auto .7rem;overflow:hidden;border-radius:16px;background:#0B1411;
            touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;outline-offset:3px}
 .crop-view:active{cursor:grabbing}
+.crop-view.tall{width:min(52vw,210px,calc((var(--app-h,100vh) - 300px) * .5625))}
 .crop-view:focus{outline:none}
 .crop-view:focus-visible{outline:2px solid var(--m-green)}
 .crop-view img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;-webkit-user-drag:none}
@@ -807,7 +808,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .nc-person:has(input:checked){background:var(--m-mint)}
 
 /* chat settings */
-.info-card{max-height:min(88vh,760px);overflow:auto}
+.info-card{max-height:min(100%,760px);overflow:auto}
 .info-hero{display:flex;align-items:center;gap:.8rem}
 .info-hero input[type=text]{flex:1;font-family:var(--m-name);font-weight:700;font-size:1.3rem;background:transparent;border-color:transparent;padding:.35em .5em}
 .info-hero input[type=text]:hover{border-color:var(--m-line)}
@@ -825,6 +826,13 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .nick-row{display:flex;align-items:center;gap:.6rem}
 .nick-real{flex:0 1 38%;min-width:0;font-weight:600;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nick-row input[type=text]{flex:1;min-width:0;padding:.45em .7em}
+.bg-pick{display:flex;gap:.8rem;align-items:center}
+.bg-thumb{flex:0 0 auto;width:46px;height:82px;border-radius:10px;background:var(--m-bg);box-shadow:inset 0 0 0 1px var(--m-line)}
+.bg-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:.1rem}
+.bg-txt b{font-family:var(--m-name);font-weight:700;font-size:.98rem}
+.bg-txt > span{font-size:.84rem;color:var(--m-soft);line-height:1.35}
+.bg-acts{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.45rem}
+.msgr .bg-acts .btn.sm{padding:.4em .85em;font-size:.84rem}
 .inv-row{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
 .inv-code{font-family:var(--m-name);font-weight:800;font-size:1.3rem;letter-spacing:.1em}
 
@@ -924,7 +932,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   --m-surf:rgba(255,255,255,.78); --m-ink:#12221B; --m-soft:#4A5751; --m-line:rgba(18,34,27,.12); --m-mint:rgba(255,255,255,.7);
   --m-other:rgba(255,255,255,.8); --m-press:rgba(18,34,27,.06); --m-bubble:rgba(255,255,255,.84);
   --cv-shade:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.12) 40%,rgba(255,255,255,.34));
-  background:var(--cv-shade),var(--cv-photo,none) center/cover no-repeat,linear-gradient(160deg,var(--me-a),var(--me-b));
+  background:var(--cv-shade),var(--cv-photo,none) var(--bg-pos,center)/var(--bg-size,cover) no-repeat,linear-gradient(160deg,var(--me-a),var(--me-b));
 }
 .msgr .convo[data-scene=photo].dark-theme{
   color-scheme:dark;
@@ -938,6 +946,16 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 .msgr .convo[data-scene=photo] .ch-sys{align-self:center;background:var(--m-surf);color:var(--m-ink);border-radius:99px;padding:.3em .9em;
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .msgr .convo[data-scene=photo] .ch-n,.msgr .convo[data-scene=photo] .ch-seen,.msgr .convo[data-scene=photo] .ch-meta{text-shadow:0 1px 6px var(--m-surf)}
+
+/* ---------- a backdrop of the chat's own, behind any theme ----------
+   The theme keeps its bubbles, fonts and colours; only the scenery changes.
+   A wash towards the theme's own background keeps names and notes readable. */
+.msgr .convo.has-bg{--bg-shade:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,.28) 40%,rgba(255,255,255,.55));--bg-halo:rgba(255,255,255,.95);
+  background:var(--bg-shade),var(--bg-photo,none) var(--bg-pos,center)/var(--bg-size,cover) no-repeat,var(--m-bg) !important}
+.msgr .convo.has-bg.bg-dark{--bg-shade:linear-gradient(180deg,rgba(0,0,0,.52),rgba(0,0,0,.3) 40%,rgba(0,0,0,.6));--bg-halo:rgba(0,0,0,.9)}
+.msgr .convo.has-bg::before,.msgr .convo.has-bg::after{display:none}
+.msgr .convo.has-bg .ch-n,.msgr .convo.has-bg .ch-seen,.msgr .convo.has-bg .ch-meta,.msgr .convo.has-bg .ch-top,
+.msgr .convo.has-bg .ch-empty,.msgr .convo.has-bg .ch-sys,.msgr .convo.has-bg .ch-status{text-shadow:0 0 8px var(--bg-halo),0 1px 2px var(--bg-halo)}
 
 /* --- Ink & Omen: a cursed notebook --- */
 .msgr .convo[data-scene=ink]{
@@ -1205,7 +1223,10 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 /* inside #app, which moves with the keyboard and so already places these:
    they fill the app, nothing more (adding --app-y here pushed them down twice) */
 .modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
-.modal .card{width:100%;max-width:460px;margin:0 !important;border-radius:16px !important}
+/* a sheet never grows past the visible space: the modal fills the app, which
+   is sized to what's above the keyboard, so a long sheet scrolls inside itself
+   instead of pushing its top off the screen (vh would ignore the keyboard) */
+.modal .card{width:100%;max-width:460px;margin:0 !important;border-radius:16px !important;max-height:100%;overflow:auto;overscroll-behavior:contain}
 @media (min-width:600px){.modal{align-items:center}}
 .ios-steps{margin:0;padding-left:1.3rem;font-size:.95rem}
 .ios-steps li{margin-bottom:.45rem}
@@ -1652,6 +1673,10 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       <input type="file" accept="image/*" id="infPhotoFile" hidden>
       <label class="field theme-name hidden" id="infThemeNameWrap"><span>Theme name</span>
         <input type="text" id="infThemeName" maxlength="40" placeholder="Name your photo theme"></label>
+      <p class="tiny hidden" id="infPhotoFrameWrap" style="margin:.4rem 0 0"><button type="button" class="linkish" id="infPhotoFrame">Reframe the photo</button></p>
+      <h3>Background</h3>
+      <input type="file" accept="image/*" id="infBgFile" hidden>
+      <div class="bg-pick" id="infBg"></div>
       <h3>Icon</h3>
       <input type="file" accept="image/*" id="infPicFile" hidden>
       <div class="icon-row" id="infIcons"></div>
@@ -7266,10 +7291,12 @@ function hslToHex(h, s, l){
    and resolves to a size×size canvas of what's inside it, or null if cancelled.
    The photo always covers the window, so there's never an empty edge. */
 const CROP = { img: null, W: 0, H: 0, base: 1, k: 1, x: 0, y: 0, done: null, pts: new Map(), last: null };
+/* the frame's size on screen: square for faces and icons, taller for a background */
+const cropBox = () => { const v = $("#cropView"); return { w: v.clientWidth, h: v.clientHeight }; };
 function cropDraw(){
-  const v = $("#cropView").clientWidth, s = CROP.base * CROP.k;
-  CROP.x = Math.min(0, Math.max(v - CROP.W * s, CROP.x));
-  CROP.y = Math.min(0, Math.max(v - CROP.H * s, CROP.y));
+  const b = cropBox(), s = CROP.base * CROP.k;
+  CROP.x = Math.min(0, Math.max(b.w - CROP.W * s, CROP.x));
+  CROP.y = Math.min(0, Math.max(b.h - CROP.H * s, CROP.y));
   $("#cropImg").style.transform = "translate(" + CROP.x + "px," + CROP.y + "px) scale(" + s + ")";
   $("#cropZoom").value = String(CROP.k);
 }
@@ -7281,23 +7308,39 @@ function cropZoomAt(k, cx, cy){
   CROP.k = k;
   cropDraw();
 }
+/* opts: title, round, size (square output in px), or for a background:
+   aspect (width / height), frame: true (answer with where the frame sits
+   rather than a cut-out picture), rect (a frame to start from), url (a
+   picture already loaded, instead of a file) */
 async function cropPhoto(file, opts){
   opts = opts || {};
-  const { url } = await shrinkPhoto(file);
+  const url = opts.url || (await shrinkPhoto(file)).url;
   const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("Couldn’t open that picture")); i.src = url; });
   return new Promise(resolve => {
-    Object.assign(CROP, { img: img, W: img.naturalWidth, H: img.naturalHeight, k: 1, done: resolve, last: null });
+    Object.assign(CROP, { img: img, W: img.naturalWidth, H: img.naturalHeight, k: 1, done: resolve, last: null, frame: !!opts.frame, url: url });
     CROP.pts.clear();
     $("#cropH").textContent = opts.title || "Move and scale";
-    $("#cropMask").style.borderRadius = opts.round ? "50%" : "22%";
+    $("#cropMask").style.borderRadius = opts.round ? "50%" : opts.aspect ? "14px" : "22%";
+    const view = $("#cropView");
+    view.style.aspectRatio = String(opts.aspect || 1);
+    view.classList.toggle("tall", !!opts.aspect && opts.aspect < 1);
+    $("#cropUse").textContent = opts.use || "Use photo";
     const el = $("#cropImg");
     el.src = url; el.style.width = CROP.W + "px"; el.style.height = CROP.H + "px";
     $("#cropSheet").classList.remove("hidden");
     CROP.size = opts.size || 160;
     requestAnimationFrame(() => {
-      const v = $("#cropView").clientWidth;
-      CROP.base = v / Math.min(CROP.W, CROP.H);
-      CROP.x = (v - CROP.W * CROP.base) / 2; CROP.y = (v - CROP.H * CROP.base) / 2;
+      const b = cropBox();
+      CROP.base = Math.max(b.w / CROP.W, b.h / CROP.H);        /* the photo just covers the frame */
+      const r = opts.rect;
+      if (r && r.w > 0 && r.h > 0){
+        /* start where it was framed last time */
+        CROP.k = Math.max(1, Math.min(4, b.w / (r.w * CROP.W) / CROP.base));
+        const s = CROP.base * CROP.k;
+        CROP.x = -r.x * CROP.W * s; CROP.y = -r.y * CROP.H * s;
+      } else {
+        CROP.x = (b.w - CROP.W * CROP.base) / 2; CROP.y = (b.h - CROP.H * CROP.base) / 2;
+      }
       cropDraw();
       $("#cropView").focus({ preventScroll: true });
     });
@@ -7305,10 +7348,17 @@ async function cropPhoto(file, opts){
 }
 function cropFinish(use){
   const done = CROP.done; CROP.done = null;
-  const v = $("#cropView").clientWidth, s = CROP.base * CROP.k, S = CROP.size;   /* measured while it's still showing */
+  const b = cropBox(), v = b.w, s = CROP.base * CROP.k, S = CROP.size;   /* measured while it's still showing */
   $("#cropSheet").classList.add("hidden");
   if (!done) return;
   if (!use){ done(null); return; }
+  if (CROP.frame){
+    /* where the frame sits on the photo, as fractions of it */
+    const f = n => Math.round(Math.max(0, Math.min(1, n)) * 10000) / 10000;
+    done({ rect: { x: f(-CROP.x / s / CROP.W), y: f(-CROP.y / s / CROP.H), w: f(b.w / s / CROP.W), h: f(b.h / s / CROP.H) },
+           iw: CROP.W, ih: CROP.H, url: CROP.url });
+    return;
+  }
   const c = document.createElement("canvas"); c.width = S; c.height = S;
   const g = c.getContext("2d");
   g.imageSmoothingQuality = "high";
@@ -7342,16 +7392,16 @@ function cropFinish(use){
   view.addEventListener("pointercancel", up);
   view.addEventListener("wheel", e => { e.preventDefault(); const p = at(e); cropZoomAt(CROP.k * Math.exp(-e.deltaY / 400), p.x, p.y); }, { passive: false });
   view.addEventListener("keydown", e => {
-    const v = view.clientWidth / 2, step = 12;
+    const v = view.clientWidth / 2, vy = view.clientHeight / 2, step = 12;
     if (e.key === "ArrowLeft") CROP.x += step; else if (e.key === "ArrowRight") CROP.x -= step;
     else if (e.key === "ArrowUp") CROP.y += step; else if (e.key === "ArrowDown") CROP.y -= step;
-    else if (e.key === "+" || e.key === "=") return void (e.preventDefault(), cropZoomAt(CROP.k * 1.1, v, v));
-    else if (e.key === "-") return void (e.preventDefault(), cropZoomAt(CROP.k / 1.1, v, v));
+    else if (e.key === "+" || e.key === "=") return void (e.preventDefault(), cropZoomAt(CROP.k * 1.1, v, vy));
+    else if (e.key === "-") return void (e.preventDefault(), cropZoomAt(CROP.k / 1.1, v, vy));
     else if (e.key === "Enter") return void (e.preventDefault(), cropFinish(true));
     else return;
     e.preventDefault(); cropDraw();
   });
-  $("#cropZoom").addEventListener("input", e => { const v = view.clientWidth / 2; cropZoomAt(Number(e.target.value), v, v); });
+  $("#cropZoom").addEventListener("input", e => cropZoomAt(Number(e.target.value), view.clientWidth / 2, view.clientHeight / 2));
   $("#cropUse").addEventListener("click", () => cropFinish(true));
   $("#cropCancel").addEventListener("click", () => cropFinish(false));
 })();
@@ -7506,8 +7556,69 @@ function crewDecor(){
   }
   loadFont(t.font);
   if (CR.chat.reacts && CR.reacts !== t.id){ CR.reacts = t.id; CR.chat.reacts(t.rx || null); }
+  drawBackdrop();
   if (!$("#infoSheet").classList.contains("hidden")) drawInfo();
 }
+
+/* ---------- the chat's backdrop ----------
+   meta.bg = { img, fr }: a picture of the chat's own behind whatever theme
+   it uses (the theme's bubbles and colours stay). meta.pf: how the photo
+   theme's own picture is framed. A frame is where it sits on the picture,
+   { x, y, w, h } as fractions, plus the picture's size { iw, ih }; it's
+   fitted to whatever shape the chat is on each screen. */
+const BG_ASPECT = 9 / 16;
+const frOk = f => !!(f && typeof f === "object" && ["x", "y", "w", "h"].every(k => typeof f[k] === "number" && f[k] >= 0 && f[k] <= 1) &&
+                     f.w > 0 && f.h > 0 && f.iw > 0 && f.ih > 0 && f.iw <= 20000 && f.ih <= 20000);
+const bgOk = b => !!(b && typeof b === "object" && /^[-\w]{1,40}$/.test(String(b.img || "")));
+const frameOf = fr => frOk(fr) ? { x: fr.x, y: fr.y, w: fr.w, h: fr.h, iw: fr.iw, ih: fr.ih } : null;
+/* place a framed picture so the framed part covers the element, centred */
+function frameVars(el, f){
+  if (!frOk(f)){ el.style.removeProperty("--bg-size"); el.style.removeProperty("--bg-pos"); return; }
+  const cw = el.clientWidth, ch = el.clientHeight;
+  if (!cw || !ch) return;
+  const rw = f.w * f.iw, rh = f.h * f.ih, s = Math.max(cw / rw, ch / rh), W = f.iw * s, H = f.ih * s;
+  const x = Math.min(0, Math.max(cw - W, cw / 2 - (f.x * f.iw + rw / 2) * s));
+  const y = Math.min(0, Math.max(ch - H, ch / 2 - (f.y * f.ih + rh / 2) * s));
+  el.style.setProperty("--bg-size", Math.ceil(W) + "px " + Math.ceil(H) + "px");
+  el.style.setProperty("--bg-pos", Math.round(x) + "px " + Math.round(y) + "px");
+}
+/* a short blob: address for a big data: picture, so restyling stays cheap */
+function blobOf(dataUrl){ return NATIVE_FETCH(dataUrl).then(r => r.blob()).then(b => URL.createObjectURL(b)).catch(() => dataUrl); }
+/* is the theme's text light? then the picture gets a dark wash, and the other way round */
+function inkIsLight(el){
+  const m = /^#([0-9a-f]{6})$/i.exec(getComputedStyle(el).getPropertyValue("--m-ink").trim());
+  if (!m) return false;
+  const n = parseInt(m[1], 16);
+  return (0.2126 * (n >> 16) + 0.7152 * (n >> 8 & 255) + 0.0722 * (n & 255)) / 255 > 0.6;
+}
+function drawBackdrop(){
+  const cv = $("#convo"), meta = CR.state.meta || {};
+  const bg = CR.code && bgOk(meta.bg) ? meta.bg : null;
+  cv.classList.toggle("has-bg", !!bg);
+  if (!bg){
+    frameVars(cv, themeOf(meta.theme).id === "photo" ? meta.pf : null);
+    return;
+  }
+  frameVars(cv, bg.fr);
+  cv.classList.toggle("bg-dark", inkIsLight(cv));
+  const id = bg.img;
+  if (CR.bg && CR.bg.id === id){
+    if (CR.bg.url) cv.style.setProperty("--bg-photo", 'url("' + CR.bg.url + '")');
+    return;
+  }
+  if (CR.bg && /^blob:/.test(CR.bg.url)) URL.revokeObjectURL(CR.bg.url);
+  CR.bg = { id: id, src: "", url: "" };
+  crewRich.media.get(id).then(async src => {
+    if (!src || !CR.bg || CR.bg.id !== id) return;
+    const url = await blobOf(src);
+    if (!CR.bg || CR.bg.id !== id) return;
+    CR.bg.src = src; CR.bg.url = url;
+    drawBackdrop();
+    if (!$("#infoSheet").classList.contains("hidden")) drawInfo();
+  });
+}
+/* the chat changes shape (rotating, the keyboard, a wider window): refit it */
+if (window.ResizeObserver) new ResizeObserver(() => { if (CR.code && CR.chat) drawBackdrop(); }).observe($("#convo"));
 
 /* ---------- read positions, kept on this phone ---------- */
 function readMap(){ try { return JSON.parse(store.get("ds.readMap") || "{}"); } catch (e){ return {}; } }
@@ -7854,6 +7965,18 @@ function drawInfo(){
   const tn = $("#infThemeName");
   $("#infThemeNameWrap").classList.toggle("hidden", !(hasPhoto && themeOf(meta.theme).id === "photo"));
   if (hasPhoto && document.activeElement !== tn) tn.value = meta.photo.n || "";
+  $("#infPhotoFrameWrap").classList.toggle("hidden", !(hasPhoto && themeOf(meta.theme).id === "photo"));
+  /* the background: the theme's own, or a picture of the chat's own */
+  const bg = bgOk(meta.bg) ? meta.bg : null, cur = themeOf(meta.theme);
+  const bgShot = bg && CR.bg && CR.bg.id === bg.img && CR.bg.src ? CR.bg.src : "";
+  const thumb = bg ? (bgShot ? "center/cover no-repeat url(&quot;" + bgShot + "&quot;)" : "var(--m-other)")
+                   : cur.photo && shot ? "center/cover no-repeat url(&quot;" + shot + "&quot;)" : (cur.prev || "linear-gradient(160deg," + cur.a + "," + cur.b + ")");
+  $("#infBg").innerHTML = '<span class="bg-thumb" style="background:' + thumb + '"></span>' +
+    '<span class="bg-txt"><b>' + (bg ? "Your picture" : "The theme’s own") + '</b>' +
+    '<span>' + (bg ? "Behind whichever theme you pick. Everyone in the chat sees it." : "Put a picture of your own behind this theme. Its bubbles and colours stay.") + '</span>' +
+    '<span class="bg-acts">' + (bg
+      ? '<button type="button" class="btn sm" data-bg="frame">Reframe</button><button type="button" class="btn sm" data-bg="new">Change</button><button type="button" class="btn sm danger" data-bg="off">Remove</button>'
+      : '<button type="button" class="btn sm solid" data-bg="new">Choose a picture</button>') + '</span></span>';
   const hasPic = typeof meta.pic === "string" && PIC_RE.test(meta.pic);
   $("#infIcons").innerHTML = '<button type="button" data-i="" class="' + (meta.icon || hasPic ? "" : "on") + '" aria-label="Initials">' + esc(initials(crewName())) + '</button>' +
     (hasPic ? '<button type="button" data-i="pic" class="on pic" aria-label="Change the chat photo" title="Change the chat photo"><img alt="" src="' + meta.pic + '"></button>' : "") +
@@ -7936,20 +8059,65 @@ $("#infIcons").addEventListener("click", e => {
   if ((CR.state.meta || {}).pic) setMeta("pic", null, null);
   setMeta("icon", b.dataset.i || null, null);
 });
+/* ---------- the background picture ---------- */
+const frameOpts = (title, use) => ({ aspect: BG_ASPECT, frame: true, title: title, use: use });
+$("#infBg").addEventListener("click", e => {
+  const b = e.target.closest("[data-bg]"); if (!b) return;
+  if (b.dataset.bg === "new") $("#infBgFile").click();
+  else if (b.dataset.bg === "frame") reframe("bg");
+  else if (b.dataset.bg === "off"){
+    const old = (CR.state.meta || {}).bg;
+    setMeta("bg", null, myName() + " went back to the theme’s background");
+    if (old && old.img) crewRich.media.drop(old.img);      /* only goes through for whoever added it */
+  }
+});
+$("#infBgFile").addEventListener("change", async e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!file || !CR.code) return;
+  let f = null;
+  try { f = await cropPhoto(file, frameOpts("Frame the background", "Use as background")); }
+  catch (err){ toast(String((err && err.message) || "Couldn’t open that picture")); return; }
+  if (!f || !CR.code) return;
+  toast("Setting the background…");
+  try {
+    const id = await crewRich.media.put(f.url);
+    const old = (CR.state.meta || {}).bg;
+    CR.bg = { id: id, src: f.url, url: await blobOf(f.url) };
+    await setMeta("bg", { img: id, fr: Object.assign({}, f.rect, { iw: f.iw, ih: f.ih }) }, myName() + " changed the chat background");
+    if (old && old.img && old.img !== id) crewRich.media.drop(old.img);
+  } catch (err){ toast("Couldn’t use that picture. Try again."); }
+});
+/* move or zoom a picture that's already there: the background, or the photo theme's */
+async function reframe(kind){
+  const meta = CR.state.meta || {};
+  const src = kind === "bg" ? CR.bg && CR.bg.src : CR.photo && CR.photo.src;
+  if (!src){ toast("Still loading the picture. Try again in a moment."); return; }
+  const cur = kind === "bg" ? meta.bg && meta.bg.fr : meta.pf;
+  const f = await cropPhoto(null, Object.assign(frameOpts("Reframe the background", "Save"), { url: src, rect: frOk(cur) ? cur : null })).catch(() => null);
+  if (!f || !CR.code) return;
+  const fr = Object.assign({}, f.rect, { iw: f.iw, ih: f.ih });
+  await setMeta(kind === "bg" ? "bg/fr" : "pf", fr, null);
+}
+$("#infPhotoFrame").addEventListener("click", () => reframe("photo"));
+
 /* a photo as the chat's theme: upload it, take its colours, switch to it */
 $("#infPhotoFile").addEventListener("change", async e => {
   const f = e.target.files && e.target.files[0];
   e.target.value = "";
   if (!f || !CR.code) return;
-  toast("Setting up your photo…");
   try {
     const { url } = await shrinkPhoto(f);
+    const framed = await cropPhoto(null, Object.assign(frameOpts("Frame the photo", "Use this photo"), { url: url }));
+    if (!framed || !CR.code) return;
+    toast("Setting up your photo…");
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
     const pal = photoPalette(img);
     const id = await crewRich.media.put(url);
     const old = (CR.state.meta || {}).photo;
     CR.photo = { id: id, src: url };
     await setMeta("photo", { img: id, n: (old && old.n) || "", a: pal.a, b: pal.b, t: pal.t, dark: pal.dark }, null);
+    await setMeta("pf", Object.assign({}, framed.rect, { iw: framed.iw, ih: framed.ih }), null);
     await setMeta("theme", "photo", myName() + " set a photo as the theme");
     $("#infThemeName").focus();
   } catch (err){ toast(String((err && err.message) || "Couldn’t use that photo")); }
@@ -8676,6 +8844,10 @@ if (window.visualViewport){
        shrinking the page: move the app down by the same amount so the
        message box sits right on top of the keyboard */
     de.style.setProperty("--app-y", Math.max(0, Math.round(vv.offsetTop)) + "px");
+    /* the keyboard just came up over a sheet: keep the field being typed in on screen */
+    const a = document.activeElement;
+    if (a && a.matches && a.matches("input,textarea") && a.closest(".modal .card"))
+      requestAnimationFrame(() => a.scrollIntoView({ block: "nearest" }));
   };
   window.visualViewport.addEventListener("resize", fit);
   window.visualViewport.addEventListener("scroll", fit);
