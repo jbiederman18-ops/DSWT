@@ -128,9 +128,13 @@ a **Realtime Database** (not Firestore), paste
 [`firebase-rules.json`](firebase-rules.json) into its Rules tab, and put the
 database URL in the field. Leaving the field empty returns to the built-in one.
 
-No SDK — the app talks to Firebase over plain REST, writing with `fetch` and
-reading with an `EventSource`. That is why there is nothing to build and
-nothing to install.
+The built-in database is reached through Firebase's own JavaScript SDK, loaded
+straight from Google's CDN, so there is still nothing to build and nothing to
+install. Everything (every read, write and live listener) shares one
+WebSocket. The app used to use plain REST with one `EventSource` per live part
+of a chat, but browsers allow only about six connections to one site, and an
+open chat needed eight: past six, sending and starting chats waited forever.
+A database you point it at yourself is still reached over plain REST.
 
 **Accounts and the rules.** Every phone signs itself in with an anonymous
 Firebase account the first time it opens the app; nobody fills anything in.

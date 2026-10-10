@@ -3393,119 +3393,260 @@ const isMe = pid => pid === LIVE.pid || (!!LIVE.oldPid && pid === LIVE.oldPid);
 
 function dbRoot(){ return String(LIVE.db || "").replace(/\/+$/, ""); }
 
-/* ---------- sign-in ----------
-   Firebase Authentication, anonymous: each device gets an account the first
-   time it opens, with nothing for anyone to fill in. The database rules use it
-   to know who is in a crew and who wrote what, so only members can read a
-   crew's chat and nobody can post as somebody else.
+/* ---------- sign-in, and the connection to the database ----------
+   Firebase's own JavaScript SDK, loaded from Google's CDN the first time
+   it's needed (no build step: the files are plain ES modules).
 
-   No SDK, same as the database: one REST call signs up, another renews the
-   hour-long token. Every database request gets ?auth=<token> added on the way
-   out, and the live streams reconnect whenever the token renews.
+   Why the SDK: the database used to be reached over plain REST, with one
+   EventSource per live part of a chat. Browsers allow only about six open
+   connections to one site, and a chat needed eight, so once they were open
+   every other request (sending, saving keys, starting a chat) waited in line
+   forever. The SDK carries every read, write and live listener over a single
+   WebSocket, renews the sign-in on its own, and holds writes made with no
+   signal until the signal is back.
+
+   Sign-in is Firebase Authentication: each device gets an anonymous account
+   the first time it opens, with nothing to fill in. Signing in with Google or
+   an email link (below) upgrades that account. The database rules use it to
+   know who is in a crew and who wrote what.
+
+   The rest of the app still speaks in REST addresses (fetch to
+   https://…firebaseio.com/path.json, EventSource for live data). The two
+   shims at the end of this section catch those and run them through the SDK,
+   with the same answers and the same put/patch events as before, so nothing
+   else had to change.
 
    FB_API_KEY is the project's Web API key (Firebase console → Project
    settings → General). It is meant to be public. Empty = no sign-in, which
    only works while the database still has the old open rules. */
 const FB_API_KEY = "AIzaSyA4QrISlLPU7LNSbK4iA3syv36dwB-3O4A";
+const FB_SDK = "https://www.gstatic.com/firebasejs/12.19.0/";
+const FB_CONFIG = {
+  apiKey: FB_API_KEY,
+  authDomain: "dswt-eff47.firebaseapp.com",
+  databaseURL: DB_URL,
+  projectId: "dswt-eff47"
+};
+/* a sign-in from before the SDK can't be carried over: those phones sign in
+   once more (the account, and its chats and keys, are the same as before) */
+if (store.get("ds.sdk") !== "1"){
+  for (const k of ["ds.uid", "ds.refresh", "ds.prov", "ds.email", "ds.authHost"]) store.set(k, "");
+  store.set("ds.sdk", "1");
+}
 const AUTH = {
-  key: store.get("ds.fbKey") || FB_API_KEY,
-  host: store.get("ds.authHost") || "",          /* tests point this at a stand-in */
+  key: FB_API_KEY,
   uid: store.get("ds.uid") || "",
   prov: store.get("ds.prov") || "", email: store.get("ds.email") || "",
-  refresh: store.get("ds.refresh") || "",
-  token: "", exp: 0, busy: null, timer: 0,
+  token: "", exp: 0, busy: null,
   /* set when Firebase says anonymous sign-in isn't switched on for the project:
      carry on without accounts (fine under the old open rules), try again later */
   offUntil: Number(store.get("ds.authOff") || 0)
 };
 const AUTH_RETRY = 30 * 60 * 1000;
-const AUTH_SETUP_ERR = /OPERATION_NOT_ALLOWED|ADMIN_ONLY_OPERATION|CONFIGURATION_NOT_FOUND|API_KEY_INVALID|API key not valid|PROJECT_NOT_FOUND/i;
+const AUTH_SETUP_ERR = /operation-not-allowed|admin-restricted-operation|configuration-not-found|invalid-api-key|api-key-not-valid|project-not-found/i;
 /* only the built-in database belongs to this sign-in */
-const authOn = () => !!AUTH.key && Date.now() > AUTH.offUntil && (dbRoot() === DB_URL.replace(/\/+$/, "") || !!AUTH.host);
+const authOn = () => !!AUTH.key && Date.now() > AUTH.offUntil && dbRoot() === DB_URL.replace(/\/+$/, "");
 if (authOn() && AUTH.uid) LIVE.pid = AUTH.uid;
 
-async function authCall(url, body, form){
-  const res = await NATIVE_FETCH(url, {
-    method: "POST",
-    headers: { "content-type": form ? "application/x-www-form-urlencoded" : "application/json" },
-    body: form ? body : JSON.stringify(body)
-  });
-  const j = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((j.error && j.error.message) || ("sign-in failed (" + res.status + ")"));
-  return j;
+/* the SDK, loaded once; a failed load (no signal) is tried again next time */
+let FB_P = null;
+function fb(){
+  if (!FB_P) FB_P = (async () => {
+    const [appM, A, D] = await Promise.all(["app", "auth", "database"].map(n => import(FB_SDK + "firebase-" + n + ".js")));
+    const app = appM.initializeApp(FB_CONFIG);
+    const auth = A.initializeAuth(app, { persistence: [A.indexedDBLocalPersistence, A.browserLocalPersistence] });
+    const db = D.getDatabase(app);
+    await auth.authStateReady();
+    /* signed out from somewhere else, or the account went away: start a fresh guest account */
+    A.onAuthStateChanged(auth, u => { if (!u){ AUTH.token = ""; AUTH.exp = 0; authToken(); } });
+    return { app: app, auth: auth, db: db, A: A, D: D };
+  })().catch(e => { FB_P = null; throw e; });
+  return FB_P;
 }
-function authSave(uid, token, refresh, expiresIn){
-  AUTH.uid = uid; AUTH.token = token; AUTH.refresh = refresh;
-  AUTH.exp = Date.now() + (Number(expiresIn) || 3600) * 1000;
-  store.set("ds.uid", uid); store.set("ds.refresh", refresh);
+
+/* the account the SDK has, written down for the rest of the app */
+async function authFrom(u, force){
+  const r = await u.getIdTokenResult(!!force);
+  const before = AUTH.uid;
+  AUTH.uid = u.uid; AUTH.token = r.token;
+  AUTH.exp = Date.parse(r.expirationTime) || (Date.now() + 3600000);
   /* anonymous, google.com or password (an email link): chats need a real account */
-  const claims = jwtClaims(token);
-  AUTH.prov = (claims.firebase && claims.firebase.sign_in_provider) || "";
-  AUTH.email = String(claims.email || "");
-  store.set("ds.prov", AUTH.prov); store.set("ds.email", AUTH.email);
-  LIVE.pid = uid;
-  clearTimeout(AUTH.timer);
-  /* renew five minutes early, then pick the streams back up on the new token */
-  AUTH.timer = setTimeout(async () => { await authToken(true); authReconnect(); },
-                          Math.max(60000, AUTH.exp - Date.now() - 5 * 60000));
+  AUTH.prov = (r.claims.firebase && r.claims.firebase.sign_in_provider) || (u.isAnonymous ? "anonymous" : "");
+  AUTH.email = String(u.email || "");
+  store.set("ds.uid", AUTH.uid); store.set("ds.prov", AUTH.prov); store.set("ds.email", AUTH.email);
+  LIVE.pid = AUTH.uid;
+  if (before && before !== AUTH.uid){
+    /* a different account than this phone had: its chats aren't ours */
+    if (CR.es){ CR.es.close(); CR.es = null; }
+    store.set("ds.crews", "[]"); store.set("ds.crew", ""); store.set("ds.home", "{}");
+    CR.code = ""; CR.state = {}; CR.chat = null;
+    HOME.data = {};
+  }
+  return AUTH.token;
 }
-/* a current token, signing up or renewing first if needed ("" if offline) */
+
+/* a current token, signing in as a guest first if needed ("" if offline) */
 function authToken(force){
   if (!authOn()) return Promise.resolve("");
   if (!force && AUTH.token && AUTH.exp - Date.now() > 2 * 60000) return Promise.resolve(AUTH.token);
   if (AUTH.busy) return AUTH.busy;
-  const idt = AUTH.host || "https://identitytoolkit.googleapis.com";
-  const st = AUTH.host || "https://securetoken.googleapis.com";
   AUTH.busy = (async () => {
-    if (AUTH.refresh){
+    const f = await fb().catch(() => null);
+    if (!f) return "";
+    let u = f.auth.currentUser;
+    if (!u){
       try {
-        const j = await authCall(st + "/v1/token?key=" + AUTH.key,
-          "grant_type=refresh_token&refresh_token=" + encodeURIComponent(AUTH.refresh), true);
-        authSave(j.user_id, j.id_token, j.refresh_token, j.expires_in);
-        return AUTH.token;
+        u = (await f.A.signInAnonymously(f.auth)).user;
+        store.set("ds.authOff", "");
       } catch (e){
-        /* offline: try again later. Anything else (account gone): start fresh */
-        if (!navigator.onLine || /fetch|network/i.test(String(e.message))) return "";
+        if (AUTH_SETUP_ERR.test(String(e.code || "") + " " + String(e.message || ""))){
+          AUTH.offUntil = Date.now() + AUTH_RETRY;
+          store.set("ds.authOff", String(AUTH.offUntil));
+          authReconnect();
+        }
+        return "";
       }
     }
-    try {
-      const j = await authCall(idt + "/v1/accounts:signUp?key=" + AUTH.key, { returnSecureToken: true });
-      authSave(j.localId, j.idToken, j.refreshToken, j.expiresIn);
-      store.set("ds.authOff", "");
-      return AUTH.token;
-    } catch (e){
-      if (AUTH_SETUP_ERR.test(String(e.message))){
-        AUTH.offUntil = Date.now() + AUTH_RETRY;
-        store.set("ds.authOff", String(AUTH.offUntil));
-        authReconnect();
-      }
-      return "";
-    }
-  })().finally(() => { AUTH.busy = null; });
+    return authFrom(u, force);
+  })().catch(() => "").finally(() => { AUTH.busy = null; });
   return AUTH.busy;
+}
+/* sign-in ready (or given up on after a few seconds, e.g. with no signal) */
+function authBoot(){
+  if (!authOn()) return Promise.resolve();
+  return Promise.race([authToken(), new Promise(r => setTimeout(r, 5000))]);
 }
 function authReconnect(){
   if (CR.code && CR.es) crewConnect();
   if (LIVE.code && LIVE.es && LIVE.onChange) liveConnect(LIVE.onChange);
 }
 const isDb = url => typeof url === "string" && !!dbRoot() && url.startsWith(dbRoot() + "/");
-const withAuth = (url, t) => t ? url + (url.includes("?") ? "&" : "?") + "auth=" + encodeURIComponent(t) : url;
 /* who wrote a message, for the rules (they check it matches the signed-in account) */
 const by = m => (authOn() && AUTH.uid ? Object.assign(m, { by: AUTH.uid }) : m);
 
-/* Every database request goes through here on its way out. */
-window.fetch = async function(url, opts){
-  if (authOn() && isDb(url)) url = withAuth(url, await authToken());
+/* ---------- REST addresses, answered by the SDK ---------- */
+function dbParse(url){
+  const u = new URL(url);
+  const path = u.pathname.replace(/\.json$/, "").split("/").map(s => { try { return decodeURIComponent(s); } catch (e){ return s; } }).join("/");
+  return { path: path || "/", q: u.searchParams };
+}
+function dbQuery(f, path, q){
+  const D = f.D, cons = [];
+  const arg = s => { try { return JSON.parse(s); } catch (e){ return s; } };
+  if (q.has("orderBy")){
+    const o = arg(q.get("orderBy"));
+    cons.push(o === "$key" ? D.orderByKey() : o === "$value" ? D.orderByValue() : o === "$priority" ? D.orderByPriority() : D.orderByChild(String(o)));
+  }
+  if (q.has("equalTo")) cons.push(D.equalTo(arg(q.get("equalTo"))));
+  if (q.has("startAt")) cons.push(D.startAt(arg(q.get("startAt"))));
+  if (q.has("endAt")) cons.push(D.endAt(arg(q.get("endAt"))));
+  if (q.has("limitToFirst")) cons.push(D.limitToFirst(Number(q.get("limitToFirst"))));
+  if (q.has("limitToLast")) cons.push(D.limitToLast(Number(q.get("limitToLast"))));
+  const r = D.ref(f.db, path);
+  return cons.length ? D.query(r, ...cons) : r;
+}
+const shallowOf = v => (v && typeof v === "object") ? Object.keys(v).reduce((o, k) => (o[k] = true, o), {}) : v;
+/* {".sv":"timestamp"} is REST's way of asking for the server's clock */
+function dbValue(f, v){
+  if (!v || typeof v !== "object") return v;
+  if (v[".sv"] === "timestamp" && Object.keys(v).length === 1) return f.D.serverTimestamp();
+  const o = Array.isArray(v) ? [] : {};
+  for (const k of Object.keys(v)) o[k] = dbValue(f, v[k]);
+  return o;
+}
+const dbAnswer = (v, status) => new Response(JSON.stringify(v === undefined ? null : v), { status: status || 200, headers: { "content-type": "application/json" } });
+const dbDenied = e => /permission.denied/i.test(String((e && e.code) || "") + " " + String((e && e.message) || ""));
+function dbTimeout(p, ms){
+  let t;
+  return Promise.race([p, new Promise((_, rej) => { t = setTimeout(() => rej(new TypeError("Failed to fetch: the database didn’t answer")), ms); })])
+    .finally(() => clearTimeout(t));
+}
+
+async function dbFetch(url, opts){
+  opts = opts || {};
+  const method = String(opts.method || "GET").toUpperCase();
+  const f = await fb().catch(() => null);
+  if (!f) throw new TypeError("Failed to fetch: couldn’t load the database");
+  await authToken();                       /* signed in before asking, so the rules see who */
+  const { path, q } = dbParse(url);
+  const body = opts.body == null ? null : JSON.parse(opts.body);
+  const ref = () => f.D.ref(f.db, path);
+  try {
+    if (method === "GET"){
+      const snap = await dbTimeout(f.D.get(dbQuery(f, path, q)), 20000);
+      const v = snap.val();
+      return dbAnswer(q.get("shallow") === "true" ? shallowOf(v) : v);
+    }
+    /* writes wait for the database to confirm them; with no signal the SDK
+       keeps them and sends them when the signal is back */
+    if (method === "PUT"){ await f.D.set(ref(), dbValue(f, body)); return dbAnswer(body); }
+    if (method === "PATCH"){ await f.D.update(ref(), dbValue(f, body || {})); return dbAnswer(body); }
+    if (method === "POST"){ const r = f.D.push(ref()); await f.D.set(r, dbValue(f, body)); return dbAnswer({ name: r.key }); }
+    if (method === "DELETE"){ await f.D.remove(ref()); return dbAnswer(null); }
+    return dbAnswer({ error: "unsupported method" }, 405);
+  } catch (e){
+    if (dbDenied(e)) return dbAnswer({ error: "Permission denied" }, 401);
+    if (e instanceof TypeError || /offline|network|disconnect/i.test(String(e && e.message))) throw new TypeError("Failed to fetch: " + (e && e.message));
+    return dbAnswer({ error: String((e && e.message) || e) }, 400);
+  }
+}
+
+/* A live listener that looks like REST's EventSource: a "put" at "/" with
+   everything first, then a "put" at "/<child>" for each child that changes
+   (null when one goes), and "cancel" if the rules refuse it. */
+class DbStream extends EventTarget {
+  constructor(url){
+    super();
+    this.url = url; this.readyState = 0; this._off = null; this._closed = false;
+    this._start();
+  }
+  _send(path, data){
+    if (this._closed) return;
+    this.dispatchEvent(new MessageEvent("put", { data: JSON.stringify({ path: path, data: data === undefined ? null : data }) }));
+  }
+  async _start(){
+    const f = await fb().catch(() => null);
+    if (this._closed) return;
+    if (!f){ this.readyState = 2; this.dispatchEvent(new Event("error")); return; }
+    await authToken();
+    if (this._closed) return;
+    const { path, q } = dbParse(this.url);
+    const shallow = q.get("shallow") === "true";
+    let prev, first = true;
+    const isObj = x => !!x && typeof x === "object";
+    this._off = f.D.onValue(dbQuery(f, path, q), snap => {
+      if (this._closed) return;
+      this.readyState = 1;
+      let v = snap.val();
+      if (shallow) v = shallowOf(v);
+      if (first || !isObj(prev) || !isObj(v)){ first = false; prev = v; this._send("/", v); return; }
+      for (const k of new Set(Object.keys(prev).concat(Object.keys(v)))){
+        if (!(k in v)) this._send("/" + k, null);
+        else if (!(k in prev) || JSON.stringify(prev[k]) !== JSON.stringify(v[k])) this._send("/" + k, v[k]);
+      }
+      prev = v;
+    }, () => {
+      /* refused by the rules: the SDK has already dropped the listener */
+      this._off = null;
+      if (this._closed) return;
+      this.readyState = 2;
+      this.dispatchEvent(new Event("cancel"));
+    });
+  }
+  close(){
+    this._closed = true; this.readyState = 2;
+    if (this._off){ this._off(); this._off = null; }
+  }
+}
+
+/* Every database request and stream goes through here on its way out. */
+window.fetch = function(url, opts){
+  if (authOn() && isDb(url)) return dbFetch(url, opts);
   return NATIVE_FETCH(url, opts);
 };
-/* Streams too. The token is added when the stream opens; Firebase ends a stream
-   whose token has expired with auth_revoked, and a refused one with cancel. */
 window.EventSource = function(url, opts){
-  const es = new NATIVE_ES(authOn() && isDb(url) ? withAuth(url, AUTH.token) : url, opts);
-  if (authOn() && isDb(url)){
-    es.addEventListener("auth_revoked", () => { es.close(); authToken(true).then(t => { if (t) authReconnect(); }); });
-  }
-  return es;
+  if (authOn() && isDb(url)) return new DbStream(url);
+  return new NATIVE_ES(url, opts);
 };
 /* ============================================================
    ACCOUNTS: Google, or a link sent by email
@@ -3518,29 +3659,19 @@ window.EventSource = function(url, opts){
    Google → Web SDK configuration → Web client ID. Empty = email only.
    ============================================================ */
 const GOOGLE_CLIENT_ID = "829468643014-3v2hjnb60pblnn0hkqor4ld2qcc89omp.apps.googleusercontent.com";
-function jwtClaims(t){
-  try { return JSON.parse(decodeURIComponent(escape(atob(String(t).split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))))); }
-  catch (e){ return {}; }
-}
 /* chats are end-to-end encrypted, and need a real account, on the built-in database */
 const e2eOn = () => authOn();
 const signedIn = () => !authOn() || (!!AUTH.uid && !!AUTH.prov && AUTH.prov !== "anonymous");
-const idtHost = () => AUTH.host || "https://identitytoolkit.googleapis.com";
+const authCode = e => String((e && e.code) || "") + " " + String((e && e.message) || e || "");
+/* the account linking would join is already somebody's */
+const ALREADY = /credential-already-in-use|email-already-in-use|provider-already-linked|account-exists-with-different-credential/;
 
 /* a sign-in that worked: this is the account from now on */
-function authSignedIn(j){
-  const before = AUTH.uid;
-  authSave(j.localId, j.idToken, j.refreshToken, j.expiresIn);
-  if (before && before !== AUTH.uid){
-    /* a different account than this phone had: its chats aren't ours */
-    store.set("ds.crews", "[]"); store.set("ds.crew", ""); store.set("ds.home", "{}");
-    CR.code = ""; CR.state = {}; CR.chat = null;
-    HOME.data = {};
-  }
+async function authSignedIn(u){
+  await authFrom(u, true);
   if (!store.get("ds.name")){
-    const c = jwtClaims(AUTH.token);
-    let n = String(c.name || (c.email || "").split("@")[0].replace(/[._-]+/g, " ") || "").trim().slice(0, 40);
-    if (!c.name) n = n.replace(/(^|\s)\S/g, x => x.toUpperCase());
+    let n = String(u.displayName || (u.email || "").split("@")[0].replace(/[._-]+/g, " ") || "").trim().slice(0, 40);
+    if (!u.displayName) n = n.replace(/(^|\s)\S/g, x => x.toUpperCase());
     if (n && !isBanned(n)) store.set("ds.name", n);
   }
   e2eDevice();
@@ -3549,44 +3680,50 @@ function authSignedIn(j){
 
 async function signInGoogle(credential){
   await authToken();
-  const url = idtHost() + "/v1/accounts:signInWithIdp?key=" + AUTH.key;
-  const body = { postBody: "id_token=" + encodeURIComponent(credential) + "&providerId=google.com",
-                 requestUri: location.origin, returnSecureToken: true, returnIdpCredential: true };
-  /* That Google account already belongs to an account here (made in another
-     browser or on another phone): sign in to that one instead of attaching it
-     to this browser's guest account. Firebase says so either as an error, or
-     as an "OK" carrying errorMessage, depending on the request. */
-  const taken = m => /FEDERATED_USER_ID_ALREADY_LINKED|CREDENTIAL_ALREADY_IN_USE|EMAIL_EXISTS/.test(String(m || ""));
-  let j = null;
-  if (AUTH.token && !signedIn()){
-    try { j = await authCall(url, Object.assign({ idToken: AUTH.token }, body)); }
-    catch (e){ if (!taken(e.message)) throw e; j = null; }
-    if (j && (taken(j.errorMessage) || j.needConfirmation || !j.idToken)) j = null;
+  const f = await fb().catch(() => null);
+  if (!f) throw new Error("Couldn’t reach the sign-in service. Check your connection.");
+  const A = f.A, cred = A.GoogleAuthProvider.credential(credential);
+  const cur = f.auth.currentUser;
+  let res;
+  try {
+    if (cur && cur.isAnonymous){
+      /* That Google account already belongs to an account here (made in another
+         browser or on another phone): sign in to that one instead of attaching
+         it to this browser's guest account. */
+      try { res = await A.linkWithCredential(cur, cred); }
+      catch (e){
+        if (!ALREADY.test(authCode(e))) throw e;
+        res = await A.signInWithCredential(f.auth, A.GoogleAuthProvider.credentialFromError(e) || cred);
+      }
+    } else res = await A.signInWithCredential(f.auth, cred);
+  } catch (e){
+    const m = authCode(e);
+    if (/account-exists-with-different-credential/.test(m)) throw new Error("That email address already signs in with an email link. Use the email option instead.");
+    if (/network-request-failed/.test(m)) throw new Error("Couldn’t reach the sign-in service. Check your connection.");
+    throw new Error("Google sign-in didn’t go through (" + (e.code || e.message) + "). Try again, or use the email option.");
   }
-  if (!j) j = await authCall(url, body);
-  if (j.errorMessage && !j.idToken) throw new Error("Google sign-in didn’t go through (" + j.errorMessage + "). Try again, or use the email option.");
-  if (j.needConfirmation || !j.idToken) throw new Error("That email address already signs in with an email link. Use the email option instead.");
-  authSignedIn(j);
+  await authSignedIn(res.user);
 }
 
 async function emailSend(email){
   await authToken();
+  const f = await fb().catch(() => null);
+  if (!f) throw new Error(emailError("network-request-failed"));
   try {
-    await authCall(idtHost() + "/v1/accounts:sendOobCode?key=" + AUTH.key, {
-      requestType: "EMAIL_SIGNIN", email: email, continueUrl: location.origin + location.pathname, canHandleCodeInApp: true });
-  } catch (e){ throw new Error(emailError(String(e.message))); }
+    await f.A.sendSignInLinkToEmail(f.auth, email, { url: location.origin + location.pathname, handleCodeInApp: true });
+  } catch (e){ throw new Error(emailError(authCode(e))); }
   store.set("ds.emailPending", email);
   store.set("ds.emailSentAt", String(Date.now()));
 }
 /* Firebase's reasons, in plain words */
 function emailError(m){
-  if (/QUOTA_EXCEEDED|DAILY_LIMIT/i.test(m)) return "Sign-in emails have run out for today: Firebase’s free plan sends 5 a day for the whole app. Use Google instead, or try again tomorrow.";
-  if (/TOO_MANY_ATTEMPTS/i.test(m)) return "Too many tries in a row. Wait a few minutes, or use Google instead.";
-  if (/UNAUTHORIZED_DOMAIN|INVALID_CONTINUE_URI|UNAUTHORIZED_CONTINUE_URI/i.test(m)) return "This site isn’t on the app’s list of allowed sign-in sites yet (Firebase → Authentication → Settings → Authorized domains).";
-  if (/OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/i.test(m)) return "Email sign-in isn’t switched on yet (Firebase → Authentication → Sign-in method → Email link).";
-  if (/INVALID_EMAIL/i.test(m)) return "That email address doesn’t look right.";
-  if (/fetch|network/i.test(m)) return "Couldn’t reach the sign-in service. Check your connection.";
-  return "Couldn’t send that (" + m + ").";
+  if (/quota-exceeded|QUOTA_EXCEEDED|DAILY_LIMIT/i.test(m)) return "Sign-in emails have run out for today: Firebase’s free plan sends 5 a day for the whole app. Use Google instead, or try again tomorrow.";
+  if (/too-many-requests|TOO_MANY_ATTEMPTS/i.test(m)) return "Too many tries in a row. Wait a few minutes, or use Google instead.";
+  if (/unauthorized-domain|unauthorized-continue-uri|invalid-continue-uri/i.test(m)) return "This site isn’t on the app’s list of allowed sign-in sites yet (Firebase → Authentication → Settings → Authorized domains).";
+  if (/operation-not-allowed|admin-restricted-operation/i.test(m)) return "Email sign-in isn’t switched on yet (Firebase → Authentication → Sign-in method → Email link).";
+  if (/invalid-email|missing-email/i.test(m)) return "That email address doesn’t look right.";
+  if (/network-request-failed|fetch|network/i.test(m)) return "Couldn’t reach the sign-in service. Check your connection.";
+  return "Couldn’t send that (" + m.trim() + ").";
 }
 /* the code in a sign-in link: the link as it arrives, or as pasted from the email */
 function oobFrom(s){
@@ -3600,33 +3737,41 @@ function oobFrom(s){
 }
 async function emailFinish(oob, email){
   await authToken();
-  const url = idtHost() + "/v1/accounts:signInWithEmailLink?key=" + AUTH.key;
-  const plain = { email: email, oobCode: oob, returnSecureToken: true };
-  const link = AUTH.token && !signedIn() && store.get("ds.emailNoLink") !== email;
-  let j;
-  try { j = await authCall(url, link ? Object.assign({ idToken: AUTH.token }, plain) : plain); }
+  const f = await fb().catch(() => null);
+  if (!f) throw new Error("Couldn’t reach the sign-in service. Check your connection.");
+  const A = f.A;
+  /* the SDK reads the code out of a link shaped like the one in the email */
+  const link = location.origin + location.pathname + "?apiKey=" + encodeURIComponent(AUTH.key) +
+               "&oobCode=" + encodeURIComponent(oob) + "&mode=signIn";
+  const cred = () => A.EmailAuthProvider.credentialWithLink(email, link);
+  const cur = f.auth.currentUser;
+  const canLink = !!cur && cur.isAnonymous && store.get("ds.emailNoLink") !== email;
+  let res;
+  try { res = canLink ? await A.linkWithCredential(cur, cred()) : await A.signInWithCredential(f.auth, cred()); }
   catch (e){
-    const m = String(e.message);
-    if (link && /EMAIL_EXISTS|CREDENTIAL_ALREADY_IN_USE|already/i.test(m)){
+    const m = authCode(e);
+    if (canLink && ALREADY.test(m)){
       /* the email has an account already (another phone): sign in to that one */
-      try { j = await authCall(url, plain); }
+      try { res = await A.signInWithCredential(f.auth, cred()); }
       catch (e2){
         store.set("ds.emailNoLink", email);
         await emailSend(email);
         throw new Error("That email already has an account. We’ve sent a fresh link — tap it to sign in.");
       }
-    } else if (/INVALID_OOB_CODE|EXPIRED_OOB_CODE/.test(m)) throw new Error("That link has expired or was already used. Send yourself a new one.");
-    else if (/INVALID_EMAIL/.test(m)) throw new Error("That link was sent to a different email address.");
-    else throw e;
+    } else if (/invalid-action-code|expired-action-code/.test(m)) throw new Error("That link has expired or was already used. Send yourself a new one.");
+    else if (/invalid-email/.test(m)) throw new Error("That link was sent to a different email address.");
+    else if (/network-request-failed/.test(m)) throw new Error("Couldn’t reach the sign-in service. Check your connection.");
+    else throw new Error("That sign-in didn’t go through (" + (e.code || e.message) + ").");
   }
   store.set("ds.emailPending", ""); store.set("ds.emailNoLink", "");
-  authSignedIn(j);
+  await authSignedIn(res.user);
 }
-function signOut(){
+async function signOut(){
   if (!confirm("Sign out on this phone? Your chats stay in your account; sign in again to see them.")) return;
   if (CR.es){ CR.es.close(); CR.es = null; }
+  try { const f = await fb(); await f.A.signOut(f.auth); } catch (e){}
   for (const k of ["ds.uid", "ds.refresh", "ds.prov", "ds.email", "ds.crews", "ds.crew", "ds.home", "ds.readMap", "ds.pushOn"]) store.set(k, "");
-  e2eForget();
+  await e2eForget();
   location.hash = "";
   location.reload();
 }
@@ -4093,10 +4238,6 @@ function liveConnect(onChange){
   if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
   LIVE.onChange = onChange;
   if (!dbRoot() || !LIVE.code) return;
-  if (authOn() && !(AUTH.token && AUTH.exp - Date.now() > 2 * 60000)){
-    authToken().then(t => { if ((t || !authOn()) && LIVE.onChange === onChange && !LIVE.es) liveConnect(onChange); });
-    return;
-  }
   const es = new EventSource(gamePath(""));
   LIVE.es = es;
   const handle = isPatch => ev => {
@@ -4109,7 +4250,7 @@ function liveConnect(onChange){
   };
   es.addEventListener("put", handle(false));
   es.addEventListener("patch", handle(true));
-  es.addEventListener("error", () => { /* EventSource retries on its own */ });
+  es.addEventListener("error", () => { /* EventSource and the SDK both reconnect on their own */ });
 }
 
 function roomUrl(){
@@ -7560,6 +7701,8 @@ $("#toPlayer").addEventListener("click", e => {
 if (CR.code && !crewList().some(c => c.code === CR.code)) crewRemember(CR.code);
 
 /* if someone lands here with #player, go straight to the phone view */
+/* where the app opens, once the saved sign-in is back (a few seconds at most) */
+authBoot().then(() => {
 const crewHash = (location.hash.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
 if (/[?&]oobCode=/.test(location.search)){
   show("crew"); emailLanding();          /* back from the sign-in link in an email */
@@ -7578,7 +7721,7 @@ if (/[?&]oobCode=/.test(location.search)){
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
-authToken();   /* sign in early, so the first message or guess doesn't wait */
+});
 /* iPhones don't shrink the page when the keyboard opens, so the message box
    would end up under it: size the app to the part of the screen that's visible */
 if (window.visualViewport){
