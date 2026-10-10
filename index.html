@@ -3685,6 +3685,13 @@ function makeChat(root, o){
   let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
   let replyTo = null, editing = null, photo = null;        /* the composer's state */
   const outbox = [];                                        /* { id, m, el } not yet stored */
+  /* o.keep: a storage key, so unsent messages survive closing the app */
+  function saveOutbox(){
+    if (!o.keep) return;
+    const plain = outbox.map(it => ({ m: it.m, pic: it.pic }));
+    try { store.set(o.keep, JSON.stringify(plain)); }
+    catch (e){ try { store.set(o.keep, JSON.stringify(plain.filter(x => !x.pic))); } catch (e2){} }
+  }
 
   /* o.loadOlder (optional): fetch earlier messages when scrolled to the top.
      o.hasMore() says whether there are any left to fetch. */
@@ -3745,6 +3752,7 @@ function makeChat(root, o){
   function queue(m, pic){
     const item = { id: "o" + Math.random().toString(36).slice(2), m: m, pic: pic, el: null, tries: 0 };
     outbox.push(item);
+    saveOutbox();
     drawOutbox();
     flush();
   }
@@ -3762,13 +3770,22 @@ function makeChat(root, o){
       const r = await post(o.url(""), "POST", it.m);
       if (!r || !r.name){ it.failed = true; break; }
       outbox.shift();
+      saveOutbox();
       if (it.el) it.el.remove();
       if (o.onSent) o.onSent(r.name, it.m);
     }
     flushing = false;
     drawOutbox();
+    /* a refusal while signing in, or a blip: try again by itself a few times */
+    const head = outbox[0];
+    if (head && head.failed && navigator.onLine && (head.tries = (head.tries || 0) + 1) <= 3){
+      setTimeout(() => { if (outbox[0] === head){ head.failed = false; flush(); } }, 2500 * head.tries);
+    }
   }
-  window.addEventListener("online", flush);
+  const offlineNote = () => navigator.onLine ? "" : "You’re offline. Messages will send when you’re back.";
+  const drawStatus = () => { statusEl.textContent = offlineNote() || (o.status ? o.status() : ""); };
+  window.addEventListener("online", () => { drawStatus(); flush(); });
+  window.addEventListener("offline", drawStatus);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && outbox.length) flush(); });
   function drawOutbox(){
     for (const it of outbox){
@@ -4106,7 +4123,7 @@ function makeChat(root, o){
     first = keys[0] || "";
     drawTop(keys.length);
     $(".ch-sub", root).textContent = sub || "";
-    statusEl.textContent = o.status ? o.status() : "";
+    drawStatus();
     reportRead();
     /* a short chat that doesn't fill the screen can't be scrolled, so fetch more now */
     if (o.loadOlder) setTimeout(wantOlder, 0);
@@ -4116,7 +4133,15 @@ function makeChat(root, o){
     update: update,
     clearUnread(){ unread = 0; o.onUnread(0); reportRead(); },
     toEnd(){ log.scrollTop = log.scrollHeight; reportRead(); },
-    status(){ statusEl.textContent = o.status ? o.status() : ""; }
+    status: () => drawStatus(),
+    /* messages left unsent last time the app was open */
+    restore(){
+      if (!o.keep || outbox.length) return;
+      let saved = [];
+      try { saved = JSON.parse(store.get(o.keep) || "[]"); } catch (e){}
+      for (const x of saved) if (x && x.m) outbox.push({ id: "o" + Math.random().toString(36).slice(2), m: x.m, pic: x.pic || null, el: null });
+      if (outbox.length){ drawOutbox(); flush(); }
+    }
   };
 }
 
@@ -4771,9 +4796,11 @@ function crewScreenChat(){
     placeholder: "Message the crew…",
     empty: "Quiet in here. Say hi — and tap any message to react to it.",
     ...crewPaging,
-    ...crewRich
+    ...crewRich,
+    keep: "ds.outbox." + CR.code
   });
   CR.chat.update(CR.state.chat, crewLabel());
+  CR.chat.restore();
   crewRemember(CR.code, (CR.state.meta || {}).name);
   alertsButton();
   pushRefresh();
@@ -5489,6 +5516,8 @@ if (crewHash){
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
 authToken();   /* sign in early, so the first message or guess doesn't wait */
+/* the service worker lets the app open with no signal (and carries alerts) */
+if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
 
 /* handy when a page parses oddly: open the console and poke at the parser */
 window.DS = window.REDACTED = {

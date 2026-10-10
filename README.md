@@ -225,19 +225,37 @@ straight into it. Once you're in a crew, opening the site takes you right to the
 chat, and the home-screen app always opens there (or to joining one). **‹ Games**
 at the top goes to the game tools.
 
-- **Reactions:** tap any message for 😂 🤑 💀 🙄 🔥 👀 ❤️ 👍. Counts show under
-  the bubble; tap a pill to add or take back yours. Press and hold a pill (or
-  hover on a computer) to see who reacted.
+- **Tap any message** to react (😂 🤑 💀 🙄 🔥 👀 ❤️ 👍), **Reply**, **Copy**, or
+  **Edit** / **Delete** your own. Reaction counts show under the bubble; tap a
+  pill to add or take back yours, press and hold (or hover) to see who reacted.
+  A reply quotes the original; tap the quote to jump to it. Edited messages say
+  so, and a deleted one leaves "Message deleted" for everyone.
+- **@mentions:** type `@` for a list of the crew. A message that mentions you is
+  outlined, and can alert you even when the rest of the chat doesn't.
+- **Photos:** the 📷 button. Pictures are shrunk to 1600px before they go up
+  (about 150–400 KB each); a small GIF stays animated. Tap one to see it full
+  screen.
+- **Links** are clickable, and a message can run to 2,000 characters.
+- **Who's around:** "Sam is typing…" under the chat, "2 online" at the top, and
+  "Seen by …" under your newest message.
+- **Profiles:** **⋯ → Your profile** sets your name, a colour and an avatar.
+- **More than one crew:** **⋯** lists your crews to switch between, and **+ Join
+  or start another**. Leaving one takes you to the next.
+- **No signal:** the app still opens, a message you send waits with
+  "Not sent" and goes by itself when you're back online, even if you closed
+  the app in between.
 - **Going live:** when you host a remote game, tick **Announce it to the crew**
   (on by default). Everyone in the crew gets a red **Game going live — Join
   now** banner on whatever screen they're on, and one tap puts them in the
   room. The crew chat carries on into the game, so the whole night is one
   conversation, with rounds, reveals and the winner dropped in as dividers. The
   banner clears when the game ends.
-- **Push alerts:** tap the **🔔** bell in the crew chat and that phone gets a
-  real notification when a game goes live — even with the site closed. Tap the
-  notification and you land in the crew chat with **Join now** waiting. The bell
-  shows **🔔 On** once it's set; tap again to turn it off.
+- **Push alerts:** tap the **🔔** bell in the crew chat and that phone gets real
+  notifications, even with the app closed: new messages, and games going live.
+  Tap one and you land in the crew chat (with **Join now** waiting for a game).
+  Once it says **🔔 On**, tap it to choose **Every message**, **Only when I'm
+  @mentioned** or **Only games going live**, or to turn alerts off. A busy chat
+  stacks into one notification per crew rather than a flood.
   - **Android / computers:** tap the bell, allow notifications. Done.
   - **iPhone (iOS 16.4+):** Apple only allows this for sites on the home
     screen. Tapping the bell in Safari walks you through it: Share → Add to Home
@@ -275,7 +293,10 @@ ten minutes, announces each game once, and drops subscriptions from phones
 that have uninstalled or revoked permission. Subscriptions are stored under
 `/saves/<crew code>/crew/push`.
 
-The chat lives under `/saves/<crew code>/crew`. Opening the chat loads the newest 60 messages; scroll up and earlier ones load
+The chat lives under `/saves/<crew code>/crew`; photos sit beside it under
+`crew/media`, so they only download when they scroll into view. The free
+Firebase plan holds 1 GB and serves 10 GB a month, which is a few thousand
+photos for a group of friends. Opening the chat loads the newest 60 messages; scroll up and earlier ones load
 60 at a time, back to the start. The crew's name, members and live game come
 in as separate small streams, so the app stays quick however long the history
 gets, and phones never download anyone's push subscription.

@@ -1,7 +1,46 @@
-/* DS(WT) Crew service worker: only here to receive push notifications.
-   It deliberately caches nothing, so the site is always the latest version. */
-self.addEventListener("install", () => self.skipWaiting());
-self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
+/* DS(WT) Crew service worker.
+   1. Push alerts.
+   2. Opening with no signal: the app's own files are fetched from the network
+      first (so it is always the latest version) and only fall back to the copy
+      kept here when the network fails. Nothing from the database or any other
+      site is cached. */
+const SHELL = "dswt-shell-v1";
+const OWN = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
+
+self.addEventListener("install", e => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(SHELL).then(c => c.addAll(OWN)).catch(() => {}));
+});
+self.addEventListener("activate", e => e.waitUntil((async () => {
+  for (const k of await caches.keys()) if (k !== SHELL) await caches.delete(k);
+  await self.clients.claim();
+})()));
+
+self.addEventListener("fetch", e => {
+  const req = e.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;        /* the database, fonts, PDF.js: untouched */
+  const scope = new URL(self.registration.scope);
+  if (!url.pathname.startsWith(scope.pathname)) return;
+  const rel = url.pathname.slice(scope.pathname.length);
+  const page = req.mode === "navigate";
+  if (!page && !OWN.includes(rel)) return;
+  e.respondWith((async () => {
+    try {
+      const res = await fetch(req);
+      if (res.ok){
+        const copy = res.clone();
+        caches.open(SHELL).then(c => c.put(page ? "index.html" : req, copy)).catch(() => {});
+      }
+      return res;
+    } catch (err){
+      const hit = await caches.match(page ? "index.html" : req, { ignoreSearch: true });
+      if (hit) return hit;
+      throw err;
+    }
+  })());
+});
 
 self.addEventListener("push", e => {
   let d = {};
