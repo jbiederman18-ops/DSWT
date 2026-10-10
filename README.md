@@ -1,14 +1,20 @@
-# DS(WT) Crew
+# JoshChat
 
-The group chat for **Dicksharter (Working Title)**, a party game about
-crowdfunding hubris. You show the room a real campaign page with the money
-blacked out. Everyone guesses two numbers — how much it has raised, and how
-much it is asking for. Then you reveal both.
+Group chats for the crew: end-to-end encrypted, with photo themes, reactions,
+replies and push alerts, and a party game built in.
 
-DS(WT) Crew is where the group lives between games: an always-on chat that
-lights up with a **Join now** banner (and a push alert) the moment someone hosts.
-Add it to your phone's home screen and it opens straight to the chat; the game
-tools are one tap away under **Games**.
+The game is **Dicksharter (Working Title)**, about crowdfunding hubris. You show
+the room a real campaign page with the money blacked out. Everyone guesses two
+numbers — how much it has raised, and how much it is asking for. Then you
+reveal both. When someone hosts, every chat they announce it to lights up with
+a **Join now** banner (and a push alert). The game tools are one tap away under
+**Games**.
+
+**Install it like an app.** On iPhone: open the site in Safari → Share → **Add
+to Home Screen**. On Android: Chrome's menu → **Install app** (or **Add to Home
+screen**). It opens full screen with its own icon and splash, and that's also
+what lets iPhones receive push alerts. Long-press the icon on Android for
+shortcuts to your chats, joining a game, or starting one.
 
 One HTML file. No build step, no server, no install. Drop it on GitHub Pages
 and it works.
@@ -229,7 +235,7 @@ its chat; published decks stay until you delete them from the Firebase console.
 
 ### Chats
 
-DS(WT) Crew opens to **your chats**: every group you're in, newest first, with
+JoshChat opens to **your chats**: every group you're in, newest first, with
 the latest message, how many you haven't read, and a red dot when one of them
 has a game live. **Search chats** filters the list. On a laptop the list and the
 open chat sit side by side. **Games** at the top goes to the game tools, and
@@ -294,7 +300,7 @@ your avatar opens your profile.
   - **Android / computers:** tap the bell, allow notifications. Done.
   - **iPhone (iOS 16.4+):** Apple only allows this for sites on the home
     screen. Tapping the bell in Safari walks you through it: Share → Add to Home
-    Screen → open DS(WT) Crew from the icon → join the crew with its code →
+    Screen → open JoshChat from the icon → join the crew with its code →
     tap the bell there.
   - Whoever hosts doesn't get pinged by their own game.
 - **⋯** shows the crew code and lets you leave.

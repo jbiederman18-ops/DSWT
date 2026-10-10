@@ -1,4 +1,4 @@
-/* DS(WT) Crew push relay — a Cloudflare Worker.
+/* JoshChat push relay — a Cloudflare Worker.
 
    When a host opens a room for a crew, the site POSTs /notify. This worker
    checks Firebase that the crew really has that game going live right now,
@@ -247,7 +247,7 @@ async function message(req, env){
      encryption) is still shown as it was. */
   const plain = v => typeof v === "string" && v && !v.startsWith(SEALED);
   const who = plain(m.n) ? String(m.n).slice(0, 40) : "";
-  const crewName = plain(meta && meta.name) ? String(meta.name).slice(0, 60) : "DS(WT) Crew";
+  const crewName = plain(meta && meta.name) ? String(meta.name).slice(0, 60) : "JoshChat";
   let text = plain(m.t) ? String(m.t).replace(/\s+/g, " ").trim() : (m.t ? "New message" : "");
   if (text.length > 140) text = text.slice(0, 139) + "…";
   if (m.img) text = "\u{1F4F7} " + (plain(m.t) ? text : "Photo");
@@ -255,7 +255,7 @@ async function message(req, env){
   const out = await sendAll(subs,
     (uid, mode) => uid !== from && (mode === "all" || (mode === "mentions" && mentioned(uid))),
     uid => JSON.stringify({
-      title: mentioned(uid) ? (who || "Someone") + " mentioned you" + (crewName !== "DS(WT) Crew" ? " in " + crewName : "") : crewName,
+      title: mentioned(uid) ? (who || "Someone") + " mentioned you" + (crewName !== "JoshChat" ? " in " + crewName : "") : crewName,
       body: (mentioned(uid) || !who ? "" : who + ": ") + (text || "New message"),
       url: site + "#crew=" + crew,
       tag: "ds-chat-" + crew
@@ -327,7 +327,7 @@ export default {
       if (!env.VAPID_JWK) return json({ error: "not set up yet" }, 503);
       return message(req, env);
     }
-    return text("DS(WT) Crew push relay. " + (env.VAPID_JWK ? "Ready" : "Not set up yet — visit /setup") +
+    return text("JoshChat push relay. " + (env.VAPID_JWK ? "Ready" : "Not set up yet — visit /setup") +
                 (env.FIREBASE_SA ? " · database login set." : " · no database login (FIREBASE_SA), so it needs the old open rules."));
   }
 };

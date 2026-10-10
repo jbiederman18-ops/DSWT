@@ -2,14 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>DS(WT) Crew</title>
+<!-- interactive-widget: on Android the keyboard shrinks the page, so the message box stays above it -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>JoshChat</title>
+<meta name="description" content="Group chats for the crew, end-to-end encrypted, with Dicksharter (Working Title) built in.">
+<meta name="application-name" content="JoshChat">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="icon-192.png">
-<meta name="theme-color" content="#000000">
+<!-- the browser and status-bar colour follows the chat list's own colour in light and dark -->
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14211B" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<!-- added to an iPhone's home screen: full screen, its own name, and a splash while it opens -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="DS(WT) Crew">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JoshChat">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-startup-image" href="splash/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +52,8 @@
   --display:"Fredoka","Archivo Black",Archivo,"Helvetica Neue",sans-serif;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,label,[role=button]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{
   margin:0;background:var(--paper);color:var(--ink);
   font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -65,7 +87,7 @@ label.field{display:block;margin-bottom:.9rem}
 label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.3em;color:var(--ink-soft)}
 
 /* ---------- app shell ---------- */
-#app{height:100%;display:flex;flex-direction:column}
+#app{height:var(--app-h,100%);display:flex;flex-direction:column}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column}
 
 /* ---------- intake ---------- */
@@ -1024,8 +1046,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <!-- ============ MENU ============ -->
 <section id="menu" class="screen">
   <div class="menu-inner">
-    <div class="wordmark"><h1>DS(WT) CREW</h1><div class="bar" id="wmbar"></div></div>
-    <p class="submark">Dicksharter (working title), with the group chat built in</p>
+    <div class="wordmark"><h1>DS(WT)</h1><div class="bar" id="wmbar"></div></div>
+    <p class="submark">Dicksharter (Working Title) · a JoshChat game</p>
     <p class="lede">A real crowdfunding page goes up on the screen with the money blacked out. Everyone guesses what it has raised and what it is asking for. Then you find out.</p>
 
     <nav class="menu">
@@ -1258,7 +1280,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <section id="crew" class="screen hidden msgr v-list">
   <aside class="inbox" aria-label="Chats">
     <header class="ib-top">
-      <h1 class="ib-mark">DS<small>(WT)</small> Crew<i class="ib-bar" aria-hidden="true"></i></h1>
+      <h1 class="ib-mark">JoshChat<i class="ib-bar" aria-hidden="true"></i></h1>
       <button type="button" class="ib-games" id="ibGames">Games</button>
       <button type="button" class="ib-me" id="ibMe" aria-label="Your profile"></button>
     </header>
@@ -1334,7 +1356,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <ol class="ios-steps">
         <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
         <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-        <li>Open <b>DS(WT) Crew</b> from the new icon on your home screen.</li>
+        <li>Open <b>JoshChat</b> from the new icon on your home screen.</li>
         <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
       </ol>
       <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
@@ -3548,7 +3570,7 @@ function crewSignIn(after){
     '<button type="button" class="btn solid hs-act" id="siSend">Email me a sign-in link</button>' +
     '<div id="siSent" class="si-sent' + (pending ? "" : " hidden") + '">' +
       '<p><b>Check your email.</b> Tap the link in it to sign in.</p>' +
-      '<p class="tiny">Using DS(WT) Crew from your home screen? Press and hold the link in the email, copy it, and paste it here:</p>' +
+      '<p class="tiny">Using JoshChat from your home screen? Press and hold the link in the email, copy it, and paste it here:</p>' +
       '<div class="si-paste"><input type="url" id="siPaste" placeholder="Paste the link" autocomplete="off"><button type="button" class="btn" id="siPasteGo">Sign in</button></div>' +
     '</div>' +
     '<p class="tiny" id="siNote" role="status" style="margin:.7rem 0 0;color:var(--m-red)"></p>' +
@@ -5598,7 +5620,7 @@ function liveAlert(live){
   try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e){}
   try {
     if (!pushIsOn() && "Notification" in window && Notification.permission === "granted" && document.visibilityState === "hidden"){
-      new Notification("DS(WT) Crew: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
+      new Notification("JoshChat: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
     }
   } catch (e){ /* phones without a service worker refuse; the banner still shows */ }
   if (document.visibilityState === "hidden"){
@@ -5847,7 +5869,7 @@ function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" 
 async function crewShare(){
   const url = crewInviteUrl();
   if (navigator.share){
-    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on DS(WT) Crew", url: url }); return; }
+    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on JoshChat", url: url }); return; }
     catch (e){ if (e && e.name === "AbortError") return; }
   }
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
@@ -7291,7 +7313,7 @@ async function hostFinal(){
 async function shareRoom(){
   const url = roomUrl();
   if (navigator.share){
-    try { await navigator.share({ title: "DS(WT) Crew", text: "Join my game — room " + LIVE.code, url: url }); return; }
+    try { await navigator.share({ title: "Dicksharter (Working Title)", text: "Join my game — room " + LIVE.code, url: url }); return; }
     catch (e){ if (e && e.name === "AbortError") return; }
   }
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
@@ -7438,11 +7460,23 @@ if (/[?&]oobCode=/.test(location.search)){
   if (saved) P.game = readJoinCode(saved);
   show("player"); renderPlayer();
 } else if (!location.hash && (CR.code || crewList().length || standalone())){
-  openHome();            /* DS(WT) Crew opens to your chats */
+  openHome();            /* JoshChat opens to your chats */
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
 authToken();   /* sign in early, so the first message or guess doesn't wait */
+/* iPhones don't shrink the page when the keyboard opens, so the message box
+   would end up under it: size the app to the part of the screen that's visible */
+if (window.visualViewport){
+  const fit = () => {
+    const vv = window.visualViewport;
+    document.documentElement.style.setProperty("--app-h", Math.round(vv.height) + "px");
+    if (vv.offsetTop) window.scrollTo(0, 0);
+  };
+  window.visualViewport.addEventListener("resize", fit);
+  window.visualViewport.addEventListener("scroll", fit);
+  fit();
+}
 /* the service worker lets the app open with no signal (and carries alerts) */
 if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
 

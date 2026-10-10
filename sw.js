@@ -1,11 +1,12 @@
-/* DS(WT) Crew service worker.
+/* JoshChat service worker.
    1. Push alerts.
    2. Opening with no signal: the app's own files are fetched from the network
       first (so it is always the latest version) and only fall back to the copy
       kept here when the network fails. Nothing from the database or any other
       site is cached. */
-const SHELL = "dswt-shell-v1";
-const OWN = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
+const SHELL = "joshchat-shell-v2";          /* a new name clears the old copy (and its old icons) */
+const OWN = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png",
+             "apple-touch-icon.png", "favicon-48.png", "badge-96.png"];
 
 self.addEventListener("install", e => {
   self.skipWaiting();
@@ -46,10 +47,10 @@ self.addEventListener("push", e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; }
   catch (err){ d = { body: e.data ? e.data.text() : "" }; }
-  e.waitUntil(self.registration.showNotification(d.title || "DS(WT) Crew", {
+  e.waitUntil(self.registration.showNotification(d.title || "JoshChat", {
     body: d.body || "",
     icon: "icon-192.png",
-    badge: "icon-192.png",
+    badge: "badge-96.png",          /* Android's status bar wants a one-colour shape */
     tag: d.tag || "ds-live",
     renotify: true,
     data: { url: d.url || "./" }
