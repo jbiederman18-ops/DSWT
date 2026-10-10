@@ -67,6 +67,7 @@ Click **Edit slides** on any round.
 |---|---|
 | Click a slide | Drops it from the round |
 | `‹` `›` | Moves it earlier or later |
+| 1 / 2 / 3 | How many slides share a screen; a yellow spine marks each screen |
 | Right panel | Ticks what the crew sees — pitch, each fact, each claim, each flag, each photo |
 | Top bar | Title and both answers, editable |
 | Blackout… | The bar editor |

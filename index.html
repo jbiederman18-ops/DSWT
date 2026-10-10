@@ -128,6 +128,9 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .upsel{display:inline-flex;border:1px solid rgba(255,255,255,.35)}
 .upsel button{background:transparent;border:0;color:var(--paper);font-size:.75rem;font-weight:700;padding:.2em .55em;line-height:1.4}
 .upsel button.on{background:var(--marker);color:#000}
+.upsel.gmup{border-color:var(--ink)}
+.upsel.gmup button{color:var(--ink)}
+.upsel.gmup button:hover:not(.on){background:rgba(0,0,0,.1)}
 .upsel button:hover:not(.on){background:rgba(255,255,255,.18)}
 .panelbar{display:flex;align-items:center;gap:.6rem;padding:.5rem .9rem;background:var(--ink);color:var(--paper);font-size:.8rem}
 .dots{flex:1;display:flex;gap:3px;align-items:center;overflow:hidden}
@@ -195,10 +198,12 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .gm-head{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.7rem;flex-wrap:wrap}
 .gm-head h3{font-size:1.05rem}
 .gm-head .tiny{color:var(--ink-soft)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1.35rem .9rem}
 .card-slide{background:var(--card);border:2px solid var(--ink);position:relative}
 .card-slide.off{opacity:.42;border-style:dashed}
-.card-slide .thumb{display:block;width:100%;cursor:pointer;border-bottom:1px solid var(--rule)}
+.card-slide.screenstart{box-shadow:-6px 0 0 var(--marker)}
+.screenlab{position:absolute;left:0;bottom:100%;font-size:.62rem;font-weight:700;background:var(--marker);color:#000;padding:0 .35em}
+.card-slide .thumb{display:block;width:100%;max-height:420px;object-fit:cover;object-position:top center;cursor:pointer;border-bottom:1px solid var(--rule)}
 .card-slide.off .thumb{filter:grayscale(1)}
 .card-slide .bar2{display:flex;align-items:center;gap:.2rem;padding:.25rem .3rem;font-size:.72rem}
 .card-slide .pos{font-family:var(--display);font-weight:800;font-size:.95rem;min-width:1.6em;text-align:center}
@@ -357,6 +362,9 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
         <h3>Slides</h3>
         <span class="tiny" id="gmCount"></span>
         <span class="grow" style="flex:1"></span>
+        <span class="upsel gmup" id="gmUpSel" title="How many share a screen during play">
+          <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
+        </span>
         <button class="btn sm ghost" id="gmAll">Show all</button>
         <button class="btn sm ghost" id="gmAuto">Back to suggested</button>
       </div>
@@ -1108,14 +1116,22 @@ function contentGaps(r){
   return gaps;
 }
 
-/* Never let a forced cut land inside a picture. */
-function nudgeOffImages(cut, floor, r){
-  for (const im of (r.imageSpots || [])){
-    if (cut > im.y + 2 && cut < im.y + im.h - 2){
-      const before = im.y - 2;
-      return before > floor ? before : im.y + im.h + 2;
-    }
-  }
+/* A forced cut must not land through a picture or through a line of text.
+   Nudge it to the nearest edge that is still inside the allowed window.
+   A picture taller than a whole slide is the exception: there is nowhere
+   else to put the cut, and jumping past it makes one enormous slide. */
+function nudgeCut(cut, floor, ceil, r){
+  const dodge = (box, tall) => {
+    if (!(cut > box.y + 1 && cut < box.y + box.h - 1)) return false;
+    if (tall && box.h > ceil - floor) return false;      // unavoidable
+    const before = box.y - 1;
+    if (before > floor){ cut = before; return true; }
+    const after = box.y + box.h + 1;
+    if (after <= ceil){ cut = after; return true; }
+    return false;
+  };
+  for (const im of (r.imageSpots || [])) if (dodge(im, true)) break;
+  for (const t of (r.textSpots || [])) if (dodge(t, false)) break;
   return cut;
 }
 
@@ -1138,17 +1154,19 @@ function sliceAt(r){
       }
       next = best.mid;
     } else {
-      next = nudgeOffImages(y + maxH, y + minH, r);
+      next = nudgeCut(y + maxH, y + minH, y + maxH, r);
     }
-    next = Math.min(next, r.pageH);
+    next = Math.min(next, r.pageH, y + maxH);
     if (next <= y + 4) break;
     cuts.push(next);
     y = next;
   }
   if (r.pageH - y > 8) cuts.push(r.pageH);
   // a sliver at the end is no one's idea of a slide; fold it into the one before
-  if (cuts.length > 2 && cuts[cuts.length - 1] - cuts[cuts.length - 2] < minH * 0.6){
-    cuts.splice(cuts.length - 2, 1);
+  if (cuts.length > 2){
+    const tail = cuts[cuts.length - 1] - cuts[cuts.length - 2];
+    const merged = cuts[cuts.length - 1] - cuts[cuts.length - 3];
+    if (tail < minH * 0.6 && merged <= maxH) cuts.splice(cuts.length - 2, 1);
   }
   return cuts;
 }
@@ -1615,11 +1633,21 @@ function drawGrid(){
   $("#gmCount").textContent = on + " of " + r.slides.length + " showing" +
     (risky ? "  \u00b7  " + risky + " worth a look" : "");
 
+  const up = upCount();
+  $$("#gmUpSel button").forEach(btn => btn.classList.toggle("on", Number(btn.dataset.up) === up));
+
   let pos = 0;
   r.slides.forEach((sl, idx) => {
     if (sl.on) pos++;
+    const startsScreen = sl.on && up > 1 && (pos - 1) % up === 0;
     const card = document.createElement("div");
-    card.className = "card-slide" + (sl.on ? "" : " off");
+    card.className = "card-slide" + (sl.on ? "" : " off") + (startsScreen ? " screenstart" : "");
+    if (startsScreen){
+      const lab = document.createElement("span");
+      lab.className = "screenlab";
+      lab.textContent = "screen " + (Math.floor((pos - 1) / up) + 1);
+      card.appendChild(lab);
+    }
 
     const im = document.createElement("img");
     im.className = "thumb"; im.src = sl.url; im.draggable = false;
@@ -1758,6 +1786,10 @@ $("#gmGoal").addEventListener("change", e => {
 $("#gmPrevRound").addEventListener("click", () => openGM(gmIdx - 1));
 $("#gmNextRound").addEventListener("click", () => openGM(gmIdx + 1));
 $("#gmBlackout").addEventListener("click", () => openCheck(gmIdx));
+$$("#gmUpSel button").forEach(btn => btn.addEventListener("click", () => {
+  store.set("ds.up", btn.dataset.up);
+  drawGrid();
+}));
 $("#gmAll").addEventListener("click", () => { G.rounds[gmIdx].slides.forEach(sl => { sl.on = true; }); drawGrid(); });
 $("#gmAuto").addEventListener("click", async () => {
   const b = $("#gmAuto"); b.disabled = true; b.textContent = "Recutting\u2026";
@@ -2543,7 +2575,8 @@ if (/^#join=/i.test(location.hash)){
 window.DS = window.REDACTED = {
   G: G, buildTokens: buildTokens, buildSegments: buildSegments, findFunding: findFunding,
   buildRedactions: buildRedactions, extractInfo: extractInfo, parseAmount: parseAmount,
-  imageRegions: imageRegions, MONEY_RE: MONEY_RE, clamp: clamp, money: money
+  imageRegions: imageRegions, MONEY_RE: MONEY_RE, clamp: clamp, money: money,
+  sliceAt: sliceAt, contentGaps: contentGaps
 };
 
 /* the wordmark bar slides off once, on load — the only decoration that moves */
