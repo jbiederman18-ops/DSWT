@@ -238,7 +238,10 @@ that have uninstalled or revoked permission. Subscriptions are stored under
 `/saves/<crew code>/crew/push`.
 
 The chat lives under `/saves/<crew code>/crew`, so the database rules don't
-change. The newest 250 messages are shown; older ones stay in the database.
+change. Opening the chat loads the newest 60 messages; scroll up and earlier ones load
+60 at a time, back to the start. The crew's name, members and live game come
+in as separate small streams, so the app stays quick however long the history
+gets, and phones never download anyone's push subscription.
 
 ### Results and the winner
 
