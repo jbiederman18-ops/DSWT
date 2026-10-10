@@ -2256,6 +2256,9 @@ async function liveOpenRoom(){
   }
   LIVE.isHost = true;
   $("#liveState").textContent = "Room open.";
+  // if a round is already up on the TV, phones should land straight into it
+  const playing = !$("#play").classList.contains("hidden") && G.rounds[G.idx];
+  if (playing) liveAnnounceRound();
   $("#liveRoom").classList.remove("hidden");
   $("#roomCode").textContent = LIVE.code;
   $("#roomUrl").textContent = roomUrl();
@@ -2289,7 +2292,8 @@ function updateTally(){
 }
 
 async function liveAnnounceRound(){
-  if (!LIVE.isHost || !LIVE.code) return;
+  if (!LIVE.code || !dbRoot()) return;
+  LIVE.isHost = true;
   const r = G.rounds[G.idx];
   await dbPut("/now", { r: G.idx, uid: r.uid, phase: "guessing", title: r.title });
   updateTally();
@@ -2347,9 +2351,13 @@ function renderLivePlayer(){
        '<div class="total">' + total + '</div>' +
        '<div class="tiny" style="color:#555">room ' + esc(LIVE.code) + '</div></div>';
 
+  const known = now.phase === "lobby" || now.phase === "guessing" || now.phase === "revealed";
+  if (!known && now.r >= 0) now = Object.assign({}, now, { phase: "guessing" });
+
   if (now.phase === "lobby" || now.r < 0){
-    h += '<div class="card"><b>Waiting for the first round.</b>' +
-         '<p class="tiny" style="margin-top:.4rem">Keep this open. It will wake up when the TV does.</p></div>';
+    const seen = LIVE.state && LIVE.state.players;
+    h += '<div class="card"><b>' + (seen ? "You\u2019re in. Waiting for the first round." : "Connecting\u2026") + '</b>' +
+         '<p class="tiny" style="margin-top:.4rem">Keep this open \u2014 it wakes up on its own when the TV starts a round. Nothing to tap yet.</p></div>';
   } else if (now.phase === "guessing"){
     h += '<div class="card"><div style="display:flex;gap:.6rem;align-items:baseline">' +
          '<b style="font-family:var(--display);font-size:1.6rem">' + (Number(now.r) + 1) + '</b>' +
