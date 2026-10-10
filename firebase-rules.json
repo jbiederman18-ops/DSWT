@@ -51,7 +51,7 @@
         "chats": {
           ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && auth.uid === $uid",
           "$code": {
-            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && (auth.uid === $uid ? !newData.exists() : (newData.exists() && root.child('saves/' + $code + '/crew/members/' + auth.uid).exists()))",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous' && (auth.uid === $uid ? !newData.exists() : root.child('saves/' + $code + '/crew/members/' + auth.uid).exists())",
             ".validate": "$code.length === 6 && newData.child('by').val() === auth.uid && newData.child('n').isString() && newData.child('n').val().length <= 60"
           }
         },

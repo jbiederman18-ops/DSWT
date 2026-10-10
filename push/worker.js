@@ -220,8 +220,17 @@ async function crewReader(env, crew){
     if (r.status === 401 || r.status === 403) throw new Error("the database refused the relay: add the FIREBASE_SA secret (see the top of this file)");
     return r.ok ? r.json() : null;
   };
-  return { at, get };
+  /* just the keys under a node (who's a member), not their contents */
+  const ids = async k => {
+    const u = await at(k);
+    const r = await fetch(u + (u.includes("?") ? "&" : "?") + "shallow=true");
+    return r.ok ? r.json() : null;
+  };
+  return { at, get, ids };
 }
+/* only people still in the chat hear about it: someone who left (or was
+   removed) and whose alert subscription got left behind is skipped */
+const memberOf = mem => uid => !mem || !!mem[uid];
 
 const MSG_WINDOW = 2 * 60 * 1000;    // only alert about a message sent in the last two minutes
 
@@ -232,9 +241,9 @@ async function message(req, env){
   const crew = String(b.crew || ""), key = String(b.key || ""), site = siteFor(env, String(b.site || ""));
   if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[-\w]{1,40}$/.test(key)) return json({ error: "bad codes" }, 400);
   if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
-  const { at, get } = await crewReader(env, crew);
-  let m, subs, meta;
-  try { [m, subs, meta] = await Promise.all([get("chat/" + key), get("push"), get("meta")]); }
+  const { at, get, ids } = await crewReader(env, crew);
+  let m, subs, meta, mem;
+  try { [m, subs, meta, mem] = await Promise.all([get("chat/" + key), get("push"), get("meta"), ids("members")]); }
   catch (e){ return json({ error: String(e.message || e) }, 502); }
   if (!m || m.sys || m.del) return json({ skipped: "no such message" }, 404);
   if (m.p) return json({ skipped: "already sent" });
@@ -253,7 +262,7 @@ async function message(req, env){
   if (m.img) text = "\u{1F4F7} " + (plain(m.t) ? text : "Photo");
   const mentioned = uid => !!(m.m && m.m[uid]);
   const out = await sendAll(subs,
-    (uid, mode) => uid !== from && (mode === "all" || (mode === "mentions" && mentioned(uid))),
+    (uid, mode) => uid !== from && memberOf(mem)(uid) && (mode === "all" || (mode === "mentions" && mentioned(uid))),
     uid => JSON.stringify({
       title: mentioned(uid) ? (who || "Someone") + " mentioned you" + (crewName !== "JoshChat" ? " in " + crewName : "") : crewName,
       body: (mentioned(uid) || !who ? "" : who + ": ") + (text || "New message"),
@@ -272,9 +281,9 @@ async function notify(req, env){
   if (!/^[A-Z0-9]{6}$/.test(crew) || !/^[A-Z0-9]{4}$/.test(room)) return json({ error: "bad codes" }, 400);
   if (!/^https?:\/\/[^\s"<>#]+$/.test(site)) return json({ error: "bad site" }, 400);
 
-  const { at, get } = await crewReader(env, crew);
-  let live, sent, subs, meta;
-  try { [live, sent, subs, meta] = await Promise.all([get("live"), get("pushSent"), get("push"), get("meta")]); }
+  const { at, get, ids } = await crewReader(env, crew);
+  let live, sent, subs, meta, mem;
+  try { [live, sent, subs, meta, mem] = await Promise.all([get("live"), get("pushSent"), get("push"), get("meta"), ids("members")]); }
   catch (e){ return json({ error: String(e.message || e) }, 502); }
 
   if (!live || live.room !== room || Date.now() - Number(live.at || 0) > LIVE_WINDOW) return json({ skipped: "that game isn't live" }, 409);
@@ -291,7 +300,7 @@ async function notify(req, env){
     tag: "ds-live-" + crew
   });
   /* every mode wants games */
-  const out = await sendAll(subs, uid => uid !== from, payload, env, at);
+  const out = await sendAll(subs, uid => uid !== from && memberOf(mem)(uid), payload, env, at);
   return json(out);
 }
 

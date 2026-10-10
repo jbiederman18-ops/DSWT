@@ -152,7 +152,11 @@ decide who can do what:
   People**, and they lose access at once.
 - **Messages:** you can only post as yourself, and only edit or delete your own.
   You can react to anything, but only as yourself.
-- **Alert subscriptions** can't be read by anyone except the push relay.
+- **Alert subscriptions** can't be read by anyone except the push relay, and
+  the relay only alerts people who are still in the chat.
+- **Invitations** from **New chat** can be withdrawn by anyone in the chat, and
+  removing someone withdraws theirs, so an unused invitation can't be used to
+  walk back in.
 - **Game rooms** need a signed-in phone, and the code is the key. The room
   belongs to whoever opened it: only the host can start rounds, reveal, score or
   close it, and each player can only write their own name and their own guesses.
@@ -306,17 +310,20 @@ your avatar opens your profile.
   room. The crew chat carries on into the game, so the whole night is one
   conversation, with rounds, reveals and the winner dropped in as dividers. The
   banner clears when the game ends.
-- **Push alerts:** tap the **🔔** bell in the crew chat and that phone gets real
-  notifications, even with the app closed: new messages, and games going live.
-  Tap one and you land in the crew chat (with **Join now** waiting for a game).
-  Once it says **🔔 On**, tap it to choose **Every message**, **Only when I'm
-  @mentioned** or **Only games going live**, or to turn alerts off. A busy chat
-  stacks into one notification per crew rather than a flood.
-  - **Android / computers:** tap the bell, allow notifications. Done.
-  - **iPhone (iOS 16.4+):** Apple only allows this for sites on the home
-    screen. Tapping the bell in Safari walks you through it: Share → Add to Home
-    Screen → open JoshChat from the icon → join the crew with its code →
-    tap the bell there.
+- **Push alerts:** the chat list asks once whether to **Turn on** notifications.
+  Say yes and that phone gets real notifications for every chat you're in,
+  including ones you join later, even with the app closed: new messages, and
+  games going live. Tap one and you land in that chat (with **Join now**
+  waiting for a game). Each chat's **🔔** bell sets that chat on its own:
+  **Every message**, **Only when I'm @mentioned**, **Only games going live**,
+  or **Mute this chat** (🔕). A muted chat stays muted, and tapping its bell
+  turns it back on. **Turn off notifications for all chats** is at the bottom
+  of the same sheet. A busy chat stacks into one notification per chat rather
+  than a flood.
+  - **Android / computers:** tap **Turn on**, allow notifications. Done.
+  - **iPhone (iOS 16.4+):** Apple only allows this for apps on the home
+    screen. In Safari the prompt walks you through it: Share → Add to Home
+    Screen → open JoshChat from the icon → sign in → tap **Turn on**.
   - Whoever hosts doesn't get pinged by their own game.
 - **⋯** shows the crew code and lets you leave.
 - **Existing chats after this update:** everyone already in a chat stays in.

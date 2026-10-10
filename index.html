@@ -683,6 +683,15 @@ html[data-look=night] .msgr{--m-bg:#0B1411; --m-surf:#13201A; --m-ink:#E8F2EC; -
         border:0;border-radius:99px;padding:.8rem 1.15rem .8rem .95rem;background:var(--m-ink);color:var(--m-surf);font-weight:700;font-size:.98rem;
         box-shadow:0 10px 26px rgba(14,40,28,.28)}
 .ib-new svg{width:20px;height:20px}
+/* the notifications prompt above the chats */
+.ib-ask{display:flex;gap:.75rem;align-items:flex-start;margin:2px 16px 10px;padding:.85rem .9rem;border-radius:16px;
+        background:var(--m-mint);color:var(--m-ink);border:1px solid color-mix(in srgb,var(--m-green) 30%,transparent)}
+.ib-ask-ic{font-size:1.35rem;line-height:1.2;flex:0 0 auto}
+.ib-ask-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem}
+.ib-ask-t b{font-family:var(--m-name);font-weight:700;font-size:1rem;letter-spacing:-.01em}
+.ib-ask-t > span:not(.ib-ask-acts){font-size:.86rem;color:var(--m-soft);line-height:1.35}
+.ib-ask-acts{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.55rem}
+.msgr .ib-ask .btn.sm{padding:.45em .95em;font-size:.86rem}
 /* Daylight: unread chats lift onto a card */
 html:not([data-look=night]) .msgr .ib-row.unread{background:var(--m-surf);box-shadow:0 1px 2px rgba(18,34,27,.07)}
 @media (prefers-color-scheme:dark){html[data-look=auto] .msgr .ib-row.unread,html:not([data-look]) .msgr .ib-row.unread{background:transparent;box-shadow:none}}
@@ -1500,6 +1509,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       <button type="button" class="ib-me" id="ibMe" aria-label="Your profile"></button>
     </header>
     <label class="ib-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" id="ibSearch" placeholder="Search chats" aria-label="Search chats" autocomplete="off"></label>
+    <div class="ib-ask hidden" id="ibAsk" role="region" aria-label="Notifications"></div>
     <div class="ib-list" id="ibList" role="list"></div>
     <button type="button" class="ib-new" id="ibNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New chat</button>
   </aside>
@@ -1572,16 +1582,16 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
         <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
         <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
         <li>Open <b>JoshChat</b> from the new icon on your home screen.</li>
-        <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
+        <li>Sign in there with the same account. Your chats come with you; tap <b>Turn on</b> when it asks about notifications.</li>
       </ol>
-      <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
+      <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you sign in again inside it. Needs iOS 16.4 or newer.</p>
       <button type="button" class="btn solid hs-act" id="iosOk">Got it</button>
     </div>
   </div>
   <div class="modal hidden" id="alertSheet" role="dialog" aria-modal="true" aria-labelledby="alertH">
     <div class="card">
       <h2 id="alertH" style="font-size:1.4rem">Alerts on this phone</h2>
-      <p class="tiny" style="margin:.3rem 0 .8rem">For <b id="alertCrew"></b>. Each phone has its own setting.</p>
+      <p class="tiny" style="margin:.3rem 0 .8rem">For <b id="alertCrew"></b>. Each chat and each phone has its own setting.</p>
       <div class="alert-modes" id="alertModes">
         <label><input type="radio" name="am" value="all"><span><b>Every message</b>and every game</span></label>
         <label><input type="radio" name="am" value="mentions"><span><b>Only when I’m @mentioned</b>and every game</span></label>
@@ -1589,8 +1599,9 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       </div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
         <button type="button" class="btn solid" id="alertSave">Done</button>
-        <button type="button" class="btn" id="alertOff" style="color:var(--stamp)">Turn alerts off</button>
+        <button type="button" class="btn" id="alertOff" style="color:var(--stamp)">Mute this chat</button>
       </div>
+      <p class="tiny" style="margin:.9rem 0 0"><button type="button" class="linkish" id="alertAllOff">Turn off notifications for all chats</button></p>
     </div>
   </div>
   <div class="modal hidden" id="profSheet" role="dialog" aria-modal="true" aria-labelledby="profH">
@@ -3971,7 +3982,7 @@ async function signOut(){
   if (!confirm("Sign out on this phone? Your chats stay in your account; sign in again to see them.")) return;
   if (CR.es){ CR.es.close(); CR.es = null; }
   try { const f = await fb(); await f.A.signOut(f.auth); } catch (e){}
-  for (const k of ["ds.uid", "ds.refresh", "ds.prov", "ds.email", "ds.crews", "ds.crew", "ds.home", "ds.readMap", "ds.pushOn"]) store.set(k, "");
+  for (const k of ["ds.uid", "ds.refresh", "ds.prov", "ds.email", "ds.crews", "ds.crew", "ds.home", "ds.readMap", "ds.pushOn", "ds.alerts", "ds.pushIn", "ds.pushAll", "ds.pushClean"]) store.set(k, "");
   await e2eForget();
   location.hash = "";
   location.reload();
@@ -4204,9 +4215,16 @@ async function currentKid(code){
   if (typeof kv === "string") E2E.kv.set(code, kv);
   return typeof kv === "string" ? kv : null;
 }
+/* Chats on the app's own database are always encrypted. If sign-in is down
+   (so encryption is too), sealing refuses rather than handing back plain
+   text, and the message waits in the outbox until it can go out sealed. */
+const mustSeal = () => !!AUTH.key && dbRoot() === DB_URL.replace(/\/+$/, "");
+/* true wherever names and words must be sealed before they're written */
+const sealing = () => e2eOn() || mustSeal();
+function noPlain(){ if (mustSeal()) throw new Error("Encryption isn’t ready on this phone yet."); }
 /* seal some text for a chat; throws if this phone can't yet */
 async function seal(code, text){
-  if (!e2eOn()) return text;
+  if (!e2eOn()){ noPlain(); return text; }
   const kid = await currentKid(code);
   const key = kid && await chatKey(code, kid);
   if (!key) throw new Error("This chat isn’t unlocked on this phone yet.");
@@ -4234,7 +4252,7 @@ async function deepOpen(code, v){
 }
 /* the parts of a message people wrote */
 async function sealMsg(code, m){
-  if (!e2eOn()) return m;
+  if (!e2eOn()){ noPlain(); return m; }
   const o = Object.assign({}, m);
   if (typeof o.t === "string" && o.t) o.t = await seal(code, o.t);
   if (typeof o.n === "string" && o.n) o.n = await seal(code, o.n);
@@ -5197,8 +5215,9 @@ function makeChat(root, o){
   let cur = {}, lastPid = null, unread = 0, primed = false, picker = null, first = "";
   let replyTo = null, editing = null, photo = null;        /* the composer's state */
   const outbox = [];                                        /* { id, m, el } not yet stored */
-  /* motion is for the messenger only; game-room chats keep their old behaviour */
-  const anim = rich;
+  /* motion is for the messenger screen only. The crew chat also opens beside a
+     game (host console, remote player); there it keeps its old behaviour. */
+  const anim = rich && !!root.closest(".msgr");
   const hand = {};                                          /* key → a sent bubble waiting for its echo */
   /* o.keep: a storage key, so unsent messages survive closing the app */
   function saveOutbox(){
@@ -6198,7 +6217,7 @@ $("#profSave").addEventListener("click", async () => {
   const v = store.get("ds.photoV") || "";
   await Promise.all(crewList().filter(c => !c.invited && !c.asked).map(async c => {
     let mine = me;
-    if (e2eOn()){
+    if (sealing()){
       try {
         mine = Object.assign({}, me, { n: await seal(c.code, me.n), a: me.a ? await seal(c.code, me.a) : null,
                                        r: me.r ? await seal(c.code, me.r) : null, p: me.p ? await seal(c.code, me.p) : null });
@@ -6315,10 +6334,10 @@ async function joinLive(){
    sits under crew/requests until someone in the chat lets them in. */
 const JOIN_ASKED = "asked";
 async function crewEnter(code, name){
-  const me = { n: e2eOn() ? "…" : String(name || "Someone").slice(0, 40), seen: { ".sv": "timestamp" } };
+  const me = { n: sealing() ? "…" : String(name || "Someone").slice(0, 40), seen: { ".sv": "timestamp" } };
   const col = store.get("ds.color");
   me.c = col !== null && col !== undefined && col !== "" ? Number(col) : null;
-  me.a = e2eOn() ? null : store.get("ds.avatar") || null;
+  me.a = sealing() ? null : store.get("ds.avatar") || null;
   try {
     const r = await fetch(crewPath("/members/" + LIVE.pid, code), { method: "PATCH", body: JSON.stringify(me) });
     return r.ok ? "in" : (r.status === 401 || r.status === 403 ? "no" : "net");
@@ -6443,7 +6462,7 @@ $("#crReq").addEventListener("click", async e => {
   b.disabled = true;
   if (yes){
     let sn = nm;
-    if (e2eOn()){ try { sn = await seal(CR.code, nm); } catch (e){ sn = "…"; } }
+    if (sealing()){ try { sn = await seal(CR.code, nm); } catch (e){ sn = "…"; } }
     const r = await fetch(crewPath("/members/" + id), { method: "PUT", body: JSON.stringify({ n: sn, at: { ".sv": "timestamp" } }) }).catch(() => null);
     if (!r || !r.ok){ b.disabled = false; toast("Couldn’t let them in. Try again."); return; }
     await fetch(crewPath("/requests/" + id), { method: "DELETE" }).catch(() => {});
@@ -6459,6 +6478,8 @@ async function crewRemove(id){
   const r = await fetch(crewPath("/members/" + id), { method: "DELETE" }).catch(() => null);
   if (!r || !r.ok){ toast("Couldn’t remove them. Check your connection."); return; }
   fetch(crewPath("/push/" + id), { method: "DELETE" }).catch(() => {});
+  /* an invitation they never used would let them walk straight back in */
+  if (authOn()) fetch(dbRoot() + "/users/" + id + "/chats/" + CR.code + ".json", { method: "DELETE" }).catch(() => {});
   if (e2eOn()){
     for (const kid of Object.keys(CR.state.keys || {})) fetch(crewPath("/keys/" + kid + "/" + id), { method: "DELETE" }).catch(() => {});
     await newChatKey(CR.code);
@@ -6474,7 +6495,7 @@ async function facePut(code){
   const ph = store.get("ds.photo") || "", v = store.get("ds.photoV") || "";
   if (!code || (store.get("ds.photoIn:" + code) || "") === v) return;
   let val = faceOk(ph) ? ph : null;
-  if (val && e2eOn()){ try { val = await seal(code, val); } catch (e){ return; } }
+  if (val && sealing()){ try { val = await seal(code, val); } catch (e){ return; } }
   const r = await fetch(crewPath("/members/" + LIVE.pid + "/p", code),
     val ? { method: "PUT", body: JSON.stringify(val) } : { method: "DELETE" }).catch(() => null);
   if (r && r.ok) store.set("ds.photoIn:" + code, v);
@@ -6498,7 +6519,7 @@ async function crewTouch(){
   me.a = store.get("ds.avatar") || null;
   me.r = realName() || null;
   if (Number(store.get("ds.pv")) > 0) me.pv = Number(store.get("ds.pv"));
-  if (e2eOn()){
+  if (sealing()){
     /* sealed; until this phone has the chat's key, leave the name as it is */
     try { me.n = await seal(CR.code, me.n); me.a = me.a ? await seal(CR.code, me.a) : null; me.r = me.r ? await seal(CR.code, me.r) : null; }
     catch (e){ delete me.n; delete me.a; delete me.r; }
@@ -6527,7 +6548,7 @@ async function crewCreate(title, name){
   await authToken();
   const code = code6();
   try {
-    await putJSON(crewPath("/meta", code), { name: e2eOn() ? "…" : title, created: Date.now() });
+    await putJSON(crewPath("/meta", code), { name: sealing() ? "…" : title, created: Date.now() });
     await putJSON(crewPath("/here", code), true);
   } catch (e){ return "Couldn’t reach the database."; }
   const err = await crewJoin(code, name);
@@ -6590,56 +6611,167 @@ function b64uDec(str){
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
 }
-function pushIsOn(){
-  return !!CR.code && store.get("ds.pushOn") === CR.code && "Notification" in window && Notification.permission === "granted";
+/* What each chat sends this phone, kept on the phone:
+     ds.alerts  { code: "all" | "mentions" | "games" | "off" }
+     ds.pushAll "1" once you've said yes to alerts for every chat; a chat with
+                no entry then counts as "all", so chats you join later are in
+     ds.pushIn  { code: "<endpoint>|<mode>" } what was last written to each
+                chat's crew/push/<you>, so nothing is rewritten needlessly
+   The phone has one push subscription; each chat it's on for holds a copy
+   under crew/push/<you> with that chat's mode, and the relay reads those. */
+const ALERT_MODES = ["all", "mentions", "games"];
+function jsonStore(k){ try { return JSON.parse(store.get(k) || "{}") || {}; } catch (e){ return {}; } }
+const alertMap = () => jsonStore("ds.alerts");
+function setAlert(code, mode){
+  const m = alertMap();
+  if (mode) m[code] = mode; else delete m[code];
+  store.set("ds.alerts", JSON.stringify(m));
 }
+const pushInMap = () => jsonStore("ds.pushIn");
+function setPushIn(code, sig){
+  const m = pushInMap();
+  if (sig) m[code] = sig; else delete m[code];
+  store.set("ds.pushIn", JSON.stringify(m));
+}
+/* from before: one chat had alerts (ds.pushOn), with its mode in ds.pushMode */
+(function carryOldAlerts(){
+  const old = store.get("ds.pushOn");
+  if (!old) return;
+  const modes = jsonStore("ds.pushMode");
+  if (!alertMap()[old]) setAlert(old, ALERT_MODES.includes(modes[old]) ? modes[old] : "all");
+  store.set("ds.pushOn", "");
+  store.set("ds.pushClean", "");          /* tidy the other chats' leftovers on the next sync */
+})();
+const permOk = () => "Notification" in window && Notification.permission === "granted";
+/* this phone's setting for a chat: a mode, or "off" */
+function chatAlert(code){
+  const m = alertMap()[code];
+  if (m === "off") return "off";
+  if (ALERT_MODES.includes(m)) return m;
+  if (store.get("ds.pushAll") !== "1") return "off";
+  const old = jsonStore("ds.pushMode")[code];
+  return ALERT_MODES.includes(old) ? old : "all";
+}
+const alertsOnFor = code => !!code && permOk() && chatAlert(code) !== "off";
+function pushIsOn(){ return alertsOnFor(CR.code); }
+/* the mode the alerts sheet shows for the open chat */
+function pushMode(){ const m = chatAlert(CR.code); return m === "off" ? "all" : m; }
+const joinedChats = () => crewList().filter(c => !c.invited && !c.asked);
 
-async function pushSubscribe(){
+/* this phone's push subscription, made (or remade with a new relay key) once */
+let PUSH_KEY = null;
+async function pushSub(){
   const reg = await navigator.serviceWorker.register("sw.js");
   await navigator.serviceWorker.ready;
-  const res = await fetch(pushUrl() + "/key");
-  if (!res.ok) throw new Error("The alerts server isn’t finished setting up yet");
-  const key = (await res.text()).trim();
+  if (!PUSH_KEY) PUSH_KEY = fetch(pushUrl() + "/key").then(async res => {
+    if (!res.ok) throw new Error("The alerts server isn’t finished setting up yet");
+    return (await res.text()).trim();
+  }).catch(e => { PUSH_KEY = null; throw e; });
+  const key = await PUSH_KEY;
   let sub = await reg.pushManager.getSubscription();
   if (sub){
     const cur = sub.options && sub.options.applicationServerKey;
     if (!cur || b64uEnc(cur) !== key){ await sub.unsubscribe(); sub = null; }
   }
   if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uDec(key) });
-  await putJSON(crewPath("/push/" + LIVE.pid), { sub: sub.toJSON(), at: Date.now(), mode: pushMode() });
+  return sub;
+}
+async function pushDrop(code){
+  const r = await fetch(crewPath("/push/" + LIVE.pid, code), { method: "DELETE" }).catch(() => null);
+  if (r && r.ok) setPushIn(code, "");
+}
+/* Bring every chat in line with this phone's settings: subscribe the chats
+   that are on (with their mode), unsubscribe the ones that are off. Quick
+   when nothing has changed, so it runs whenever the app or a chat opens. */
+let pushSyncing = null, pushSyncAgain = false;
+function pushSync(force){
+  if (!permOk() || !pushUrl() || !canPush() || !signedIn()) return Promise.resolve();
+  if (pushSyncing){ pushSyncAgain = true; return pushSyncing.then(() => pushSyncing); }   /* resolves after the re-run */
+  pushSyncing = (async () => {
+    const chats = joinedChats();
+    const wanted = chats.filter(c => chatAlert(c.code) !== "off");
+    const sub = wanted.length ? await pushSub() : null;
+    const done = pushInMap(), clean = store.get("ds.pushClean") === "1";
+    let ok = true;
+    await pool(chats, 3, async c => {
+      const mode = chatAlert(c.code);
+      if (mode === "off"){
+        if (done[c.code] || !clean) await pushDrop(c.code);
+        return;
+      }
+      const sig = sub.endpoint + "|" + mode;
+      if (!force && done[c.code] === sig) return;
+      try {
+        await putJSON(crewPath("/push/" + LIVE.pid, c.code), { sub: sub.toJSON(), at: Date.now(), mode: mode });
+        setPushIn(c.code, sig);
+      } catch (e){ ok = false; }
+    });
+    if (ok) store.set("ds.pushClean", "1");
+  })().catch(() => {}).finally(() => {
+    pushSyncing = null;
+    if (pushSyncAgain){ pushSyncAgain = false; pushSync(); }
+  });
+  return pushSyncing;
+}
+/* subscriptions can rotate; re-check whenever the app or a chat opens */
+function pushRefresh(){ return pushSync(); }
+
+/* ask for the phone's permission; true when granted */
+async function askPermission(){
+  if (isIOS && !standalone()){ $("#iosSheet").classList.remove("hidden"); return false; }
+  if (!canPush()){ toast("This browser can’t do push alerts. The in-app banner still works.", 3500); return false; }
+  const perm = await Notification.requestPermission();
+  if (perm === "granted") return true;
+  toast(perm === "denied"
+    ? "Notifications are blocked for this site. Allow them in your browser or phone settings, then try again."
+    : "Notifications need your permission.", 4200);
+  return false;
 }
 
+/* yes to every chat: from the prompt on the chat list */
+async function alertsAllOn(){
+  if (!(await askPermission())){ drawAlertAsk(); return; }
+  store.set("ds.pushAll", "1");
+  /* a chat you'd muted stays muted; everything else comes on */
+  await pushSync(true);
+  drawAlertAsk(); alertsButton();
+  toast("Notifications on for all your chats. Tap a chat’s bell to change or mute it.", 3800);
+}
+/* everything off, from the alerts sheet */
+async function alertsAllOff(){
+  store.set("ds.pushAll", "");
+  const m = alertMap();
+  for (const c of joinedChats()) m[c.code] = "off";
+  store.set("ds.alerts", JSON.stringify(m));
+  store.set("ds.pushAsk", String(Date.now() + 60 * 864e5));      /* and don't ask again for a while */
+  await Promise.all(joinedChats().map(c => pushDrop(c.code)));
+  drawAlertAsk(); alertsButton();
+  toast("Notifications off for all chats on this phone", 3000);
+}
+
+/* the bell on a chat that's off: turn on just this one */
 async function pushEnable(){
-  if (isIOS && !standalone()){ $("#iosCode").textContent = CR.code; $("#iosSheet").classList.remove("hidden"); return; }
-  if (!canPush()){ toast("This browser can’t do push alerts. The in-app banner still works.", 3500); return; }
-  const btn = $("#crAlerts");
+  const btn = $("#crAlerts"), code = CR.code;
   btn.disabled = true;
   try {
-    const perm = await Notification.requestPermission();
-    if (perm !== "granted") throw new Error(perm === "denied"
-      ? "Notifications are blocked for this site. Allow them in your browser or phone settings, then try again."
-      : "Alerts need your permission.");
-    await pushSubscribe();
-    store.set("ds.pushOn", CR.code);
-    toast("Alerts on: new messages and games going live. Tap the bell to change that.", 3600);
-  } catch (e){
-    toast(e.message || "Couldn’t turn alerts on", 4200);
-  }
+    if (await askPermission()){
+      const m = alertMap()[code];
+      setAlert(code, ALERT_MODES.includes(m) ? m : "all");
+      await pushSync();
+      toast(store.get("ds.pushAll") === "1" ? "Alerts back on for this chat" : "Alerts on for this chat. Tap the bell to change that.", 3200);
+    }
+  } catch (e){ toast(e.message || "Couldn’t turn alerts on", 4200); }
   btn.disabled = false;
-  alertsButton();
+  alertsButton(); drawAlertAsk();
 }
-
+/* mute one chat on this phone */
 async function pushDisable(){
-  if (CR.code) await fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
-  store.set("ds.pushOn", "");
+  const code = CR.code;
+  if (!code) return;
+  setAlert(code, "off");
+  await pushDrop(code);
   alertsButton();
-  toast("Alerts off on this device");
-}
-
-/* subscriptions can rotate; quietly re-register when the app opens */
-async function pushRefresh(){
-  if (!pushIsOn() || !pushUrl() || !canPush()) return;
-  try { await pushSubscribe(); } catch (e){}
+  toast("Alerts off for this chat on this phone");
 }
 
 function alertsButton(){
@@ -6655,40 +6787,79 @@ function alertsButton(){
     return;
   }
   const on = pushIsOn();
-  b.textContent = "\u{1F514}";
-  b.title = on ? "Alerts are on for this phone — tap for settings" : "Get notifications for new messages and games";
+  b.textContent = on ? "\u{1F514}" : "\u{1F515}";
+  b.title = on ? "Alerts are on for this chat — tap for settings" : "Alerts are off for this chat — tap to turn them on";
   b.setAttribute("aria-label", b.title);
   b.classList.toggle("on", on);
   b.setAttribute("aria-pressed", on ? "true" : "false");
   b.classList.remove("hidden");
 }
 
-/* what this phone wants to hear about, per crew: all | mentions | games */
-function pushMode(){
-  let m = {};
-  try { m = JSON.parse(store.get("ds.pushMode") || "{}"); } catch (e){}
-  return ["all", "mentions", "games"].includes(m[CR.code]) ? m[CR.code] : "all";
-}
 function openAlerts(){
   $("#alertCrew").textContent = crewName();
   const cur = pushMode();
   $$("#alertModes input").forEach(r => { r.checked = r.value === cur; });
+  $("#alertAllOff").classList.toggle("hidden", !joinedChats().some(c => c.code !== CR.code && alertsOnFor(c.code)));
   $("#alertSheet").classList.remove("hidden");
 }
 $("#alertSave").addEventListener("click", async () => {
   const pick = ($$("#alertModes input").find(r => r.checked) || {}).value || "all";
   $("#alertSheet").classList.add("hidden");
-  if (pick === pushMode()) return;
-  let m = {};
-  try { m = JSON.parse(store.get("ds.pushMode") || "{}"); } catch (e){}
-  m[CR.code] = pick;
-  store.set("ds.pushMode", JSON.stringify(m));
-  const r = await fetch(crewPath("/push/" + LIVE.pid), { method: "PATCH", body: JSON.stringify({ mode: pick }) }).catch(() => null);
-  toast(r && r.ok ? "Saved" : "Couldn’t save that — try again", 2400);
+  if (pick === chatAlert(CR.code)) return;
+  setAlert(CR.code, pick);
+  await pushSync();
+  toast(pushInMap()[CR.code] && pushInMap()[CR.code].endsWith("|" + pick) ? "Saved" : "Couldn’t save that — try again", 2400);
 });
 $("#alertOff").addEventListener("click", async () => {
   $("#alertSheet").classList.add("hidden");
   await pushDisable();
+});
+$("#alertAllOff").addEventListener("click", async () => {
+  $("#alertSheet").classList.add("hidden");
+  await alertsAllOff();
+});
+
+/* ---------- the prompt on the chat list ----------
+   Shown until you say yes or "Not now" (which waits a week). On an iPhone
+   in Safari it explains the home-screen step instead, since that's the only
+   way iPhones get alerts. Never shown if notifications are blocked. */
+function alertAskKind(){
+  if (!pushUrl() || !signedIn() || !joinedChats().length) return "";
+  if (store.get("ds.pushAll") === "1" && permOk()) return "";
+  if (Date.now() < Number(store.get("ds.pushAsk") || 0)) return "";
+  if (isIOS && !standalone()) return "ios";
+  if (!canPush() || Notification.permission === "denied") return "";
+  return joinedChats().some(c => alertsOnFor(c.code)) ? "more" : "ask";
+}
+function drawAlertAsk(){
+  const el = $("#ibAsk");
+  if (!el) return;
+  const kind = alertAskKind();
+  el.classList.toggle("hidden", !kind);
+  if (!kind || el.dataset.kind === kind) return;
+  el.dataset.kind = kind;
+  const t = kind === "ios"
+    ? ["Get notifications on this iPhone", "iPhones only deliver them to apps on the home screen. It takes a few seconds to set up.", "Show me"]
+    : kind === "more"
+    ? ["Notifications for every chat?", "They’re on for some of your chats. Turn them on for all of them, including new ones. You can still mute any chat from its bell.", "Turn on for all"]
+    : ["Turn on notifications?", "Hear about new messages and games going live in all your chats. You can mute any chat from its bell.", "Turn on"];
+  el.innerHTML = '<span class="ib-ask-ic" aria-hidden="true">\u{1F514}</span>' +
+    '<span class="ib-ask-t"><b>' + t[0] + '</b><span>' + t[1] + '</span>' +
+    '<span class="ib-ask-acts"><button type="button" class="btn solid sm" data-ask="yes">' + t[2] + '</button>' +
+    '<button type="button" class="btn sm" data-ask="later">Not now</button></span></span>';
+}
+$("#ibAsk").addEventListener("click", async e => {
+  const b = e.target.closest("[data-ask]");
+  if (!b) return;
+  if (b.dataset.ask === "later"){
+    store.set("ds.pushAsk", String(Date.now() + 7 * 864e5));
+    drawAlertAsk();
+    return;
+  }
+  if (alertAskKind() === "ios"){ $("#iosSheet").classList.remove("hidden"); return; }
+  b.disabled = true;
+  await alertsAllOn();
+  b.disabled = false;
 });
 
 /* a new crew message: the relay alerts everyone whose settings ask for it */
@@ -6866,10 +7037,14 @@ $("#crLeave").addEventListener("click", () => {
   if (!confirm("Leave " + crewName() + "? You can rejoin with the code.")) return;
   const left = CR.code;
   if (CR.es){ CR.es.close(); CR.es = null; }
-  if (CR.code) fetch(crewPath("/members/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
-  if (CR.code) fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
+  if (CR.code){
+    /* alerts first: once we're out of the chat, the rules won't let us remove them */
+    const mem = crewPath("/members/" + LIVE.pid);
+    fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {})
+      .then(() => fetch(mem, { method: "DELETE" })).catch(() => {});
+    setAlert(CR.code, ""); setPushIn(CR.code, "");
+  }
   if (CR.code && authOn() && AUTH.uid) fetch(dbRoot() + "/users/" + AUTH.uid + "/crews/" + CR.code + ".json", { method: "DELETE" }).catch(() => {});
-  store.set("ds.pushOn", "");
   CR.code = ""; CR.state = {}; CR.chat = null; CR.liveSeen = null; CR.primed = false;
   store.set("ds.crew", "");
   crewForget(left);
@@ -7370,6 +7545,7 @@ function homeRows(){
 }
 function drawHome(){
   drawMe();
+  drawAlertAsk();
   HOME.drawQ = false;
   const el = $("#ibList");
   if (!el) return;
@@ -7469,6 +7645,7 @@ function openHome(){
   drawHome();
   refreshHome();
   drawLiveBanner();
+  pushSync();
 }
 
 /* tapping a chat in the list */
@@ -7543,7 +7720,7 @@ $("#ncGo").addEventListener("click", async () => {
   if (err){ $("#ncNote").textContent = err; return; }
   /* put it in their list */
   await Promise.all(picked.map(id => fetch(dbRoot() + "/users/" + id + "/chats/" + CR.code + ".json",
-    { method: "PUT", body: JSON.stringify(by({ n: e2eOn() ? "New chat" : title, at: { ".sv": "timestamp" } })) }).catch(() => {})));
+    { method: "PUT", body: JSON.stringify(by({ n: sealing() ? "New chat" : title, at: { ".sv": "timestamp" } })) }).catch(() => {})));
   $("#newSheet").classList.add("hidden");
   crewRemember(CR.code, title);
   crewView("chat");
@@ -7611,7 +7788,7 @@ async function setMeta(path, val, said){
   crewChanged();
   drawInfo();
   let send = val;
-  if (e2eOn() && val !== null){
+  if (sealing() && val !== null){
     try {
       if (path === "name" || path === "pic" || path === "photo/n" || path.startsWith("nick/")) send = await seal(CR.code, val);
       else if (path === "photo" && val.n) send = Object.assign({}, val, { n: await seal(CR.code, val.n) });
