@@ -192,11 +192,43 @@ chat.
   room. The crew chat carries on into the game, so the whole night is one
   conversation, with rounds, reveals and the winner dropped in as dividers. The
   banner clears when the game ends.
-- **Alerts:** the phone buzzes when the banner appears (Android) and the tab
-  title flashes if it's in the background. On a computer, **🔔 Alerts** turns on
-  a system notification. The page has to be open somewhere for any of this —
-  a phone with the site fully closed won't hear about it.
+- **Push alerts:** tap the **🔔** bell in the crew chat and that phone gets a
+  real notification when a game goes live — even with the site closed. Tap the
+  notification and you land in the crew chat with **Join now** waiting. The bell
+  shows **🔔 On** once it's set; tap again to turn it off.
+  - **Android / computers:** tap the bell, allow notifications. Done.
+  - **iPhone (iOS 16.4+):** Apple only allows this for sites on the home
+    screen. Tapping the bell in Safari walks you through it: Share → Add to Home
+    Screen → open Dicksharter from the icon → join the crew with its code →
+    tap the bell there.
+  - Whoever hosts doesn't get pinged by their own game.
 - **⋯** shows the crew code and lets you leave.
+
+#### Setting up push alerts (once)
+
+Sending a push needs a private signing key, which can't live in a public web
+page, so a tiny free relay does it: [`push/worker.js`](push/worker.js), a
+Cloudflare Worker. No credit card, no command line.
+
+1. Make a free account at <https://dash.cloudflare.com>.
+2. **Workers & Pages → Create → Create Worker**, name it `dswt-push`,
+   **Deploy**.
+3. **Edit code**, delete what's there, paste all of `push/worker.js`,
+   **Deploy**.
+4. Visit `https://dswt-push.<your-subdomain>.workers.dev/setup` and copy the
+   key it shows.
+5. Back in the Worker: **Settings → Variables and Secrets → Add**, type
+   **Secret**, name `VAPID_JWK`, paste the key, **Deploy**.
+6. Put the Worker's address in `PUSH_URL` near the top of the push section in
+   `index.html` and push to GitHub.
+
+Until step 6 the bell falls back to an in-tab notification on computers, and
+the in-app banner works everywhere regardless.
+
+The relay only sends when the crew really has a game that opened in the last
+ten minutes, announces each game once, and drops subscriptions from phones
+that have uninstalled or revoked permission. Subscriptions are stored under
+`/saves/<crew code>/crew/push`.
 
 The chat lives under `/saves/<crew code>/crew`, so the database rules don't
 change. The newest 250 messages are shown; older ones stay in the database.

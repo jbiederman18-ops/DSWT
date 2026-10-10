@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dicksharter (Working Title)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dicksharter">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -353,12 +359,12 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .rp-chatbtn{position:relative;background:var(--marker);color:#06281A;border:0;border-radius:99px;padding:.38em .95em;font-weight:700;font-size:.85rem;flex:0 0 auto}
 .badge{position:absolute;top:-7px;right:-7px;min-width:1.4em;height:1.4em;padding:0 .3em;border-radius:99px;background:var(--stamp);color:#fff;
        font-style:normal;font-size:.72rem;line-height:1.4em;text-align:center;box-shadow:0 0 0 2px var(--ink)}
-.hs-top button:not(.rp-chatbtn){background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.3em .7em;font-size:.8rem;font-weight:600;border-radius:4px}
+.hs-top button:not(.rp-chatbtn){white-space:nowrap;flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.3em .7em;font-size:.8rem;font-weight:600;border-radius:4px}
 .hs-room{font-family:var(--display);font-weight:700;letter-spacing:.14em}
 .rp-body{flex:1;min-height:0;display:flex}
 .rp-main{flex:1;min-width:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 32px}
 .rp-main > *{max-width:720px;margin-left:auto;margin-right:auto}
-#rplayer .card,#host .card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:1rem 1.05rem;margin-bottom:12px}
+#rplayer .card,#host .card,#crew .card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:1rem 1.05rem;margin-bottom:12px}
 .rp-hint{font-size:.8rem;color:var(--ink-soft);margin:0 0 8px}
 .rp-deck{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
 .rp-slide{display:block;width:100%;height:auto;background:#fff;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
@@ -508,6 +514,15 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ch-pill b{font-size:.75rem;font-variant-numeric:tabular-nums}
 .ch-pill.on{border-color:var(--marker-deep);background:var(--hl)}
 .ch-sys.live{background:var(--stamp);color:#fff}
+
+/* push alerts */
+#crAlerts.on{background:var(--marker) !important;color:#06281A !important;border-color:var(--marker) !important}
+.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.modal .card{width:100%;max-width:460px;margin:0 !important;border-radius:16px !important}
+@media (min-width:600px){.modal{align-items:center}}
+.ios-steps{margin:0;padding-left:1.3rem;font-size:.95rem}
+.ios-steps li{margin-bottom:.45rem}
+.ios-code{font-family:var(--display);letter-spacing:.08em}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;border-radius:var(--r);box-shadow:0 4px 0 rgba(0,0,0,.3)}
 </style>
 </head>
@@ -771,6 +786,20 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <button type="button" class="btn sm" id="crLeave" style="color:var(--stamp)">Leave this crew</button>
   </div>
   <div class="cr-body" id="crBody"></div>
+  <div class="modal hidden" id="iosSheet" role="dialog" aria-modal="true" aria-labelledby="iosH">
+    <div class="card">
+      <h2 id="iosH" style="font-size:1.4rem">Alerts on iPhone</h2>
+      <p class="tiny" style="margin:.4rem 0 .8rem">iPhones only deliver alerts to sites added to the home screen. One-time setup:</p>
+      <ol class="ios-steps">
+        <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
+        <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+        <li>Open <b>Dicksharter</b> from the new icon on your home screen.</li>
+        <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
+      </ol>
+      <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
+      <button type="button" class="btn solid hs-act" id="iosOk">Got it</button>
+    </div>
+  </div>
 </section>
 
 <!-- ============ REMOTE: PLAYER ============ -->
@@ -3632,7 +3661,7 @@ function liveAlert(live){
   el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
   try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e){}
   try {
-    if ("Notification" in window && Notification.permission === "granted" && document.visibilityState === "hidden"){
+    if (!pushIsOn() && "Notification" in window && Notification.permission === "granted" && document.visibilityState === "hidden"){
       new Notification("Dicksharter: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
     }
   } catch (e){ /* phones without a service worker refuse; the banner still shows */ }
@@ -3705,6 +3734,112 @@ async function crewShare(){
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
   catch (e){ prompt("Copy this link and send it to the crew:", url); }
 }
+
+/* ---------- push alerts ----------
+   Real notifications to phones that aren't looking: each phone subscribes
+   with the relay's public key and leaves its subscription under
+   crew/push/<pid>. Going live asks the relay (push/worker.js, a Cloudflare
+   Worker) to send to all of them. */
+const PUSH_URL = "";   /* the Worker's address, e.g. https://dswt-push.<you>.workers.dev */
+const pushUrl = () => String(store.get("ds.push") || PUSH_URL).replace(/\/+$/, "");
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const standalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const canPush = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+
+function b64uEnc(buf){
+  let s = "";
+  for (const b of new Uint8Array(buf)) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function b64uDec(str){
+  let s = String(str).replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  const bin = atob(s), out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function pushIsOn(){
+  return !!CR.code && store.get("ds.pushOn") === CR.code && "Notification" in window && Notification.permission === "granted";
+}
+
+async function pushSubscribe(){
+  const reg = await navigator.serviceWorker.register("sw.js");
+  await navigator.serviceWorker.ready;
+  const res = await fetch(pushUrl() + "/key");
+  if (!res.ok) throw new Error("The alerts server isn’t finished setting up yet");
+  const key = (await res.text()).trim();
+  let sub = await reg.pushManager.getSubscription();
+  if (sub){
+    const cur = sub.options && sub.options.applicationServerKey;
+    if (!cur || b64uEnc(cur) !== key){ await sub.unsubscribe(); sub = null; }
+  }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uDec(key) });
+  await putJSON(crewPath("/push/" + LIVE.pid), { sub: sub.toJSON(), n: store.get("ds.name") || "", at: Date.now() });
+}
+
+async function pushEnable(){
+  if (isIOS && !standalone()){ $("#iosCode").textContent = CR.code; $("#iosSheet").classList.remove("hidden"); return; }
+  if (!canPush()){ toast("This browser can’t do push alerts. The in-app banner still works.", 3500); return; }
+  const btn = $("#crAlerts");
+  btn.disabled = true;
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") throw new Error(perm === "denied"
+      ? "Notifications are blocked for this site. Allow them in your browser or phone settings, then try again."
+      : "Alerts need your permission.");
+    await pushSubscribe();
+    store.set("ds.pushOn", CR.code);
+    toast("Alerts on. You’ll get a notification when a game goes live.", 3200);
+  } catch (e){
+    toast(e.message || "Couldn’t turn alerts on", 4200);
+  }
+  btn.disabled = false;
+  alertsButton();
+}
+
+async function pushDisable(){
+  if (CR.code) await fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
+  store.set("ds.pushOn", "");
+  alertsButton();
+  toast("Alerts off on this device");
+}
+
+/* subscriptions can rotate; quietly re-register when the app opens */
+async function pushRefresh(){
+  if (!pushIsOn() || !pushUrl() || !canPush()) return;
+  try { await pushSubscribe(); } catch (e){}
+}
+
+function alertsButton(){
+  const b = $("#crAlerts");
+  if (!CR.code){ b.classList.add("hidden"); return; }
+  if (!pushUrl()){
+    /* relay not set up yet: fall back to an in-tab notification on computers */
+    b.textContent = "\u{1F514}";
+    b.title = "Get a notification when a game goes live";
+    b.setAttribute("aria-label", b.title);
+    b.classList.remove("on");
+    b.classList.toggle("hidden", !("Notification" in window) || Notification.permission !== "default");
+    return;
+  }
+  const on = pushIsOn();
+  b.textContent = on ? "\u{1F514} On" : "\u{1F514}";
+  b.title = on ? "Game alerts are on for this device" : "Get a notification when a game goes live";
+  b.setAttribute("aria-label", b.title);
+  b.classList.toggle("on", on);
+  b.setAttribute("aria-pressed", on ? "true" : "false");
+  b.classList.remove("hidden");
+}
+
+function pushNotifyCrew(){
+  if (!pushUrl() || !CR.code || !LIVE.code) return;
+  fetch(pushUrl() + "/notify", {
+    method: "POST",
+    body: JSON.stringify({ crew: CR.code, room: LIVE.code, from: LIVE.pid, site: location.origin + location.pathname })
+  }).catch(() => {});
+}
+
+$("#iosOk").addEventListener("click", () => $("#iosSheet").classList.add("hidden"));
 
 /* ---------- crew screen ---------- */
 function openCrew(hintCode){
@@ -3788,8 +3923,8 @@ function crewScreenChat(){
     empty: "Quiet in here. Say hi — and tap any message to react to it."
   });
   CR.chat.update(CR.state.chat, crewLabel());
-  const al = $("#crAlerts");
-  al.classList.toggle("hidden", !("Notification" in window) || Notification.permission !== "default");
+  alertsButton();
+  pushRefresh();
   drawLiveBanner();
 }
 
@@ -3801,14 +3936,21 @@ $("#crMoreBtn").addEventListener("click", () => {
   box.classList.toggle("hidden");
 });
 $("#crAlerts").addEventListener("click", async () => {
-  try { await Notification.requestPermission(); } catch (e){}
-  $("#crAlerts").classList.add("hidden");
-  toast(Notification.permission === "granted" ? "You’ll get an alert when a game goes live" : "Alerts are off — the banner still shows");
+  if (!pushUrl()){
+    try { await Notification.requestPermission(); } catch (e){}
+    alertsButton();
+    toast(Notification.permission === "granted" ? "You’ll get an alert while this tab is open" : "Alerts are off — the banner still shows");
+    return;
+  }
+  if (pushIsOn()){ if (confirm("Turn off game alerts on this device?")) await pushDisable(); return; }
+  await pushEnable();
 });
 $("#crLeave").addEventListener("click", () => {
   if (!confirm("Leave " + crewName() + "? You can rejoin with the code.")) return;
   if (CR.es){ CR.es.close(); CR.es = null; }
   if (CR.code) fetch(crewPath("/members/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
+  if (CR.code) fetch(crewPath("/push/" + LIVE.pid), { method: "DELETE" }).catch(() => {});
+  store.set("ds.pushOn", "");
   CR.code = ""; CR.state = {}; CR.chat = null; CR.liveSeen = null; CR.primed = false;
   store.set("ds.crew", "");
   drawLiveBanner();
@@ -4107,6 +4249,7 @@ async function hostOpenRoom(){
   hostAttach();
   if (crew){
     await fetch(crewPath("/live"), { method: "PUT", body: JSON.stringify({ room: LIVE.code, rounds: RH.pkg.rounds.length, at: { ".sv": "timestamp" } }) }).catch(() => {});
+    pushNotifyCrew();
     sysMsg("\u{1F534} Game going live \u2014 room " + LIVE.code + ", " + plural(RH.pkg.rounds.length, "campaign") + ". Tap Join now up top.", true);
   } else {
     sysMsg("Room " + LIVE.code + " is open. " + RH.pkg.rounds.length + " campaigns tonight.");
