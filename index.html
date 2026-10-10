@@ -342,6 +342,128 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
                  60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
 @media (prefers-reduced-motion:reduce){.stopthat b{animation:none}}
 
+
+/* ---------- remote play: player + host ---------- */
+#rplayer,#host{background:var(--paper-deep)}
+.rp-top{display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem;padding-top:max(.55rem,env(safe-area-inset-top));
+        background:var(--ink);color:var(--paper);flex:0 0 auto;min-width:0}
+.rp-r{font-family:var(--display);font-weight:700;color:var(--marker);white-space:nowrap}
+.rp-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.9rem}
+.rp-pts{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.85rem;color:#c9ccc3}
+.rp-chatbtn{position:relative;background:var(--marker);color:#06281A;border:0;border-radius:99px;padding:.38em .95em;font-weight:700;font-size:.85rem;flex:0 0 auto}
+.badge{position:absolute;top:-7px;right:-7px;min-width:1.4em;height:1.4em;padding:0 .3em;border-radius:99px;background:var(--stamp);color:#fff;
+       font-style:normal;font-size:.72rem;line-height:1.4em;text-align:center;box-shadow:0 0 0 2px var(--ink)}
+.hs-top button:not(.rp-chatbtn){background:transparent;border:1px solid rgba(255,255,255,.4);color:inherit;padding:.3em .7em;font-size:.8rem;font-weight:600;border-radius:4px}
+.hs-room{font-family:var(--display);font-weight:700;letter-spacing:.14em}
+.rp-body{flex:1;min-height:0;display:flex}
+.rp-main{flex:1;min-width:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 32px}
+.rp-main > *{max-width:720px;margin-left:auto;margin-right:auto}
+#rplayer .card,#host .card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:1rem 1.05rem;margin-bottom:12px}
+.rp-hint{font-size:.8rem;color:var(--ink-soft);margin:0 0 8px}
+.rp-deck{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.rp-slide{display:block;width:100%;height:auto;background:#fff;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.rp-slide.loading{aspect-ratio:3/4;background:linear-gradient(100deg,#fff 30%,#eef1ed 50%,#fff 70%) 0 0/300% 100%;animation:shimmer 1.2s linear infinite}
+@keyframes shimmer{to{background-position:-150% 0}}
+.rp-info h3{font-size:1.25rem;margin-bottom:.2rem}
+.rp-info h4,.rp-h4{font-family:var(--display);font-size:1rem;font-weight:700;margin:1.1rem 0 .35rem}
+.rp-h4{margin-top:0}
+.rp-info p{margin:.3rem 0;font-size:.95rem}
+.rp-info ul{padding-left:1.1rem;margin:.3rem 0}
+.rp-leave{text-align:center;font-size:.8rem;margin-top:1.4rem}
+.rp-leave a{color:var(--ink-soft)}
+.inner{margin-top:.5rem}
+
+/* reveal on a phone */
+.rv-card{background:var(--ink) !important;color:var(--paper);text-align:center}
+.rv{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.rv .lbl{display:block;font-size:.7rem;font-weight:700;color:#9a9d95;text-transform:uppercase;letter-spacing:.05em}
+.rv b{display:block;font-family:var(--display);font-size:clamp(1.6rem,8.5vw,2.6rem);line-height:1.05;font-variant-numeric:tabular-nums;
+      animation:rvin .45s cubic-bezier(.2,1.5,.4,1) both}
+.rv div + div b{animation-delay:.55s}
+.rv b.goal{color:var(--marker)}
+@keyframes rvin{from{opacity:0;transform:scale(1.4) rotate(-3deg)}to{opacity:1;transform:none}}
+.rv-verdict{color:#c9ccc3;font-size:.92rem;margin:.6rem 0 .2rem}
+.rv-mine{display:flex;justify-content:space-between;gap:.6rem;align-items:center;border-top:1px solid rgba(255,255,255,.18);
+         margin-top:.6rem;padding-top:.6rem;font-size:.9rem;text-align:left}
+.rv-mine b{font-family:var(--display);font-size:1.5rem;color:var(--marker)}
+.gtable{width:100%;border-collapse:collapse;font-size:.86rem}
+.gtable th,.gtable td{padding:.38rem .3rem;border-bottom:1px solid var(--rule);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gtable th{font-size:.68rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.gtable td:first-child,.gtable th:first-child{text-align:left;white-space:normal;overflow-wrap:anywhere}
+.gtable tr.me td{background:var(--hl)}
+.gtable tr.best td:first-child::after{content:" \2605";color:var(--marker-deep)}
+@media (prefers-reduced-motion:reduce){.rv b{animation:none}.rp-slide.loading{animation:none}}
+
+/* the guess box, pinned to the bottom */
+.rp-dock{flex:0 0 auto;background:var(--ink);color:var(--paper);padding:.65rem .8rem;padding-bottom:max(.65rem,env(safe-area-inset-bottom));border-top:3px solid var(--marker)}
+.rp-dock form{display:grid;grid-template-columns:1fr 1fr auto;gap:.5rem;align-items:start;max-width:720px;margin:0 auto}
+.rp-dock label span{display:block;font-size:.68rem;font-weight:700;color:#9a9d95;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.2em}
+.rp-dock input[type=text]{border-color:#3a3f3a;background:#151815;color:#fff;font-size:16px;padding:.5em .6em}
+.rp-dock input[type=text]:focus{border-color:var(--marker);outline:none}
+.rp-dock .pv{display:block;font-size:.74rem;color:var(--marker);min-height:1.15em;margin-top:.15em;font-variant-numeric:tabular-nums;font-weight:600}
+.rp-dock form .btn{margin-top:1.15rem;padding:.6em .9em}
+.rp-dock .lockd{display:flex;align-items:center;gap:.7rem;max-width:720px;margin:0 auto;font-size:.92rem}
+.rp-dock .btn.ghost{color:var(--paper);border-color:rgba(255,255,255,.35)}
+
+/* chat */
+.rp-chat{display:flex;flex-direction:column;background:var(--card);min-height:0}
+.ch-head{display:flex;align-items:center;gap:.5rem;padding:.65rem .85rem;padding-top:max(.65rem,env(safe-area-inset-top));border-bottom:2px solid var(--ink);flex:0 0 auto}
+.ch-head b{font-family:var(--display);font-size:1.15rem}
+.ch-sub{flex:1;font-size:.78rem;color:var(--ink-soft)}
+.ch-x{border:0;background:var(--paper-deep);border-radius:99px;width:2rem;height:2rem;font-size:.95rem}
+.ch-log{flex:1;min-height:0;overflow:auto;padding:.6rem .75rem .5rem;display:flex;flex-direction:column;gap:3px;overscroll-behavior:contain}
+.ch-empty{color:var(--ink-soft);font-size:.85rem;text-align:center;margin:auto 0}
+.ch-msg{display:flex;flex-direction:column;align-items:flex-start;max-width:86%}
+.ch-msg.me{align-self:flex-end;align-items:flex-end}
+.ch-n{font-size:.72rem;font-weight:700;color:var(--ink-soft);margin:.5rem 0 .12rem .35rem}
+.ch-b{background:var(--paper-deep);padding:.42em .78em;border-radius:15px;font-size:.95rem;line-height:1.35;overflow-wrap:anywhere}
+.ch-msg.me .ch-b{background:var(--marker);color:#06281A}
+.ch-msg.host .ch-b{background:var(--ink);color:var(--marker)}
+.ch-b.big{background:transparent !important;font-size:2.1rem;padding:0 .05em;line-height:1.1}
+.ch-b.banned{background:var(--stamp) !important;color:#fff !important;text-decoration:line-through}
+.ch-sys{align-self:center;text-align:center;font-size:.74rem;font-weight:700;color:#2c5a46;margin:.8rem 0 .3rem;padding:.25em .9em;
+        border-radius:99px;background:var(--hl);max-width:94%}
+.ch-react{display:flex;gap:.1rem;padding:.3rem .5rem 0;flex:0 0 auto;overflow-x:auto;border-top:1px solid var(--rule)}
+.ch-react button{border:0;background:transparent;font-size:1.4rem;padding:.12em .28em;border-radius:8px;line-height:1.2}
+.ch-react button:active,.ch-react button:hover{background:var(--hl)}
+.ch-form{display:flex;gap:.5rem;padding:.45rem .6rem;padding-bottom:max(.5rem,env(safe-area-inset-bottom));flex:0 0 auto}
+.ch-form input[type=text]{flex:1;min-width:0;border-radius:99px;font-size:16px;padding:.5em .9em}
+.ch-form .btn{border-radius:99px}
+.ch-form input[type=text]:focus{outline:none;border-color:var(--marker-deep);box-shadow:0 0 0 3px var(--hl)}
+@media (max-width:899px){
+  /* a tall sheet, so the top of the campaign stays in view while you argue about it */
+  .rp-chat{position:fixed;left:0;right:0;bottom:0;top:22%;z-index:40;transform:translateY(102%);visibility:hidden;
+           border-radius:16px 16px 0 0;border-top:3px solid var(--ink);box-shadow:0 -10px 40px rgba(0,0,0,.35);
+           transition:transform .26s cubic-bezier(.22,.61,.36,1),visibility 0s .26s}
+  .rp-chat .ch-head{padding-top:.65rem}
+  .rp-chat.open{transform:none;visibility:visible;transition:transform .26s cubic-bezier(.22,.61,.36,1),visibility 0s}
+}
+@media (min-width:900px){
+  .rp-chat{width:370px;flex:0 0 auto;border-left:3px solid var(--ink)}
+  .rp-chatbtn{display:none !important}
+  .ch-x{display:none}
+}
+
+/* host console */
+.hs-code{font-family:var(--display);font-weight:800;font-size:clamp(2.8rem,13vw,4.2rem);letter-spacing:.14em;line-height:1}
+.hs-phase{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft)}
+.hs-title{font-size:1.35rem;margin:.25rem 0 0;line-height:1.1}
+.hs-pkg{margin-top:1rem;padding:.6rem .8rem;background:var(--hl);border-radius:var(--r);font-size:.92rem}
+.hs-act{display:block;width:100%;font-size:1.05rem;padding:.8em 1em;margin-top:.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.6rem}
+.hchip{display:inline-flex;align-items:center;gap:.3em;padding:.18em .65em;border-radius:99px;border:2px solid var(--rule);font-weight:700;font-size:.85rem;color:var(--ink-soft)}
+.hchip.in{background:var(--marker);border-color:var(--marker);color:#06281A}
+.hchip.in::before{content:"\2713"}
+.hs-ans{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.8rem 0 .6rem}
+.hs-ans div{background:var(--paper);border-radius:var(--r);padding:.5rem .7rem}
+.hs-ans span{display:block;font-size:.68rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.hs-ans b{font-family:var(--display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.hs-ans.masked b{color:var(--ink-soft);letter-spacing:.1em}
+.rrow{display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--rule)}
+.rrow .n{font-family:var(--display);font-weight:700;min-width:1.5em}
+.rrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.92rem}
+.rrow .st{font-size:.7rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase}
+.rrow.cur{background:var(--hl);margin:0 -.5rem;padding:.45rem .5rem;border-radius:4px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;border-radius:var(--r);box-shadow:0 4px 0 rgba(0,0,0,.3)}
 </style>
 </head>
@@ -367,7 +489,11 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       </button>
       <button class="mi" id="miJoin">
         <span class="mk">03</span>
-        <span class="mt"><b>Join on your phone</b><em>Playing, not hosting? Four letters off the TV and you're in.</em></span>
+        <span class="mt"><b>Join on your phone</b><em>Playing, not hosting? Four letters from the host and you're in.</em></span>
+      </button>
+      <button class="mi" id="miHost">
+        <span class="mk">04</span>
+        <span class="mt"><b>Host a remote game</b><em>Friends far away? Everyone sees the campaign on their own phone and argues about it in the chat. Run it from your phone or laptop.</em></span>
       </button>
     </nav>
 
@@ -434,6 +560,25 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
         <button class="btn" id="exportBtn">Download slides</button>
         <button class="btn ghost" id="joinBtn">Get the join code</button>
         <button class="btn ghost" id="liveBtn">Live play…</button>
+        <button class="btn ghost" id="remoteBtn">Remote game…</button>
+      </div>
+      <div class="sheet hidden" id="remoteSheet">
+        <h3 style="font-size:1rem;margin-bottom:.2rem">Remote game</h3>
+        <p class="tiny">For friends who aren't in the room. Nobody needs the TV: every phone shows the campaign itself, with a chat running beside it, and you run the rounds from any phone or computer without playing.</p>
+        <p class="tiny" style="margin-top:.4rem">Publishing uploads the slides and info cards as they are now, so finish your edits first. The answers stay hidden from players until you reveal each round.</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.7rem">
+          <button class="btn sm solid" id="pubBtn">Publish for remote play</button>
+          <span class="tiny" id="pubNote"></span>
+        </div>
+        <div id="pubBox" class="hidden" style="margin-top:.9rem;text-align:center">
+          <div class="tiny">Host code — keep this one to yourself</div>
+          <div id="pubCode" style="font-family:var(--display);font-weight:800;font-size:clamp(2rem,7vw,3.2rem);letter-spacing:.1em;line-height:1.1"></div>
+          <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.4rem">
+            <button class="btn sm" id="copyPub">Copy code</button>
+            <button class="btn sm solid" id="pubHere">Host from this computer</button>
+          </div>
+          <p class="tiny" style="margin:.6rem auto 0;max-width:46ch">To host from your phone instead: open this page there, tap <b>Host a remote game</b>, and type the code.</p>
+        </div>
       </div>
       <div class="sheet hidden" id="joinSheet">
         <h3 style="font-size:1rem;margin-bottom:.2rem">Join code</h3>
@@ -553,6 +698,49 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <button id="resMenu">Main menu</button>
   </div>
   <div class="res-stage" id="resStage"></div>
+</section>
+
+<!-- ============ REMOTE: PLAYER ============ -->
+<section id="rplayer" class="screen hidden">
+  <div class="rp-top">
+    <span class="rp-r" id="rpRound"></span>
+    <span class="rp-t" id="rpTitle"></span>
+    <span class="rp-pts" id="rpPts"></span>
+    <button type="button" class="rp-chatbtn" id="rpChatBtn">Chat<i class="badge hidden" id="rpBadge"></i></button>
+  </div>
+  <div class="rp-body">
+    <main class="rp-main" id="rpMain">
+      <div id="rpStatus"></div>
+      <div id="rpDeckWrap" class="hidden">
+        <p class="rp-hint">Scroll through the campaign, talk it over, then lock in both numbers at the bottom.</p>
+        <div id="rpDeck" class="rp-deck"></div>
+        <div id="rpInfo"></div>
+      </div>
+      <p class="rp-leave"><a href="#" id="rpLeave">Leave the room</a></p>
+    </main>
+    <aside class="rp-chat" id="rpChat"></aside>
+  </div>
+  <div class="rp-dock hidden" id="rpDock"></div>
+</section>
+
+<!-- ============ REMOTE: HOST ============ -->
+<section id="host" class="screen hidden">
+  <div class="rp-top hs-top">
+    <button type="button" id="hsBack">‹ Menu</button>
+    <span class="rp-r">Host</span>
+    <span class="hs-room" id="hsRoom"></span>
+    <span style="flex:1"></span>
+    <button type="button" id="hsShare" class="hidden">Invite</button>
+    <button type="button" class="rp-chatbtn hidden" id="hsChatBtn">Chat<i class="badge hidden" id="hsBadge"></i></button>
+  </div>
+  <div class="rp-body">
+    <main class="rp-main">
+      <div id="hsMain"></div>
+      <div id="hsDeckWrap" class="hidden"><div id="hsDeck" class="rp-deck"></div><div id="hsInfo"></div></div>
+      <div id="hsMore"></div>
+    </main>
+    <aside class="rp-chat hidden" id="hsChat"></aside>
+  </div>
 </section>
 
 <!-- ============ PLAYER ============ -->
@@ -2043,7 +2231,7 @@ $("#gmNextUp").addEventListener("click", () => {
    10. PLAY
    ============================================================ */
 function show(which){
-  ["menu","intake","check","gm","play","results","player"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
+  ["menu","intake","check","gm","play","results","player","rplayer","host"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
 }
 
 function loadRound(i){
@@ -2285,7 +2473,7 @@ function renderPlayer(){
   if (LIVE.code && LIVE.db && !LIVE.isHost){ renderLivePlayer(); return; }
 
   if (!P.game){
-    const hint = (location.hash.match(/#join=([A-Z0-9]{4})/i) || [])[1] || "";
+    const hint = (location.hash.match(/#join=([A-Z0-9]{4})/i) || [])[1] || store.get("ds.room") || "";
     el.innerHTML =
       '<h1>Join a game</h1>' +
       '<p style="margin:.6rem 0 0;max-width:34ch">Four letters off the TV, or the long code the host sent you.</p>' +
@@ -2441,6 +2629,7 @@ function applyEvent(state, msg){
 
 function liveConnect(onChange){
   if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
+  LIVE.onChange = onChange;
   if (!dbRoot() || !LIVE.code) return;
   const es = new EventSource(gamePath(""));
   LIVE.es = es;
@@ -2587,7 +2776,7 @@ function renderRoster(){
 }
 
 /* ---------- standings ---------- */
-function standings(){
+function standings(list){
   const players = LIVE.state.players || {};
   const scores = LIVE.state.scores || {};
   const ids = new Set(Object.keys(players));
@@ -2596,7 +2785,7 @@ function standings(){
   // who topped each round, to hang a little stat on each row
   const roundWins = {};
   let played = 0;
-  for (const r of G.rounds){
+  for (const r of (list || G.rounds)){
     const row = scores[r.uid];
     if (!row) continue;
     played++;
@@ -2755,8 +2944,8 @@ window.addEventListener("keydown", e => {
 
 /* ---------- phone: final standings ---------- */
 function phoneFinal(now){
-  const rows = now.standings || [];
-  const winners = now.winners || [];
+  const rows = asList(now.standings);
+  const winners = asList(now.winners);
   const me = rows.find(r => r.id === LIVE.pid);
   let h = '<div class="card ph-win"><div class="wl">' + (now.tie ? "Joint winners" : "The winner") + '</div>' +
           '<div class="wn">' + esc(winners.join(" & ")) + '</div>';
@@ -2778,6 +2967,8 @@ function ordinal(n){
 async function liveJoin(code, name){
   LIVE.code = String(code).toUpperCase().trim();
   LIVE.isHost = false;
+  LIVE.state = {};
+  rpReset();
   const ok = await dbPut("/players/" + LIVE.pid, { name: name, joined: Date.now() });
   if (!ok) return false;
   store.set("ds.room", LIVE.code);
@@ -2795,79 +2986,6 @@ function liveTotal(){
   let t = 0;
   for (const k in sc){ const row = sc[k] || {}; t += Number(row[LIVE.pid]) || 0; }
   return t;
-}
-
-function renderLivePlayer(){
-  if ($("#player").classList.contains("hidden")) return;
-  const el = $("#playerInner");
-  let now = LIVE.state.now || { phase: "lobby", r: -1 };
-  const mine = ((LIVE.state.guesses || {})[now.uid] || {})[LIVE.pid];
-  const total = liveTotal();
-  const name = store.get("ds.name") || "You";
-
-  let h = '<h1>' + esc(name) + '</h1>';
-  h += '<div class="card" style="text-align:center"><div class="tiny" style="color:#555">Running total</div>' +
-       '<div class="total">' + total + '</div>' +
-       '<div class="tiny" style="color:#555">room ' + esc(LIVE.code) + '</div></div>';
-
-  const known = /^(lobby|guessing|revealed|results|final)$/.test(now.phase);
-  if (!known && now.r >= 0) now = Object.assign({}, now, { phase: "guessing" });
-
-  if (now.phase === "results"){
-    h += '<div class="card" style="text-align:center"><b style="font-size:1.15rem">That\u2019s every round.</b>' +
-         '<p class="tiny" style="margin-top:.4rem">Eyes on the TV \u2014 the winner is about to be announced.</p></div>';
-  } else if (now.phase === "final"){
-    h += phoneFinal(now);
-  } else if (now.phase === "lobby" || now.r < 0){
-    const seen = LIVE.state && LIVE.state.players;
-    h += '<div class="card"><b>' + (seen ? "You\u2019re in. Waiting for the first round." : "Connecting\u2026") + '</b>' +
-         '<p class="tiny" style="margin-top:.4rem">Keep this open \u2014 it wakes up on its own when the TV starts a round. Nothing to tap yet.</p></div>';
-  } else if (now.phase === "guessing"){
-    h += '<div class="card"><div style="display:flex;gap:.6rem;align-items:baseline">' +
-         '<b style="font-family:var(--display);font-size:1.6rem">' + (Number(now.r) + 1) + '</b>' +
-         '<span style="font-weight:600">' + esc(now.title || "") + '</span></div>';
-    if (mine){
-      h += '<p style="margin-top:.7rem">Locked in: <b>' + money(mine.raised) + '</b> raised, <b>' + money(mine.goal) + '</b> asked.</p>' +
-           '<p class="tiny" style="margin-top:.3rem">Waiting for the reveal.</p>';
-    } else {
-      h += '<div class="guessrow" style="margin-top:.8rem">' +
-             '<label class="field" style="margin:0"><span>Has raised</span><input type="number" inputmode="numeric" id="lgRaised"></label>' +
-             '<label class="field" style="margin:0"><span>Requesting</span><input type="number" inputmode="numeric" id="lgGoal"></label>' +
-           '</div><button class="btn solid sm" style="margin-top:.7rem" id="lgLock">Lock it in</button>';
-    }
-    h += '</div>';
-  } else if (now.phase === "revealed"){
-    const pts = ((LIVE.state.scores || {})[now.uid] || {})[LIVE.pid];
-    h += '<div class="card"><div style="font-weight:600">' + esc(now.title || "") + '</div>';
-    if (mine){
-      h += '<div class="score-line"><span>Raised · you said ' + money(mine.raised) + ', it was ' + money(now.raised) + '</span><b>' + scoreGuess(Number(mine.raised), Number(now.raised)) + '</b></div>' +
-           '<div class="score-line"><span>Asking · you said ' + money(mine.goal) + ', it was ' + money(now.goal) + '</span><b>' + scoreGuess(Number(mine.goal), Number(now.goal)) + '</b></div>' +
-           '<p class="tiny" style="margin-top:.5rem">This round: <b>' + (pts || 0) + '</b></p>';
-    } else {
-      h += '<p class="tiny" style="margin-top:.5rem">You sat this one out. It was ' + money(now.raised) + ' of ' + money(now.goal) + '.</p>';
-    }
-    h += '</div>';
-  }
-
-  h += '<p class="tiny" style="color:#8a8f86;margin-top:1.4rem"><a href="#" id="lgLeave" style="color:var(--marker)">Leave the room</a></p>';
-  el.innerHTML = h;
-
-  const lock = $("#lgLock");
-  if (lock) lock.addEventListener("click", async () => {
-    const a = parseFloat($("#lgRaised").value), b = parseFloat($("#lgGoal").value);
-    if (!isFinite(a) || !isFinite(b)){ toast("Both numbers, please"); return; }
-    lock.disabled = true;
-    const ok = await liveSubmit(now.uid, a, b);
-    if (!ok){ lock.disabled = false; toast("Couldn't send that — try again"); }
-  });
-  const leave = $("#lgLeave");
-  if (leave) leave.addEventListener("click", e => {
-    e.preventDefault();
-    if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
-    LIVE.code = ""; LIVE.state = {};
-    store.set("ds.room", "");
-    renderPlayer();
-  });
 }
 
 /* ---------- wiring ---------- */
@@ -2961,7 +3079,13 @@ async function cloudLoad(code){
   note.textContent = "Looking for " + code + "…";
   try {
     const meta = await (await fetch(savePath("/" + code + "/meta"))).json();
-    if (!meta || !meta.rounds){ note.textContent = "No game saved under that code."; return; }
+    if (!meta || !meta.rounds){
+      let remote = null;
+      try { remote = await (await fetch(savePath("/" + code + "/remote"))).json(); } catch (e){}
+      note.textContent = remote ? "That\u2019s a host code for a remote game \u2014 use \u201cHost a remote game\u201d on the main menu."
+                                : "No game saved under that code.";
+      return;
+    }
 
     for (let i = 0; i < meta.rounds; i++){
       note.textContent = "Rebuilding round " + (i+1) + " of " + meta.rounds + "…";
@@ -2993,6 +3117,821 @@ $("#loadBtn").addEventListener("click", () => cloudLoad($("#loadCode").value));
 $("#copySave").addEventListener("click", () => {
   navigator.clipboard.writeText($("#saveCode").textContent).then(() => toast("Copied"), () => {});
 });
+
+/* ============================================================
+   16. REMOTE PLAY
+   For friends who aren't in the room. Nobody needs a TV: every
+   phone shows the campaign itself, there's a chat running beside
+   it, and the host runs the game from any phone or laptop without
+   playing.
+
+   Publishing uploads each round's slides (as JPEGs) and info card
+   to its own deck node, plus a small host package — titles, deck
+   ids and the answers — under a six-character host code. Players
+   only ever learn the deck id of the round being played, never the
+   host code, so the answers stay out of reach until the reveal.
+
+   Everything lives under /saves/<six chars>, so the existing
+   database rules cover it unchanged.
+   ============================================================ */
+const REACTS = ["\u{1F602}", "\u{1F911}", "\u{1F480}", "\u{1F644}", "\u{1F525}", "\u{1F440}", "\u{1F926}"];
+const EMOJI_ONLY = /^(?:\p{Extended_Pictographic}|\p{Emoji_Modifier}|️|‍|\s){1,16}$/u;
+
+function code6(){
+  const L = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = "";
+  for (let i = 0; i < 6; i++) s += L[Math.floor(Math.random() * L.length)];
+  return s;
+}
+
+/* run fn over items, n at a time */
+async function pool(items, n, fn){
+  let next = 0;
+  const lane = async () => { while (next < items.length){ const k = next++; await fn(items[k], k); } };
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, lane));
+}
+
+async function getJSON(url){
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("read failed (" + res.status + ")");
+  return res.json();
+}
+
+async function dbPost(sub, value){
+  if (!dbRoot() || !LIVE.code) return false;
+  try {
+    const res = await fetch(gamePath(sub), { method: "POST", body: JSON.stringify(value) });
+    return res.ok;
+  } catch (e){ return false; }
+}
+
+function verdictFor(raised, goal){
+  if (!raised || !goal) return "";
+  const gap = raised / goal;
+  if (gap >= 1) return "Funded. Somebody out there wanted this.";
+  if (gap >= 0.5) return "Over halfway. It might actually happen.";
+  if (gap >= 0.1) return "A long way to go.";
+  return "Barely off the ground.";
+}
+
+function toJpeg(url, maxW, q){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, maxW / (img.naturalWidth || maxW));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * s));
+      c.height = Math.max(1, Math.round(img.naturalHeight * s));
+      const x = c.getContext("2d");
+      x.fillStyle = "#fff";
+      x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(img, 0, 0, c.width, c.height);
+      const out = c.toDataURL("image/jpeg", q);
+      c.width = c.height = 1;
+      res(out);
+    };
+    img.onerror = () => rej(new Error("couldn't read a slide"));
+    img.src = url;
+  });
+}
+
+/* what the info card shows, as plain data — money already scrubbed */
+function roundInfo(r){
+  return {
+    pitch: (r.showPitch && r.pitch) ? r.pitch : "",
+    creator: (r.creator && !r.factOff.Creator) ? r.creator : "",
+    facts: Object.keys(r.facts || {}).filter(k => !r.factOff[k]).map(k => ({ k: k, v: String(r.facts[k]) })),
+    claims: (r.claims || []).filter(c => c.on).map(c => ({ s: c.s, hits: c.hits || [] })),
+    flags: (r.flags || []).filter(f => f.on).map(f => f.text)
+  };
+}
+
+/* ---------- publish (on the machine that built the game) ---------- */
+async function publishRemote(){
+  const btn = $("#pubBtn"), note = $("#pubNote");
+  if (!G.rounds.length){ note.textContent = "Import some PDFs first."; return; }
+  const missing = G.rounds.findIndex(r => r.raised === null || r.goal === null);
+  if (missing >= 0){
+    note.textContent = "Round " + (missing + 1) + " is missing an answer. Fill both amounts in the list above first.";
+    return;
+  }
+  btn.disabled = true;
+  const code = code6();
+  const plan = G.rounds.map(r => {
+    const on = r.slides.filter(sl => sl.on);
+    return { r: r, slides: on.length ? on : r.slides.slice(), shots: (r.shots || []).filter(s => s.on) };
+  });
+  const total = plan.reduce((a, p) => a + p.slides.length + p.shots.length, 0);
+  let done = 0;
+  const tick = () => { note.textContent = "Uploading the campaigns… " + Math.round(done / total * 100) + "%"; };
+  tick();
+
+  try {
+    const rounds = [];
+    for (const p of plan){
+      const id = code6();
+      const at = sub => savePath("/" + id + "/deck" + sub);
+      await pool(p.slides, 4, async (sl, k) => {
+        await putJSON(at("/s/" + k), await toJpeg(sl.url, 900, 0.76));
+        done++; tick();
+      });
+      await pool(p.shots, 4, async (sh, k) => {
+        await putJSON(at("/x/" + k), await toJpeg(sh.url, 640, 0.72));
+        done++; tick();
+      });
+      await putJSON(at("/meta"), {
+        kind: "deck", n: p.slides.length, nx: p.shots.length,
+        title: p.r.title, info: roundInfo(p.r), at: Date.now()
+      });
+      rounds.push({ uid: p.r.uid, title: p.r.title, raised: p.r.raised, goal: p.r.goal, deck: id, n: p.slides.length });
+    }
+    const pkg = { v: 1, created: Date.now(), rounds: rounds };
+    await putJSON(savePath("/" + code + "/remote"), pkg);
+    RH.pkg = pkg; RH.code = code;
+    store.set("ds.lastHost", code);
+    $("#pubCode").textContent = code;
+    $("#pubBox").classList.remove("hidden");
+    note.textContent = "Published " + rounds.length + " round" + (rounds.length === 1 ? "" : "s") + ".";
+  } catch (e){
+    note.textContent = "Couldn't publish: " + e.message;
+  }
+  btn.disabled = false;
+}
+
+/* ---------- a campaign on a phone ---------- */
+/* Firebase hands arrays back as arrays or as {"0":…,"1":…}, depending */
+function asList(v){
+  if (Array.isArray(v)) return v.filter(x => x != null);
+  if (v && typeof v === "object") return Object.keys(v).sort((a, b) => a - b).map(k => v[k]).filter(x => x != null);
+  return [];
+}
+
+function renderInfo(info, nx, id, el){
+  info = info || {};
+  const facts = asList(info.facts), claims = asList(info.claims), flags = asList(info.flags);
+  let h = "";
+  if (info.pitch) h += "<h4>What this is</h4><p>" + esc(info.pitch) + "</p>";
+  if (info.creator || facts.length){
+    h += "<h4>The particulars</h4><dl class='factgrid'>";
+    if (info.creator) h += "<dt>Creator</dt><dd>" + esc(info.creator) + "</dd>";
+    for (const f of facts) h += "<dt>" + esc(f.k) + "</dt><dd>" + esc(f.v) + "</dd>";
+    h += "</dl>";
+  }
+  if (claims.length){
+    h += "<h4>Claims made with a straight face</h4><ul class='claims'>";
+    for (const c of claims) h += "<li>" + highlight(c.s, asList(c.hits)) + "</li>";
+    h += "</ul>";
+  }
+  if (flags.length){
+    h += "<h4>Worth noticing</h4><ul class='flags'>";
+    for (const f of flags) h += "<li>" + esc(f) + "</li>";
+    h += "</ul>";
+  }
+  if (nx) h += "<h4>From the page</h4><div class='shots'></div>";
+  if (!h){ el.innerHTML = ""; return; }
+  el.innerHTML = "<div class='card rp-info'><h3>About this campaign</h3>" + h + "</div>";
+  const box = $(".shots", el);
+  if (box){
+    const ims = [];
+    for (let k = 0; k < nx; k++){
+      const im = document.createElement("img");
+      im.alt = "";
+      im.addEventListener("click", () => im.classList.toggle("big"));
+      box.appendChild(im); ims.push(im);
+    }
+    pool(ims, 3, async (im, k) => {
+      try {
+        const src = await getJSON(savePath("/" + id + "/deck/x/" + k));
+        if (el.dataset.deck === id && src) im.src = src;
+      } catch (e){ im.remove(); }
+    });
+  }
+}
+
+async function loadDeckInto(id, deckEl, infoEl){
+  deckEl.dataset.deck = id; infoEl.dataset.deck = id;
+  deckEl.innerHTML = "<div class='rp-slide loading'></div>";
+  infoEl.innerHTML = "";
+  let meta = null;
+  try { meta = await getJSON(savePath("/" + id + "/deck/meta")); } catch (e){ meta = null; }
+  if (deckEl.dataset.deck !== id) return;
+  if (!meta){
+    deckEl.innerHTML = "<div class='card'><b>Couldn’t load this campaign.</b> <button class='btn sm' data-retry>Try again</button></div>";
+    $("[data-retry]", deckEl).addEventListener("click", () => loadDeckInto(id, deckEl, infoEl));
+    return;
+  }
+  deckEl.innerHTML = "";
+  const ims = [];
+  for (let k = 0; k < meta.n; k++){
+    const im = document.createElement("img");
+    im.className = "rp-slide loading";
+    im.alt = "Campaign page, part " + (k + 1);
+    deckEl.appendChild(im); ims.push(im);
+  }
+  renderInfo(meta.info, meta.nx || 0, id, infoEl);
+  pool(ims, 4, async (im, k) => {
+    for (let tries = 0; tries < 3; tries++){
+      try {
+        const src = await getJSON(savePath("/" + id + "/deck/s/" + k));
+        if (deckEl.dataset.deck !== id) return;
+        if (src){ im.src = src; im.classList.remove("loading"); return; }
+      } catch (e){ await new Promise(r => setTimeout(r, 800)); }
+    }
+    im.remove();
+  });
+}
+
+/* ---------- chat, shared by players and host ---------- */
+function makeChat(root, o){
+  root.innerHTML =
+    '<div class="ch-head"><b>Chat</b><span class="ch-sub"></span><button type="button" class="ch-x" aria-label="Close chat">✕</button></div>' +
+    '<div class="ch-log" aria-live="polite"><p class="ch-empty">Nothing yet. Say something about this campaign.</p></div>' +
+    '<div class="ch-react">' + REACTS.map(e => '<button type="button" data-e="' + e + '" aria-label="Send ' + e + '">' + e + '</button>').join("") + '</div>' +
+    '<form class="ch-form"><input type="text" maxlength="280" placeholder="Talk it over…" autocomplete="off" enterkeyhint="send" aria-label="Message">' +
+    '<button class="btn solid sm">Send</button></form>';
+  const log = $(".ch-log", root), input = $(".ch-form input", root);
+  const seen = new Set();
+  let lastPid = null, unread = 0, primed = false;
+
+  async function send(t){
+    t = String(t || "").trim().slice(0, 280);
+    if (!t) return;
+    if (isBanned(t)){ stopThat(); return; }
+    const ok = await dbPost("/chat", { pid: o.me(), n: o.name(), t: t, at: { ".sv": "timestamp" } });
+    if (!ok) toast("That message didn’t send");
+  }
+  $(".ch-form", root).addEventListener("submit", e => {
+    e.preventDefault();
+    const t = input.value; input.value = "";
+    send(t);
+  });
+  $$(".ch-react button", root).forEach(b => b.addEventListener("click", () => send(b.dataset.e)));
+  $(".ch-x", root).addEventListener("click", () => o.onClose && o.onClose());
+
+  function append(m){
+    const empty = $(".ch-empty", log);
+    if (empty) empty.remove();
+    if (m.sys){
+      const d = document.createElement("div");
+      d.className = "ch-sys"; d.textContent = m.t || "";
+      log.appendChild(d); lastPid = null;
+      return;
+    }
+    const mine = m.pid === o.me();
+    const badName = isBanned(m.n), badText = isBanned(m.t);
+    const row = document.createElement("div");
+    row.className = "ch-msg" + (mine ? " me" : "") + (m.pid === "host" ? " host" : "");
+    let h = "";
+    if (m.pid !== lastPid && !mine) h += '<span class="ch-n">' + esc(badName ? "nope" : (m.n || "Anonymous")) + '</span>';
+    const big = !badText && EMOJI_ONLY.test(m.t || "");
+    h += '<span class="ch-b' + (big ? " big" : "") + (badText ? " banned" : "") + '">' +
+         (badText ? "bippity’d" : esc(m.t || "")) + '</span>';
+    row.innerHTML = h;
+    log.appendChild(row);
+    lastPid = m.pid;
+  }
+
+  function update(state){
+    const all = state.chat || {};
+    const keys = Object.keys(all).sort();
+    const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
+    let mineAdded = false, others = 0;
+    for (const k of keys){
+      if (seen.has(k)) continue;
+      seen.add(k);
+      const m = all[k] || {};
+      append(m);
+      if (m.pid === o.me()) mineAdded = true;
+      else if (!m.sys) others++;
+    }
+    if (keys.length && (nearBottom || mineAdded || !primed)) log.scrollTop = log.scrollHeight;
+    if (primed && others && !o.isOpen()){ unread += others; o.onUnread(unread); }
+    primed = true;
+    const n = Object.keys(state.players || {}).length;
+    $(".ch-sub", root).textContent = n ? n + " player" + (n === 1 ? "" : "s") : "";
+  }
+
+  return {
+    update: update,
+    clearUnread(){ unread = 0; o.onUnread(0); },
+    toEnd(){ log.scrollTop = log.scrollHeight; }
+  };
+}
+
+function setBadge(el, n){
+  el.textContent = n > 9 ? "9+" : String(n);
+  el.classList.toggle("hidden", !n);
+}
+const wideScreen = () => window.matchMedia("(min-width: 900px)").matches;
+
+/* ---------- player ---------- */
+const RP = { chat: null, deckId: "", sig: "", dockSig: "", editing: false, chatOpen: false, revealedFor: "" };
+
+function rpMount(){
+  if (RP.chat) return;
+  RP.chat = makeChat($("#rpChat"), {
+    me: () => LIVE.pid,
+    name: () => store.get("ds.name") || "Anonymous",
+    isOpen: () => RP.chatOpen || wideScreen(),
+    onUnread: n => setBadge($("#rpBadge"), n),
+    onClose: () => rpSetChat(false)
+  });
+}
+function rpSetChat(on){
+  RP.chatOpen = on;
+  $("#rpChat").classList.toggle("open", on);
+  if (on){ RP.chat.clearUnread(); requestAnimationFrame(() => RP.chat.toEnd()); }
+}
+function rpReset(){
+  RP.chat = null; RP.deckId = ""; RP.sig = ""; RP.sawMeta = false; RP.dockSig = ""; RP.editing = false; RP.revealedFor = "";
+  rpSetChatClosed();
+  $("#rpDeck").innerHTML = ""; $("#rpInfo").innerHTML = ""; $("#rpStatus").innerHTML = "";
+  $("#rpDeck").dataset.deck = ""; $("#rpInfo").dataset.deck = "";
+}
+function rpSetChatClosed(){ RP.chatOpen = false; $("#rpChat").classList.remove("open"); setBadge($("#rpBadge"), 0); }
+
+function renderLivePlayer(){
+  if (!LIVE.code || LIVE.isHost) return;
+  if ($("#rplayer").classList.contains("hidden")) show("rplayer");
+  rpMount();
+  const state = LIVE.state || {};
+  RP.chat.update(state);
+  if (state.meta) RP.sawMeta = true;
+  if (!state.meta && RP.sawMeta){
+    $("#rpStatus").innerHTML = '<div class="card"><b style="font-size:1.15rem">The host closed this room.</b><p class="tiny" style="margin:.35rem 0 0">Thanks for playing.</p></div>';
+    $("#rpDeckWrap").classList.add("hidden"); $("#rpDock").classList.add("hidden");
+    RP.sig = "closed"; RP.dockSig = "closed";
+    return;
+  }
+
+  let now = state.now || { phase: "lobby", r: -1 };
+  const known = /^(lobby|guessing|revealed|results|final)$/.test(now.phase);
+  if (!known && now.r >= 0) now = Object.assign({}, now, { phase: "guessing" });
+  const inRound = /^(guessing|revealed)$/.test(now.phase) && now.r >= 0;
+
+  $("#rpRound").textContent = inRound ? "Round " + (Number(now.r) + 1) : "Room " + LIVE.code;
+  $("#rpTitle").textContent = inRound ? (now.title || "") : (store.get("ds.name") || "");
+  $("#rpPts").textContent = liveTotal().toLocaleString("en-US") + " pts";
+
+  if (now.deck && now.deck !== RP.deckId){
+    RP.deckId = now.deck;
+    loadDeckInto(now.deck, $("#rpDeck"), $("#rpInfo"));
+  }
+  $("#rpDeckWrap").classList.toggle("hidden", !(inRound && RP.deckId && now.deck === RP.deckId));
+  $(".rp-hint").textContent = now.phase === "revealed"
+    ? "The campaign again, for the post-mortem."
+    : "Scroll through the campaign, talk it over, then lock in both numbers at the bottom.";
+
+  const players = state.players || {};
+  const sig = JSON.stringify([now, Object.keys(players).length,
+    now.phase === "revealed" ? [(state.guesses || {})[now.uid], (state.scores || {})[now.uid], players] : 0]);
+  if (sig !== RP.sig){ RP.sig = sig; rpStatus(now, state); }
+  rpDock(now, state);
+}
+
+function rpStatus(now, state){
+  const el = $("#rpStatus");
+  const players = state.players || {};
+  const names = Object.keys(players).map(k => displayName(k, (players[k] || {}).name)).filter(Boolean);
+  let h = "";
+  if (now.phase === "lobby" || now.r < 0){
+    h = '<div class="card"><b style="font-size:1.15rem">' + (state.players ? "You’re in." : "Connecting…") + '</b>' +
+        '<p class="tiny" style="margin:.35rem 0 0">Waiting for the host to start the first round. Keep this open — it wakes up on its own.</p>' +
+        (names.length ? '<p class="tiny" style="margin:.7rem 0 0"><b>Here so far:</b> ' + esc(names.join(", ")) + '</p>' : "") +
+        '</div>';
+  } else if (now.phase === "results"){
+    h = '<div class="card" style="text-align:center"><b style="font-size:1.3rem">That’s every round.</b>' +
+        '<p class="tiny" style="margin-top:.4rem">Drumroll… the winner is about to be announced.</p></div>';
+  } else if (now.phase === "final"){
+    h = phoneFinal(now);
+  } else if (now.phase === "guessing" && !now.deck){
+    h = '<div class="card"><b>The campaign is up on the TV.</b><p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals.</p></div>';
+  } else if (now.phase === "revealed"){
+    h = rpReveal(now, state);
+  }
+  el.innerHTML = h;
+  if (now.phase === "revealed" && RP.revealedFor !== now.uid){
+    RP.revealedFor = now.uid;
+    $("#rpMain").scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+/* everyone's guesses for one round, best first */
+function guessTable(uid, raised, goal, state, meId){
+  const players = state.players || {};
+  const guesses = (state.guesses || {})[uid] || {};
+  const pts = (state.scores || {})[uid] || {};
+  const rows = Object.keys(guesses).map(pid => ({
+    id: pid, name: displayName(pid, (players[pid] || {}).name),
+    g: guesses[pid] || {}, p: Number(pts[pid]) || 0
+  })).sort((a, b) => b.p - a.p);
+  if (!rows.length) return '<p class="tiny">Nobody guessed this one.</p>';
+  const best = rows[0].p;
+  let h = '<table class="gtable"><tr><th>Who</th><th>Raised</th><th>Asked</th><th>Pts</th></tr>';
+  for (const r of rows){
+    h += '<tr class="' + (r.id === meId ? "me " : "") + (r.p === best && best > 0 ? "best" : "") + '"><td>' + esc(r.name === null ? "nope" : r.name) + '</td>' +
+         '<td>' + money(Number(r.g.raised)) + '</td><td>' + money(Number(r.g.goal)) + '</td><td><b>' + r.p + '</b></td></tr>';
+  }
+  return h + '</table>';
+}
+
+function rpReveal(now, state){
+  const mine = ((state.guesses || {})[now.uid] || {})[LIVE.pid];
+  const raised = Number(now.raised), goal = Number(now.goal);
+  let h = '<div class="card rv-card"><div class="rv">' +
+          '<div><span class="lbl">Has raised</span><b>' + money(raised) + '</b></div>' +
+          '<div><span class="lbl">Was asking</span><b class="goal">' + money(goal) + '</b></div></div>' +
+          '<p class="rv-verdict">' + esc(verdictFor(raised, goal)) + '</p>';
+  if (mine){
+    const pr = scoreGuess(Number(mine.raised), raised), pg = scoreGuess(Number(mine.goal), goal);
+    h += '<div class="rv-mine"><span>You said ' + money(mine.raised) + ' and ' + money(mine.goal) + '</span><b>+' + (pr + pg) + '</b></div>';
+  } else {
+    h += '<div class="rv-mine"><span>You sat this one out.</span><b>+0</b></div>';
+  }
+  h += '</div><div class="card"><h4 class="rp-h4">Everyone’s guesses</h4>' + guessTable(now.uid, raised, goal, state, LIVE.pid) + '</div>';
+  return h;
+}
+
+function rpDock(now, state){
+  const dock = $("#rpDock");
+  const round = (state.guesses || {})[now.uid] || {};
+  const mine = round[LIVE.pid];
+  if (RP.dockUid !== now.uid){ RP.dockUid = now.uid; RP.editing = false; }
+  let mode = "none";
+  if (now.phase === "guessing" && now.r >= 0) mode = (mine && !RP.editing) ? "locked" : "form";
+  const inCount = Object.keys(round).length, total = Object.keys(state.players || {}).length;
+  const sig = mode === "form" ? "form|" + now.uid
+            : mode + "|" + now.uid + "|" + JSON.stringify(mine || null) + "|" + inCount + "/" + total;
+  if (sig === RP.dockSig) return;
+  RP.dockSig = sig;
+  dock.classList.toggle("hidden", mode === "none");
+  if (mode === "none"){ dock.innerHTML = ""; return; }
+
+  if (mode === "locked"){
+    dock.innerHTML = '<div class="lockd"><div style="flex:1;min-width:0"><b>Locked in</b> · ' + money(mine.raised) + ' raised, ' + money(mine.goal) + ' asked' +
+      '<div class="tiny" style="color:#9a9d95">' + inCount + ' of ' + total + ' in · waiting for the reveal</div></div>' +
+      '<button type="button" class="btn sm ghost" id="rpChange">Change</button></div>';
+    $("#rpChange").addEventListener("click", () => { RP.editing = true; RP.dockSig = ""; renderLivePlayer(); });
+    return;
+  }
+
+  const pre = mine ? mine : null;
+  dock.innerHTML =
+    '<form id="rpGuess" autocomplete="off">' +
+      '<label><span>Has raised</span><input type="text" inputmode="decimal" id="rgRaised" placeholder="$" value="' + (pre ? esc(pre.raised) : "") + '"><small class="pv"></small></label>' +
+      '<label><span>Asking for</span><input type="text" inputmode="decimal" id="rgGoal" placeholder="$" value="' + (pre ? esc(pre.goal) : "") + '"><small class="pv"></small></label>' +
+      '<button class="btn solid" id="rgLock">Lock in</button>' +
+    '</form>';
+  $$("#rpGuess input").forEach(inp => {
+    const pv = inp.parentElement.querySelector(".pv");
+    const upd = () => { const v = readAmount(inp.value); pv.textContent = (inp.value && v !== null) ? money(v) : ""; };
+    inp.addEventListener("input", upd); upd();
+  });
+  $("#rpGuess").addEventListener("submit", async e => {
+    e.preventDefault();
+    const a = readAmount($("#rgRaised").value), b = readAmount($("#rgGoal").value);
+    if (a === null || b === null || !isFinite(a) || !isFinite(b)){ toast("Both numbers, please"); return; }
+    const btn = $("#rgLock");
+    btn.disabled = true;
+    const ok = await liveSubmit(now.uid, a, b);
+    if (!ok){ btn.disabled = false; toast("Couldn’t send that — try again"); return; }
+    RP.editing = false;
+    if (document.activeElement) document.activeElement.blur();
+  });
+}
+
+$("#rpChatBtn").addEventListener("click", () => rpSetChat(!RP.chatOpen));
+$("#rpLeave").addEventListener("click", e => {
+  e.preventDefault();
+  if (!confirm("Leave this room? You can rejoin with the same code.")) return;
+  if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
+  LIVE.code = ""; LIVE.state = {};
+  store.set("ds.room", "");
+  rpReset();
+  show("player"); renderPlayer();
+});
+
+/* ---------- host console ---------- */
+const RH = { pkg: null, code: "", chat: null, sig: "", showAns: false, chatOpen: false, deckId: "", preview: false, timer: null };
+
+function hostSession(){ try { return JSON.parse(store.get("ds.hostSess") || "null"); } catch (e){ return null; } }
+
+function openHost(){
+  show("host");
+  if (LIVE.code && LIVE.isHost && RH.pkg){ hostRender(true); return; }
+  hostSetup();
+}
+
+function hostSetup(msg){
+  $("#hsRoom").textContent = "";
+  $("#hsShare").classList.add("hidden");
+  $("#hsChatBtn").classList.add("hidden");
+  $("#hsChat").classList.add("hidden");
+  $("#hsDeckWrap").classList.add("hidden");
+  $("#hsMore").innerHTML = "";
+  const sess = hostSession();
+  const last = RH.code || store.get("ds.lastHost") || "";
+  let h = '<div class="card"><h2 style="font-size:1.6rem">Host a remote game</h2>' +
+          '<p class="tiny" style="margin:.4rem 0 0">Everyone plays from their own phone, wherever they are. They see the campaign on their screen and talk it over in the chat while you run the rounds. You don’t play.</p>';
+  if (RH.pkg){
+    h += '<div class="hs-pkg"><b>' + RH.pkg.rounds.length + ' round' + (RH.pkg.rounds.length === 1 ? "" : "s") + ' ready</b> · host code ' + esc(RH.code) + '</div>' +
+         '<button class="btn solid hs-act" id="hsOpen">Open a room</button>';
+  }
+  if (sess && sess.room && sess.code){
+    h += '<button class="btn hs-act" id="hsResume">Rejoin room ' + esc(sess.room) + '</button>' +
+         '<p class="tiny" style="margin:.3rem 0 0">Picks up where you left off — scores and chat are kept.</p>';
+  }
+  h += '<div style="margin-top:1.2rem;border-top:1px solid var(--rule);padding-top:1rem">' +
+       '<label class="field"><span>Host code</span><input type="text" id="hsCode" maxlength="6" placeholder="six characters" style="text-transform:uppercase" value="' + esc(RH.pkg ? "" : last) + '"></label>' +
+       '<button class="btn" id="hsLoad">Load game</button> <span class="tiny" id="hsNote">' + esc(msg || "") + '</span>' +
+       '<p class="tiny" style="margin:.8rem 0 0">No code yet? Build the game on a computer, then use <b>Remote game…</b> on the rounds screen to publish it.</p></div></div>';
+  $("#hsMain").innerHTML = h;
+
+  const open = $("#hsOpen"); if (open) open.addEventListener("click", hostOpenRoom);
+  const res = $("#hsResume"); if (res) res.addEventListener("click", hostResume);
+  $("#hsLoad").addEventListener("click", async () => {
+    const ok = await hostLoad($("#hsCode").value);
+    if (ok) hostSetup();
+  });
+}
+
+async function hostLoad(code){
+  code = String(code || "").toUpperCase().trim();
+  const note = $("#hsNote");
+  if (!/^[A-Z0-9]{6}$/.test(code)){ if (note) note.textContent = "That should be six characters."; return false; }
+  if (note) note.textContent = "Looking…";
+  try {
+    const pkg = await getJSON(savePath("/" + code + "/remote"));
+    if (pkg) pkg.rounds = asList(pkg.rounds);
+    if (!pkg || !pkg.rounds.length){ if (note) note.textContent = "No remote game under that code."; return false; }
+    RH.pkg = pkg; RH.code = code;
+    store.set("ds.lastHost", code);
+    return true;
+  } catch (e){
+    if (note) note.textContent = "Couldn’t reach the database.";
+    return false;
+  }
+}
+
+async function hostOpenRoom(){
+  if (!RH.pkg) return;
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  LIVE.code = "";
+  for (let i = 0; i < 4; i++) LIVE.code += letters[Math.floor(Math.random() * letters.length)];
+  const ok = await dbPut("", {
+    meta: { opened: Date.now(), rounds: RH.pkg.rounds.length, remote: true },
+    now: { r: -1, phase: "lobby", title: "" }
+  });
+  if (!ok){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
+  hostAttach();
+  sysMsg("Room " + LIVE.code + " is open. " + RH.pkg.rounds.length + " campaigns tonight.");
+}
+
+async function hostResume(){
+  const sess = hostSession();
+  if (!sess) return;
+  if (!RH.pkg || RH.code !== sess.code){
+    const ok = await hostLoad(sess.code);
+    if (!ok){ hostSetup("That game couldn’t be loaded."); return; }
+  }
+  LIVE.code = sess.room;
+  try {
+    const meta = await getJSON(gamePath("/meta"));
+    if (!meta){ LIVE.code = ""; store.set("ds.hostSess", ""); hostSetup("That room is gone. Open a new one."); return; }
+  } catch (e){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
+  hostAttach();
+}
+
+function hostAttach(){
+  LIVE.isHost = true;
+  LIVE.state = {};
+  RH.sig = ""; RH.deckId = ""; RH.preview = false;
+  store.set("ds.hostSess", JSON.stringify({ code: RH.code, room: LIVE.code }));
+  $("#hsChat").classList.remove("hidden");
+  RH.chat = makeChat($("#hsChat"), {
+    me: () => "host",
+    name: () => "Host",
+    isOpen: () => RH.chatOpen || wideScreen(),
+    onUnread: n => setBadge($("#hsBadge"), n),
+    onClose: () => hsSetChat(false)
+  });
+  $("#hsRoom").textContent = LIVE.code;
+  $("#hsShare").classList.remove("hidden");
+  $("#hsChatBtn").classList.remove("hidden");
+  liveConnect(() => hostRender(false));
+  hostRender(true);
+}
+
+function hsSetChat(on){
+  RH.chatOpen = on;
+  $("#hsChat").classList.toggle("open", on);
+  if (on && RH.chat){ RH.chat.clearUnread(); requestAnimationFrame(() => RH.chat.toEnd()); }
+}
+
+function sysMsg(t){ return dbPost("/chat", { sys: 1, pid: "host", t: t, at: { ".sv": "timestamp" } }); }
+
+function hostNow(){ return (LIVE.state && LIVE.state.now) || { phase: "lobby", r: -1 }; }
+
+function hostRender(force){
+  if ($("#host").classList.contains("hidden") || !RH.pkg) return;
+  const state = LIVE.state || {};
+  if (RH.chat) RH.chat.update(state);
+  const sig = JSON.stringify([state.now, state.players, state.guesses, state.scores, RH.showAns, RH.preview]);
+  if (!force && sig === RH.sig) return;
+  RH.sig = sig;
+
+  const now = hostNow();
+  const rounds = RH.pkg.rounds;
+  const players = state.players || {};
+  const pids = Object.keys(players).sort((a, b) => ((players[a] || {}).joined || 0) - ((players[b] || {}).joined || 0));
+  const nm = pid => { const n = displayName(pid, (players[pid] || {}).name); return n === null ? "nope" : n; };
+  const cur = now.r >= 0 ? rounds[now.r] : null;
+  const isLast = now.r + 1 >= rounds.length;
+
+  /* the room */
+  let h = '<div class="card hs-roomcard"><div class="hs-phase">Room code</div>' +
+          '<div class="hs-code">' + esc(LIVE.code) + '</div>' +
+          '<p class="tiny" style="margin:.2rem 0 0">Send friends the invite link, or have them open the game and tap <b>Join on your phone</b>.</p>' +
+          '<button class="btn sm" id="hsInvite" style="margin-top:.6rem">Share the invite link</button>' +
+          '<div class="chips">' + (pids.length ? pids.map(p => '<span class="hchip">' + esc(nm(p)) + '</span>').join("") : '<span class="tiny">Nobody has joined yet.</span>') + '</div></div>';
+
+  /* the round */
+  h += '<div class="card">';
+  if (now.phase === "lobby" || !cur){
+    h += '<div class="hs-phase">Ready when you are</div><h3 class="hs-title">' + rounds.length + ' rounds loaded</h3>' +
+         '<button class="btn solid hs-act" data-go="start" data-r="0">Start round 1</button>';
+  } else if (now.phase === "guessing"){
+    const locked = (state.guesses || {})[cur.uid] || {};
+    const inN = Object.keys(locked).length;
+    h += '<div class="hs-phase">Round ' + (now.r + 1) + ' of ' + rounds.length + ' · guessing</div>' +
+         '<h3 class="hs-title">' + esc(cur.title) + '</h3>' +
+         '<div class="hs-ans' + (RH.showAns ? "" : " masked") + '"><div><span>Has raised</span><b>' + (RH.showAns ? money(cur.raised) : "••••") + '</b></div>' +
+         '<div><span>Asking for</span><b>' + (RH.showAns ? money(cur.goal) : "••••") + '</b></div></div>' +
+         '<button class="btn sm ghost" id="hsPeek" style="margin-top:.5rem">' + (RH.showAns ? "Hide the answers" : "Show me the answers") + '</button>' +
+         '<div class="tiny" style="margin-top:.8rem"><b>' + inN + ' of ' + pids.length + '</b> locked in</div>' +
+         '<div class="chips">' + pids.map(p => '<span class="hchip' + (locked[p] ? " in" : "") + '">' + esc(nm(p)) + '</span>').join("") + '</div>' +
+         '<button class="btn solid hs-act" data-go="reveal">Reveal' + (pids.length && inN < pids.length ? " (" + (pids.length - inN) + " still thinking)" : "") + '</button>';
+  } else if (now.phase === "revealed"){
+    h += '<div class="hs-phase">Round ' + (now.r + 1) + ' of ' + rounds.length + ' · revealed</div>' +
+         '<h3 class="hs-title">' + esc(cur.title) + '</h3>' +
+         '<div class="hs-ans"><div><span>Has raised</span><b>' + money(cur.raised) + '</b></div><div><span>Asking for</span><b>' + money(cur.goal) + '</b></div></div>' +
+         guessTable(cur.uid, cur.raised, cur.goal, state, "") +
+         (isLast ? '<button class="btn solid hs-act" data-go="final">Final results</button>'
+                 : '<button class="btn solid hs-act" data-go="start" data-r="' + (now.r + 1) + '">Start round ' + (now.r + 2) + '</button>');
+  } else if (now.phase === "results"){
+    h += '<div class="hs-phase">Final results</div><h3 class="hs-title">Drumroll on every phone…</h3>';
+  } else if (now.phase === "final"){
+    h += '<div class="hs-phase">Game over</div>' + phoneFinal(now).replace(/class="card/g, 'class="inner') +
+         '<button class="btn hs-act" data-go="final">Announce it again</button>';
+  }
+  h += '</div>';
+
+  if (cur && /guessing|revealed/.test(now.phase)){
+    h += '<button class="btn sm ghost" id="hsPrev" style="margin:0 0 12px">' + (RH.preview ? "Hide the campaign" : "See what players see") + '</button>';
+  }
+  $("#hsMain").innerHTML = h;
+
+  /* campaign preview, kept outside the re-rendered block so it doesn't flicker */
+  const showDeck = RH.preview && cur && now.deck;
+  $("#hsDeckWrap").classList.toggle("hidden", !showDeck);
+  if (showDeck && RH.deckId !== now.deck){ RH.deckId = now.deck; loadDeckInto(now.deck, $("#hsDeck"), $("#hsInfo")); }
+
+  /* standings + every round */
+  const st = standings(rounds);
+  let m = "";
+  if (st.played && st.rows.length){
+    m += '<div class="card"><h4 class="rp-h4">Standings</h4>';
+    st.rows.forEach(r => { m += '<div class="ph-row"><b>' + r.rank + '</b><span>' + esc(r.name) + '</span><em>' + r.total.toLocaleString("en-US") + '</em></div>'; });
+    m += '</div>';
+  }
+  m += '<div class="card"><h4 class="rp-h4">Rounds</h4><div class="rlist">';
+  rounds.forEach((rd, i) => {
+    const scored = !!(state.scores || {})[rd.uid];
+    const here = i === now.r && /guessing|revealed/.test(now.phase);
+    m += '<div class="rrow' + (here ? " cur" : "") + '"><span class="n">' + (i + 1) + '</span><span class="t">' + esc(rd.title) + '</span>' +
+         '<span class="st">' + (here ? (now.phase === "guessing" ? "playing" : "revealed") : scored ? "scored" : "") + '</span>' +
+         (here ? "" : '<button class="btn sm ghost" data-go="start" data-r="' + i + '" data-replay="' + (scored ? 1 : 0) + '">Play</button>') + '</div>';
+  });
+  m += '</div></div>' +
+       '<p class="tiny" style="margin:1rem 0 0"><a href="#" id="hsEnd" style="color:var(--stamp)">Close this room</a> — players are dropped and the code stops working.</p>';
+  $("#hsMore").innerHTML = m;
+
+  $$("[data-go]", $("#host")).forEach(b => b.addEventListener("click", () => {
+    const go = b.dataset.go;
+    if (go === "start"){
+      const i = Number(b.dataset.r);
+      if (b.dataset.replay === "1" && !confirm("Round " + (i + 1) + " has already been scored. Play it again? Its scores will be wiped.")) return;
+      hostStart(i, b.dataset.replay === "1");
+    } else if (go === "reveal") hostReveal();
+    else if (go === "final") hostFinal();
+  }));
+  const peek = $("#hsPeek"); if (peek) peek.addEventListener("click", () => { RH.showAns = !RH.showAns; hostRender(true); });
+  const prev = $("#hsPrev"); if (prev) prev.addEventListener("click", () => { RH.preview = !RH.preview; hostRender(true); });
+  $("#hsInvite").addEventListener("click", shareRoom);
+  $("#hsEnd").addEventListener("click", hostEnd);
+}
+
+async function hostStart(i, replay){
+  const rd = RH.pkg.rounds[i];
+  if (!rd) return;
+  clearTimeout(RH.timer);
+  RH.showAns = false;
+  if (replay){ await dbPut("/guesses/" + rd.uid, null); await dbPut("/scores/" + rd.uid, null); }
+  const ok = await dbPut("/now", { r: i, uid: rd.uid, phase: "guessing", title: rd.title, deck: rd.deck, n: rd.n, remote: true });
+  if (!ok){ toast("Couldn’t reach the database"); return; }
+  sysMsg("Round " + (i + 1) + " — " + rd.title);
+}
+
+async function hostReveal(){
+  const now = hostNow();
+  const rd = RH.pkg.rounds[now.r];
+  if (!rd) return;
+  const guesses = (LIVE.state.guesses || {})[rd.uid] || {};
+  const scores = {};
+  let best = -1, who = [];
+  for (const pid in guesses){
+    const g = guesses[pid] || {};
+    const s = scoreGuess(Number(g.raised), rd.raised) + scoreGuess(Number(g.goal), rd.goal);
+    scores[pid] = s;
+    if (s > best){ best = s; who = [pid]; } else if (s === best) who.push(pid);
+  }
+  await dbPut("/scores/" + rd.uid, scores);
+  const ok = await dbPut("/now", Object.assign({}, now, { phase: "revealed", raised: rd.raised, goal: rd.goal }));
+  if (!ok){ toast("Couldn’t reach the database"); return; }
+  const players = LIVE.state.players || {};
+  const names = who.map(p => displayName(p, (players[p] || {}).name)).filter(Boolean);
+  sysMsg("Revealed: " + money(rd.raised) + " raised of " + money(rd.goal) + "." +
+         (best > 0 && names.length ? " Closest: " + names.join(" & ") + "." : ""));
+}
+
+async function hostFinal(){
+  const st = standings(RH.pkg.rounds);
+  if (!st.played || !st.rows.length){ toast("Reveal at least one round first"); return; }
+  clearTimeout(RH.timer);
+  const now = hostNow();
+  await dbPut("/now", { r: now.r, phase: "results", title: "" });
+  RH.timer = setTimeout(async () => {
+    const s2 = standings(RH.pkg.rounds);
+    const top = s2.rows.filter(r => r.rank === 1);
+    const names = top.map(r => r.name);
+    await dbPut("/now", {
+      r: now.r, phase: "final", title: "", winners: names, tie: names.length > 1,
+      standings: s2.rows.map(r => ({ id: r.id, n: r.name, t: r.total, k: r.rank }))
+    });
+    sysMsg("\u{1F3C6} " + names.join(" & ") + (names.length > 1 ? " win" : " wins") + " with " + top[0].total.toLocaleString("en-US") + " points.");
+  }, 3800);
+}
+
+async function shareRoom(){
+  const url = roomUrl();
+  if (navigator.share){
+    try { await navigator.share({ title: "Dicksharter", text: "Join my game — room " + LIVE.code, url: url }); return; }
+    catch (e){ if (e && e.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
+  catch (e){ prompt("Copy this link and send it to everyone:", url); }
+}
+
+function hostDetach(){
+  clearTimeout(RH.timer);
+  if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
+  LIVE.code = ""; LIVE.state = {}; LIVE.isHost = false;
+  RH.chat = null; RH.chatOpen = false;
+  $("#hsChat").classList.remove("open");
+  $("#hsChat").innerHTML = "";
+}
+
+async function hostEnd(e){
+  e.preventDefault();
+  if (!confirm("Close room " + LIVE.code + "? Everyone is dropped and the chat is deleted.")) return;
+  await dbPut("", null);
+  store.set("ds.hostSess", "");
+  hostDetach();
+  hostSetup("Room closed.");
+}
+
+$("#hsBack").addEventListener("click", () => { hostDetach(); show("menu"); });
+$("#hsShare").addEventListener("click", shareRoom);
+$("#hsChatBtn").addEventListener("click", () => hsSetChat(!RH.chatOpen));
+
+/* intake: publishing */
+$("#remoteBtn").addEventListener("click", () => $("#remoteSheet").classList.toggle("hidden"));
+$("#pubBtn").addEventListener("click", publishRemote);
+$("#pubHere").addEventListener("click", () => { hostDetach(); openHost(); });
+$("#copyPub").addEventListener("click", () => {
+  navigator.clipboard.writeText($("#pubCode").textContent).then(() => toast("Copied"), () => {});
+});
+$("#miHost").addEventListener("click", openHost);
+
+/* Phones drop the stream when they sleep. Pick it straight back up. */
+let hiddenAt = 0;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden"){ hiddenAt = Date.now(); return; }
+  if (!LIVE.code || !LIVE.onChange) return;
+  const dead = !LIVE.es || LIVE.es.readyState === 2;
+  if (dead || Date.now() - hiddenAt > 15000) liveConnect(LIVE.onChange);
+});
+
 
 /* ============================================================
    13. WIRING

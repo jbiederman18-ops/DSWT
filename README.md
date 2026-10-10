@@ -11,9 +11,9 @@ and it works.
 
 ## How a game goes
 
-Opening the page gives you three doors: **start a new game**, **load a saved
-game** by its six-character code, or **join on your phone** if someone else is
-hosting.
+Opening the page gives you four doors: **start a new game**, **load a saved
+game** by its six-character code, **join on your phone** if someone else is
+hosting, or **host a remote game** for friends who aren't in the room.
 
 
 1. Save some crowdfunding pages as PDFs (any browser's Print → Save as PDF).
@@ -130,6 +130,51 @@ The free Spark tier is far more than a party needs. If you want to be tidy,
 delete old games from the Firebase console now and then.
 
 ---
+
+### Remote — friends in other cities
+
+For when nobody is in the same room. There is no TV: every phone shows the
+campaign itself, there's a chat running beside it, and the host runs the game
+from any phone or laptop without playing.
+
+1. **Build the game on a computer** as usual (PDFs in, blackouts checked,
+   answers right).
+2. Click **Remote game… → Publish for remote play**. It uploads each round's
+   slides and info card and gives you a six-character **host code**. Keep that
+   code to yourself — it's the one that unlocks the answers.
+3. **Host** from that computer (**Host from this computer**) or from your phone:
+   open the page, tap **Host a remote game**, type the host code, then
+   **Open a room**.
+4. Tap **Share the invite link** and send it to the group. Their phone opens
+   straight to the join screen with the room code filled in.
+
+What players get:
+
+- The campaign as a scrolling ribbon, with the info card underneath.
+- A guess box pinned to the bottom. `150k` and `1.2m` work, and it shows the
+  dollar figure as you type. You can change a guess until the reveal.
+- A chat (a pull-up sheet on phones, a side column on wider screens) with
+  one-tap reactions and an unread badge. The host's round starts and reveals
+  drop into the chat as dividers, so the log reads like a game.
+- After each reveal: both amounts, your points, and everyone's guesses side by
+  side, best first.
+- The final standings on every phone at once.
+
+What the host gets: the room code and who's joined, who has locked in, the
+answers behind a **Show me the answers** button, one big button for whatever
+comes next (start / reveal / next round / final results), a round list for
+jumping around or replaying a round, running standings, and the same chat.
+
+If the host's phone dies or the page reloads, **Host a remote game → Rejoin
+room** picks the room back up with scores and chat intact. Players who drop off
+rejoin with the same code and keep their points.
+
+**Where the data goes:** publishing writes under `/saves`, so the existing
+rules cover it with no changes. Each round's slides sit under their own random
+code, and a player only ever learns the code for the round being played, never
+the host code that holds the answers. A published game is mostly JPEG slides,
+roughly 1–3 MB a round. **Close this room** at the end deletes the room and
+its chat; published decks stay until you delete them from the Firebase console.
 
 ### Results and the winner
 
