@@ -3550,14 +3550,20 @@ async function signInGoogle(credential){
   const url = idtHost() + "/v1/accounts:signInWithIdp?key=" + AUTH.key;
   const body = { postBody: "id_token=" + encodeURIComponent(credential) + "&providerId=google.com",
                  requestUri: location.origin, returnSecureToken: true, returnIdpCredential: true };
-  let j;
-  try { j = await authCall(url, AUTH.token && !signedIn() ? Object.assign({ idToken: AUTH.token }, body) : body); }
-  catch (e){
-    /* that Google account already has an account here (from another phone): use it */
-    if (!/FEDERATED_USER_ID_ALREADY_LINKED|CREDENTIAL_ALREADY_IN_USE|EMAIL_EXISTS/.test(String(e.message))) throw e;
-    j = await authCall(url, body);
+  /* That Google account already belongs to an account here (made in another
+     browser or on another phone): sign in to that one instead of attaching it
+     to this browser's guest account. Firebase says so either as an error, or
+     as an "OK" carrying errorMessage, depending on the request. */
+  const taken = m => /FEDERATED_USER_ID_ALREADY_LINKED|CREDENTIAL_ALREADY_IN_USE|EMAIL_EXISTS/.test(String(m || ""));
+  let j = null;
+  if (AUTH.token && !signedIn()){
+    try { j = await authCall(url, Object.assign({ idToken: AUTH.token }, body)); }
+    catch (e){ if (!taken(e.message)) throw e; j = null; }
+    if (j && (taken(j.errorMessage) || j.needConfirmation || !j.idToken)) j = null;
   }
-  if (j.needConfirmation || !j.idToken) throw new Error("That email already signs in with an email link. Use the email option instead.");
+  if (!j) j = await authCall(url, body);
+  if (j.errorMessage && !j.idToken) throw new Error("Google sign-in didn’t go through (" + j.errorMessage + "). Try again, or use the email option.");
+  if (j.needConfirmation || !j.idToken) throw new Error("That email address already signs in with an email link. Use the email option instead.");
   authSignedIn(j);
 }
 
