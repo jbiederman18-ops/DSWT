@@ -1,7 +1,7 @@
 {
-  "name": "Dicksharter (Working Title)",
-  "short_name": "Dicksharter",
-  "description": "Guess what the crowdfunding campaign raised. Argue about it with your crew.",
+  "name": "DS(WT) Crew",
+  "short_name": "DS(WT) Crew",
+  "description": "The crew chat for Dicksharter (Working Title): talk between games, jump in when one goes live.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

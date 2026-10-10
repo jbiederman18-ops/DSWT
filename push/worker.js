@@ -1,4 +1,4 @@
-/* Dicksharter push relay — a Cloudflare Worker.
+/* DS(WT) Crew push relay — a Cloudflare Worker.
 
    When a host opens a room for a crew, the site POSTs /notify. This worker
    checks Firebase that the crew really has that game going live right now,
@@ -194,7 +194,7 @@ export default {
       if (!env.VAPID_JWK) return json({ error: "not set up yet" }, 503);
       return notify(req, env);
     }
-    return text("Dicksharter push relay. " + (env.VAPID_JWK ? "Ready." : "Not set up yet — visit /setup."));
+    return text("DS(WT) Crew push relay. " + (env.VAPID_JWK ? "Ready." : "Not set up yet — visit /setup."));
   }
 };
 

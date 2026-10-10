@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dicksharter (Working Title)</title>
+<title>DS(WT) Crew</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Dicksharter">
+<meta name="apple-mobile-web-app-title" content="DS(WT) Crew">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -539,14 +539,14 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <!-- ============ MENU ============ -->
 <section id="menu" class="screen">
   <div class="menu-inner">
-    <div class="wordmark"><h1>DICKSHARTER</h1><div class="bar" id="wmbar"></div></div>
-    <p class="submark">(working title)</p>
+    <div class="wordmark"><h1>DS(WT) CREW</h1><div class="bar" id="wmbar"></div></div>
+    <p class="submark">Dicksharter (working title), with the group chat built in</p>
     <p class="lede">A real crowdfunding page goes up on the screen with the money blacked out. Everyone guesses what it has raised and what it is asking for. Then you find out.</p>
 
     <nav class="menu">
       <button class="mi" id="miCrew">
         <span class="mk">01</span>
-        <span class="mt"><b>Crew chat</b><em>A group chat that's always on. When a game goes live, everyone gets pinged and joins with one tap.</em></span>
+        <span class="mt"><b id="miCrewT">Crew chat</b><em id="miCrewD">A group chat that's always on. When a game goes live, everyone gets pinged and joins with one tap.</em></span>
       </button>
       <button class="mi" id="miNew">
         <span class="mk">02</span>
@@ -772,7 +772,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 <!-- ============ CREW CHAT ============ -->
 <section id="crew" class="screen hidden">
   <div class="rp-top hs-top">
-    <button type="button" id="crBack">‹ Menu</button>
+    <button type="button" id="crBack">‹ Games</button>
     <span class="rp-r cr-name" id="crName">Crew chat</span>
     <span style="flex:1"></span>
     <button type="button" id="crAlerts" class="hidden">🔔 Alerts</button>
@@ -793,7 +793,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
       <ol class="ios-steps">
         <li>Tap the <b>Share</b> button at the bottom of Safari (the square with an arrow).</li>
         <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-        <li>Open <b>Dicksharter</b> from the new icon on your home screen.</li>
+        <li>Open <b>DS(WT) Crew</b> from the new icon on your home screen.</li>
         <li>Join the crew there with code <b class="ios-code" id="iosCode"></b> and tap the <b>&#x1F514;</b> bell at the top.</li>
       </ol>
       <p class="tiny" style="margin:.6rem 0 0">The home-screen app keeps its own sign-in, which is why you join the crew again inside it. Needs iOS 16.4 or newer.</p>
@@ -3635,6 +3635,7 @@ function crewChanged(){
   if (RP.chat && RP.crew) RP.chat.update(CR.state.chat, label);
   if (RH.chat && RH.crew) RH.chat.update(CR.state.chat, label);
   if (!$("#crew").classList.contains("hidden")) $("#crName").textContent = crewName();
+  menuCrew();
 
   const live = crewLive();
   const key = live ? live.room + ":" + live.at : "";
@@ -3662,7 +3663,7 @@ function liveAlert(live){
   try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e){}
   try {
     if (!pushIsOn() && "Notification" in window && Notification.permission === "granted" && document.visibilityState === "hidden"){
-      new Notification("Dicksharter: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
+      new Notification("DS(WT) Crew: game going live", { body: "Room " + live.room + " — tap to join.", tag: "ds-live" });
     }
   } catch (e){ /* phones without a service worker refuse; the banner still shows */ }
   if (document.visibilityState === "hidden"){
@@ -3728,7 +3729,7 @@ function crewInviteUrl(){ return location.origin + location.pathname + "#crew=" 
 async function crewShare(){
   const url = crewInviteUrl();
   if (navigator.share){
-    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on Dicksharter", url: url }); return; }
+    try { await navigator.share({ title: crewName(), text: "Join " + crewName() + " on DS(WT) Crew", url: url }); return; }
     catch (e){ if (e && e.name === "AbortError") return; }
   }
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
@@ -3928,7 +3929,20 @@ function crewScreenChat(){
   drawLiveBanner();
 }
 
-$("#crBack").addEventListener("click", () => { CR.chat = null; show("menu"); drawLiveBanner(); });
+$("#crBack").addEventListener("click", () => { CR.chat = null; menuCrew(); show("menu"); drawLiveBanner(); });
+
+/* the menu's first item: your crew by name once you're in one */
+function menuCrew(){
+  const t = $("#miCrewT"), d = $("#miCrewD");
+  if (!t) return;
+  if (CR.code){
+    t.textContent = "Back to " + crewName();
+    d.textContent = "Your crew's chat. The app opens there when you launch it.";
+  } else {
+    t.textContent = "Crew chat";
+    d.textContent = "A group chat that's always on. When a game goes live, everyone gets pinged and joins with one tap.";
+  }
+}
 $("#crInvite").addEventListener("click", crewShare);
 $("#crMoreBtn").addEventListener("click", () => {
   const box = $("#crMore");
@@ -4471,7 +4485,7 @@ async function hostFinal(){
 async function shareRoom(){
   const url = roomUrl();
   if (navigator.share){
-    try { await navigator.share({ title: "Dicksharter", text: "Join my game — room " + LIVE.code, url: url }); return; }
+    try { await navigator.share({ title: "DS(WT) Crew", text: "Join my game — room " + LIVE.code, url: url }); return; }
     catch (e){ if (e && e.name === "AbortError") return; }
   }
   try { await navigator.clipboard.writeText(url); toast("Invite link copied"); }
@@ -4612,9 +4626,10 @@ if (crewHash){
   const saved = store.get("ds.game");
   if (saved) P.game = readJoinCode(saved);
   show("player"); renderPlayer();
-} else if (!location.hash && CR.code){
-  openCrew("");          /* in a crew: the app opens to the chat */
+} else if (!location.hash && (CR.code || standalone())){
+  openCrew("");          /* DS(WT) Crew opens to the chat (or to joining one, from the home-screen app) */
 }
+menuCrew();
 if (CR.code && !CR.es) crewConnect();
 
 /* handy when a page parses oddly: open the console and poke at the parser */
