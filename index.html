@@ -6,20 +6,23 @@
 <title>Dicksharter (Working Title)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#E4E5DF;
-  --paper-deep:#D3D5CB;
+  --paper:#F4F6F3;
+  --paper-deep:#E3E8E2;
   --card:#FFFFFF;
   --ink:#000000;
-  --ink-soft:#555952;
-  --marker:#FFE800;
-  --stamp:#D5121A;
-  --rule:rgba(0,0,0,.18);
-  --shadow:0 1px 0 rgba(0,0,0,.28);
+  --ink-soft:#5A6459;
+  --marker:#05CE78;
+  --marker-deep:#03A861;
+  --hl:#B9F3D8;
+  --stamp:#E0352B;
+  --rule:rgba(0,0,0,.14);
+  --shadow:0 2px 0 rgba(0,0,0,.14);
+  --r:7px;
   --pad:clamp(16px,3vw,32px);
-  --display:"Bricolage Grotesque","Archivo Black",Archivo,"Helvetica Neue",Impact,sans-serif;
+  --display:"Fredoka","Archivo Black",Archivo,"Helvetica Neue",sans-serif;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -38,19 +41,19 @@ a{color:inherit}
 /* ---------- shared controls ---------- */
 .btn{
   border:2px solid var(--ink);background:var(--card);padding:.6em 1.1em;
-  border-radius:0;font-weight:600;box-shadow:var(--shadow);
+  border-radius:var(--r);font-weight:600;box-shadow:var(--shadow);
 }
-.btn:hover{background:var(--marker)}
+.btn:hover{background:var(--hl)}
 .btn:active{transform:translateY(1px);box-shadow:none}
-.btn.solid{background:var(--ink);color:var(--paper)}
-.btn.solid:hover{background:#222;color:var(--marker)}
+.btn.solid{background:var(--marker);color:#06281A;border-color:var(--marker-deep);font-weight:700}
+.btn.solid:hover{background:var(--marker-deep);color:#fff;border-color:var(--marker-deep)}
 .btn.ghost{border-color:var(--rule);background:transparent;box-shadow:none;font-weight:500}
 .btn.ghost:hover{background:rgba(0,0,0,.06)}
 .btn[disabled]{opacity:.35;pointer-events:none}
 .btn.sm{padding:.35em .7em;font-size:.85rem}
 input[type=text],input[type=number],input[type=url]{
   font:inherit;padding:.55em .7em;border:2px solid var(--ink);background:var(--card);
-  border-radius:0;width:100%;
+  border-radius:var(--r);width:100%;
 }
 label.field{display:block;margin-bottom:.9rem}
 label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.3em;color:var(--ink-soft)}
@@ -66,15 +69,15 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .wordmark h1{font-size:clamp(2.1rem,8.6vw,5.4rem);letter-spacing:-.045em}
 .submark{margin:.15rem 0 0;font-weight:600;font-size:clamp(.78rem,2vw,1rem);color:var(--ink-soft);letter-spacing:.02em}
 .wordmark .bar{
-  position:absolute;left:-2%;right:-2%;top:38%;height:22%;background:var(--ink);
+  position:absolute;left:-2%;right:-2%;top:38%;height:22%;background:var(--marker);
   transform-origin:left center;
 }
 .lede{max-width:56ch;font-size:1.05rem;margin:.4rem 0 2rem}
 .drop{
-  border:3px dashed var(--ink);background:var(--card);padding:clamp(28px,6vw,56px);
+  border:3px dashed var(--ink);border-radius:calc(var(--r) * 2);background:var(--card);padding:clamp(28px,6vw,56px);
   text-align:center;transition:background .12s;
 }
-.drop.over{background:var(--marker)}
+.drop.over{background:var(--hl)}
 .drop h2{font-size:1.5rem;margin-bottom:.4rem}
 .drop p{margin:.2rem 0 1.1rem;color:var(--ink-soft)}
 .opts{display:flex;flex-wrap:wrap;gap:1.2rem;margin:1.6rem 0}
@@ -93,17 +96,17 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .round-row .answers input{width:8.5em;font-variant-numeric:tabular-nums}
 .rowmove{display:flex;gap:2px;margin-left:.4rem}
 .rowmove .mini{border:1px solid var(--rule);background:transparent;padding:.15em .45em;font-size:.85rem;line-height:1.2}
-.rowmove .mini:hover:not([disabled]){background:var(--marker)}
+.rowmove .mini:hover:not([disabled]){background:var(--hl)}
 .rowmove .mini[disabled]{opacity:.25;cursor:default}
 .rowmove .mini.del:hover{background:var(--stamp);color:#fff;border-color:var(--stamp)}
-.bar-progress{height:6px;background:var(--paper-deep);margin-top:.6rem}
-.bar-progress i{display:block;height:100%;background:var(--ink);width:0;transition:width .2s}
+.bar-progress{height:8px;background:var(--paper-deep);margin-top:.6rem;border-radius:99px;overflow:hidden}
+.bar-progress i{display:block;height:100%;background:var(--marker);width:0;transition:width .2s}
 .startline{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.6rem;align-items:center}
 
 /* ---------- check / redaction editor ---------- */
 #check{padding:var(--pad);overflow:auto}
 .check-head{max-width:1100px;margin:0 auto 1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
-.stage{position:relative;max-width:760px;margin:0 auto;background:var(--card);border:2px solid var(--ink)}
+.stage{position:relative;max-width:760px;margin:0 auto;background:var(--card);border:2px solid var(--ink);border-radius:var(--r);overflow:hidden}
 .stage img{display:block;width:100%}
 .boxlayer{position:absolute;inset:0}
 .rbox{position:absolute;background:#000;outline:2px solid var(--stamp);cursor:pointer}
@@ -125,12 +128,12 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 #slideRow{display:flex;gap:14px;align-items:flex-start;justify-content:center;height:100%;width:100%;transition:opacity .16s}
 #slideRow.swap{opacity:0}
 #slideRow img{display:block;max-height:100%;min-width:0;width:auto;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.22)}
-.upsel{display:inline-flex;border:1px solid rgba(255,255,255,.35)}
+.upsel{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:var(--r);overflow:hidden}
 .upsel button{background:transparent;border:0;color:var(--paper);font-size:.75rem;font-weight:700;padding:.2em .55em;line-height:1.4}
 .upsel button.on{background:var(--marker);color:#000}
 .upsel.gmup{border-color:var(--ink)}
 .upsel.gmup button{color:var(--ink)}
-.upsel.gmup button:hover:not(.on){background:rgba(0,0,0,.1)}
+.upsel.gmup button:hover:not(.on){background:var(--hl)}
 .upsel button:hover:not(.on){background:rgba(255,255,255,.18)}
 .panelbar{display:flex;align-items:center;gap:.6rem;padding:.5rem .9rem;background:var(--ink);color:var(--paper);font-size:.8rem}
 .dots{flex:1;display:flex;gap:3px;align-items:center;overflow:hidden}
@@ -147,7 +150,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .drawer h3{font-size:1.05rem;margin:1.5rem 0 .45rem}
 .drawer h3:first-child{margin-top:0}
 .drawer p{margin:.3rem 0;font-size:.92rem}
-.mark{background:var(--marker);box-shadow:0 0 0 3px var(--marker);}
+.mark{background:var(--hl);box-shadow:0 0 0 3px var(--hl);border-radius:2px}
 .factgrid{display:grid;grid-template-columns:auto 1fr;gap:.25rem .8rem;font-size:.9rem;margin-top:.3rem}
 .factgrid dt{font-weight:600;color:var(--ink-soft)}
 .factgrid dd{margin:0}
@@ -176,7 +179,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 #player{overflow:auto;padding:var(--pad);background:var(--ink);color:var(--paper)}
 .player-inner{max-width:520px;margin:0 auto}
 #player h1{font-size:clamp(2.2rem,9vw,3.4rem);color:var(--marker)}
-#player .card{background:var(--card);color:var(--ink);border:2px solid var(--marker);padding:1.1rem;margin-top:1.2rem}
+#player .card{background:var(--card);color:var(--ink);border:2px solid var(--marker);border-radius:var(--r);padding:1.1rem;margin-top:1.2rem}
 #player .btn{border-color:var(--ink)}
 .guessrow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
 .score-line{display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--rule);font-size:.92rem}
@@ -188,19 +191,29 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .menu-inner{max-width:720px;margin:auto;width:100%;padding:clamp(1rem,4vh,2.5rem) 0}
 .menu{display:flex;flex-direction:column;gap:.7rem;margin:2.2rem 0 0}
 .mi{display:flex;align-items:stretch;gap:0;text-align:left;border:2px solid var(--ink);background:var(--card);
-    padding:0;box-shadow:var(--shadow);width:100%;overflow:hidden}
-.mi .mk{flex:0 0 auto;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:800;
+    padding:0;box-shadow:var(--shadow);width:100%;overflow:hidden;border-radius:var(--r)}
+.mi .mk{flex:0 0 auto;background:var(--marker);color:#06281A;font-family:var(--display);font-weight:800;
         font-size:1.05rem;display:flex;align-items:center;padding:0 .85em;letter-spacing:.02em}
 .mi .mt{padding:.75em .95em;display:block}
 .mi b{display:block;font-size:1.08rem;font-weight:700;line-height:1.2}
 .mi em{display:block;font-style:normal;font-size:.86rem;color:var(--ink-soft);margin-top:.12em}
-.mi:hover{background:var(--marker)}
-.mi:hover em{color:#55502a}
+.mi:hover{background:var(--hl);border-color:var(--marker-deep)}
+.mi:hover em{color:#2c5a46}
 .mi:active{transform:translateY(1px);box-shadow:none}
 .foot{max-width:56ch;margin-top:2.4rem}
 .backbar{display:flex;align-items:center;gap:.9rem;margin-bottom:1.6rem}
 .backbar h2{font-size:1.5rem}
 @media (max-width:520px){.mi b{font-size:1rem}.mi .mk{padding:0 .6em}}
+
+/* ---------- spoiler shield ---------- */
+.shielded .round-row .title{color:var(--ink-soft);font-style:italic}
+.shield-on{background:var(--ink) !important;color:var(--marker) !important;border-color:var(--ink) !important}
+.gmveil{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;
+        min-height:50vh;text-align:center;padding:2rem}
+.gmveil p{max-width:42ch;color:var(--ink-soft);font-size:.92rem;margin:0}
+.loadveil{border:2px solid var(--ink);border-radius:var(--r);background:var(--ink);color:var(--paper);
+          padding:1rem 1.1rem;margin-top:1rem;text-align:center}
+.loadveil b{display:block;font-family:var(--display);font-size:1.3rem;color:var(--marker)}
 
 /* ---------- game master suite ---------- */
 #gm{background:var(--paper-deep)}
@@ -218,7 +231,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .gm-head h3{font-size:1.05rem}
 .gm-head .tiny{color:var(--ink-soft)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1.35rem .9rem}
-.card-slide{background:var(--card);border:2px solid var(--ink);position:relative}
+.card-slide{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);position:relative;overflow:hidden}
 .card-slide.off{opacity:.42;border-style:dashed}
 .card-slide.screenstart{box-shadow:-6px 0 0 var(--marker)}
 .screenlab{position:absolute;left:0;bottom:100%;font-size:.62rem;font-weight:700;background:var(--marker);color:#000;padding:0 .35em}
@@ -228,7 +241,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .card-slide .pos{font-family:var(--display);font-weight:800;font-size:.95rem;min-width:1.6em;text-align:center}
 .card-slide .grow{flex:1}
 .card-slide .mini{border:1px solid var(--rule);background:transparent;padding:.05em .4em;font-size:.8rem;line-height:1.3}
-.card-slide .mini:hover{background:var(--marker)}
+.card-slide .mini:hover{background:var(--hl)}
 .card-slide .state{position:absolute;top:0;left:0;background:var(--ink);color:var(--paper);font-size:.64rem;padding:.1em .4em}
 .card-slide .risk{position:absolute;top:0;right:0;display:flex;gap:2px}
 .card-slide .risk b{font-size:.62rem;padding:.1em .4em;font-weight:700;cursor:help}
@@ -250,9 +263,9 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 @media (max-width:760px){.gm-body{flex-direction:column}.gm-side{width:auto;border-left:0;border-top:3px solid var(--ink)}}
 
 .tiny{font-size:.8rem;color:var(--ink-soft)}
-.sheet{background:var(--card);border:2px solid var(--ink);padding:1rem 1.1rem;margin-top:1.2rem}
+.sheet{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:1rem 1.1rem;margin-top:1.2rem}
 .sheet code{display:block;word-break:break-all;font-size:.72rem;background:var(--paper);padding:.6rem;border:1px solid var(--rule);margin-top:.4rem;max-height:9em;overflow:auto}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--marker);padding:.6em 1.1em;font-weight:600;z-index:99;border-radius:var(--r);box-shadow:0 4px 0 rgba(0,0,0,.3)}
 </style>
 </head>
 <body>
@@ -290,6 +303,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
     <div class="backbar">
       <button class="btn sm ghost" id="toMenu">‹ Menu</button>
       <h2 id="intakeTitle">New game</h2>
+      <span style="flex:1"></span>
+      <button class="btn sm" id="shieldBtn" title="Hide titles and answers from anyone watching">Shield: off</button>
     </div>
 
     <div class="drop" id="drop">
@@ -320,7 +335,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
         </div>
         <div style="margin-top:1.1rem;border-top:1px solid var(--rule);padding-top:.9rem">
           <label class="field"><span>Load a saved game</span><input type="text" id="loadCode" placeholder="six characters" style="text-transform:uppercase"></label>
-          <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+          <div class="loadveil">The shield goes up automatically: rounds load without showing their campaign, title or amounts, so you can restore a game with the room watching.</div>
+          <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.7rem">
             <button class="btn sm" id="loadBtn">Load</button>
             <span class="tiny" id="loadNote"></span>
           </div>
@@ -495,7 +511,8 @@ const G = {
   rounds: [],        // {id,title,creator,facts,claims,flags,shots,tiles,pageW,pageH,scale,boxes,raised,goal,src}
   idx: 0,
   panel: 0,
-  syncUrl: ""
+  syncUrl: "",
+  shield: false
 };
 
 /* ============================================================
@@ -1265,7 +1282,7 @@ async function ingest(files){
   let done = 0;
 
   for (const f of files){
-    txt.textContent = "Reading " + f.name;
+    txt.textContent = G.shield ? "Reading\u2026" : "Reading " + f.name;
     bar.style.width = (done / files.length * 100) + "%";
     try {
       const round = await ingestOne(f, opts);
@@ -1307,7 +1324,10 @@ async function ingestOne(file, opts, recipe){
     allSegs = allSegs.concat(buildSegments(toks));
 
     const tiles = await renderTiles(page, vp, (i, n) => {
-      $("#progtxt").textContent = "Rendering " + file.name + " — " + i + " of " + n;
+      // the filename is usually the campaign name, so it is a spoiler too
+      $("#progtxt").textContent = G.shield
+        ? "Rendering — " + i + " of " + n
+        : "Rendering " + file.name + " — " + i + " of " + n;
     });
     tiles.forEach(t => { t.top += offsetY; });
     allTiles = allTiles.concat(tiles);
@@ -1442,16 +1462,19 @@ function renderRoundList(quiet){
         '<button class="mini" data-act="down" title="Move down">\u2193</button>' +
         '<button class="mini del" data-act="del" title="Remove this round">\u2715</button>' +
       '</span>';
-    $(".title", row).textContent = r.title;
+    $(".title", row).textContent = G.shield ? "Round " + (i + 1) + " — hidden" : r.title;
     const shortFile = r.file.length > 26 ? r.file.slice(0, 24) + "\u2026" : r.file;
     const bits = [r.creator, r.facts.Category, shortFile].filter(Boolean);
     const sub = $(".sub", row);
-    sub.textContent = bits.join(" · ");
+    sub.textContent = G.shield ? "title, campaign and amounts hidden" : bits.join(" · ");
+    if (G.shield) $$("input", row).forEach(inp => { inp.type = "password"; });
     if (r.leakBoxes && r.leakBoxes.length){
       const warn = document.createElement("button");
       warn.className = "btn sm";
       warn.style.cssText = "margin-left:.5rem;background:var(--marker);padding:.1em .5em;font-size:.75rem";
-      warn.textContent = r.leakBoxes.length + " other amount" + (r.leakBoxes.length>1?"s":"") + " visible — hide them";
+      warn.textContent = G.shield
+        ? "other amounts visible — hide them"
+        : r.leakBoxes.length + " other amount" + (r.leakBoxes.length>1?"s":"") + " visible — hide them";
       warn.title = "Somebody can work backwards from these. Click to black them out too.";
       warn.addEventListener("click", async () => {
         warn.disabled = true; warn.textContent = "Hiding…";
@@ -1653,6 +1676,7 @@ function removeRound(i){
 let gmIdx = 0;
 
 function openGM(i){
+  if (i !== gmIdx) gmPeek = false;
   gmIdx = clamp(i, 0, G.rounds.length - 1);
   show("gm");
   const r = G.rounds[gmIdx];
@@ -1664,8 +1688,34 @@ function openGM(i){
   $("#gmGoal").value = r.goal !== null ? money(r.goal) : "";
   $("#gmPrevRound").disabled = gmIdx === 0;
   $("#gmNextRound").disabled = gmIdx >= G.rounds.length - 1;
+  if (G.shield && !gmPeek){ veilGM(); return; }
   drawGrid();
   drawSide();
+}
+
+let gmPeek = false;
+
+/* Opening the suite shows every slide and both answers at once. With the
+   shield up, make that a deliberate act rather than a reflex. */
+function veilGM(){
+  $("#gmGrid").innerHTML = "";
+  $("#gmSide").innerHTML = "";
+  const v = document.createElement("div");
+  v.className = "gmveil";
+  const h = document.createElement("h3");
+  h.textContent = "The shield is up";
+  const p = document.createElement("p");
+  p.textContent = "This screen shows every slide, the campaign names and both answers. If anyone can see this screen, go no further.";
+  const b = document.createElement("button");
+  b.className = "btn solid";
+  b.textContent = "Nobody is watching \u2014 show me";
+  b.addEventListener("click", () => { gmPeek = true; drawGrid(); drawSide(); });
+  const b2 = document.createElement("button");
+  b2.className = "btn ghost";
+  b2.textContent = "Back to the round list";
+  b2.addEventListener("click", () => { show("intake"); renderRoundList(true); });
+  v.appendChild(h); v.appendChild(p); v.appendChild(b); v.appendChild(b2);
+  $("#gmGrid").appendChild(v);
 }
 
 function drawGrid(){
@@ -2537,6 +2587,7 @@ async function cloudSave(){
 
 async function cloudLoad(code){
   const note = $("#loadNote");
+  setShield(true);
   code = String(code).toUpperCase().trim();
   if (!/^[A-Z0-9]{6}$/.test(code)){ note.textContent = "That should be six characters."; return; }
   note.textContent = "Looking for " + code + "…";
@@ -2562,6 +2613,7 @@ async function cloudLoad(code){
     }
     note.textContent = "Loaded " + meta.rounds + " round" + (meta.rounds > 1 ? "s" : "") + ".";
     toast("Game " + code + " loaded.");
+    $("#cloudSheet").classList.add("hidden");
   } catch (e){
     note.textContent = "Couldn't load: " + e.message;
   }
@@ -2590,6 +2642,7 @@ $("#miNew").addEventListener("click", () => {
 });
 $("#miLoad").addEventListener("click", () => {
   openIntake("Load a saved game");
+  setShield(true);
   $("#cloudSheet").classList.remove("hidden");
   const box = $("#loadCode");
   box.scrollIntoView({ block: "center" });
@@ -2597,6 +2650,19 @@ $("#miLoad").addEventListener("click", () => {
 });
 $("#miJoin").addEventListener("click", () => { show("player"); renderPlayer(); });
 $("#toMenu").addEventListener("click", () => show("menu"));
+
+function setShield(on){
+  G.shield = !!on;
+  gmPeek = false;
+  const b = $("#shieldBtn");
+  b.textContent = "Shield: " + (G.shield ? "on" : "off");
+  b.classList.toggle("shield-on", G.shield);
+  b.title = G.shield ? "Titles and answers are hidden. Click to show them."
+                     : "Hide titles and answers from anyone watching the screen.";
+  document.body.classList.toggle("shielded", G.shield);
+  renderRoundList(true);
+}
+$("#shieldBtn").addEventListener("click", () => setShield(!G.shield));
 
 $("#pick").addEventListener("click", () => $("#file").click());
 $("#file").addEventListener("change", e => { if (e.target.files.length) ingest(Array.from(e.target.files)); });
