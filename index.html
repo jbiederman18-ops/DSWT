@@ -155,9 +155,6 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .topbar button:hover{background:var(--marker);color:#000;border-color:var(--marker)}
 .viewwrap{flex:1;min-height:0;position:relative;overflow:hidden;display:flex;justify-content:center}
 .viewport{position:relative;overflow:hidden;height:100%;display:flex;align-items:center;justify-content:center}
-#slideRow{display:flex;gap:14px;align-items:flex-start;justify-content:center;height:100%;width:100%;transition:opacity .16s}
-#slideRow.swap{opacity:0}
-#slideRow img{display:block;max-height:100%;min-width:0;width:auto;object-fit:contain;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.22)}
 .upsel{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:var(--r);overflow:hidden}
 .upsel button{background:transparent;border:0;color:var(--paper);font-size:.75rem;font-weight:700;padding:.2em .55em;line-height:1.4}
 .upsel button.on{background:var(--marker);color:#000}
@@ -203,7 +200,7 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .reveal .amt{font-family:var(--display);font-weight:800;font-size:clamp(3rem,13vw,8rem);line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .reveal .amt.goal{color:var(--marker)}
 .reveal .verdict{font-size:1.05rem;color:#c9ccc3;max-width:34ch}
-@media (prefers-reduced-motion:reduce){.reveal .slot,.reveal .slot.in{animation:none;opacity:1;transform:none}#slideRow{transition:none}}
+@media (prefers-reduced-motion:reduce){.reveal .slot,.reveal .slot.in{animation:none;opacity:1;transform:none}}
 
 /* ---------- player ---------- */
 #player{overflow:auto;padding:var(--pad);background:var(--ink);color:var(--paper)}
@@ -296,6 +293,92 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .tiny{font-size:.8rem;color:var(--ink-soft)}
 .sheet{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:1rem 1.1rem;margin-top:1.2rem}
 .sheet code{display:block;word-break:break-all;font-size:.72rem;background:var(--paper);padding:.6rem;border:1px solid var(--rule);margin-top:.4rem;max-height:9em;overflow:auto}
+/* ---------- the board: one tall campaign page you scroll, zoom and draw on ---------- */
+.rb{position:relative;overflow:hidden;touch-action:none;background:#2B302B;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab;contain:strict}
+.rb:active{cursor:grabbing}
+.rb.drawing{cursor:crosshair}
+.rb-paper{position:absolute;left:0;top:0;width:1000px;transform-origin:0 0;will-change:transform;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 10px 40px rgba(0,0,0,.35)}
+.rb-paper img{position:absolute;left:0;width:100%;display:block;background:#fff;pointer-events:none}
+.rb-paper img.wait{background:linear-gradient(100deg,#fff 30%,#eef1ed 50%,#fff 70%) 0 0/300% 100%;animation:shimmer 1.2s linear infinite}
+.rb canvas{position:absolute;left:0;top:0;pointer-events:none}
+.rb-sharp{transform-origin:0 0;opacity:0;transition:opacity .15s}
+.rb-sharp.on{opacity:1}
+.rb-frame{position:absolute;pointer-events:none;outline:2px dashed rgba(5,206,120,.9);box-shadow:0 0 0 100vmax rgba(0,0,0,.32)}
+.rb-msg{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);background:rgba(0,0,0,.72);color:#fff;padding:.7rem 1rem;border-radius:var(--r);font-weight:600;text-align:center;max-width:80%;pointer-events:none}
+.rb-follow{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:var(--marker);color:#06281A;border:2px solid #06281A;border-radius:99px;padding:.45em 1.1em;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:2}
+@media (prefers-reduced-motion:reduce){.rb-paper img.wait{animation:none}.rb-sharp{transition:none}}
+
+/* the TV: page on the left taking most of the room, who's in on the right */
+.viewwrap{justify-content:stretch}
+.tv-board{flex:1;min-width:0;height:100%}
+.tv-side{flex:0 0 clamp(190px,17vw,380px);background:#0d100d;color:var(--paper);display:flex;flex-direction:column;min-height:0;border-left:3px solid var(--marker)}
+.sd-join{padding:clamp(.7rem,1.4vh,1.3rem) clamp(.8rem,1.2vw,1.4rem);border-bottom:1px solid rgba(255,255,255,.12)}
+.sd-join span{display:block;font-size:clamp(.72rem,.95vw,1.05rem);color:#9aa197;font-weight:600}
+.sd-join b{font-family:var(--display);font-size:clamp(2rem,3.4vw,4.2rem);letter-spacing:.12em;color:var(--marker);line-height:1}
+.sd-count{padding:clamp(.6rem,1.2vh,1.1rem) clamp(.8rem,1.2vw,1.4rem) .3rem;font-size:clamp(.9rem,1.2vw,1.4rem);color:#c9ccc3}
+.sd-count b{font-family:var(--display);font-size:1.5em;color:#fff}
+.sd-list{list-style:none;margin:0;padding:.3rem clamp(.5rem,.9vw,1rem) 1rem;overflow:auto;flex:1;min-height:0}
+.sd-list li{display:flex;align-items:center;gap:.5em;padding:.4em .6em;margin-bottom:.35em;border-radius:var(--r);
+            font-weight:700;font-size:clamp(1rem,1.45vw,1.75rem);color:#c9ccc3;border:2px solid rgba(255,255,255,.18);transition:background .25s,color .25s,border-color .25s}
+.sd-list li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sd-list li i{font-style:normal;font-weight:900}
+.sd-list li.in{background:var(--marker);border-color:var(--marker);color:#06281A}
+.sd-list li.banned span{text-decoration:line-through;color:var(--stamp)}
+.sd-list li.sd-none{border:0;color:#7d837a;font-weight:600}
+.tv-bar{flex-wrap:wrap;gap:.5rem}
+.tv-keys{color:#7d837a;font-size:.72rem}
+.tv-pos{font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right;font-weight:700;color:var(--marker)}
+@media (max-width:900px){.tv-keys{display:none}}
+
+/* tools, shared by the TV bar, the host's phone and the pen */
+.tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tl{min-width:38px;height:38px;padding:0 .5em;border-radius:99px;border:2px solid rgba(255,255,255,.28);background:transparent;color:var(--paper);
+    font-size:1.05rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.tl.wide{font-size:.8rem;padding:0 .8em}
+.tl i{display:block;width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.75)}
+.tl i.hlb{width:22px;height:12px;border-radius:3px;background:#F5C518;opacity:.85;box-shadow:none}
+.tl.on{border-color:var(--marker);background:rgba(5,206,120,.22)}
+.tl.armed{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.tl:hover{border-color:rgba(255,255,255,.6)}
+.tl-gap{width:6px}
+.tv-bar .tl{height:32px;min-width:32px;font-size:.95rem}
+.tv-bar .tl i{width:15px;height:15px}
+
+/* the pen on a phone, and the remote host's board */
+#pen{background:var(--ink);color:var(--paper)}
+.pen-setup{flex:1;overflow:auto;padding:var(--pad);display:flex}
+.pen-setup .card{margin:auto;max-width:440px;width:100%;background:var(--card);color:var(--ink);border:2px solid var(--marker);border-radius:var(--r);padding:1.2rem}
+.pen-setup h2{font-size:1.8rem;margin-bottom:.4rem}
+.pen-setup .field{display:block;margin:1rem 0 .7rem}
+.pen-setup .field span{display:block;font-size:.8rem;font-weight:700;margin-bottom:.25rem}
+.pen-setup .field input{width:100%;font-size:1.6rem;padding:.4em .5em;border:2px solid var(--ink);border-radius:var(--r);background:#fff;color:var(--ink)}
+.pen-setup .btn{width:100%}
+.pen-err{color:var(--stamp) !important;font-weight:600;min-height:1.2em}
+.pen-work,.hs-board{flex:1;min-height:0;min-width:0;display:flex;flex-direction:column;background:var(--ink);color:var(--paper)}
+.board-fill{flex:1;min-height:0}
+.pen-tools{padding:.5rem .6rem;padding-bottom:max(.5rem,env(safe-area-inset-bottom));justify-content:center;border-top:1px solid rgba(255,255,255,.14)}
+.pen-game{display:flex;align-items:center;gap:.45rem;padding:.45rem .6rem;border-bottom:1px solid rgba(255,255,255,.14);flex-wrap:wrap}
+.pen-game:empty{display:none}
+.pen-game .btn{flex:1;min-width:0;white-space:nowrap;color:var(--paper);border-color:rgba(255,255,255,.4)}
+.pen-game .btn.solid{color:#06281A;border-color:var(--marker-deep)}
+.pen-game .pg-in{flex:1.2;font-size:.8rem;font-weight:700;color:#c9ccc3;text-align:center}
+#host .rp-main.hidden + .hs-board{display:flex}
+
+/* a remote player's view of the board */
+.rp-board{height:min(70vh,calc(var(--app-h,100vh) - 230px));min-height:280px;border-radius:6px;margin-bottom:12px;box-shadow:0 0 0 2px var(--ink)}
+@media (min-width:900px){.rp-board{height:calc(var(--app-h,100vh) - 220px)}}
+
+/* the pairing code on the TV */
+.pen-sheet{position:absolute;inset:0;z-index:12;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:var(--pad)}
+.pen-sheet .card{position:relative;background:var(--card);border:3px solid var(--ink);border-radius:var(--r);padding:1.3rem 1.4rem;max-width:520px;width:100%}
+.pen-sheet h3{font-size:1.6rem;margin-bottom:.4rem}
+.pen-sheet h4{font-size:.95rem;margin:1rem 0 .3rem}
+.ps-x{position:absolute;top:.6rem;right:.6rem;border:0;background:transparent;font-size:1.2rem}
+.ps-code{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,7vw,4.6rem);letter-spacing:.18em;text-align:center;color:var(--marker-deep);margin:.6rem 0 .2rem}
+.ps-link span{word-break:break-all;font-weight:600}
+.ps-list{list-style:none;padding:0;margin:0}
+.ps-list li{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+
 /* ---------- player names on the TV ---------- */
 .roster{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;padding:.45rem .9rem;background:#121512;
         border-bottom:1px solid rgba(255,255,255,.12);flex:0 0 auto}
@@ -1409,6 +1492,10 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
         <span class="mk">05</span>
         <span class="mt"><b>Host a remote game</b><em>Friends far away? Everyone sees the campaign on their own phone and argues about it in the chat. Run it from your phone or laptop.</em></span>
       </button>
+      <button class="mi" id="miPen">
+        <span class="mk">06</span>
+        <span class="mt"><b>Draw on the TV</b><em>Hosting in the room? Your phone scrolls, zooms and draws on the campaign up on the TV.</em></span>
+      </button>
     </nav>
 
     <p class="tiny foot">Save a page from any browser with Print → Save as PDF. Everything happens on this device; nothing is uploaded unless you ask it to be.</p>
@@ -1560,13 +1647,13 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
         <h3>Slides</h3>
         <span class="tiny" id="gmCount"></span>
         <span class="grow" style="flex:1"></span>
-        <span class="upsel gmup" id="gmUpSel" title="How many share a screen during play">
+        <span class="upsel gmup hidden" id="gmUpSel" title="How many share a screen during play">
           <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
         </span>
         <button class="btn sm ghost" id="gmAll">Show all</button>
         <button class="btn sm ghost" id="gmAuto">Back to suggested</button>
       </div>
-      <p class="tiny" style="margin:0 0 .9rem;max-width:62ch">Click a slide to drop it from the round. Use ‹ › to move it. Site nav, the legal footer and near-blank slices start switched off.</p>
+      <p class="tiny" style="margin:0 0 .9rem;max-width:62ch">Click a slide to drop it from the round. Use ‹ › to move it. During play the kept slides join up into one page you scroll. Site nav, the legal footer and near-blank slices start switched off.</p>
       <div class="grid" id="gmGrid"></div>
     </div>
     <aside class="gm-side" id="gmSide"></aside>
@@ -1579,6 +1666,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <span class="rnum" id="pRound">1</span>
     <span id="pTitle" style="max-width:38ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     <span class="grow"></span>
+    <button id="bPen" title="Scroll, zoom and draw on this screen from your phone">📱 Draw from phone</button>
     <button id="bInfo">Info</button>
     <button id="bReveal">Reveal</button>
     <button id="bNext">Next round</button>
@@ -1586,20 +1674,30 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <button id="bQuit">End</button>
     <span id="liveTally" class="hidden" style="font-variant-numeric:tabular-nums;color:var(--marker);font-weight:700"></span>
   </div>
-  <div class="roster hidden" id="roster"></div>
   <div class="viewwrap">
-    <div class="viewport" id="viewport"><div id="slideRow"></div></div>
+    <div class="tv-board" id="tvBoard"></div>
+    <aside class="tv-side hidden" id="tvSide" aria-live="polite"></aside>
     <aside class="drawer" id="drawer"></aside>
     <div class="reveal hidden" id="revealBox"></div>
+    <div class="pen-sheet hidden" id="penSheet" role="dialog" aria-label="Draw from your phone">
+      <div class="card">
+        <button type="button" class="ps-x" id="penSheetX" aria-label="Close">✕</button>
+        <h3>Draw from your phone</h3>
+        <p class="tiny">On your phone, open the game, tap <b>Games</b> → <b>Draw on the TV</b>, and type this code. Your phone can then scroll, zoom and draw on this screen.</p>
+        <div class="ps-code" id="penCodeBig">…</div>
+        <p class="tiny ps-link">Or open <span id="penLink"></span> on the phone.</p>
+        <p class="tiny" id="penSheetNote"></p>
+        <h4>Phones drawing on this screen</h4>
+        <ul class="ps-list" id="penList"></ul>
+        <p class="tiny">The code works for 15 minutes and goes away as soon as a phone uses it.</p>
+      </div>
+    </div>
   </div>
-  <div class="panelbar">
-    <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bPrev">←</button>
-    <span class="upsel" id="upSel" title="Slides on screen at once (V)">
-      <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
-    </span>
-    <div class="dots" id="dots"></div>
-    <button class="btn sm ghost" style="color:var(--paper);border-color:rgba(255,255,255,.35)" id="bNextPanel">→</button>
-    <span id="panelCount" style="font-variant-numeric:tabular-nums;min-width:5em;text-align:right"></span>
+  <div class="panelbar tv-bar">
+    <div class="tools" id="tvTools"></div>
+    <span class="grow"></span>
+    <span class="tv-keys">Scroll or ↑ ↓ to move · pinch, Ctrl+scroll or + − to zoom</span>
+    <span id="tvPos" class="tv-pos"></span>
   </div>
 </section>
 
@@ -1783,8 +1881,8 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <main class="rp-main" id="rpMain">
       <div id="rpStatus"></div>
       <div id="rpDeckWrap" class="hidden">
-        <p class="rp-hint">Scroll through the campaign, talk it over, then lock in both numbers at the bottom.</p>
-        <div id="rpDeck" class="rp-deck"></div>
+        <p class="rp-hint">The host steers. Drag or pinch to look around on your own.</p>
+        <div id="rpBoard" class="rp-board"></div>
         <div id="rpInfo"></div>
       </div>
       <p class="rp-leave"><a href="#" id="rpLeave">Leave the room</a></p>
@@ -1807,10 +1905,39 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   <div class="rp-body">
     <main class="rp-main">
       <div id="hsMain"></div>
-      <div id="hsDeckWrap" class="hidden"><div id="hsDeck" class="rp-deck"></div><div id="hsInfo"></div></div>
       <div id="hsMore"></div>
     </main>
+    <div class="hs-board hidden" id="hsBoardWrap">
+      <div class="pen-game" id="hsGame"></div>
+      <div class="board-fill" id="hsBoard"></div>
+      <div class="tools pen-tools" id="hsTools"></div>
+    </div>
     <aside class="rp-chat hidden" id="hsChat"></aside>
+  </div>
+</section>
+
+<!-- ============ PEN: a phone drawing on the TV ============ -->
+<section id="pen" class="screen hidden">
+  <div class="rp-top hs-top">
+    <button type="button" id="penBack">‹ Menu</button>
+    <span class="rp-r" id="penRound">Pen</span>
+    <span class="rp-t" id="penTitle"></span>
+    <span class="rp-pts" id="penIn"></span>
+  </div>
+  <div class="pen-setup" id="penSetup">
+    <form class="card" id="penForm" autocomplete="off">
+      <h2>Draw on the TV</h2>
+      <p class="tiny">On the TV, click <b>📱 Draw from phone</b> at the top of the game. Type the code it shows.</p>
+      <label class="field"><span>Code from the TV</span><input type="text" id="penCode" maxlength="6" placeholder="six characters" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:.2em;font-weight:700"></label>
+      <button class="btn solid" id="penGo">Connect</button>
+      <p class="tiny pen-err" id="penErr"></p>
+      <p class="tiny">This phone becomes the host's pen: it scrolls, zooms and draws on the TV, and runs the reveal. It never sees the answers before everyone else does.</p>
+    </form>
+  </div>
+  <div class="pen-work hidden" id="penWork">
+    <div class="pen-game" id="penGame"></div>
+    <div class="board-fill" id="penBoard"></div>
+    <div class="tools pen-tools" id="penTools"></div>
   </div>
 </section>
 
@@ -2749,7 +2876,7 @@ async function ingestOne(file, opts, recipe){
   const v1 = p1.getViewport({ scale: 1 });
   const scale = clamp(1000 / v1.width, 0.9, 2.6);
 
-  let allSegs = [], allTiles = [], offsetY = 0, pageW = 0, regions = [];
+  let allSegs = [], allTiles = [], offsetY = 0, pageW = 0, regions = [], pageTops = [];
 
   for (let n = 1; n <= doc.numPages; n++){
     const page = await doc.getPage(n);
@@ -2774,6 +2901,7 @@ async function ingestOne(file, opts, recipe){
       rs.forEach(r => { r.y += offsetY; });
       regions = regions.concat(rs);
     }
+    pageTops.push({ n: n, top: offsetY, h: vp.height });
     offsetY += vp.height;
   }
 
@@ -2814,7 +2942,7 @@ async function ingestOne(file, opts, recipe){
     textSpots: allSegs.map(sg => ({ y: sg.y, h: sg.h, len: sg.text.length })),
     footerY: footerY, slides: null,
     leakBoxes: opts.allMoney ? [] : otherMoneyBoxes(allSegs, fund, boxes),
-    pageW: pageW, pageH: offsetY, scale: scale,
+    pageW: pageW, pageH: offsetY, scale: scale, pageTops: pageTops,
     raised: fund.raised, goal: fund.goal
   };
   if (recipe) applyRecipe(round, recipe);
@@ -3352,11 +3480,11 @@ $("#gmNextUp").addEventListener("click", () => {
    10. PLAY
    ============================================================ */
 function show(which){
-  ["menu","intake","check","gm","play","results","player","rplayer","host","crew"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
+  ["menu","intake","check","gm","play","results","player","rplayer","host","crew","pen"].forEach(id => $("#"+id).classList.toggle("hidden", id !== which));
 }
 
 function loadRound(i){
-  G.idx = i; G.panel = 0;
+  G.idx = i;
   const r = G.rounds[i];
   $("#pRound").textContent = (i+1) + "/" + G.rounds.length;
   $("#pTitle").textContent = r.title;
@@ -3365,59 +3493,13 @@ function loadRound(i){
   $("#drawer").classList.remove("open");
   buildDrawer(r);
   liveAnnounceRound();
-  requestAnimationFrame(() => { layoutColumns(); goPanel(0); });
+  tvShowRound(r);
+  renderSide();
 }
 
-/* The game master curates the deck in the suite; play just walks it.
-   A phone-width page leaves most of a 16:9 screen empty, so the deck can
-   be read two or three slides at a time. */
-function upCount(){
-  const n = parseInt(store.get("ds.up") || "1", 10);
-  return (n === 2 || n === 3) ? n : 1;
-}
-
-function layoutColumns(){
-  const r = G.rounds[G.idx];
-  G.deck = r.slides.filter(sl => sl.on);
-  if (!G.deck.length) G.deck = r.slides.slice();
-  G.up = Math.min(upCount(), G.deck.length);
-  G.panels = Math.max(1, Math.ceil(G.deck.length / G.up));
-
-  const row = $("#slideRow");
-  row.innerHTML = "";
-  for (let i = 0; i < G.up; i++) row.appendChild(document.createElement("img"));
-
-  const dots = $("#dots");
-  dots.innerHTML = "";
-  for (let i = 0; i < G.panels; i++) dots.appendChild(document.createElement("i"));
-
-  $$("#upSel button").forEach(b => b.classList.toggle("on", Number(b.dataset.up) === upCount()));
-}
-
-function goPanel(p){
-  G.panel = clamp(p, 0, G.panels - 1);
-  const row = $("#slideRow");
-  const imgs = $$("#slideRow img");
-  row.classList.add("swap");
-  imgs.forEach((im, c) => {
-    const sl = G.deck[G.panel * G.up + c];
-    if (sl){ im.src = sl.url; im.style.display = ""; }
-    else im.style.display = "none";
-  });
-  requestAnimationFrame(() => row.classList.remove("swap"));
-  $$("#dots i").forEach((d, i) => d.classList.toggle("on", i <= G.panel));
-  const first = G.panel * G.up + 1;
-  const last = Math.min(first + G.up - 1, G.deck.length);
-  $("#panelCount").textContent = (G.up > 1 ? first + "\u2013" + last : String(first)) + " / " + G.deck.length;
-  updateTally();
-}
-
-function setUp(n){
-  const keepFirst = (G.panel || 0) * (G.up || 1);
-  store.set("ds.up", String(n));
-  layoutColumns();
-  goPanel(Math.floor(keepFirst / G.up));
-}
+/* The game master curates the slides in the suite; play shows the kept ones
+   as one continuous page (section 17), so slides no longer share a screen. */
+function upCount(){ return 1; }
 
 function buildDrawer(r){
   const d = $("#drawer");
@@ -3500,26 +3582,26 @@ $("#bNext").addEventListener("click", () => {
 });
 $("#bResults").addEventListener("click", openResults);
 $("#bQuit").addEventListener("click", () => { openIntake("Your game"); renderRoundList(true); });
-$$("#upSel button").forEach(b => b.addEventListener("click", () => setUp(Number(b.dataset.up))));
-$("#bPrev").addEventListener("click", () => goPanel(G.panel - 1));
-$("#bNextPanel").addEventListener("click", () => goPanel(G.panel + 1));
+$("#bPen").addEventListener("click", tvPenSheet);
+$("#penSheetX").addEventListener("click", tvPenClose);
 
 window.addEventListener("keydown", e => {
   if ($("#play").classList.contains("hidden")) return;
   if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
   const k = e.key;
-  if (k === "ArrowRight" || k === "ArrowDown" || k === " "){ e.preventDefault(); goPanel(G.panel + 1); }
-  else if (k === "ArrowLeft" || k === "ArrowUp"){ e.preventDefault(); goPanel(G.panel - 1); }
+  const rib = TVB.rib;
+  if (!rib) return;
+  if (k === "ArrowDown" || k === "PageDown" || k === " " || k === "ArrowRight"){ e.preventDefault(); rib.scrollBy(k === "ArrowDown" ? 0.35 : 0.85); }
+  else if (k === "ArrowUp" || k === "PageUp" || k === "ArrowLeft"){ e.preventDefault(); rib.scrollBy(k === "ArrowUp" ? -0.35 : -0.85); }
+  else if (k === "+" || k === "="){ rib.zoom(1.25); }
+  else if (k === "-" || k === "_"){ rib.zoom(0.8); }
+  else if (k === "0"){ rib.fit(); }
+  else if (k === "Escape"){ tvPenClose(); }
   else if (k === "r" || k === "R"){ $("#bReveal").click(); }
   else if (k === "i" || k === "I"){ $("#bInfo").click(); }
   else if (k === "n" || k === "N"){ $("#bNext").click(); }
-  else if (k === "v" || k === "V"){ setUp(upCount() % 3 + 1); }
-  else if (k === "1" || k === "2" || k === "3"){ setUp(Number(k)); }
-  else if (k === "Home"){ goPanel(0); }
-  else if (k === "End"){ goPanel(G.panels - 1); }
-});
-window.addEventListener("resize", () => {
-  if (!$("#play").classList.contains("hidden")){ layoutColumns(); goPanel(G.panel); }
+  else if (k === "Home"){ rib.top(); }
+  else if (k === "End"){ rib.toEnd(); }
 });
 
 /* ============================================================
@@ -4599,8 +4681,9 @@ function roomUrl(){
 }
 
 /* ---------- host ---------- */
-async function liveOpenRoom(){
-  const url = $("#liveUrl").value.trim();
+async function liveOpenRoom(quiet){
+  quiet = quiet === true;
+  const url = $("#liveUrl").value.trim() || LIVE.db || DB_URL;
   if (!url){ toast("Paste the database URL first"); return; }
   LIVE.db = url.replace(/\/+$/, "");
   store.set("ds.db", LIVE.db);
@@ -4627,6 +4710,7 @@ async function liveOpenRoom(){
   $("#roomUrl").textContent = roomUrl();
   liveConnect(() => updateTally());
   updateTally();
+  await tvBoardOpen();
 }
 
 function livePlayers(){
@@ -4642,10 +4726,11 @@ function liveLockedCount(i){
 }
 
 function updateTally(){
-  renderRoster();
+  renderSide();
   const el = $("#liveTally");
   if (!el) return;
-  if (!LIVE.isHost || !LIVE.code){ el.classList.add("hidden"); return; }
+  /* in play the sidebar says it all */
+  if (!LIVE.isHost || !LIVE.code || !$("#play").classList.contains("hidden")){ el.classList.add("hidden"); return; }
   el.classList.remove("hidden");
   const total = livePlayers().length;
   if (G.rounds.length && !$("#play").classList.contains("hidden")){
@@ -4687,39 +4772,6 @@ function displayName(pid, raw){
     return null;
   }
   return String(raw || "").trim() || "Anonymous";
-}
-
-function renderRoster(){
-  const el = $("#roster");
-  if (!el) return;
-  const players = livePlayers();
-  if (!LIVE.isHost || !LIVE.code || !players.length || !G.rounds[G.idx]){ el.classList.add("hidden"); return; }
-  el.classList.remove("hidden");
-  const rd = G.rounds[G.idx];
-  const now = LIVE.state.now || {};
-  const revealed = now.phase === "revealed" && now.uid === rd.uid;
-  const locked = (LIVE.state.guesses || {})[rd.uid] || {};
-  const pts = revealed ? ((LIVE.state.scores || {})[rd.uid] || {}) : {};
-  let best = -1;
-  if (revealed) for (const k in pts) best = Math.max(best, Number(pts[k]) || 0);
-
-  const list = players.slice().sort((a, b) => (a.joined || 0) - (b.joined || 0));
-  let h = '<span class="rl">' + (revealed ? "This round" : "Players") + '</span>';
-  for (const p of list){
-    const nm = displayName(p.id, p.name);
-    const cls = ["chip"];
-    if (nm === null) cls.push("banned");
-    if (revealed){
-      const v = Number(pts[p.id]);
-      if (p.id in pts && v === best && best > 0) cls.push("best");
-      h += '<span class="' + cls.join(" ") + '">' + esc(nm === null ? "nope" : nm) +
-           ' <span class="pts">' + (p.id in pts ? "+" + v : "—") + '</span></span>';
-    } else {
-      if (locked[p.id]) cls.push("in");
-      h += '<span class="' + cls.join(" ") + '">' + esc(nm === null ? "nope" : nm) + '</span>';
-    }
-  }
-  el.innerHTML = h;
 }
 
 /* ---------- standings ---------- */
@@ -4875,7 +4927,7 @@ $("#resBack").addEventListener("click", () => {
   resClear();
   $$(".winner", $("#results")).forEach(w => w.remove());
   show("play");
-  requestAnimationFrame(() => { layoutColumns(); goPanel(G.panel || 0); });
+  requestAnimationFrame(() => { if (TVB.rib) TVB.rib.layout(); });
 });
 $("#resMenu").addEventListener("click", () => { resClear(); show("menu"); });
 window.addEventListener("keydown", e => {
@@ -5183,7 +5235,7 @@ async function publishRemote(){
       const id = code6();
       const at = sub => savePath("/" + id + "/deck" + sub);
       await pool(p.slides, 4, async (sl, k) => {
-        await putJSON(at("/s/" + k), await toJpeg(sl.url, 900, 0.76));
+        await putJSON(at("/s/" + k), await toJpeg(sl.url, 1000, 0.78));
         done++; tick();
       });
       await pool(p.shots, 4, async (sh, k) => {
@@ -5191,7 +5243,7 @@ async function publishRemote(){
         done++; tick();
       });
       await putJSON(at("/meta"), {
-        kind: "deck", n: p.slides.length, nx: p.shots.length,
+        kind: "deck", n: p.slides.length, nx: p.shots.length, hs: p.slides.map(sl => r5(sl.h / p.r.pageW)),
         title: p.r.title, info: roundInfo(p.r), at: Date.now()
       });
       rounds.push({ uid: p.r.uid, title: p.r.title, raised: p.r.raised, goal: p.r.goal, deck: id, n: p.slides.length });
@@ -8263,8 +8315,10 @@ function rpSetChat(on){
 function rpReset(){
   RP.chat = null; RP.crew = false; RP.deckId = ""; RP.sig = ""; RP.sawMeta = false; RP.dockSig = ""; RP.editing = false; RP.revealedFor = "";
   rpSetChatClosed();
-  $("#rpDeck").innerHTML = ""; $("#rpInfo").innerHTML = ""; $("#rpStatus").innerHTML = "";
-  $("#rpDeck").dataset.deck = ""; $("#rpInfo").dataset.deck = "";
+  $("#rpInfo").innerHTML = ""; $("#rpStatus").innerHTML = "";
+  $("#rpInfo").dataset.deck = "";
+  boardStop(); RPB.uid = ""; RPB.deck = "";
+  if (RPB.rib) RPB.rib.setSegments("", []);
 }
 function rpSetChatClosed(){ RP.chatOpen = false; $("#rpChat").classList.remove("open"); setBadge($("#rpBadge"), 0); }
 
@@ -8292,14 +8346,12 @@ function renderLivePlayer(){
   $("#rpTitle").textContent = inRound ? (now.title || "") : (store.get("ds.name") || "");
   $("#rpPts").textContent = liveTotal().toLocaleString("en-US") + " pts";
 
-  if (now.deck && now.deck !== RP.deckId){
-    RP.deckId = now.deck;
-    loadDeckInto(now.deck, $("#rpDeck"), $("#rpInfo"));
-  }
+  if (now.deck && now.deck !== RP.deckId) RP.deckId = now.deck;
   $("#rpDeckWrap").classList.toggle("hidden", !(inRound && RP.deckId && now.deck === RP.deckId));
+  if (inRound && now.deck) rpBoardSync(now);
   $(".rp-hint").textContent = now.phase === "revealed"
     ? "The campaign again, for the post-mortem."
-    : "Scroll through the campaign, talk it over, then lock in both numbers at the bottom.";
+    : "The host steers and draws. Drag or pinch to look around on your own, then lock in both numbers at the bottom.";
 
   const players = state.players || {};
   const sig = JSON.stringify([now, Object.keys(players).length,
@@ -8432,7 +8484,7 @@ $("#rpLeave").addEventListener("click", e => {
 });
 
 /* ---------- host console ---------- */
-const RH = { pkg: null, code: "", chat: null, sig: "", showAns: false, chatOpen: false, deckId: "", preview: false, timer: null };
+const RH = { pkg: null, code: "", chat: null, sig: "", chatOpen: false, timer: null };
 
 function hostSession(){ try { return JSON.parse(store.get("ds.hostSess") || "null"); } catch (e){ return null; } }
 
@@ -8448,7 +8500,7 @@ function hostSetup(msg){
   $("#hsShare").classList.add("hidden");
   $("#hsChatBtn").classList.add("hidden");
   $("#hsChat").classList.add("hidden");
-  $("#hsDeckWrap").classList.add("hidden");
+  hsBoardShow(false);
   $("#hsMore").innerHTML = "";
   const sess = hostSession();
   const last = RH.code || store.get("ds.lastHost") || "";
@@ -8507,6 +8559,9 @@ async function hostOpenRoom(){
   if (crew) meta.crew = crew;
   const ok = await dbPut("", { meta: meta, now: { r: -1, phase: "lobby", title: "" } });
   if (!ok){ LIVE.code = ""; hostSetup("Couldn’t reach the database."); return; }
+  /* a clean board: nothing left over from an old room with the same letters */
+  boardStop(); BS.code = LIVE.code;
+  await boardPut("", { at: Date.now() });
   RH.crew = !!crew;
   hostAttach();
   if (crew){
@@ -8540,7 +8595,7 @@ async function hostResume(){
 function hostAttach(){
   LIVE.isHost = true;
   LIVE.state = {};
-  RH.sig = ""; RH.deckId = ""; RH.preview = false;
+  RH.sig = ""; RB.uid = ""; RB.deck = "";
   store.set("ds.hostSess", JSON.stringify({ code: RH.code, room: LIVE.code }));
   $("#hsChat").classList.remove("hidden");
   RH.chat = makeChat($("#hsChat"), {
@@ -8586,7 +8641,12 @@ function hostRender(force){
   if ($("#host").classList.contains("hidden") || !RH.pkg) return;
   const state = LIVE.state || {};
   if (RH.chat && !RH.crew) RH.chat.update(state.chat, plural(Object.keys(state.players || {}).length, "player"));
-  const sig = JSON.stringify([state.now, state.players, state.guesses, state.scores, RH.showAns, RH.preview]);
+  /* the board follows the round whether or not the console needs redrawing */
+  hsBoardSync(hostNow());
+  if (RB.autoOpen && RB.uid){ RB.autoOpen = false; hsBoardShow(true); }
+  const stripSig = JSON.stringify([state.now, state.players, (state.guesses || {})[(hostNow() || {}).uid]]);
+  if (stripSig !== RB.stripSig){ RB.stripSig = stripSig; hsBoardStrip(); }
+  const sig = JSON.stringify([state.now, state.players, state.guesses, state.scores]);
   if (!force && sig === RH.sig) return;
   RH.sig = sig;
 
@@ -8615,9 +8675,8 @@ function hostRender(force){
     const inN = Object.keys(locked).length;
     h += '<div class="hs-phase">Round ' + (now.r + 1) + ' of ' + rounds.length + ' · guessing</div>' +
          '<h3 class="hs-title">' + esc(cur.title) + '</h3>' +
-         '<div class="hs-ans' + (RH.showAns ? "" : " masked") + '"><div><span>Has raised</span><b>' + (RH.showAns ? money(cur.raised) : "••••") + '</b></div>' +
-         '<div><span>Asking for</span><b>' + (RH.showAns ? money(cur.goal) : "••••") + '</b></div></div>' +
-         '<button class="btn sm ghost" id="hsPeek" style="margin-top:.5rem">' + (RH.showAns ? "Hide the answers" : "Show me the answers") + '</button>' +
+         '<div class="hs-ans masked"><div><span>Has raised</span><b>••••</b></div><div><span>Asking for</span><b>••••</b></div></div>' +
+         '<p class="tiny" style="margin:.4rem 0 0">The answers stay hidden on every screen until you reveal.</p>' +
          '<div class="tiny" style="margin-top:.8rem"><b>' + inN + ' of ' + pids.length + '</b> locked in</div>' +
          '<div class="chips">' + pids.map(p => '<span class="hchip' + (locked[p] ? " in" : "") + '">' + esc(nm(p)) + '</span>').join("") + '</div>' +
          '<button class="btn solid hs-act" data-go="reveal">Reveal' + (pids.length && inN < pids.length ? " (" + (pids.length - inN) + " still thinking)" : "") + '</button>';
@@ -8637,14 +8696,10 @@ function hostRender(force){
   h += '</div>';
 
   if (cur && /guessing|revealed/.test(now.phase)){
-    h += '<button class="btn sm ghost" id="hsPrev" style="margin:0 0 12px">' + (RH.preview ? "Hide the campaign" : "See what players see") + '</button>';
+    h += '<button class="btn solid" id="hsBoardBtn" style="margin:0 0 12px;width:100%">Show the campaign · scroll, zoom and draw</button>';
   }
   $("#hsMain").innerHTML = h;
 
-  /* campaign preview, kept outside the re-rendered block so it doesn't flicker */
-  const showDeck = RH.preview && cur && now.deck;
-  $("#hsDeckWrap").classList.toggle("hidden", !showDeck);
-  if (showDeck && RH.deckId !== now.deck){ RH.deckId = now.deck; loadDeckInto(now.deck, $("#hsDeck"), $("#hsInfo")); }
 
   /* standings + every round */
   const st = standings(rounds);
@@ -8675,8 +8730,7 @@ function hostRender(force){
     } else if (go === "reveal") hostReveal();
     else if (go === "final") hostFinal();
   }));
-  const peek = $("#hsPeek"); if (peek) peek.addEventListener("click", () => { RH.showAns = !RH.showAns; hostRender(true); });
-  const prev = $("#hsPrev"); if (prev) prev.addEventListener("click", () => { RH.preview = !RH.preview; hostRender(true); });
+  const bb = $("#hsBoardBtn"); if (bb) bb.addEventListener("click", () => hsBoardShow(true));
   $("#hsInvite").addEventListener("click", shareRoom);
   $("#hsEnd").addEventListener("click", hostEnd);
 }
@@ -8685,7 +8739,7 @@ async function hostStart(i, replay){
   const rd = RH.pkg.rounds[i];
   if (!rd) return;
   clearTimeout(RH.timer);
-  RH.showAns = false;
+  RB.autoOpen = true;
   if (replay){ await dbPut("/guesses/" + rd.uid, null); await dbPut("/scores/" + rd.uid, null); }
   const ok = await dbPut("/now", { r: i, uid: rd.uid, phase: "guessing", title: rd.title, deck: rd.deck, n: rd.n, remote: true });
   if (!ok){ toast("Couldn’t reach the database"); return; }
@@ -8748,6 +8802,7 @@ function hostDetach(){
   if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
   LIVE.code = ""; LIVE.state = {}; LIVE.isHost = false;
   RH.chat = null; RH.chatOpen = false; RH.crew = false;
+  hsBoardShow(false); boardStop(); RB.uid = ""; RB.deck = ""; RB.autoOpen = false;
   $("#hsChat").classList.remove("open");
   $("#hsChat").innerHTML = "";
   drawLiveBanner();
@@ -8757,6 +8812,8 @@ async function hostEnd(e){
   e.preventDefault();
   if (!confirm("Close room " + LIVE.code + "? Everyone is dropped" + (RH.crew ? " back to the crew chat." : " and the chat is deleted."))) return;
   if (RH.crew){ await crewLiveOff(); await sysMsg("Room " + LIVE.code + " closed. Good game."); }
+  BS.code = LIVE.code;
+  await boardPut("", null);
   await dbPut("", null);
   store.set("ds.hostSess", "");
   hostDetach();
@@ -8782,11 +8839,1175 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden"){ hiddenAt = Date.now(); return; }
   const long = Date.now() - hiddenAt > 15000;
   if (CR.code && (!CR.es || CR.es.readyState === 2 || long)) crewConnect();
+  if (BS.code && (long || Object.values(BS.es).some(es => es.readyState === 2))) boardRelisten();
   if (!LIVE.code || !LIVE.onChange) return;
   const dead = !LIVE.es || LIVE.es.readyState === 2;
   if (dead || Date.now() - hiddenAt > 15000) liveConnect(LIVE.onChange);
 });
 
+
+/* ============================================================
+   17. THE BOARD
+   One campaign page as a single tall sheet you scroll, zoom and draw on.
+   The TV, the host's phone and (in a remote game) every player's phone
+   show the same sheet. The host steers and draws; everyone else follows.
+
+   Coordinates are shared by every screen: x runs 0–1 across the page's
+   width, y runs down the page in the same units (so a page 12 widths tall
+   ends at y = 12). A "view" is a rectangle in those units. Each screen
+   fits the whole rectangle in, so a portrait phone shows a little more
+   above and below than a wide TV does, but never less.
+
+   Everything live sits under /boards/<room code>, apart from the room
+   itself, so a pen stroke going up 12 times a second doesn't wake the
+   room's own listeners. The answers are never anywhere near it.
+   ============================================================ */
+const BASE = 1000;                         /* the sheet's width in CSS px before zooming */
+const PENS = { black: "#1B2330", blue: "#2459D6", red: "#E0352B", green: "#03A861" };
+const HILITE = "#F5C518";
+const PEN_W = 0.0055, HL_W = 0.034;        /* line widths, as a share of the width in view */
+const DEV = randCode(8);                   /* this open page, to tell our own writes from others' */
+
+const r5 = n => Math.round(n * 100000) / 100000;
+function inkPoints(flat){
+  if (!flat) return [];
+  const a = Array.isArray(flat) ? flat : Object.keys(flat).sort((x, y) => x - y).map(k => flat[k]);
+  const out = [];
+  for (let i = 0; i + 1 < a.length; i += 2) out.push({ x: Number(a[i]), y: Number(a[i + 1]) });
+  return out;
+}
+function inkFlat(pts){
+  const out = [];
+  for (const p of pts) out.push(r5(clamp(p.x, -0.05, 1.05)), r5(Math.max(-0.05, p.y)));
+  return out;
+}
+let inkSeq = 0;
+const inkKey = () => Date.now().toString(36).padStart(9, "0") + (inkSeq++ % 1296).toString(36).padStart(2, "0") + DEV.slice(0, 4);
+
+function strokeOk(s){ return !!s && typeof s === "object" && (Array.isArray(s.p) || (s.p && typeof s.p === "object")); }
+function strokeColor(s){ return /^#[0-9a-f]{6}$/i.test(String(s.c || "")) ? s.c : PENS.black; }
+
+/* one line onto a 2D context; map turns sheet units into canvas pixels */
+function paintStroke(ctx, s, k, ox, oy){
+  const pts = inkPoints(s.p);
+  if (!pts.length) return;
+  ctx.save();
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.strokeStyle = ctx.fillStyle = strokeColor(s);
+  ctx.lineWidth = Math.max(1.2, (Number(s.w) || 0.004) * k);
+  if (s.hl) ctx.globalAlpha = 0.42;
+  const X = p => p.x * k + ox, Y = p => p.y * k + oy;
+  if (pts.length === 1){
+    ctx.beginPath(); ctx.arc(X(pts[0]), Y(pts[0]), ctx.lineWidth / 2, 0, Math.PI * 2); ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(X(pts[0]), Y(pts[0]));
+    for (let i = 1; i < pts.length - 1; i++){
+      ctx.quadraticCurveTo(X(pts[i]), Y(pts[i]), (X(pts[i]) + X(pts[i + 1])) / 2, (Y(pts[i]) + Y(pts[i + 1])) / 2);
+    }
+    ctx.lineTo(X(pts[pts.length - 1]), Y(pts[pts.length - 1]));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function segDist(p, a, b){
+  const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy;
+  const t = l2 ? clamp(((p.x - a.x) * dx + (p.y - a.y) * dy) / l2, 0, 1) : 0;
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+}
+/* every line within tol (sheet units) of p */
+function strokesAt(ink, p, tol){
+  const hits = [];
+  for (const k of Object.keys(ink || {})){
+    const s = ink[k];
+    if (!strokeOk(s)) continue;
+    const pts = inkPoints(s.p), t = tol + (Number(s.w) || 0) / 2;
+    if (pts.length === 1 ? Math.hypot(p.x - pts[0].x, p.y - pts[0].y) <= t
+                         : pts.some((q, i) => i && segDist(p, pts[i - 1], q) <= t)) hits.push(k);
+  }
+  return hits;
+}
+
+/* ---------- the sheet on screen ----------
+   o.control: this screen steers (its moves are sent to everyone)
+   o.follow:  this screen follows someone else, but can look around on its own
+   o.frame(): the shape of the screen being steered, if it isn't this one (TV ratio)
+   o.canDraw(): pens are allowed here
+   o.onView(view, done), o.onStroke(key, stroke, done), o.onErase(keys)
+   o.sharp(layout, alive): a sharper picture of what's on screen, or null */
+function makeRibbon(el, o){
+  o = o || {};
+  el.classList.add("rb");
+  el.innerHTML = '<div class="rb-paper"></div><canvas class="rb-sharp"></canvas><canvas class="rb-ink"></canvas>' +
+                 '<div class="rb-frame hidden"></div><div class="rb-msg hidden"></div>' +
+                 '<button type="button" class="rb-follow hidden">Follow the host</button>';
+  const paper = $(".rb-paper", el), sharpC = $(".rb-sharp", el), inkC = $(".rb-ink", el);
+  const frameEl = $(".rb-frame", el), msgEl = $(".rb-msg", el), followB = $(".rb-follow", el);
+  const R = {
+    key: "", segs: [], imgs: [], H: 1,
+    view: { x: 0, y: 0, w: 1, h: 1 }, ext: null, detached: false,
+    tool: { kind: "hand", color: "blue" },
+    ink: {}, live: null, liveKey: "",
+    cw: 0, ch: 0, k: 1, ox: 0, oy: 0,
+    sharp: null, sharpAt: null, sharpGen: 0, sharpTimer: 0, inkRaf: 0
+  };
+
+  function measure(){
+    const b = el.getBoundingClientRect();
+    R.cw = Math.max(1, b.width); R.ch = Math.max(1, b.height);
+  }
+  const aspect = () => R.cw / R.ch;
+  const frameA = () => { const a = o.frame && o.frame(); return a > 0.2 && a < 6 ? a : aspect(); };
+
+  /* keep a view on the page, the same shape as the screen it steers */
+  function tidy(v, a){
+    a = a || frameA();
+    let w = clamp(Number(v.w) || 1, 0.08, 4);
+    let h = w / a;
+    const cx = Number.isFinite(v.x) ? v.x + (Number(v.w) || w) / 2 : 0.5;
+    const cy = Number.isFinite(v.y) ? v.y + (Number(v.h) || h) / 2 : h / 2;
+    let x = w >= 1 ? 0.5 - w / 2 : clamp(cx - w / 2, 0, 1 - w);
+    let y = h >= R.H ? R.H / 2 - h / 2 : clamp(cy - h / 2, 0, R.H - h);
+    return { x: x, y: y, w: w, h: h };
+  }
+
+  function place(){
+    const v = R.view;
+    const k = Math.min(R.cw / v.w, R.ch / v.h);
+    R.k = k;
+    R.ox = R.cw / 2 - (v.x + v.w / 2) * k;
+    /* A screen shaped differently from the view shows extra above and below.
+       Near the top or bottom of the page, spend that extra on page rather than
+       on empty space, as long as the whole view stays on screen. */
+    let oy = R.ch / 2 - (v.y + v.h / 2) * k;
+    const Hk = R.H * k;
+    if (Hk >= R.ch){ if (oy > 0) oy = 0; if (oy + Hk < R.ch) oy = R.ch - Hk; }
+    R.oy = clamp(oy, Math.min(-v.y * k, R.ch - (v.y + v.h) * k), R.ch - (v.y + v.h) * k);
+    paper.style.transform = "translate(" + R.ox + "px," + R.oy + "px) scale(" + (k / BASE) + ")";
+    /* the steered screen's edges, when it isn't this one */
+    const fa = o.frame && o.frame();
+    if (o.control && fa && Math.abs(fa - aspect()) / fa > 0.04){
+      frameEl.classList.remove("hidden");
+      frameEl.style.left = (v.x * k + R.ox) + "px"; frameEl.style.top = (v.y * k + R.oy) + "px";
+      frameEl.style.width = (v.w * k) + "px"; frameEl.style.height = (v.h * k) + "px";
+    } else frameEl.classList.add("hidden");
+    drawInk();
+    moveSharp();
+    wantSharp();
+  }
+
+  function setLocal(v, done){
+    R.view = tidy(v);
+    place();
+    if (o.control && o.onView) o.onView(Object.assign({}, R.view), !!done);
+    if (o.follow && !o.control && !R.detached){ R.detached = true; followB.classList.remove("hidden"); }
+  }
+
+  /* ---------- pictures ---------- */
+  function setSegments(key, segs){
+    const fresh = key !== R.key;
+    R.key = key;
+    R.segs = segs.map(s => ({ h: Math.max(0.02, Number(s.h) || 1.25), src: s.src || "" }));
+    paper.innerHTML = "";
+    R.imgs = R.segs.map(s => {
+      const im = document.createElement("img");
+      im.alt = ""; im.draggable = false; im.decoding = "async";
+      if (s.src) im.src = s.src;
+      paper.appendChild(im);
+      return im;
+    });
+    stack();
+    clearSharp();
+    if (fresh){ R.ink = {}; R.live = null; R.ext = null; R.detached = false; followB.classList.add("hidden"); }
+    R.view = tidy(fresh ? { x: 0, y: 0, w: 1 } : R.view);
+    place();
+  }
+  function stack(){
+    let y = 0;
+    R.segs.forEach((s, i) => {
+      const im = R.imgs[i];
+      im.style.top = (y * BASE) + "px"; im.style.height = (s.h * BASE) + "px";
+      im.classList.toggle("wait", !s.src);
+      y += s.h;
+    });
+    R.H = Math.max(0.1, y);
+    paper.style.height = (R.H * BASE) + "px";
+  }
+  function setSrc(i, src, h){
+    if (!R.segs[i]) return;
+    R.segs[i].src = src; R.imgs[i].src = src;
+    if (h && Math.abs(h - R.segs[i].h) > 0.002){ R.segs[i].h = h; stack(); R.view = tidy(R.view); place(); }
+    else R.imgs[i].classList.remove("wait");
+  }
+
+  /* ---------- the sharper picture (the TV redraws from the PDF) ---------- */
+  function clearSharp(){
+    R.sharpGen++; R.sharpAt = null;
+    clearTimeout(R.sharpTimer);
+    sharpC.classList.remove("on");
+  }
+  function moveSharp(){
+    const a = R.sharpAt;
+    if (!a) return;
+    const s = R.k / a.k;
+    sharpC.style.transform = "translate(" + (R.ox - a.ox * s) + "px," + (R.oy - a.oy * s) + "px) scale(" + s + ")";
+  }
+  function wantSharp(){
+    if (!o.sharp) return;
+    clearTimeout(R.sharpTimer);
+    R.sharpTimer = setTimeout(renderSharp, 170);
+  }
+  async function renderSharp(){
+    const gen = ++R.sharpGen;
+    const L = { k: R.k, ox: R.ox, oy: R.oy, cw: R.cw, ch: R.ch, dpr: Math.min(3, window.devicePixelRatio || 1) };
+    let c = null;
+    try { c = await o.sharp(L, () => gen === R.sharpGen); } catch (e){ c = null; }
+    if (gen !== R.sharpGen) return;
+    if (!c){ R.sharpAt = null; sharpC.classList.remove("on"); return; }
+    sharpC.width = c.width; sharpC.height = c.height;
+    sharpC.style.width = L.cw + "px"; sharpC.style.height = L.ch + "px";
+    sharpC.getContext("2d").drawImage(c, 0, 0);
+    c.width = c.height = 1;
+    R.sharpAt = L;
+    moveSharp();
+    sharpC.classList.add("on");
+  }
+
+  /* ---------- ink ---------- */
+  function drawInk(){
+    if (R.inkRaf) return;
+    R.inkRaf = requestAnimationFrame(() => { R.inkRaf = 0; paintInk(); });
+  }
+  function paintInk(){
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const pw = Math.round(R.cw * dpr), ph = Math.round(R.ch * dpr);
+    if (inkC.width !== pw) inkC.width = pw;
+    if (inkC.height !== ph) inkC.height = ph;
+    inkC.style.width = R.cw + "px"; inkC.style.height = R.ch + "px";
+    const ctx = inkC.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, R.cw, R.ch);
+    const keys = Object.keys(R.ink).filter(k => k !== R.liveKey && strokeOk(R.ink[k])).sort();
+    /* highlighter under the pen, like the real thing */
+    for (const k of keys) if (R.ink[k].hl) paintStroke(ctx, R.ink[k], R.k, R.ox, R.oy);
+    for (const k of keys) if (!R.ink[k].hl) paintStroke(ctx, R.ink[k], R.k, R.ox, R.oy);
+    if (R.live) paintStroke(ctx, R.live, R.k, R.ox, R.oy);
+  }
+
+  /* ---------- touch, pen and mouse ---------- */
+  const ptrs = new Map();
+  let mode = "", g = null, lastSend = 0, sendTimer = 0;
+  const pos = e => { const b = el.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+  const toSheet = (p, L) => { L = L || R; return { x: (p.x - L.ox) / L.k, y: (p.y - L.oy) / L.k }; };
+  const may = () => o.control || o.follow;
+
+  function viewFrom(L, keep, at){
+    /* the view in which sheet point `keep` sits at screen point `at`, at zoom L.k */
+    const w = R.view.w * (R.k / L.k);
+    const h = w / frameA();
+    const ox = at.x - keep.x * L.k, oy = at.y - keep.y * L.k;
+    const cx = (R.cw / 2 - ox) / L.k, cy = (R.ch / 2 - oy) / L.k;
+    return { x: cx - w / 2, y: cy - h / 2, w: w, h: h };
+  }
+
+  function startStroke(p){
+    const hl = R.tool.kind === "hl";
+    const vw = clamp(R.view.w, 0.12, 1.3);
+    R.liveKey = inkKey();
+    R.live = { p: [toSheet(p)], c: hl ? HILITE : (PENS[R.tool.color] || PENS.blue), w: r5((hl ? HL_W : PEN_W) * vw), hl: hl ? 1 : 0, by: DEV };
+    mode = "draw"; lastSend = 0;
+    drawInk();
+  }
+  function sendLive(done){
+    if (!R.live || !o.onStroke) return;
+    const s = Object.assign({}, R.live, { p: inkFlat(R.live.p) });
+    if (done){ clearTimeout(sendTimer); R.ink[R.liveKey] = s; o.onStroke(R.liveKey, s, true); return; }
+    const now = Date.now();
+    if (now - lastSend > 90){ lastSend = now; o.onStroke(R.liveKey, s, false); }
+    else { clearTimeout(sendTimer); sendTimer = setTimeout(() => sendLive(false), 95); }
+  }
+  function endStroke(keep){
+    if (!R.live) return;
+    if (keep) sendLive(true);
+    R.live = null; R.liveKey = "";
+    drawInk();
+  }
+  function eraseAt(p){
+    const hits = strokesAt(R.ink, toSheet(p), 12 / R.k);
+    if (!hits.length) return;
+    hits.forEach(k => delete R.ink[k]);
+    drawInk();
+    if (o.onErase) o.onErase(hits);
+  }
+
+  el.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (!may() || e.target.closest(".rb-follow")) return;
+    e.preventDefault();
+    try { el.setPointerCapture(e.pointerId); } catch (x){}
+    ptrs.set(e.pointerId, pos(e));
+    if (ptrs.size === 1){
+      const t = R.tool.kind, can = o.canDraw && o.canDraw();
+      if (can && (t === "pen" || t === "hl")) startStroke(pos(e));
+      else if (can && t === "erase"){ mode = "erase"; eraseAt(pos(e)); }
+      else { mode = "pan"; g = { L: { k: R.k, ox: R.ox, oy: R.oy }, at: pos(e) }; g.keep = toSheet(g.at, g.L); }
+    } else if (ptrs.size === 2){
+      /* a second finger: whatever the first was doing turns into a pinch */
+      if (mode === "draw") endStroke(R.live && R.live.p.length > 6);
+      const [a, b] = Array.from(ptrs.values());
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      g = { L: { k: R.k, ox: R.ox, oy: R.oy }, d: Math.max(10, Math.hypot(a.x - b.x, a.y - b.y)), at: mid };
+      g.keep = toSheet(mid, g.L);
+      mode = "pinch";
+    }
+  });
+  el.addEventListener("pointermove", e => {
+    if (!ptrs.has(e.pointerId)) return;
+    const p = pos(e);
+    ptrs.set(e.pointerId, p);
+    if (mode === "draw" && R.live){
+      const last = R.live.p[R.live.p.length - 1], q = toSheet(p);
+      if (Math.hypot((q.x - last.x) * R.k, (q.y - last.y) * R.k) < 1.6 || R.live.p.length > 900) return;
+      R.live.p.push(q); drawInk(); sendLive(false);
+    } else if (mode === "erase"){
+      eraseAt(p);
+    } else if (mode === "pan" && g){
+      if (!g.moved && Math.hypot(p.x - g.at.x, p.y - g.at.y) < 4) return;
+      g.moved = true;
+      setLocal(viewFrom(g.L, g.keep, p), false);
+    } else if (mode === "pinch" && g && ptrs.size >= 2){
+      const [a, b] = Array.from(ptrs.values());
+      const d = Math.max(10, Math.hypot(a.x - b.x, a.y - b.y));
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const s = d / g.d;
+      /* zoom from the view as it was when the fingers landed */
+      const v0 = g.v0 || (g.v0 = Object.assign({}, R.view));
+      const w = clamp(v0.w / s, 0.08, 4), h = w / frameA();
+      const k2 = Math.min(R.cw / w, R.ch / h);
+      const ox = mid.x - g.keep.x * k2, oy = mid.y - g.keep.y * k2;
+      const cx = (R.cw / 2 - ox) / k2, cy = (R.ch / 2 - oy) / k2;
+      setLocal({ x: cx - w / 2, y: cy - h / 2, w: w, h: h }, false);
+    }
+  });
+  const lift = e => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.delete(e.pointerId);
+    if (mode === "draw"){ endStroke(true); mode = ""; }
+    else if (mode === "erase"){ mode = ""; }
+    else if (mode === "pan"){ const moved = g && g.moved; mode = ""; g = null; if (moved) setLocal(R.view, true); }
+    else if (mode === "pinch"){
+      if (ptrs.size === 1){
+        /* one finger left: carry on panning with it, without a jump */
+        const p = Array.from(ptrs.values())[0];
+        g = { L: { k: R.k, ox: R.ox, oy: R.oy }, at: p, moved: true }; g.keep = toSheet(p, g.L);
+        mode = "pan";
+      } else if (!ptrs.size){ mode = ""; g = null; setLocal(R.view, true); }
+    }
+  };
+  el.addEventListener("pointerup", lift);
+  el.addEventListener("pointercancel", lift);
+
+  /* Safari's own pinch would zoom the whole app instead of the page */
+  el.addEventListener("gesturestart", e => e.preventDefault());
+  el.addEventListener("gesturechange", e => e.preventDefault());
+
+  let wheelEnd = 0;
+  el.addEventListener("wheel", e => {
+    if (!may()) return;
+    e.preventDefault();
+    const p = pos(e);
+    const L = { k: R.k, ox: R.ox, oy: R.oy };
+    if (e.ctrlKey || e.metaKey){
+      zoomAt(Math.exp(-e.deltaY * (e.deltaMode ? 0.05 : 0.0035)), p, false);
+    } else {
+      const unit = e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? R.ch : 1;
+      const keep = toSheet(p, L);
+      setLocal(viewFrom(L, keep, { x: p.x - e.deltaX * unit, y: p.y - e.deltaY * unit }), false);
+    }
+    clearTimeout(wheelEnd);
+    wheelEnd = setTimeout(() => setLocal(R.view, true), 220);
+  }, { passive: false });
+
+  function zoomAt(f, p, done){
+    p = p || { x: R.cw / 2, y: R.ch / 2 };
+    const keep = toSheet(p);
+    const w = clamp(R.view.w / f, 0.08, 4), h = w / frameA();
+    const k2 = Math.min(R.cw / w, R.ch / h);
+    const ox = p.x - keep.x * k2, oy = p.y - keep.y * k2;
+    const cx = (R.cw / 2 - ox) / k2, cy = (R.ch / 2 - oy) / k2;
+    setLocal({ x: cx - w / 2, y: cy - h / 2, w: w, h: h }, done);
+  }
+
+  followB.addEventListener("click", () => {
+    R.detached = false; followB.classList.add("hidden");
+    if (R.ext){ R.view = tidy(R.ext, R.ext.w / R.ext.h); place(); }
+  });
+
+  /* the screen changed size: same middle, same zoom, new shape */
+  function resized(){
+    const before = R.cw + "x" + R.ch;
+    measure();
+    if (before === R.cw + "x" + R.ch) return false;
+    R.view = tidy(R.view, o.control ? undefined : R.view.w / R.view.h);
+    clearSharp();
+    place();
+    if (o.onResize) o.onResize(aspect());
+    if (o.control && o.onView) o.onView(Object.assign({}, R.view), true);
+    return true;
+  }
+  const ro = new ResizeObserver(resized);
+  ro.observe(el);
+  measure();
+
+  return {
+    el: el,
+    get key(){ return R.key; },
+    get H(){ return R.H; },
+    get view(){ return Object.assign({}, R.view); },
+    aspect: aspect,
+    setSegments: setSegments,
+    setSrc: setSrc,
+    /* someone else moved the view */
+    setView(v){
+      if (!v || !(v.w > 0) || !(v.h > 0)) return;
+      const clean = { x: Number(v.x) || 0, y: Number(v.y) || 0, w: Number(v.w), h: Number(v.h) };
+      R.ext = clean;
+      if (R.detached) return;
+      R.view = tidy(clean, o.control ? undefined : clean.w / clean.h);
+      place();
+    },
+    fit(done){ setLocal({ x: 0, y: R.view.y, w: 1 }, done !== false); },
+    top(){ R.view = tidy({ x: 0, y: 0, w: 1 }); place(); if (o.control && o.onView) o.onView(Object.assign({}, R.view), true); },
+    zoom(f){ zoomAt(f, null, true); },
+    scrollBy(screens){ setLocal(Object.assign({}, R.view, { y: R.view.y + R.view.h * screens }), true); },
+    toEnd(){ setLocal(Object.assign({}, R.view, { y: R.H }), true); },
+    setInk(ink){ R.ink = Object.assign({}, ink || {}); drawInk(); },
+    get ink(){ return R.ink; },
+    setTool(t){ R.tool = Object.assign({}, R.tool, t); el.classList.toggle("drawing", t.kind !== "hand" && !!(o.canDraw && o.canDraw())); },
+    get tool(){ return Object.assign({}, R.tool); },
+    message(t){ msgEl.textContent = t || ""; msgEl.classList.toggle("hidden", !t); },
+    refreshSharp(){ clearSharp(); wantSharp(); },
+    layout(){ if (!resized()) place(); },
+    progress(){ return R.H > 0 ? clamp((R.view.y + R.view.h) / R.H, 0, 1) : 0; },
+    /* where a point on the page is on this screen, in CSS px */
+    screenOf(p){ return { x: p.x * R.k + R.ox, y: p.y * R.k + R.oy }; }
+  };
+}
+
+/* ---------- tools: the same strip on the TV, the host's phone and the pen ---------- */
+const TOOL_KEY = "ds.penTool";
+function savedTool(){
+  try { const t = JSON.parse(store.get(TOOL_KEY) || "null"); if (t && t.kind) return t; } catch (e){}
+  return { kind: "pen", color: "red" };
+}
+function makeTools(el, rib, o){
+  o = o || {};
+  const t = savedTool();
+  rib.setTool(t);
+  let h = '<button type="button" class="tl" data-k="hand" title="Move and zoom (one finger drags, two pinch)">✋</button>';
+  for (const c of Object.keys(PENS)) h += '<button type="button" class="tl pen" data-k="pen" data-c="' + c + '" title="' + c + ' pen"><i style="background:' + PENS[c] + '"></i></button>';
+  h += '<button type="button" class="tl" data-k="hl" title="Highlighter"><i class="hlb"></i></button>' +
+       '<button type="button" class="tl" data-k="erase" title="Eraser: touch a line to remove it">⌫</button>' +
+       '<span class="tl-gap"></span>' +
+       '<button type="button" class="tl" data-a="undo" title="Undo your last line">↶</button>' +
+       '<button type="button" class="tl wide" data-a="clear" title="Clear every line on this campaign">Clear</button>' +
+       (o.zoom ? '<span class="tl-gap"></span><button type="button" class="tl" data-a="out" title="Zoom out (−)">−</button>' +
+                 '<button type="button" class="tl wide" data-a="fit" title="Fit the width (0)">Fit</button>' +
+                 '<button type="button" class="tl" data-a="in" title="Zoom in (+)">+</button>'
+               : '<button type="button" class="tl wide" data-a="fit" title="Back to the full width">Fit</button>');
+  el.innerHTML = h;
+  const mark = () => {
+    const cur = rib.tool;
+    $$(".tl[data-k]", el).forEach(b => b.classList.toggle("on", b.dataset.k === cur.kind && (b.dataset.k !== "pen" || b.dataset.c === cur.color)));
+  };
+  let clearArm = 0;
+  el.addEventListener("click", e => {
+    const b = e.target.closest(".tl");
+    if (!b) return;
+    if (b.dataset.k){
+      const nt = { kind: b.dataset.k };
+      if (b.dataset.c) nt.color = b.dataset.c;
+      rib.setTool(nt);
+      store.set(TOOL_KEY, JSON.stringify(rib.tool));
+      mark();
+      return;
+    }
+    const a = b.dataset.a;
+    if (a === "undo" && o.onUndo) o.onUndo();
+    else if (a === "clear"){
+      if (Date.now() - clearArm < 3000){ clearArm = 0; b.textContent = "Clear"; b.classList.remove("armed"); if (o.onClear) o.onClear(); }
+      else {
+        clearArm = Date.now(); b.textContent = "Sure?"; b.classList.add("armed");
+        setTimeout(() => { if (clearArm && Date.now() - clearArm >= 2900){ clearArm = 0; b.textContent = "Clear"; b.classList.remove("armed"); } }, 3000);
+      }
+    }
+    else if (a === "fit") rib.fit();
+    else if (a === "in") rib.zoom(1.25);
+    else if (a === "out") rib.zoom(0.8);
+  });
+  mark();
+  return { mark: mark };
+}
+
+/* ---------- /boards/<room> ---------- */
+const BS = { code: "", es: {}, data: {}, subs: {} };
+function boardUrl(sub){ return dbRoot() + "/boards/" + BS.code + (sub || "") + ".json"; }
+async function boardPut(sub, value){
+  if (!dbRoot() || !BS.code) return false;
+  try {
+    const res = await fetch(boardUrl(sub), { method: "PUT", body: JSON.stringify(value) });
+    return res.ok;
+  } catch (e){ return false; }
+}
+/* a live copy of one part of the board; cb(value) on every change */
+function boardListen(name, sub, cb){
+  boardOff(name);
+  if (!dbRoot() || !BS.code) return;
+  BS.subs[name] = [sub, cb];
+  const es = new EventSource(boardUrl(sub));
+  const st = { v: {} };
+  BS.es[name] = es;
+  const handle = isPatch => ev => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch (e){ return; }
+    if (!msg) return;
+    msg.isPatch = isPatch;
+    if (msg.path === "/" && (msg.data === null || typeof msg.data !== "object")){ st.v = msg.data; }
+    else { if (!st.v || typeof st.v !== "object") st.v = {}; st.v = applyEvent(st.v, msg); }
+    BS.data[name] = st.v;
+    cb(st.v);
+  };
+  es.addEventListener("put", handle(false));
+  es.addEventListener("patch", handle(true));
+  es.addEventListener("cancel", () => { if (BS.onCancel) BS.onCancel(name); });
+}
+function boardOff(name){
+  if (BS.es[name]){ BS.es[name].close(); delete BS.es[name]; }
+  delete BS.data[name]; delete BS.subs[name];
+}
+/* back from the phone sleeping: open every listener again */
+function boardRelisten(){
+  if (!BS.code) return;
+  const subs = Object.assign({}, BS.subs);
+  for (const name in subs) boardListen(name, subs[name][0], subs[name][1]);
+}
+function boardStop(){
+  Object.keys(BS.es).forEach(boardOff);
+  BS.code = ""; BS.data = {}; BS.subs = {}; BS.onCancel = null;
+}
+/* a view written at most every 70 ms while it moves, and always when it stops */
+function viewSender(roundUid){
+  let last = 0, timer = 0, pending = null;
+  const send = v => {
+    last = Date.now(); pending = null;
+    boardPut("/view", { r: roundUid(), x: r5(v.x), y: r5(v.y), w: r5(v.w), h: r5(v.h), by: DEV, at: Date.now() });
+  };
+  return (v, done) => {
+    if (!BS.code || !roundUid()) return;
+    clearTimeout(timer);
+    if (done || Date.now() - last > 70) send(v);
+    else { pending = v; timer = setTimeout(() => pending && send(pending), 75); }
+  };
+}
+/* my own lines, newest last, so undo takes back mine and not someone else's */
+function undoLast(rib, mine, erase){
+  while (mine.length){
+    const k = mine.pop();
+    if (rib.ink[k]){ erase([k]); return true; }
+  }
+  return false;
+}
+
+/* a published deck (slide pictures) onto a sheet, a few at a time */
+async function deckIntoRibbon(id, rib, key, infoEl){
+  let meta = null;
+  for (let tries = 0; tries < 3 && !meta; tries++){
+    try { meta = await getJSON(savePath("/" + id + "/deck/meta")); } catch (e){ await new Promise(r => setTimeout(r, 700)); }
+  }
+  if (rib.key !== key) return null;
+  if (!meta){ rib.message("Couldn’t load this campaign. Check your signal."); return null; }
+  const hs = asList(meta.hs);
+  rib.setSegments(key, Array.from({ length: meta.n }, (_, k) => ({ h: Number(hs[k]) || 1.25 })));
+  rib.message("");
+  if (infoEl) renderInfo(meta.info, meta.nx || 0, id, infoEl);
+  const ids = Array.from({ length: meta.n }, (_, k) => k);
+  pool(ids, 4, async k => {
+    for (let tries = 0; tries < 3; tries++){
+      try {
+        const src = await getJSON(savePath("/" + id + "/deck/s/" + k));
+        if (rib.key !== key || !src) return;
+        let h = Number(hs[k]) || 0;
+        if (!h){
+          /* decks published before heights were recorded: measure the picture */
+          const im = new Image(); im.src = src;
+          await im.decode().catch(() => {});
+          h = im.naturalWidth ? im.naturalHeight / im.naturalWidth : 0;
+        }
+        rib.setSrc(k, src, h);
+        return;
+      } catch (e){ await new Promise(r => setTimeout(r, 800)); }
+    }
+  });
+  return meta;
+}
+
+/* ============================================================
+   17a. THE TV
+   ============================================================ */
+const TVB = {
+  rib: null, tools: null, uid: "",
+  local: {},          /* round uid → lines, kept for the whole game (the board's copy wins once a room is open) */
+  mine: {},           /* round uid → keys of the lines this screen drew */
+  lastCmd: 0, sendView: null, aspectAt: 0, penKey: "", decks: {}, deckBusy: null, pens: {}
+};
+const tvLive = () => !!(LIVE.code && LIVE.isHost && BS.code === LIVE.code);
+
+function tvSegments(r){
+  const deck = r.slides.filter(sl => sl.on);
+  return (deck.length ? deck : r.slides.slice()).map(sl => ({ h: sl.h / r.pageW, src: sl.url, sy: sl.y }));
+}
+
+function tvInit(){
+  if (TVB.rib) return;
+  TVB.rib = makeRibbon($("#tvBoard"), {
+    control: true,
+    canDraw: () => true,
+    onView: (v, done) => { if (tvLive()) TVB.sendView(v, done); tvProgress(); },
+    onStroke: (key, s, done) => {
+      const uid = TVB.uid;
+      if (done){ (TVB.mine[uid] = TVB.mine[uid] || []).push(key); (TVB.local[uid] = TVB.local[uid] || {})[key] = s; }
+      if (tvLive()) boardPut("/ink/" + uid + "/" + key, s);
+    },
+    onErase: keys => tvErase(keys),
+    onResize: a => tvAspect(a),
+    sharp: (L, alive) => {
+      const r = G.rounds[G.idx];
+      return r && r.uid === TVB.uid ? sharpPage(r, TVB.segs, L, alive) : null;
+    }
+  });
+  TVB.tools = makeTools($("#tvTools"), TVB.rib, {
+    zoom: true,
+    onUndo: () => undoLast(TVB.rib, TVB.mine[TVB.uid] || [], tvErase),
+    onClear: () => tvErase(Object.keys(TVB.rib.ink))
+  });
+  TVB.sendView = viewSender(() => TVB.uid);
+}
+
+function tvErase(keys){
+  const uid = TVB.uid, loc = TVB.local[uid] || {};
+  const ink = Object.assign({}, TVB.rib.ink);
+  keys.forEach(k => { delete loc[k]; delete ink[k]; });
+  TVB.rib.setInk(ink);
+  if (tvLive()) keys.forEach(k => boardPut("/ink/" + uid + "/" + k, null));
+}
+
+/* a new round on the TV */
+function tvShowRound(r){
+  tvInit();
+  TVB.uid = r.uid;
+  TVB.segs = tvSegments(r);
+  TVB.rib.setSegments(r.uid, TVB.segs);
+  TVB.rib.setInk(TVB.local[r.uid] || {});
+  TVB.rib.top();
+  if (tvLive()) tvListenInk();
+  tvProgress();
+  tvPenDecks();
+}
+
+function tvProgress(){
+  const el = $("#tvPos");
+  if (el && TVB.rib) el.textContent = Math.round(TVB.rib.progress() * 100) + "%";
+}
+
+function tvAspect(a){
+  if (!tvLive() || !a) return;
+  if (Math.abs(a - TVB.aspectAt) < 0.01) return;
+  TVB.aspectAt = a;
+  boardPut("/screen", { a: r5(a), at: Date.now() });
+}
+
+function tvListenInk(){
+  boardListen("ink", "/ink/" + TVB.uid, v => {
+    const ink = (v && typeof v === "object") ? v : {};
+    TVB.local[TVB.uid] = Object.assign({}, ink);
+    TVB.rib.setInk(ink);
+  });
+}
+
+/* a room is open on the TV: put the board up next to it */
+async function tvBoardOpen(){
+  if (!LIVE.code || !LIVE.isHost) return;
+  tvInit();
+  BS.code = LIVE.code;
+  TVB.lastCmd = Date.now();
+  TVB.aspectAt = 0;
+  /* anything left from an old room with the same letters goes; lines drawn before the room opened come along */
+  const ink = {};
+  for (const uid in TVB.local) if (Object.keys(TVB.local[uid] || {}).length) ink[uid] = TVB.local[uid];
+  await boardPut("", { at: Date.now(), ink: ink });
+  tvAspect(TVB.rib.aspect());
+  boardListen("pens", "/pens", v => { TVB.pens = (v && typeof v === "object") ? v : {}; tvPensChanged(); });
+  boardListen("cmd", "/cmd", tvCmd);
+  boardListen("view", "/view", v => {
+    if (!v || v.by === DEV || v.r !== TVB.uid) return;
+    TVB.rib.setView(v);
+    tvProgress();
+  });
+  if (TVB.uid){ tvListenInk(); TVB.sendView(TVB.rib.view, true); }
+}
+
+function tvCmd(c){
+  if (!c || c.by === DEV || !(Number(c.n) > TVB.lastCmd)) return;
+  TVB.lastCmd = Number(c.n);
+  const playing = !$("#play").classList.contains("hidden");
+  if (c.do === "back" && !$("#results").classList.contains("hidden")){ $("#resBack").click(); return; }
+  if (!playing) return;
+  if (c.do === "reveal") $("#bReveal").click();
+  else if (c.do === "next") $("#bNext").click();
+  else if (c.do === "info") $("#bInfo").click();
+  else if (c.do === "prev" && G.idx > 0) loadRound(G.idx - 1);
+}
+
+/* ---------- pairing a phone as the pen ---------- */
+async function tvPenSheet(){
+  const sh = $("#penSheet");
+  sh.classList.remove("hidden");
+  $("#penCodeBig").textContent = "…";
+  $("#penSheetNote").textContent = "";
+  if (!LIVE.code || !LIVE.isHost){
+    $("#penSheetNote").textContent = "Opening a room first…";
+    await liveOpenRoom(true);
+    if (!LIVE.code){ $("#penSheetNote").textContent = "Couldn’t reach the database. Check the connection and try again."; return; }
+  }
+  await authToken();
+  const k = randCode(6);
+  const ok = await fetch(dbRoot() + "/penkeys/" + k + ".json", { method: "PUT",
+    body: JSON.stringify({ room: LIVE.code, host: AUTH.uid || "", exp: Date.now() + 15 * 60000 }) }).then(r => r.ok).catch(() => false);
+  if (!ok){ $("#penSheetNote").textContent = "Couldn’t make a code. Try again in a moment."; return; }
+  if (TVB.penKey) fetch(dbRoot() + "/penkeys/" + TVB.penKey + ".json", { method: "DELETE" }).catch(() => {});
+  TVB.penKey = k;
+  TVB.penCount0 = Object.keys(TVB.pens || {}).length;
+  $("#penCodeBig").textContent = k;
+  $("#penLink").textContent = location.origin + location.pathname + "#pen=" + k;
+  tvPensChanged();
+}
+function tvPenClose(){
+  $("#penSheet").classList.add("hidden");
+  if (TVB.penKey){ fetch(dbRoot() + "/penkeys/" + TVB.penKey + ".json", { method: "DELETE" }).catch(() => {}); TVB.penKey = ""; }
+}
+function tvPensChanged(){
+  const ids = Object.keys(TVB.pens || {});
+  const btn = $("#bPen");
+  if (btn) btn.innerHTML = "📱 " + (ids.length ? "Pen connected" : "Draw from phone");
+  const list = $("#penList");
+  if (list){
+    list.innerHTML = ids.length
+      ? ids.map(id => '<li><span>' + esc(String((TVB.pens[id] || {}).n || "Phone")) + '</span><button type="button" class="btn sm ghost" data-unpen="' + esc(id) + '">Disconnect</button></li>').join("")
+      : '<li class="tiny">No phone yet.</li>';
+    $$("[data-unpen]", list).forEach(b => b.addEventListener("click", () => boardPut("/pens/" + b.dataset.unpen, null)));
+  }
+  /* the first phone in: the code has done its job */
+  if (ids.length > (TVB.penCount0 || 0) && TVB.penKey && !$("#penSheet").classList.contains("hidden")){
+    toast("Phone connected. Draw away.");
+    tvPenClose();
+  }
+  if (ids.length) tvPenDecks();
+}
+
+/* The phone needs the page too. The TV sends up the round's (already
+   blacked-out) slide pictures, the one on screen first, then the rest. */
+async function tvPenDecks(){
+  if (!tvLive() || !Object.keys(TVB.pens || {}).length || TVB.deckBusy) return;
+  TVB.deckBusy = (async () => {
+    const order = [G.idx].concat(G.rounds.map((_, i) => i).filter(i => i !== G.idx));
+    for (const i of order){
+      const r = G.rounds[i];
+      if (!r || !tvLive()) break;
+      const segs = tvSegments(r);
+      const sig = segs.map(s => s.src).join("|");
+      let id = TVB.decks[r.uid] && TVB.decks[r.uid].sig === sig ? TVB.decks[r.uid].id : "";
+      if (!id){
+        id = code6();
+        try {
+          await pool(segs, 4, async (s, k) => { await putJSON(savePath("/" + id + "/deck/s/" + k), await toJpeg(s.src, 1000, 0.8)); });
+          await putJSON(savePath("/" + id + "/deck/meta"), { kind: "deck", n: segs.length, nx: 0, hs: segs.map(s => r5(s.h)), title: "", at: Date.now() });
+        } catch (e){ id = ""; }
+        if (!id) continue;
+        TVB.decks[r.uid] = { id: id, sig: sig };
+      }
+      await boardPut("/deck/" + r.uid, id);
+    }
+  })().finally(() => { TVB.deckBusy = null; });
+}
+
+/* ---------- sharp: the visible part redrawn from the PDF at full screen resolution ---------- */
+function roundPdf(r){
+  if (!r._pdf) r._pdf = pdfjsLib.getDocument({ data: new Uint8Array(r.pdfData), isEvalSupported: false }).promise
+    .catch(e => { r._pdf = null; throw e; });
+  return r._pdf;
+}
+async function sharpPage(r, segs, L, alive){
+  if (!window.pdfjsLib || !r.pdfData || !r.pageTops || !segs) return null;
+  const W = r.pageW;
+  const f = L.k * L.dpr / W;                 /* screen pixels per pixel of the stored pictures */
+  if (f < 1.08) return null;                 /* the stored pictures are already sharp enough */
+  const doc = await roundPdf(r);
+  if (!alive()) return null;
+  const out = document.createElement("canvas");
+  out.width = Math.max(1, Math.round(L.cw * L.dpr)); out.height = Math.max(1, Math.round(L.ch * L.dpr));
+  const octx = out.getContext("2d");
+  const vy0 = -L.oy / L.k, vy1 = (L.ch - L.oy) / L.k;
+  const vx0 = Math.max(0, -L.ox / L.k), vx1 = Math.min(1, (L.cw - L.ox) / L.k);
+  if (vx1 <= vx0) return null;
+  const dx0 = Math.max(0, Math.floor((vx0 * L.k + L.ox) * L.dpr)), dx1 = Math.min(out.width, Math.ceil((vx1 * L.k + L.ox) * L.dpr));
+  let dst = 0, drew = false;
+  for (const s of segs){
+    const a = Math.max(vy0, dst), b = Math.min(vy1, dst + s.h);
+    if (b > a){
+      const sy0 = s.sy + (a - dst) * W, sy1 = s.sy + (b - dst) * W;
+      const dy0 = Math.max(0, Math.floor((a * L.k + L.oy) * L.dpr)), dy1 = Math.min(out.height, Math.ceil((b * L.k + L.oy) * L.dpr));
+      const pw = dx1 - dx0, ph = dy1 - dy0;
+      if (pw >= 1 && ph >= 1){
+        const tmp = document.createElement("canvas");
+        tmp.width = pw; tmp.height = ph;
+        const t = tmp.getContext("2d");
+        t.fillStyle = "#fff"; t.fillRect(0, 0, pw, ph);
+        /* where the top of this slide's source lands, in tmp's pixels */
+        const tx = L.ox * L.dpr - dx0;
+        const segTop = (dst * L.k + L.oy) * L.dpr - dy0;
+        for (const pg of r.pageTops){
+          if (pg.top + pg.h <= sy0 || pg.top >= sy1) continue;
+          const page = await doc.getPage(pg.n);
+          if (!alive()) return null;
+          const vp = page.getViewport({ scale: r.scale * f });
+          await page.render({ canvasContext: t, viewport: vp, transform: [1, 0, 0, 1, tx, segTop + (pg.top - s.sy) * f] }).promise;
+          if (!alive()) return null;
+        }
+        /* the blackouts, a pixel wider all round than at normal size */
+        t.fillStyle = "#000";
+        for (const bx of (r.boxes || [])){
+          if (!bx.on || bx.y + bx.h < sy0 || bx.y > sy1) continue;
+          const x0 = Math.floor(bx.x * f + tx) - 1, y0 = Math.floor(segTop + (bx.y - s.sy) * f) - 1;
+          const x1 = Math.ceil((bx.x + bx.w) * f + tx) + 1, y1 = Math.ceil(segTop + (bx.y + bx.h - s.sy) * f) + 1;
+          t.fillRect(x0, y0, x1 - x0, y1 - y0);
+        }
+        octx.drawImage(tmp, dx0, dy0);
+        tmp.width = tmp.height = 1;
+        drew = true;
+      }
+    }
+    dst += s.h;
+  }
+  return drew ? out : null;
+}
+
+/* ---------- the sidebar: who's in, who's locked in ---------- */
+function renderSide(){
+  const el = $("#tvSide");
+  if (!el) return;
+  const rd = G.rounds[G.idx];
+  if (!LIVE.isHost || !LIVE.code || !rd){ el.classList.add("hidden"); if (TVB.rib) TVB.rib.layout(); return; }
+  const wasHidden = el.classList.contains("hidden");
+  el.classList.remove("hidden");
+  const players = livePlayers().sort((a, b) => (a.joined || 0) - (b.joined || 0));
+  const locked = (LIVE.state.guesses || {})[rd.uid] || {};
+  const inN = players.filter(p => locked[p.id]).length;
+  let h = '<div class="sd-join"><span>Join on your phone</span><b>' + esc(LIVE.code) + '</b></div>' +
+          '<div class="sd-count"><b>' + inN + '</b> of ' + players.length + ' locked in</div><ul class="sd-list">';
+  if (!players.length) h += '<li class="sd-none">Nobody yet.</li>';
+  for (const p of players){
+    const nm = displayName(p.id, p.name);
+    h += '<li class="' + (locked[p.id] ? "in" : "") + (nm === null ? " banned" : "") + '"><span>' + esc(nm === null ? "nope" : nm) + '</span><i>' + (locked[p.id] ? "✓" : "") + '</i></li>';
+  }
+  el.innerHTML = h + '</ul>';
+  if (wasHidden && TVB.rib) requestAnimationFrame(() => TVB.rib.layout());
+}
+
+/* ============================================================
+   17b. THE PEN: a phone that draws on the TV
+   ============================================================ */
+/* keep the phone's screen on while it's the pen (quietly skipped where unsupported) */
+let wakeLock = null;
+async function keepAwake(){
+  try {
+    if (!("wakeLock" in navigator) || (wakeLock && !wakeLock.released)) return;
+    wakeLock = await navigator.wakeLock.request("screen");
+  } catch (e){ wakeLock = null; }
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && PN.room && !$("#pen").classList.contains("hidden")) keepAwake();
+});
+const PEN_KEY = "ds.pen";
+const PN = { rib: null, tools: null, uid: "", deck: "", mine: {}, sendView: null, aspect: 0, room: "" };
+
+function openPen(code){
+  show("pen");
+  const saved = (() => { try { return JSON.parse(store.get(PEN_KEY) || "null"); } catch (e){ return null; } })();
+  if (!code && saved && saved.room){ penAttach(saved.room); return; }
+  penSetup("", code || "");
+  if (code) penPair(code);
+}
+
+function penSetup(msg, code){
+  penDetach(true);
+  $("#penSetup").classList.remove("hidden");
+  $("#penWork").classList.add("hidden");
+  $("#penRound").textContent = "Pen";
+  $("#penTitle").textContent = "";
+  $("#penIn").textContent = "";
+  $("#penErr").textContent = msg || "";
+  if (code !== undefined) $("#penCode").value = code;
+}
+
+async function penPair(code){
+  code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (code.length !== 6){ $("#penErr").textContent = "The code on the TV is six characters."; return; }
+  $("#penErr").textContent = "Connecting…";
+  $("#penGo").disabled = true;
+  try {
+    await authToken();
+    const key = await getJSON(dbRoot() + "/penkeys/" + code + ".json").catch(() => null);
+    if (!key || !key.room || Number(key.exp) < Date.now()){
+      $("#penErr").textContent = "That code didn’t work. Check it, or tap “Draw from phone” on the TV for a new one.";
+      return;
+    }
+    BS.code = key.room;
+    const ok = await boardPut("/pens/" + (AUTH.uid || LIVE.pid), { k: code, n: phoneLabel(), at: Date.now() });
+    if (!ok){
+      /* already paired from this phone before? then carry on */
+      const mine = await getJSON(boardUrl("/pens/" + (AUTH.uid || LIVE.pid))).catch(() => null);
+      if (!mine){ BS.code = ""; $("#penErr").textContent = "The TV didn’t let this phone in. Get a fresh code from the TV."; return; }
+    }
+    store.set(PEN_KEY, JSON.stringify({ room: key.room }));
+    if (location.hash) history.replaceState(null, "", location.pathname);
+    penAttach(key.room);
+  } finally {
+    $("#penGo").disabled = false;
+  }
+}
+
+function phoneLabel(){
+  const ua = navigator.userAgent;
+  const n = /iPhone/.test(ua) ? "iPhone" : /iPad|Macintosh/.test(ua) && navigator.maxTouchPoints > 1 ? "iPad" : /Android/.test(ua) ? "Android phone" : "Phone";
+  const who = store.get("ds.name") || (typeof myName === "function" ? myName() : "");
+  return (who ? who + "’s " : "") + n;
+}
+
+function penInit(){
+  if (PN.rib) return;
+  PN.rib = makeRibbon($("#penBoard"), {
+    control: true,
+    frame: () => PN.aspect,
+    canDraw: () => true,
+    onView: (v, done) => PN.sendView(v, done),
+    onStroke: (key, s, done) => {
+      if (done) (PN.mine[PN.uid] = PN.mine[PN.uid] || []).push(key);
+      boardPut("/ink/" + PN.uid + "/" + key, s);
+    },
+    onErase: keys => penErase(keys)
+  });
+  PN.tools = makeTools($("#penTools"), PN.rib, {
+    onUndo: () => undoLast(PN.rib, PN.mine[PN.uid] || [], penErase),
+    onClear: () => penErase(Object.keys(PN.rib.ink))
+  });
+  PN.sendView = viewSender(() => PN.uid);
+}
+function penErase(keys){
+  const ink = Object.assign({}, PN.rib.ink);
+  keys.forEach(k => { delete ink[k]; boardPut("/ink/" + PN.uid + "/" + k, null); });
+  PN.rib.setInk(ink);
+}
+
+function penAttach(room){
+  penInit();
+  PN.room = room; PN.uid = ""; PN.deck = "";
+  BS.code = room;
+  $("#penSetup").classList.add("hidden");
+  $("#penWork").classList.remove("hidden");
+  PN.rib.setSegments("", []);
+  PN.rib.message("Connecting to the TV…");
+  const me = AUTH.uid || LIVE.pid;
+  boardListen("me", "/pens/" + me, v => {
+    if (v){ PN.seenMe = true; return; }
+    const was = PN.seenMe;
+    store.set(PEN_KEY, "");
+    penSetup(was ? "The TV disconnected this phone. Get a fresh code from the TV to reconnect."
+                 : "This phone isn’t connected to that TV any more. Get a fresh code from the TV.");
+  });
+  boardListen("screen", "/screen", v => { PN.aspect = (v && Number(v.a)) || 0; PN.rib.layout(); });
+  boardListen("decks", "/deck", () => penRender());
+  boardListen("view", "/view", v => { if (v && v.by !== DEV && v.r === PN.uid) PN.rib.setView(v); });
+  /* the room itself: which round, who's locked in */
+  LIVE.code = room; LIVE.isHost = false; LIVE.state = {};
+  liveConnect(() => penRender());
+  keepAwake();
+}
+
+function penDetach(keepSaved){
+  if (PN.room){
+    boardStop();
+    if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
+    if (LIVE.code === PN.room){ LIVE.code = ""; LIVE.state = {}; LIVE.onChange = null; }
+  }
+  PN.room = ""; PN.uid = ""; PN.deck = ""; PN.seenMe = false; PN.idle = false; PN.hadMeta = false;
+  if (!keepSaved) store.set(PEN_KEY, "");
+}
+
+function penRender(){
+  if ($("#pen").classList.contains("hidden") || !PN.room) return;
+  const st = LIVE.state || {};
+  if (st.meta === undefined && PN.hadMeta){ penSetup("The TV closed the room."); store.set(PEN_KEY, ""); return; }
+  if (st.meta) PN.hadMeta = true;
+  const now = st.now || { phase: "lobby", r: -1 };
+  const rounds = Number((st.meta || {}).rounds) || 0;
+  const inRound = /^(guessing|revealed)$/.test(now.phase) && now.r >= 0 && now.uid;
+  $("#penRound").textContent = inRound ? "Round " + (Number(now.r) + 1) + (rounds ? "/" + rounds : "") : "Pen";
+  $("#penTitle").textContent = inRound ? (now.title || "") : "";
+  const players = Object.keys(st.players || {});
+  const locked = inRound ? (st.guesses || {})[now.uid] || {} : {};
+  const inN = players.filter(p => locked[p]).length;
+  $("#penIn").textContent = inRound && players.length ? inN + "/" + players.length + " in" : "";
+
+  if (!inRound){
+    if (PN.uid || !PN.idle){ PN.uid = ""; PN.deck = ""; PN.idle = true; boardOff("ink"); PN.rib.setSegments("", []); }
+    PN.rib.message(now.phase === "results" || now.phase === "final" ? "Final results are up on the TV." : "Waiting for the TV to start a round…");
+  } else {
+    if (PN.uid !== now.uid){
+      PN.uid = now.uid; PN.deck = ""; PN.idle = false;
+      PN.rib.setSegments(now.uid, []);
+      PN.rib.message("Getting the page from the TV…");
+      boardListen("ink", "/ink/" + now.uid, v => PN.rib.setInk(v && typeof v === "object" ? v : {}));
+    }
+    const deck = (BS.data.decks || {})[now.uid];
+    if (deck && deck !== PN.deck){
+      PN.deck = deck;
+      deckIntoRibbon(deck, PN.rib, now.uid, null).then(meta => {
+        if (!meta) return;
+        const v = BS.data.view;
+        if (v && v.r === PN.uid) PN.rib.setView(v);
+      });
+    }
+  }
+  const last = rounds && now.r + 1 >= rounds;
+  $("#penGame").innerHTML = inRound
+    ? '<button type="button" class="btn sm ghost" data-pc="info">Info</button>' +
+      '<button type="button" class="btn sm ' + (now.phase === "guessing" ? "solid" : "ghost") + '" data-pc="reveal">' + (now.phase === "guessing" ? "Reveal" : "Show/hide reveal") + '</button>' +
+      '<button type="button" class="btn sm ' + (now.phase === "revealed" ? "solid" : "ghost") + '" data-pc="next">' + (last ? "Final results" : "Next round ›") + '</button>'
+    : (now.phase === "results" || now.phase === "final" ? '<button type="button" class="btn sm ghost" data-pc="back">Back to the game</button>' : "");
+}
+
+function penCmd(what){
+  boardPut("/cmd", { do: what, n: Date.now(), by: DEV });
+}
+
+/* ============================================================
+   17c. REMOTE: the host steers, every player's phone follows
+   ============================================================ */
+const RB = { rib: null, tools: null, uid: "", deck: "", mine: {}, sendView: null, on: false };
+
+function hsBoardInit(){
+  if (RB.rib) return;
+  RB.rib = makeRibbon($("#hsBoard"), {
+    control: true,
+    canDraw: () => true,
+    onView: (v, done) => RB.sendView(v, done),
+    onStroke: (key, s, done) => {
+      if (done) (RB.mine[RB.uid] = RB.mine[RB.uid] || []).push(key);
+      boardPut("/ink/" + RB.uid + "/" + key, s);
+    },
+    onErase: keys => hsErase(keys)
+  });
+  RB.tools = makeTools($("#hsTools"), RB.rib, {
+    zoom: true,
+    onUndo: () => undoLast(RB.rib, RB.mine[RB.uid] || [], hsErase),
+    onClear: () => hsErase(Object.keys(RB.rib.ink))
+  });
+  RB.sendView = viewSender(() => RB.uid);
+}
+function hsErase(keys){
+  const ink = Object.assign({}, RB.rib.ink);
+  keys.forEach(k => { delete ink[k]; boardPut("/ink/" + RB.uid + "/" + k, null); });
+  RB.rib.setInk(ink);
+}
+/* the board follows whichever round is up */
+function hsBoardSync(now){
+  if (!LIVE.code || !LIVE.isHost) return;
+  hsBoardInit();
+  if (BS.code !== LIVE.code){ boardStop(); BS.code = LIVE.code; }
+  const inRound = /^(guessing|revealed)$/.test(now.phase) && now.r >= 0 && now.deck;
+  if (!inRound){ RB.uid = ""; RB.deck = ""; hsBoardShow(false); return; }
+  if (RB.uid !== now.uid || RB.deck !== now.deck){
+    const fresh = RB.uid !== now.uid;
+    RB.uid = now.uid; RB.deck = now.deck;
+    RB.rib.setSegments(now.uid, []);
+    RB.rib.message("Loading the campaign…");
+    boardListen("ink", "/ink/" + now.uid, v => RB.rib.setInk(v && typeof v === "object" ? v : {}));
+    deckIntoRibbon(now.deck, RB.rib, now.uid, null).then(meta => {
+      if (!meta) return;
+      /* back where everyone was, or the top for a new round */
+      getJSON(boardUrl("/view")).then(v => {
+        if (v && v.r === RB.uid && !fresh) RB.rib.setView(v);
+        else RB.rib.top();
+      }).catch(() => RB.rib.top());
+    });
+  }
+}
+function hsBoardShow(on){
+  RB.on = !!on && !!RB.uid;
+  $("#hsBoardWrap").classList.toggle("hidden", !RB.on);
+  $("#host .rp-main").classList.toggle("hidden", RB.on);
+  if (RB.on && RB.rib) requestAnimationFrame(() => RB.rib.layout());
+  hsBoardStrip();
+}
+function hsBoardStrip(){
+  if (!RB.on || !RH.pkg) return;
+  const now = hostNow(), state = LIVE.state || {};
+  const rounds = RH.pkg.rounds;
+  const cur = rounds[now.r];
+  const players = Object.keys(state.players || {});
+  const locked = cur ? (state.guesses || {})[cur.uid] || {} : {};
+  const inN = players.filter(p => locked[p]).length;
+  const last = now.r + 1 >= rounds.length;
+  let h = '<button type="button" class="btn sm ghost" data-hb="console">‹ Console</button>' +
+          '<span class="pg-in">' + (now.phase === "guessing" ? inN + " of " + players.length + " locked in" : "Revealed") + '</span>';
+  if (now.phase === "guessing") h += '<button type="button" class="btn sm solid" data-hb="reveal">Reveal</button>';
+  else h += '<button type="button" class="btn sm solid" data-hb="' + (last ? "final" : "next") + '">' + (last ? "Final results" : "Start round " + (now.r + 2)) + '</button>';
+  $("#hsGame").innerHTML = h;
+  $$("[data-hb]", $("#hsGame")).forEach(b => b.addEventListener("click", () => {
+    const a = b.dataset.hb;
+    if (a === "console") hsBoardShow(false);
+    else if (a === "reveal") hostReveal();
+    else if (a === "next") hostStart(now.r + 1, false);
+    else if (a === "final"){ hsBoardShow(false); hostFinal(); }
+  }));
+}
+
+/* ---------- a remote player's phone ---------- */
+const RPB = { rib: null, uid: "", deck: "" };
+function rpBoardInit(){
+  if (RPB.rib) return;
+  RPB.rib = makeRibbon($("#rpBoard"), { follow: true });
+}
+function rpBoardSync(now){
+  rpBoardInit();
+  if (!now.deck || !now.uid){ return; }
+  if (BS.code !== LIVE.code){
+    boardStop(); BS.code = LIVE.code;
+    boardListen("view", "/view", v => { if (v && v.r === RPB.uid) RPB.rib.setView(v); });
+  }
+  if (RPB.uid !== now.uid || RPB.deck !== now.deck){
+    RPB.uid = now.uid; RPB.deck = now.deck;
+    RPB.rib.setSegments(now.uid, []);
+    RPB.rib.message("Loading the campaign…");
+    boardListen("ink", "/ink/" + now.uid, v => RPB.rib.setInk(v && typeof v === "object" ? v : {}));
+    deckIntoRibbon(now.deck, RPB.rib, now.uid, $("#rpInfo")).then(meta => {
+      if (!meta) return;
+      const v = BS.data.view;
+      if (v && v.r === RPB.uid) RPB.rib.setView(v);
+    });
+  }
+}
 
 /* ============================================================
    13. WIRING
@@ -8811,6 +10032,11 @@ $("#miLoad").addEventListener("click", () => {
   box.focus();
 });
 $("#miJoin").addEventListener("click", () => { show("player"); renderPlayer(); });
+$("#miPen").addEventListener("click", () => openPen(""));
+$("#penForm").addEventListener("submit", e => { e.preventDefault(); penPair($("#penCode").value); });
+$("#penCode").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); $("#penErr").textContent = ""; });
+$("#penBack").addEventListener("click", () => { penDetach(true); show("menu"); });
+$("#penGame").addEventListener("click", e => { const b = e.target.closest("[data-pc]"); if (b) penCmd(b.dataset.pc); });
 $("#toMenu").addEventListener("click", () => show("menu"));
 
 function setShield(on){
@@ -8881,6 +10107,8 @@ if (/[?&]oobCode=/.test(location.search)){
   openCrew(crewHash.toUpperCase());
 } else if (/^#join=/i.test(location.hash)){
   show("player"); renderPlayer();
+} else if (/^#pen=/i.test(location.hash)){
+  openPen((location.hash.match(/^#pen=([A-Z0-9]{6})/i) || [])[1] || "");
 } else if (location.hash === "#new"){
   openIntake("New game");
 } else if (location.hash === "#player"){
@@ -8922,7 +10150,9 @@ window.DS = window.REDACTED = {
   G: G, buildTokens: buildTokens, buildSegments: buildSegments, findFunding: findFunding,
   buildRedactions: buildRedactions, extractInfo: extractInfo, parseAmount: parseAmount,
   imageRegions: imageRegions, MONEY_RE: MONEY_RE, clamp: clamp, money: money,
-  sliceAt: sliceAt, contentGaps: contentGaps
+  sliceAt: sliceAt, contentGaps: contentGaps,
+  /* the board, for poking at from the console */
+  TVB: TVB, PN: PN, RB: RB, RPB: RPB, BS: BS, LIVE: LIVE
 };
 
 /* the wordmark bar slides off once, on load — the only decoration that moves */
