@@ -492,6 +492,7 @@ body.spooky .winner .drum{font-family:var(--spook);font-weight:400;letter-spacin
 body.spooky :is(#rplayer,#host){background:var(--night) radial-gradient(ellipse at 50% 0,#2E1A44 0,transparent 60%) no-repeat}
 body.spooky :is(#rplayer,#host) .rp-main > :is(p,.tiny),body.spooky :is(.rp-hint,.rp-leave){color:var(--mist)}
 body.spooky :is(#rplayer,#host) .rp-main a{color:var(--bone)}
+body.spooky :is(#rplayer,#host) .card a{color:var(--marker-deep);font-weight:600}
 body.spooky .rp-r{font-family:var(--spook);font-weight:400;font-size:1.2rem;letter-spacing:.04em}
 body.spooky .rv b.goal{text-shadow:0 0 18px rgba(255,122,26,.5)}
 body.spooky #player{background:var(--night) radial-gradient(ellipse at 50% 0,#2E1A44 0,transparent 65%) no-repeat}
@@ -8607,15 +8608,24 @@ function renderLivePlayer(){
   $("#rpTitle").textContent = inRound ? (now.title || "") : (store.get("ds.name") || "");
   $("#rpPts").textContent = liveTotal().toLocaleString("en-US") + " pts";
 
-  if (now.deck && now.deck !== RP.deckId) RP.deckId = now.deck;
-  $("#rpDeckWrap").classList.toggle("hidden", !(inRound && RP.deckId && now.deck === RP.deckId));
-  if (inRound && now.deck) rpBoardSync(now);
+  /* An in-room game keeps the campaign on the TV. A player who isn't in the
+     room can ask for the TV's screenshots (the TV sends them up as soon as a
+     room is open) and follows along on the phone instead. */
+  const tvGame = inRound && !now.deck;
+  RP.watch = store.get("ds.watch") === LIVE.code;
+  if (tvGame && RP.watch) rpBoardListen();
+  const deckId = now.deck || (tvGame && RP.watch ? String((BS.data.decks || {})[now.uid] || "") : "");
+  if (deckId && deckId !== RP.deckId) RP.deckId = deckId;
+  $("#rpDeckWrap").classList.toggle("hidden", !(inRound && deckId && deckId === RP.deckId));
+  if (inRound && deckId) rpBoardSync(Object.assign({}, now, { deck: deckId }));
   $(".rp-hint").textContent = now.phase === "revealed"
     ? "The campaign again, for the post-mortem."
-    : "The host picks the screenshot and draws on it. Swipe to look at the others, then lock in both numbers at the bottom.";
+    : tvGame
+      ? "What’s on the TV, with the host’s drawings. It follows the host; swipe to look at the others."
+      : "The host picks the screenshot and draws on it. Swipe to look at the others, then lock in both numbers at the bottom.";
 
   const players = state.players || {};
-  const sig = JSON.stringify([now, Object.keys(players).length,
+  const sig = JSON.stringify([now, Object.keys(players).length, RP.watch, !!deckId,
     now.phase === "revealed" ? [(state.guesses || {})[now.uid], (state.scores || {})[now.uid], players] : 0]);
   if (sig !== RP.sig){ RP.sig = sig; rpStatus(now, state); }
   rpDock(now, state);
@@ -8637,11 +8647,23 @@ function rpStatus(now, state){
   } else if (now.phase === "final"){
     h = phoneFinal(now);
   } else if (now.phase === "guessing" && !now.deck){
-    h = '<div class="card"><b>The campaign is up on the TV.</b><p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals.</p></div>';
+    h = RP.watch
+      ? '<div class="card"><b>' + (RP.deckId ? "Following the TV." : "Getting the TV’s screenshots…") + '</b>' +
+        '<p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals. <a href="#" id="rpWatch" style="font-weight:600">In the room after all? Hide it</a></p></div>'
+      : '<div class="card"><b>The campaign is up on the TV.</b><p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals.</p>' +
+        '<button type="button" class="btn sm" id="rpWatch" style="margin-top:.7rem">Not in the room? Show it on my phone</button></div>';
   } else if (now.phase === "revealed"){
     h = rpReveal(now, state);
   }
   el.innerHTML = h;
+  const w = $("#rpWatch", el);
+  if (w) w.addEventListener("click", e => {
+    e.preventDefault();
+    store.set("ds.watch", RP.watch ? "" : LIVE.code);
+    if (RP.watch){ boardStop(); RPB.uid = ""; RPB.deckId = ""; RP.deckId = ""; }
+    RP.sig = "";
+    renderLivePlayer();
+  });
   if (now.phase === "revealed" && RP.revealedFor !== now.uid){
     RP.revealedFor = now.uid;
     $("#rpMain").scrollTo({ top: 0, behavior: "smooth" });
@@ -9938,6 +9960,7 @@ async function tvBoardOpen(){
   boardListen("pens", "/pens", v => { TVB.pens = (v && typeof v === "object") ? v : {}; tvPensChanged(); });
   boardListen("cmd", "/cmd", tvCmd);
   if (TVB.uid) tvPage(TVB.page, true);
+  tvPenDecks();
 }
 
 function tvCmd(c){
@@ -9999,10 +10022,11 @@ function tvPensChanged(){
   if (ids.length) tvPenDecks();
 }
 
-/* The phone needs the screenshots too. The TV sends them up (already
-   blacked out), the round on screen first, then the rest. */
+/* Phones may need the screenshots too: the pen, and any player who isn't in
+   the room. Once a room is open the TV sends them up (already blacked out),
+   the round on screen first, then the rest. */
 async function tvPenDecks(){
-  if (!tvLive() || !Object.keys(TVB.pens || {}).length || TVB.deckBusy) return;
+  if (!tvLive() || TVB.deckBusy) return;
   TVB.deckBusy = (async () => {
     const order = [G.idx].concat(G.rounds.map((_, i) => i).filter(i => i !== G.idx));
     for (const i of order){
@@ -10014,7 +10038,7 @@ async function tvPenDecks(){
       if (!id){
         id = code6();
         try {
-          await putDeck(id, shots, { title: "" });
+          await putDeck(id, shots, { title: "", info: roundInfo(r) });
         } catch (e){ id = ""; }
         if (!id) continue;
         TVB.decks[r.uid] = { id: id, sig: sig };
@@ -10495,19 +10519,22 @@ function rpBoardInit(){
     onFollow: () => { RPB.i = RPB.hostI; RPB.rib.detach(false); rpShow(); }
   });
 }
-function rpBoardSync(now){
+function rpBoardListen(){
   rpBoardInit();
-  if (!now.deck || !now.uid) return;
-  if (BS.code !== LIVE.code){
-    boardStop(); BS.code = LIVE.code;
-    boardListen("pos", "/pos", v => {
+  if (BS.code === LIVE.code) return;
+  boardStop(); BS.code = LIVE.code;
+  boardListen("decks", "/deck", () => { if (RP.watch) renderLivePlayer(); });
+  boardListen("pos", "/pos", v => {
       if (!v || v.r !== RPB.uid) return;
       RPB.hostI = Number(v.i) || 0;
       if (!RPB.rib.detached){ RPB.i = RPB.hostI; rpShow(); }
       else if (RPB.i === RPB.hostI){ RPB.rib.detach(false); rpShow(); }
       else rpCount();
-    });
-  }
+  });
+}
+function rpBoardSync(now){
+  rpBoardListen();
+  if (!now.deck || !now.uid) return;
   if (RPB.uid !== now.uid || RPB.deckId !== now.deck){
     RPB.uid = now.uid; RPB.deckId = now.deck; RPB.i = 0; RPB.hostI = 0;
     RPB.rib.detach(false);
@@ -10539,7 +10566,9 @@ function rpCount(){
   const d = RPB.deck, el = $("#rpShotN");
   if (!el || !d || !d.meta) return;
   const n = d.ids.length;
-  el.textContent = (RPB.i + 1) + " / " + n + (RPB.rib.detached ? " · looking around" : n > 1 ? " · swipe to look around" : "");
+  const p = BS.data.pos, up = p && p.r === RPB.uid ? Number(p.up) || 1 : 1;
+  const tv = up > 1 ? " · the TV shows " + (RPB.hostI + 1) + "–" + Math.min(n, RPB.hostI + up) : "";
+  el.textContent = (RPB.i + 1) + " / " + n + (RPB.rib.detached ? " · looking around" : tv || (n > 1 ? " · swipe to look around" : ""));
 }
 
 /* ============================================================

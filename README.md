@@ -248,6 +248,16 @@ delete old games from the Firebase console now and then.
 
 ---
 
+### One player somewhere else
+
+In an in-room game, anyone who can't see the TV taps **Not in the room? Show it
+on my phone** after joining. Their phone then shows the TV's screenshots (with
+the host's drawings), follows along as the TV moves on, and they can swipe to
+look at the others. The TV sends its screenshots up as soon as a room is open,
+so there's nothing to set up. Players in the room don't see the button's effect
+unless they tap it. For the talking-it-over part, put the far-away player on a
+video or phone call next to the TV; the TV doesn't show the room chat.
+
 ### Remote — friends in other cities
 
 For when nobody is in the same room. There is no TV: every phone shows the
