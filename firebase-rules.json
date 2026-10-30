@@ -46,6 +46,42 @@
         }
       }
     },
+    "boards": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('games/' + $code + '/meta/host').val() === auth.uid",
+        ".validate": "$code.length === 4",
+        "pens": {
+          "$uid": {
+            ".write": "auth != null && $uid === auth.uid && (!newData.exists() || (!data.exists() && root.child('penkeys/' + newData.child('k').val() + '/room').val() === $code && root.child('penkeys/' + newData.child('k').val() + '/exp').val() > now))",
+            ".validate": "newData.hasChildren(['k', 'n']) && newData.child('n').isString() && newData.child('n').val().length <= 60"
+          }
+        },
+        "view": {
+          ".write": "auth != null && root.child('boards/' + $code + '/pens/' + auth.uid).exists()",
+          ".validate": "newData.hasChildren(['r', 'x', 'y', 'w', 'h'])"
+        },
+        "ink": {
+          ".write": "auth != null && root.child('boards/' + $code + '/pens/' + auth.uid).exists()",
+          "$round": {
+            "$key": {
+              ".validate": "newData.hasChildren(['p']) && $key.length <= 24"
+            }
+          }
+        },
+        "cmd": {
+          ".write": "auth != null && root.child('boards/' + $code + '/pens/' + auth.uid).exists()",
+          ".validate": "newData.hasChildren(['do', 'n']) && newData.child('do').isString() && newData.child('do').val().length <= 12"
+        }
+      }
+    },
+    "penkeys": {
+      "$k": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.exists() ? data.child('host').val() === auth.uid : (newData.child('host').val() === auth.uid && root.child('games/' + newData.child('room').val() + '/meta/host').val() === auth.uid))",
+        ".validate": "$k.length === 6 && newData.hasChildren(['room', 'host', 'exp']) && newData.child('exp').isNumber() && newData.child('exp').val() <= now + 3600000"
+      }
+    },
     "users": {
       "$uid": {
         "chats": {

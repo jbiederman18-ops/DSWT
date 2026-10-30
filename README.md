@@ -84,7 +84,6 @@ Click **Edit slides** on any round.
 |---|---|
 | Click a slide | Drops it from the round |
 | `‹` `›` | Moves it earlier or later |
-| 1 / 2 / 3 | How many slides share a screen; a yellow spine marks each screen |
 | Right panel | Ticks what the crew sees — pitch, each fact, each claim, each flag, each photo |
 | Top bar | Title and both answers, editable |
 | Blackout… | The bar editor |
@@ -97,13 +96,45 @@ answer key. They drop straight into PowerPoint if you'd rather present there.
 
 ## Playing
 
-Keyboard: `←` `→` slides · `R` reveal · `I` info card · `N` next round ·
-`1` `2` `3` or `V` for how many slides share the screen.
+The campaign goes up as **one continuous page**: the slides you kept in the
+suite, joined top to bottom, filling the width of the screen so it reads from
+across the room. Scroll it, zoom into a sentence, and draw on it. When a room is
+open, a sidebar on the right shows the room code and everyone who has joined,
+ticking each name green the moment they lock in. It never shows guesses or
+amounts.
 
-A saved phone page is a tall ribbon, so a single slide leaves most of a 16:9 TV
-empty. The **1 / 2 / 3** control in the bottom bar puts two or three side by
-side — it fills the screen, gets through a round in a third of the clicks, and
-lets the room compare sections. The choice is remembered between games.
+Keyboard: `↑` `↓` scroll a little · `Space` / `Page Down` a screenful · `+` `−`
+zoom · `0` fit the width · `Home` `End` · `R` reveal · `I` info card · `N` next
+round. The mouse wheel scrolls; Ctrl + wheel (or a trackpad pinch) zooms.
+
+The bar along the bottom has the pens (black, blue, red, green), a
+highlighter, an eraser that removes a whole line at a touch, undo (your own last
+line) and **Clear** (tap twice). ✋ goes back to moving the page.
+
+**Zooming stays sharp.** Once the page is bigger on screen than the stored
+pictures, the TV redraws the part you're looking at straight from the PDF at
+the screen's full resolution, 4K included, and paints the blackout bars back
+on top before it's shown. Only the TV does this; phones only ever get the
+already blacked-out pictures.
+
+**Lines stay for the whole game.** Each campaign keeps its own drawings, so
+going back a round brings them back. They're gone when the room closes.
+
+### Drawing on the TV from your phone
+
+1. On the TV, click **📱 Draw from phone** at the top. (It opens a room if one
+   isn't open yet.) A six-character code comes up.
+2. On your phone, open the game → **Draw on the TV**, and type the code. Or open
+   the link shown under the code.
+
+The phone shows the page with the TV's edges marked, so you can see exactly what
+the room sees. One finger draws (or moves the page, with ✋); two fingers pinch to
+zoom and drag to scroll, whatever tool is picked. **Info**, **Reveal** and
+**Next round** at the top run the TV, and it shows how many have locked in.
+
+The phone never gets the answers: it only knows what every player's phone knows,
+until the reveal. The code works for 15 minutes and is used up as soon as a phone
+connects. **Disconnect** in the same window cuts a phone off.
 
 Phones can play along in two ways.
 
@@ -215,7 +246,9 @@ from any phone or laptop without playing.
 
 What players get:
 
-- The campaign as a scrolling ribbon, with the info card underneath.
+- The campaign as one page that follows the host: wherever the host scrolls,
+  zooms or draws, every phone goes too. Drag or pinch to look around on your
+  own; **Follow the host** snaps back. The info card sits underneath.
 - A guess box pinned to the bottom. `150k` and `1.2m` work, and it shows the
   dollar figure as you type. You can change a guess until the reveal.
 - A chat (a pull-up sheet on phones, a side column on wider screens) with
@@ -225,21 +258,33 @@ What players get:
   side, best first.
 - The final standings on every phone at once.
 
-What the host gets: the room code and who's joined, who has locked in, the
-answers behind a **Show me the answers** button, one big button for whatever
-comes next (start / reveal / next round / final results), a round list for
-jumping around or replaying a round, running standings, and the same chat.
+What the host gets: the room code and who's joined, who has locked in, one
+big button for whatever comes next (start / reveal / next round / final
+results), a round list for jumping around or replaying a round, running
+standings, and the same chat. Starting a round opens **the board**: the
+campaign with the same pens, highlighter, eraser and zoom as the TV, and a strip
+with how many have locked in and Reveal / next round. **‹ Console** goes back.
+The answers aren't shown anywhere, the host's screen included, until the
+reveal.
 
 If the host's phone dies or the page reloads, **Host a remote game → Rejoin
 room** picks the room back up with scores and chat intact. Players who drop off
 rejoin with the same code and keep their points.
 
-**Where the data goes:** publishing writes under `/saves`, so the existing
-rules cover it with no changes. Each round's slides sit under their own random
+**Where the data goes:** publishing writes under `/saves`. Each round's slides sit under their own random
 code, and a player only ever learns the code for the round being played, never
 the host code that holds the answers. A published game is mostly JPEG slides,
-roughly 1–3 MB a round. **Close this room** at the end deletes the room and
-its chat; published decks stay until you delete them from the Firebase console.
+roughly 1–3 MB a round. **Close this room** at the end deletes the room, its
+chat and its drawings; published decks stay until you delete them from the
+Firebase console.
+
+**Drawings and the page view** live under `/boards/<room code>`, apart from the
+room, so a pen stroke going up several times a second doesn't wake everything
+else. Only the room's host, and phones the TV has let in with a code, can write
+there. Codes from the TV sit under `/penkeys`, readable only by someone who
+already has the code. **After updating to this version, paste
+[`firebase-rules.json`](firebase-rules.json) into the Rules tab again and
+Publish**, or the pen and the board will be refused.
 
 ### Chats
 
