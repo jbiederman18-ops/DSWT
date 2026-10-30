@@ -3707,7 +3707,7 @@ function doReveal(){
   const gap = (r.raised !== null && r.goal) ? (r.raised / r.goal) : null;
   let verdict = "";
   if (gap !== null){
-    if (gap <= 0) verdict = "Not one single dollar.";
+    if (gap <= 0) verdict = "";                 /* $0: the number speaks for itself */
     else if (gap >= 1) verdict = "Funded. Somebody out there wanted this.";
     else if (gap >= 0.5) verdict = "Over halfway. It might actually happen.";
     else if (gap >= 0.1) verdict = "A long way to go.";
@@ -5344,7 +5344,7 @@ async function dbPost(sub, value){
 function verdictFor(raised, goal){
   if (!isFinite(raised) || raised === null || !goal) return "";
   const gap = raised / goal;
-  if (gap <= 0) return "Not one single dollar.";
+  if (gap <= 0) return "";
   if (gap >= 1) return "Funded. Somebody out there wanted this.";
   if (gap >= 0.5) return "Over halfway. It might actually happen.";
   if (gap >= 0.1) return "A long way to go.";

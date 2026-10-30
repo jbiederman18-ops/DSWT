@@ -507,8 +507,7 @@ a $3 million one, and too high costs the same as too low.
 
 Anything under about $100 counts as next to nothing, so a campaign that raised
 **$0** scores like any other: guessing $0 is perfect, $50 still gets 88,
-$1,000 gets 29, and $3,000 or more gets nothing. A $0 campaign's reveal says so:
-"Not one single dollar." Phones show this rule under everyone's guesses after
+$1,000 gets 29, and $3,000 or more gets nothing. Phones show this rule under everyone's guesses after
 each reveal.
 
 On the last round the **Next round** button becomes **Final results** (there's also a **Results** button any time). The TV counts the table up from last place, holds on "And the winner is…", then puts the winner's name up in letters you can read from the back of the room. Every phone gets the announcement at the same instant, along with the full table and where that player finished. A tie announces joint winners. Space skips the build-up; **Run the reveal again** does it all over.
