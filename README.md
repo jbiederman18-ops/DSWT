@@ -87,7 +87,26 @@ contains a picture worth a look. Drag a bar over anything incriminating.
 
 ## The game master suite
 
-Click **Edit slides** on any round.
+Click **Pick screenshots** on any round.
+
+### Screenshots
+
+The top of the suite shows the whole campaign page, blacked out, with an
+orange frame in the middle. The frame is the shape of one slot on the TV (pick
+**1 / 2 / 3** side by side; the frame reshapes to match). Scroll the page under
+it (mouse wheel or drag), zoom with Ctrl + wheel, a pinch or **− / +**, and
+whatever sits inside the frame is exactly what the TV will show. **📸 Capture**
+(or Space) keeps it.
+
+Captures are redrawn straight from the PDF at 2,600 px with the blackouts
+painted on, so they stay sharp on a 4K TV. They line up in a strip underneath:
+‹ › to reorder, ✕ to drop one, click one to put it back in the frame. Change a
+blackout afterwards and every screenshot is redrawn to match. Saved games keep
+them (only their positions are stored; the pictures are redrawn on loading).
+
+A round with no screenshots shows its kept auto-cut slides instead.
+
+### Auto-cut slides
 
 | | |
 |---|---|
@@ -98,36 +117,29 @@ Click **Edit slides** on any round.
 | Blackout… | The bar editor |
 | Preview | Jumps straight into play |
 
-**Download slides** writes one PNG per shown slide, in order, plus a separate
+**Download slides** writes each round's screenshots (or its kept slides), in order, plus a separate
 answer key. They drop straight into PowerPoint if you'd rather present there.
 
 ---
 
 ## Playing
 
-The campaign goes up as **one continuous page**: the slides you kept in the
-suite, joined top to bottom, filling the width of the screen so it reads from
-across the room. Scroll it, zoom into a sentence, and draw on it. When a room is
-open, a sidebar on the right shows the room code and everyone who has joined,
-ticking each name green the moment they lock in. It never shows guesses or
+Each round's screenshots go up **one, two or three side by side** (`1` `2` `3`
+or the switch in the bottom bar), big enough to read from across the room. When
+a room is open, a sidebar on the right shows the room code and everyone who has
+joined, ticking each name the moment they lock in. It never shows guesses or
 amounts.
 
-Keyboard: `↑` `↓` scroll a little · `Space` / `Page Down` a screenful · `+` `−`
-zoom · `0` fit the width · `Home` `End` · `R` reveal · `I` info card · `N` next
-round. The mouse wheel scrolls; Ctrl + wheel (or a trackpad pinch) zooms.
+Keyboard: `→` / `Space` next screenshots · `←` back · `Home` `End` · `1` `2` `3`
+or `V` how many side by side · `R` reveal · `I` info card · `N` next round.
 
 The bar along the bottom has the pens (black, blue, red, green), a
 highlighter, an eraser that removes a whole line at a touch, undo (your own last
-line) and **Clear** (tap twice). ✋ goes back to moving the page.
+line) and **Clear** (tap twice, clears what's on screen). ✋ stops drawing.
 
-**Zooming stays sharp.** Once the page is bigger on screen than the stored
-pictures, the TV redraws the part you're looking at straight from the PDF at
-the screen's full resolution, 4K included, and paints the blackout bars back
-on top before it's shown. Only the TV does this; phones only ever get the
-already blacked-out pictures.
-
-**Lines stay for the whole game.** Each campaign keeps its own drawings, so
-going back a round brings them back. They're gone when the room closes.
+**Lines stay for the whole game.** Each screenshot keeps its own drawings, so
+going back a page or a round brings them back. They're gone when the room
+closes.
 
 ### Drawing on the TV from your phone
 
@@ -136,10 +148,10 @@ going back a round brings them back. They're gone when the room closes.
 2. On your phone, open the game → **Draw on the TV**, and type the code. Or open
    the link shown under the code.
 
-The phone shows the page with the TV's edges marked, so you can see exactly what
-the room sees. One finger draws (or moves the page, with ✋); two fingers pinch to
-zoom and drag to scroll, whatever tool is picked. **Info**, **Reveal** and
-**Next round** at the top run the TV, and it shows how many have locked in.
+The phone shows the screenshots that are on the TV. With two or three up,
+numbered tabs pick which one you're drawing on; ‹ › (or a swipe with ✋) moves
+the TV to the next ones. **Info**, **Reveal** and **Next round** at the top run
+the TV, and it shows how many have locked in.
 
 The phone never gets the answers: it only knows what every player's phone knows,
 until the reveal. The code works for 15 minutes and is used up as soon as a phone
@@ -255,9 +267,9 @@ from any phone or laptop without playing.
 
 What players get:
 
-- The campaign as one page that follows the host: wherever the host scrolls,
-  zooms or draws, every phone goes too. Drag or pinch to look around on your
-  own; **Follow the host** snaps back. The info card sits underneath.
+- The round's screenshots, following the host: whichever one the host has up,
+  with the host's drawings, is on every phone. Swipe to look at the others on
+  your own; **Follow the host** snaps back. The info card sits underneath.
 - A guess box pinned to the bottom. `150k` and `1.2m` work, and it shows the
   dollar figure as you type. You can change a guess until the reveal.
 - A chat (a pull-up sheet on phones, a side column on wider screens) with
@@ -270,9 +282,10 @@ What players get:
 What the host gets: the room code and who's joined, who has locked in, one
 big button for whatever comes next (start / reveal / next round / final
 results), a round list for jumping around or replaying a round, running
-standings, and the same chat. Starting a round opens **the board**: the
-campaign with the same pens, highlighter, eraser and zoom as the TV, and a strip
-with how many have locked in and Reveal / next round. **‹ Console** goes back.
+standings, and the same chat. Starting a round opens **the board**: one
+screenshot at a time (‹ › or swipe to step through), the same pens, highlighter
+and eraser as the TV, and a strip with how many have locked in and Reveal /
+next round. **‹ Console** goes back.
 The answers aren't shown anywhere, the host's screen included, until the
 reveal.
 
@@ -280,14 +293,14 @@ If the host's phone dies or the page reloads, **Host a remote game → Rejoin
 room** picks the room back up with scores and chat intact. Players who drop off
 rejoin with the same code and keep their points.
 
-**Where the data goes:** publishing writes under `/saves`. Each round's slides sit under their own random
+**Where the data goes:** publishing writes under `/saves`. Each round's screenshots sit under their own random
 code, and a player only ever learns the code for the round being played, never
 the host code that holds the answers. A published game is mostly JPEG slides,
 roughly 1–3 MB a round. **Close this room** at the end deletes the room, its
 chat and its drawings; published decks stay until you delete them from the
 Firebase console.
 
-**Drawings and the page view** live under `/boards/<room code>`, apart from the
+**Drawings and which screenshot is up** live under `/boards/<room code>`, apart from the
 room, so a pen stroke going up several times a second doesn't wake everything
 else. Only the room's host, and phones the TV has let in with a code, can write
 there. Codes from the TV sit under `/penkeys`, readable only by someone who

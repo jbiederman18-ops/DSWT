@@ -505,6 +505,40 @@ body.spooky .pen-setup h2{font-family:var(--spook);font-weight:400;letter-spacin
   .reveal .rbats{display:none}
 }
 
+
+/* ---------- screenshots: the TV, the picker, the phones ---------- */
+.tv-board{display:flex;gap:12px;padding:12px;background:#2B302B;box-sizing:border-box}
+.tv-panel{flex:1;min-width:0;height:100%;border-radius:4px}
+.tv-nav{color:var(--paper);border-color:rgba(255,255,255,.35);padding:.15em .7em}
+.tv-nav:disabled{opacity:.35}
+.tv-bar .dots{max-width:220px}
+.cap-wrap{margin-bottom:2rem}
+.cap-view{height:min(64vh,680px);border-radius:var(--r);box-shadow:0 0 0 2px var(--ink)}
+.cap-view .rb-frame{outline:3px solid var(--marker);outline-offset:0;box-shadow:0 0 0 100vmax rgba(15,18,15,.55)}
+.cap-view.flash .rb-frame{animation:capflash .45s ease-out}
+@keyframes capflash{0%{background:rgba(255,255,255,.85)}100%{background:transparent}}
+.cap-ctl{display:flex;gap:.5rem;align-items:center;margin:.6rem 0}
+.cap-ctl #capSnap{font-size:1.05rem;padding:.55em 1.3em}
+.cap-strip{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px}
+.cap-item{flex:0 0 auto;display:flex;flex-direction:column;gap:4px}
+.cap-pic{padding:0;border:2px solid var(--ink);border-radius:4px;background:#fff;cursor:pointer;line-height:0}
+.cap-pic img{height:110px;width:auto;max-width:260px;object-fit:contain;display:block}
+.cap-row{display:flex;align-items:center;gap:4px;font-size:.85rem}
+.cap-row .grow{flex:1}
+.cap-none{margin:.3rem 0}
+.pen-nav{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.4rem .6rem;border-top:1px solid rgba(255,255,255,.14)}
+.pen-nav:empty{display:none}
+.pen-nav .btn{color:var(--paper);border-color:rgba(255,255,255,.4);min-width:2.6em}
+.pen-nav .btn:disabled{opacity:.35}
+.ptabs{display:flex;gap:6px}
+.ptab{min-width:40px;height:36px;border-radius:99px;border:2px solid rgba(255,255,255,.3);background:transparent;color:var(--paper);font-weight:800}
+.ptab.on{border-color:var(--marker);background:rgba(5,206,120,.25)}
+.pcount{font-weight:700;font-variant-numeric:tabular-nums;color:#c9ccc3;font-size:.85rem}
+.rp-shotn{text-align:center;font-size:.8rem;font-weight:600;color:var(--ink-soft);margin:-4px 0 12px}
+body.spooky .tv-board{background:#1F1330}
+body.spooky .ptab.on{background:rgba(255,122,26,.25)}
+body.spooky .rp-shotn{color:var(--mist)}
+
 /* ---------- player names on the TV ---------- */
 .roster{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;padding:.45rem .9rem;background:#121512;
         border-bottom:1px solid rgba(255,255,255,.12);flex:0 0 auto}
@@ -1629,7 +1663,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       </button>
       <button class="mi" id="miPen">
         <span class="mk">06</span>
-        <span class="mt"><b>Draw on the TV</b><em>Hosting in the room? Your phone scrolls, zooms and draws on the campaign up on the TV.</em></span>
+        <span class="mt"><b>Draw on the TV</b><em>Hosting in the room? Your phone draws on the screenshots up on the TV and steps through them.</em></span>
       </button>
     </nav>
 
@@ -1779,8 +1813,29 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   </div>
   <div class="gm-body">
     <div class="gm-slides">
+      <div class="cap-wrap" id="capWrap">
+        <div class="gm-head">
+          <h3>Screenshots</h3>
+          <span class="tiny" id="capCount"></span>
+          <span class="grow" style="flex:1"></span>
+          <span class="tiny">Side by side on the TV</span>
+          <span class="upsel gmup" id="capUp" title="How many screenshots share the TV (the frame takes the shape of one)">
+            <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
+          </span>
+        </div>
+        <p class="tiny" style="margin:0 0 .6rem;max-width:72ch">Scroll and zoom the page (wheel, Ctrl + wheel or pinch, or the buttons). Whatever is inside the frame is exactly what the TV will show. <b>📸 Capture</b> or Space keeps it.</p>
+        <div class="cap-view" id="capView"></div>
+        <div class="cap-ctl">
+          <button class="btn sm ghost" id="capOut" title="Zoom out">−</button>
+          <button class="btn sm ghost" id="capFit">Fit the width</button>
+          <button class="btn sm ghost" id="capIn" title="Zoom in">+</button>
+          <span class="grow" style="flex:1"></span>
+          <button class="btn solid" id="capSnap">📸 Capture</button>
+        </div>
+        <div class="cap-strip" id="capStrip"></div>
+      </div>
       <div class="gm-head">
-        <h3>Slides</h3>
+        <h3>Auto-cut slides</h3>
         <span class="tiny" id="gmCount"></span>
         <span class="grow" style="flex:1"></span>
         <span class="upsel gmup hidden" id="gmUpSel" title="How many share a screen during play">
@@ -1789,7 +1844,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
         <button class="btn sm ghost" id="gmAll">Show all</button>
         <button class="btn sm ghost" id="gmAuto">Back to suggested</button>
       </div>
-      <p class="tiny" style="margin:0 0 .9rem;max-width:62ch">Click a slide to drop it from the round. Use ‹ › to move it. During play the kept slides join up into one page you scroll. Site nav, the legal footer and near-blank slices start switched off.</p>
+      <p class="tiny" style="margin:0 0 .9rem;max-width:62ch">Only used for a round with no screenshots: then the kept slides go up instead. Click a slide to drop it, ‹ › to move it.</p>
       <div class="grid" id="gmGrid"></div>
     </div>
     <aside class="gm-side" id="gmSide"></aside>
@@ -1802,7 +1857,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <span class="rnum" id="pRound">1</span>
     <span id="pTitle" style="max-width:38ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     <span class="grow"></span>
-    <button id="bPen" title="Scroll, zoom and draw on this screen from your phone">📱 Draw from phone</button>
+    <button id="bPen" title="Draw on this screen and step through it from your phone">📱 Draw from phone</button>
     <button id="bInfo">Info</button>
     <button id="bReveal">Reveal</button>
     <button id="bNext">Next round</button>
@@ -1819,7 +1874,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       <div class="card">
         <button type="button" class="ps-x" id="penSheetX" aria-label="Close">✕</button>
         <h3>Draw from your phone</h3>
-        <p class="tiny">On your phone, open the game, tap <b>Games</b> → <b>Draw on the TV</b>, and type this code. Your phone can then scroll, zoom and draw on this screen.</p>
+        <p class="tiny">On your phone, open the game, tap <b>Games</b> → <b>Draw on the TV</b>, and type this code. Your phone can then draw on this screen, step through the screenshots and run the reveal.</p>
         <div class="ps-code" id="penCodeBig">…</div>
         <p class="tiny ps-link">Or open <span id="penLink"></span> on the phone.</p>
         <p class="tiny" id="penSheetNote"></p>
@@ -1831,9 +1886,14 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
   </div>
   <div class="panelbar tv-bar">
     <div class="tools" id="tvTools"></div>
-    <span class="grow"></span>
-    <span class="tv-keys">Scroll or ↑ ↓ to move · pinch, Ctrl+scroll or + − to zoom</span>
-    <span id="tvPos" class="tv-pos"></span>
+    <span class="tl-gap"></span>
+    <button class="btn sm ghost tv-nav" id="bPrev" title="Back (←)">←</button>
+    <span class="upsel" id="upSel" title="Screenshots side by side (1, 2, 3)">
+      <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
+    </span>
+    <div class="dots" id="dots"></div>
+    <button class="btn sm ghost tv-nav" id="bNextPanel" title="Next (→ or Space)">→</button>
+    <span id="panelCount" class="tv-pos"></span>
   </div>
 </section>
 
@@ -2017,8 +2077,9 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <main class="rp-main" id="rpMain">
       <div id="rpStatus"></div>
       <div id="rpDeckWrap" class="hidden">
-        <p class="rp-hint">The host steers. Drag or pinch to look around on your own.</p>
+        <p class="rp-hint">The host picks the screenshot and draws on it.</p>
         <div id="rpBoard" class="rp-board"></div>
+        <p class="rp-shotn" id="rpShotN"></p>
         <div id="rpInfo"></div>
       </div>
       <p class="rp-leave"><a href="#" id="rpLeave">Leave the room</a></p>
@@ -2046,6 +2107,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     <div class="hs-board hidden" id="hsBoardWrap">
       <div class="pen-game" id="hsGame"></div>
       <div class="board-fill" id="hsBoard"></div>
+      <div class="pen-nav" id="hsNav"></div>
       <div class="tools pen-tools" id="hsTools"></div>
     </div>
     <aside class="rp-chat hidden" id="hsChat"></aside>
@@ -2067,12 +2129,13 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
       <label class="field"><span>Code from the TV</span><input type="text" id="penCode" maxlength="6" placeholder="six characters" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:.2em;font-weight:700"></label>
       <button class="btn solid" id="penGo">Connect</button>
       <p class="tiny pen-err" id="penErr"></p>
-      <p class="tiny">This phone becomes the host's pen: it scrolls, zooms and draws on the TV, and runs the reveal. It never sees the answers before everyone else does.</p>
+      <p class="tiny">This phone becomes the host's pen: it draws on the TV, steps through the screenshots and runs the reveal. It never sees the answers before everyone else does.</p>
     </form>
   </div>
   <div class="pen-work hidden" id="penWork">
     <div class="pen-game" id="penGame"></div>
     <div class="board-fill" id="penBoard"></div>
+    <div class="pen-nav" id="penNav"></div>
     <div class="tools pen-tools" id="penTools"></div>
   </div>
 </section>
@@ -2804,6 +2867,8 @@ async function composite(r){
   if (r.tiles) r.tiles.forEach(t => URL.revokeObjectURL(t.url));
   r.tiles = await tilesToImages(out);
   out.forEach(t => { t.canvas.width = t.canvas.height = 1; });
+  /* screenshots are cut from the page, so they follow every blackout change */
+  if (r.caps && r.caps.length) await recaps(r);
 }
 
 /* ============================================================
@@ -3113,7 +3178,8 @@ function makeRecipe(r){
     claimsOn: r.claims.map(c => !!c.on),
     flagsOn: r.flags.map(f => !!f.on),
     shotsOn: r.shots.map(sh => !!sh.on),
-    slides: r.slides.map(sl => ({ y: Math.round(sl.y), on: !!sl.on }))
+    slides: r.slides.map(sl => ({ y: Math.round(sl.y), on: !!sl.on })),
+    caps: (r.caps || []).map(c => ({ id: c.id, x: c.x, y: c.y, w: c.w, h: c.h }))
   };
 }
 
@@ -3132,6 +3198,7 @@ function applyRecipe(r, rec){
   if (rec.claimsOn) r.claims.forEach((c, i) => { if (i < rec.claimsOn.length) c.on = rec.claimsOn[i]; });
   if (rec.flagsOn) r.flags.forEach((f, i) => { if (i < rec.flagsOn.length) f.on = rec.flagsOn[i]; });
   if (rec.shotsOn) r.shots.forEach((sh, i) => { if (i < rec.shotsOn.length) sh.on = rec.shotsOn[i]; });
+  if (rec.caps) r.caps = asList(rec.caps).filter(c => c && c.w > 0 && c.h > 0).map(c => ({ id: String(c.id), x: Number(c.x), y: Number(c.y), w: Number(c.w), h: Number(c.h) }));
   r.leakBoxes = [];
 }
 
@@ -3171,7 +3238,7 @@ function renderRoundList(quiet){
         '<input type="text" data-k="goal" placeholder="goal" value="' + (r.goal !== null ? money(r.goal) : "") + '">' +
       '</div>' +
       '<button class="btn sm' + (r.reviewed ? ' ghost' : '') + '" data-act="gm">' +
-        (r.reviewed ? '\u2713 Reviewed' : 'Edit slides') + '</button>' +
+        (r.caps && r.caps.length ? '\u{1F4F8} ' + r.caps.length + ' \u00b7 ' : '') + (r.reviewed ? '\u2713 Reviewed' : 'Pick screenshots') + '</button>' +
       '<span class="rowmove">' +
         '<button class="mini" data-act="up" title="Move up">\u2191</button>' +
         '<button class="mini" data-act="down" title="Move down">\u2193</button>' +
@@ -3406,6 +3473,7 @@ function openGM(i){
   if (G.shield && !gmPeek){ veilGM(); return; }
   drawGrid();
   drawSide();
+  capOpen();
 }
 
 let gmPeek = false;
@@ -3413,6 +3481,7 @@ let gmPeek = false;
 /* Opening the suite shows every slide and both answers at once. With the
    shield up, make that a deliberate act rather than a reflex. */
 function veilGM(){
+  $("#capWrap").hidden = true;
   $("#gmGrid").innerHTML = "";
   $("#gmSide").innerHTML = "";
   const v = document.createElement("div");
@@ -3424,7 +3493,7 @@ function veilGM(){
   const b = document.createElement("button");
   b.className = "btn solid";
   b.textContent = "Nobody is watching \u2014 show me";
-  b.addEventListener("click", () => { gmPeek = true; drawGrid(); drawSide(); });
+  b.addEventListener("click", () => { gmPeek = true; drawGrid(); drawSide(); capOpen(); });
   const b2 = document.createElement("button");
   b2.className = "btn ghost";
   b2.textContent = "Back to the round list";
@@ -3609,6 +3678,20 @@ $("#gmAuto").addEventListener("click", async () => {
   drawGrid();
 });
 $("#gmPreview").addEventListener("click", () => { show("play"); loadRound(gmIdx); });
+$("#capSnap").addEventListener("click", capSnap);
+$("#capIn").addEventListener("click", () => CAP.rib && CAP.rib.zoom(1.25));
+$("#capOut").addEventListener("click", () => CAP.rib && CAP.rib.zoom(0.8));
+$("#capFit").addEventListener("click", () => CAP.rib && CAP.rib.fit());
+$$("#capUp button").forEach(b => b.addEventListener("click", () => setUpCount(Number(b.dataset.up))));
+/* Space or Enter captures, + − zoom, while the round editor is up */
+window.addEventListener("keydown", e => {
+  if ($("#gm").classList.contains("hidden") || $("#capWrap").hidden || !CAP.rib) return;
+  if (/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(document.activeElement.tagName)) return;
+  if (e.key === " " || e.key === "Enter"){ e.preventDefault(); capSnap(); }
+  else if (e.key === "+" || e.key === "="){ CAP.rib.zoom(1.25); }
+  else if (e.key === "-" || e.key === "_"){ CAP.rib.zoom(0.8); }
+  else if (e.key === "0"){ CAP.rib.fit(); }
+});
 $("#gmBack").addEventListener("click", () => { show("intake"); renderRoundList(true); });
 
 /* Walk the pile: mark this one done, jump to the next one that isn't. */
@@ -3647,9 +3730,12 @@ function loadRound(i){
   renderSide();
 }
 
-/* The game master curates the slides in the suite; play shows the kept ones
-   as one continuous page (section 17), so slides no longer share a screen. */
-function upCount(){ return 1; }
+/* How many screenshots share the TV during play (1, 2 or 3). The picker's
+   frame takes the shape of one of them. */
+function upCount(){
+  const n = parseInt(store.get("ds.up") || "1", 10);
+  return (n === 2 || n === 3) ? n : 1;
+}
 
 function buildDrawer(r){
   const d = $("#drawer");
@@ -3744,24 +3830,24 @@ $("#bResults").addEventListener("click", openResults);
 $("#bQuit").addEventListener("click", () => { openIntake("Your game"); renderRoundList(true); });
 $("#bPen").addEventListener("click", tvPenSheet);
 $("#penSheetX").addEventListener("click", tvPenClose);
+$("#bPrev").addEventListener("click", () => tvPage(TVB.page - 1));
+$("#bNextPanel").addEventListener("click", () => tvPage(TVB.page + 1));
+$$("#upSel button").forEach(b => b.addEventListener("click", () => tvSetUp(Number(b.dataset.up))));
 
 window.addEventListener("keydown", e => {
   if ($("#play").classList.contains("hidden")) return;
   if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
   const k = e.key;
-  const rib = TVB.rib;
-  if (!rib) return;
-  if (k === "ArrowDown" || k === "PageDown" || k === " " || k === "ArrowRight"){ e.preventDefault(); rib.scrollBy(k === "ArrowDown" ? 0.35 : 0.85); }
-  else if (k === "ArrowUp" || k === "PageUp" || k === "ArrowLeft"){ e.preventDefault(); rib.scrollBy(k === "ArrowUp" ? -0.35 : -0.85); }
-  else if (k === "+" || k === "="){ rib.zoom(1.25); }
-  else if (k === "-" || k === "_"){ rib.zoom(0.8); }
-  else if (k === "0"){ rib.fit(); }
+  if (k === "ArrowRight" || k === "ArrowDown" || k === "PageDown" || k === " "){ e.preventDefault(); tvPage(TVB.page + 1); }
+  else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp"){ e.preventDefault(); tvPage(TVB.page - 1); }
+  else if (k === "1" || k === "2" || k === "3"){ tvSetUp(Number(k)); }
+  else if (k === "v" || k === "V"){ tvSetUp(upCount() % 3 + 1); }
   else if (k === "Escape"){ tvPenClose(); }
   else if (k === "r" || k === "R"){ $("#bReveal").click(); }
   else if (k === "i" || k === "I"){ $("#bInfo").click(); }
   else if (k === "n" || k === "N"){ $("#bNext").click(); }
-  else if (k === "Home"){ rib.top(); }
-  else if (k === "End"){ rib.toEnd(); }
+  else if (k === "Home"){ tvPage(0); }
+  else if (k === "End"){ tvPage(tvPages() - 1); }
 });
 
 /* ============================================================
@@ -3784,12 +3870,13 @@ async function exportPages(){
   btn.disabled = true;
   for (let i = 0; i < G.rounds.length; i++){
     const r = G.rounds[i];
-    const deck = r.slides.filter(sl => sl.on);
+    const deck = roundShots(r);
+    const ext = r.caps && r.caps.length ? ".jpg" : ".png";
     for (let n = 0; n < deck.length; n++){
-      btn.textContent = "Round " + (i+1) + ", slide " + (n+1) + "\u2026";
+      btn.textContent = "Round " + (i+1) + ", picture " + (n+1) + "\u2026";
       const a = document.createElement("a");
       a.href = deck[n].url;
-      a.download = "round-" + (i+1) + "-" + slug(r.title) + "-" + String(n+1).padStart(2,"0") + ".png";
+      a.download = "round-" + (i+1) + "-" + slug(r.title) + "-" + String(n+1).padStart(2,"0") + ext;
       document.body.appendChild(a); a.click(); a.remove();
       await new Promise(res => setTimeout(res, 260));
     }
@@ -5100,7 +5187,7 @@ $("#resBack").addEventListener("click", () => {
   resClear();
   $$(".winner", $("#results")).forEach(w => w.remove());
   show("play");
-  requestAnimationFrame(() => { if (TVB.rib) TVB.rib.layout(); });
+  requestAnimationFrame(tvRelayout);
 });
 $("#resMenu").addEventListener("click", () => { resClear(); show("menu"); });
 window.addEventListener("keydown", e => {
@@ -5395,8 +5482,7 @@ async function publishRemote(){
   btn.disabled = true;
   const code = code6();
   const plan = G.rounds.map(r => {
-    const on = r.slides.filter(sl => sl.on);
-    return { r: r, slides: on.length ? on : r.slides.slice(), shots: (r.shots || []).filter(s => s.on) };
+    return { r: r, slides: roundShots(r), shots: (r.shots || []).filter(s => s.on) };
   });
   const total = plan.reduce((a, p) => a + p.slides.length + p.shots.length, 0);
   let done = 0;
@@ -5409,7 +5495,7 @@ async function publishRemote(){
       const id = code6();
       const at = sub => savePath("/" + id + "/deck" + sub);
       await pool(p.slides, 4, async (sl, k) => {
-        await putJSON(at("/s/" + k), await toJpeg(sl.url, 1000, 0.78));
+        await putJSON(at("/s/" + k), await toJpeg(sl.url, sl.a >= 1 ? 1600 : 1100, 0.8));
         done++; tick();
       });
       await pool(p.shots, 4, async (sh, k) => {
@@ -5417,7 +5503,8 @@ async function publishRemote(){
         done++; tick();
       });
       await putJSON(at("/meta"), {
-        kind: "deck", n: p.slides.length, nx: p.shots.length, hs: p.slides.map(sl => r5(sl.h / p.r.pageW)),
+        kind: "deck", n: p.slides.length, nx: p.shots.length,
+        ids: p.slides.map(sl => sl.id), as: p.slides.map(sl => r5(sl.a)), hs: p.slides.map(sl => r5(1 / sl.a)),
         title: p.r.title, info: roundInfo(p.r), at: Date.now()
       });
       rounds.push({ uid: p.r.uid, title: p.r.title, raised: p.r.raised, goal: p.r.goal, deck: id, n: p.slides.length });
@@ -8525,7 +8612,7 @@ function renderLivePlayer(){
   if (inRound && now.deck) rpBoardSync(now);
   $(".rp-hint").textContent = now.phase === "revealed"
     ? "The campaign again, for the post-mortem."
-    : "The host steers and draws. Drag or pinch to look around on your own, then lock in both numbers at the bottom.";
+    : "The host picks the screenshot and draws on it. Swipe to look at the others, then lock in both numbers at the bottom.";
 
   const players = state.players || {};
   const sig = JSON.stringify([now, Object.keys(players).length,
@@ -9134,9 +9221,13 @@ function makeRibbon(el, o){
   }
   const aspect = () => R.cw / R.ch;
   const frameA = () => { const a = o.frame && o.frame(); return a > 0.2 && a < 6 ? a : aspect(); };
+  /* o.pad < 1 leaves room round the view (the screenshot picker shows the page outside its frame) */
+  const kFor = (w, h) => Math.min(R.cw / w, R.ch / h) * (o.pad || 1);
 
   /* keep a view on the page, the same shape as the screen it steers */
   function tidy(v, a){
+    /* o.fixed: one picture, always shown whole; only drawing moves anything */
+    if (o.fixed) return { x: 0, y: 0, w: 1, h: R.H };
     a = a || frameA();
     let w = clamp(Number(v.w) || 1, 0.08, 4);
     let h = w / a;
@@ -9149,7 +9240,7 @@ function makeRibbon(el, o){
 
   function place(){
     const v = R.view;
-    const k = Math.min(R.cw / v.w, R.ch / v.h);
+    const k = kFor(v.w, v.h);
     R.k = k;
     R.ox = R.cw / 2 - (v.x + v.w / 2) * k;
     /* A screen shaped differently from the view shows extra above and below.
@@ -9162,7 +9253,7 @@ function makeRibbon(el, o){
     paper.style.transform = "translate(" + R.ox + "px," + R.oy + "px) scale(" + (k / BASE) + ")";
     /* the steered screen's edges, when it isn't this one */
     const fa = o.frame && o.frame();
-    if (o.control && fa && Math.abs(fa - aspect()) / fa > 0.04){
+    if (o.frameAlways || (o.control && fa && Math.abs(fa - aspect()) / fa > 0.04)){
       frameEl.classList.remove("hidden");
       frameEl.style.left = (v.x * k + R.ox) + "px"; frameEl.style.top = (v.y * k + R.oy) + "px";
       frameEl.style.width = (v.w * k) + "px"; frameEl.style.height = (v.h * k) + "px";
@@ -9326,8 +9417,9 @@ function makeRibbon(el, o){
       const t = R.tool.kind, can = o.canDraw && o.canDraw();
       if (can && (t === "pen" || t === "hl")) startStroke(pos(e));
       else if (can && t === "erase"){ mode = "erase"; eraseAt(pos(e)); }
+      else if (o.fixed){ mode = "swipe"; g = { at: pos(e) }; }
       else { mode = "pan"; g = { L: { k: R.k, ox: R.ox, oy: R.oy }, at: pos(e) }; g.keep = toSheet(g.at, g.L); }
-    } else if (ptrs.size === 2){
+    } else if (ptrs.size === 2 && !o.fixed){
       /* a second finger: whatever the first was doing turns into a pinch */
       if (mode === "draw") endStroke(R.live && R.live.p.length > 6);
       const [a, b] = Array.from(ptrs.values());
@@ -9359,7 +9451,7 @@ function makeRibbon(el, o){
       /* zoom from the view as it was when the fingers landed */
       const v0 = g.v0 || (g.v0 = Object.assign({}, R.view));
       const w = clamp(v0.w / s, 0.08, 4), h = w / frameA();
-      const k2 = Math.min(R.cw / w, R.ch / h);
+      const k2 = kFor(w, h);
       const ox = mid.x - g.keep.x * k2, oy = mid.y - g.keep.y * k2;
       const cx = (R.cw / 2 - ox) / k2, cy = (R.ch / 2 - oy) / k2;
       setLocal({ x: cx - w / 2, y: cy - h / 2, w: w, h: h }, false);
@@ -9370,6 +9462,12 @@ function makeRibbon(el, o){
     ptrs.delete(e.pointerId);
     if (mode === "draw"){ endStroke(true); mode = ""; }
     else if (mode === "erase"){ mode = ""; }
+    else if (mode === "swipe"){
+      /* a sideways flick moves to the next or previous picture */
+      const p = pos(e), dx = p.x - g.at.x, dy = p.y - g.at.y;
+      mode = ""; g = null;
+      if (o.onSwipe && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) o.onSwipe(dx < 0 ? 1 : -1);
+    }
     else if (mode === "pan"){ const moved = g && g.moved; mode = ""; g = null; if (moved) setLocal(R.view, true); }
     else if (mode === "pinch"){
       if (ptrs.size === 1){
@@ -9389,7 +9487,7 @@ function makeRibbon(el, o){
 
   let wheelEnd = 0;
   el.addEventListener("wheel", e => {
-    if (!may()) return;
+    if (!may() || o.fixed) return;
     e.preventDefault();
     const p = pos(e);
     const L = { k: R.k, ox: R.ox, oy: R.oy };
@@ -9408,7 +9506,7 @@ function makeRibbon(el, o){
     p = p || { x: R.cw / 2, y: R.ch / 2 };
     const keep = toSheet(p);
     const w = clamp(R.view.w / f, 0.08, 4), h = w / frameA();
-    const k2 = Math.min(R.cw / w, R.ch / h);
+    const k2 = kFor(w, h);
     const ox = p.x - keep.x * k2, oy = p.y - keep.y * k2;
     const cx = (R.cw / 2 - ox) / k2, cy = (R.ch / 2 - oy) / k2;
     setLocal({ x: cx - w / 2, y: cy - h / 2, w: w, h: h }, done);
@@ -9416,6 +9514,7 @@ function makeRibbon(el, o){
 
   followB.addEventListener("click", () => {
     R.detached = false; followB.classList.add("hidden");
+    if (o.onFollow){ o.onFollow(); return; }
     if (R.ext){ R.view = tidy(R.ext, R.ext.w / R.ext.h); place(); }
   });
 
@@ -9462,6 +9561,9 @@ function makeRibbon(el, o){
     setTool(t){ R.tool = Object.assign({}, R.tool, t); el.classList.toggle("drawing", t.kind !== "hand" && !!(o.canDraw && o.canDraw())); },
     get tool(){ return Object.assign({}, R.tool); },
     message(t){ msgEl.textContent = t || ""; msgEl.classList.toggle("hidden", !t); },
+    /* show or hide the "Follow the host" pill (fixed pictures manage this themselves) */
+    detach(on){ R.detached = !!on; followB.classList.toggle("hidden", !on); },
+    get detached(){ return R.detached; },
     refreshSharp(){ clearSharp(); wantSharp(); },
     layout(){ if (!resized()) place(); },
     progress(){ return R.H > 0 ? clamp((R.view.y + R.view.h) / R.H, 0, 1) : 0; },
@@ -9480,7 +9582,7 @@ function makeTools(el, rib, o){
   o = o || {};
   const t = savedTool();
   rib.setTool(t);
-  let h = '<button type="button" class="tl" data-k="hand" title="Move and zoom (one finger drags, two pinch)">✋</button>';
+  let h = '<button type="button" class="tl" data-k="hand" title="' + (o.noFit ? "Stop drawing (swipe to change screenshot)" : "Move and zoom (one finger drags, two pinch)") + '">✋</button>';
   for (const c of Object.keys(PENS)) h += '<button type="button" class="tl pen" data-k="pen" data-c="' + c + '" title="' + c + ' pen"><i style="background:' + PENS[c] + '"></i></button>';
   h += '<button type="button" class="tl" data-k="hl" title="Highlighter"><i class="hlb"></i></button>' +
        '<button type="button" class="tl" data-k="erase" title="Eraser: touch a line to remove it">⌫</button>' +
@@ -9490,7 +9592,7 @@ function makeTools(el, rib, o){
        (o.zoom ? '<span class="tl-gap"></span><button type="button" class="tl" data-a="out" title="Zoom out (−)">−</button>' +
                  '<button type="button" class="tl wide" data-a="fit" title="Fit the width (0)">Fit</button>' +
                  '<button type="button" class="tl" data-a="in" title="Zoom in (+)">+</button>'
-               : '<button type="button" class="tl wide" data-a="fit" title="Back to the full width">Fit</button>');
+               : o.noFit ? "" : '<button type="button" class="tl wide" data-a="fit" title="Back to the full width">Fit</button>');
   el.innerHTML = h;
   const mark = () => {
     const cur = rib.tool;
@@ -9571,20 +9673,6 @@ function boardStop(){
   Object.keys(BS.es).forEach(boardOff);
   BS.code = ""; BS.data = {}; BS.subs = {}; BS.onCancel = null;
 }
-/* a view written at most every 70 ms while it moves, and always when it stops */
-function viewSender(roundUid){
-  let last = 0, timer = 0, pending = null;
-  const send = v => {
-    last = Date.now(); pending = null;
-    boardPut("/view", { r: roundUid(), x: r5(v.x), y: r5(v.y), w: r5(v.w), h: r5(v.h), by: DEV, at: Date.now() });
-  };
-  return (v, done) => {
-    if (!BS.code || !roundUid()) return;
-    clearTimeout(timer);
-    if (done || Date.now() - last > 70) send(v);
-    else { pending = v; timer = setTimeout(() => pending && send(pending), 75); }
-  };
-}
 /* my own lines, newest last, so undo takes back mine and not someone else's */
 function undoLast(rib, mine, erase){
   while (mine.length){
@@ -9593,122 +9681,249 @@ function undoLast(rib, mine, erase){
   }
   return false;
 }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-/* a published deck (slide pictures) onto a sheet, a few at a time */
-async function deckIntoRibbon(id, rib, key, infoEl){
-  let meta = null;
-  for (let tries = 0; tries < 3 && !meta; tries++){
-    try { meta = await getJSON(savePath("/" + id + "/deck/meta")); } catch (e){ await new Promise(r => setTimeout(r, 700)); }
+/* ============================================================
+   17a. SCREENSHOTS
+   Each round is shown as a handful of screenshots picked in the round
+   editor: the whole blacked-out page to scroll and zoom, a frame the shape
+   of one TV slot, and one click to capture what's inside it. A capture is
+   redrawn from the PDF at high resolution with the blackouts painted on,
+   and only its position is saved, so it is redrawn again whenever a
+   blackout changes or a saved game is loaded.
+   A round with no screenshots shows its kept auto-cut slides instead.
+   ============================================================ */
+function roundShots(r){
+  if (r.caps && r.caps.length) return r.caps.filter(c => c.url).map(c => ({ id: c.id, url: c.url, a: c.w / c.h }));
+  const on = r.slides.filter(sl => sl.on);
+  return (on.length ? on : r.slides).map(sl => ({ id: "s" + Math.round(sl.y), url: sl.url, a: r.pageW / sl.h }));
+}
+/* drawings are filed per screenshot: /ink/<round>_<screenshot> */
+const shotKey = (uid, id) => uid + "_" + id;
+
+const CAP_LONG = 2600;          /* a screenshot's longer side, in pixels: sharp on a 4K TV */
+async function renderCap(r, c){
+  const a = c.w / c.h;
+  const W = Math.round(a >= 1 ? CAP_LONG : CAP_LONG * a), H = Math.round(a >= 1 ? CAP_LONG / a : CAP_LONG);
+  const out = document.createElement("canvas");
+  out.width = W; out.height = H;
+  const ctx = out.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
+  const k = W / c.w;
+  const L = { k: k, ox: -c.x * k, oy: -c.y * k, cw: W, ch: H, dpr: 1 };
+  let pic = null;
+  try { pic = await sharpPage(r, [{ h: r.pageH / r.pageW, sy: 0 }], L, () => true, true); } catch (e){ pic = null; }
+  if (pic){ ctx.drawImage(pic, 0, 0); pic.width = pic.height = 1; }
+  else if (r.tiles){
+    /* no PDF to redraw from: cut it out of the stored (already blacked-out) pictures */
+    const P = r.pageW;
+    ctx.drawImage(cropTiles(r.tiles, { x: c.x * P, y: c.y * P, w: c.w * P, h: c.h * P }), 0, 0, W, H);
   }
-  if (rib.key !== key) return null;
-  if (!meta){ rib.message("Couldn’t load this campaign. Check your signal."); return null; }
-  const hs = asList(meta.hs);
-  rib.setSegments(key, Array.from({ length: meta.n }, (_, k) => ({ h: Number(hs[k]) || 1.25 })));
-  rib.message("");
-  if (infoEl) renderInfo(meta.info, meta.nx || 0, id, infoEl);
-  const ids = Array.from({ length: meta.n }, (_, k) => k);
-  pool(ids, 4, async k => {
-    for (let tries = 0; tries < 3; tries++){
-      try {
-        const src = await getJSON(savePath("/" + id + "/deck/s/" + k));
-        if (rib.key !== key || !src) return;
-        let h = Number(hs[k]) || 0;
-        if (!h){
-          /* decks published before heights were recorded: measure the picture */
-          const im = new Image(); im.src = src;
-          await im.decode().catch(() => {});
-          h = im.naturalWidth ? im.naturalHeight / im.naturalWidth : 0;
-        }
-        rib.setSrc(k, src, h);
-        return;
-      } catch (e){ await new Promise(r => setTimeout(r, 800)); }
-    }
+  return new Promise(res => out.toBlob(b => { out.width = out.height = 1; res(b ? URL.createObjectURL(b) : ""); }, "image/jpeg", 0.9));
+}
+/* every screenshot again, after a blackout changed (or a saved game came back) */
+async function recaps(r){
+  for (const c of (r.caps || [])){
+    const old = c.url;
+    c.url = await renderCap(r, c);
+    if (old) URL.revokeObjectURL(old);
+  }
+}
+
+/* ---------- the picker, in the round editor ---------- */
+const CAP = { rib: null, busy: false };
+const CAP_TV = 1.62;             /* the shape of the TV's picture area beside the sidebar */
+const capAspect = () => CAP_TV / upCount();
+function capSegs(r){
+  return (r.tiles || []).map(t => ({ h: (t.img.naturalHeight || t.h) / r.pageW, src: t.url, sy: t.top }));
+}
+function capOpen(){
+  const r = G.rounds[gmIdx];
+  if (!r) return;
+  $("#capWrap").hidden = false;
+  if (!CAP.rib){
+    CAP.rib = makeRibbon($("#capView"), {
+      control: true, frame: capAspect, frameAlways: true, pad: 0.84,
+      sharp: (L, alive) => { const rr = G.rounds[gmIdx]; return rr ? sharpPage(rr, capSegs(rr), L, alive) : null; }
+    });
+  }
+  CAP.rib.setSegments("cap_" + r.uid, capSegs(r));
+  capUpMark();
+  capStrip();
+}
+function capUpMark(){
+  $$("#capUp button").forEach(b => b.classList.toggle("on", Number(b.dataset.up) === upCount()));
+}
+async function capSnap(){
+  const r = G.rounds[gmIdx];
+  if (!r || !CAP.rib || CAP.busy) return;
+  CAP.busy = true;
+  const btn = $("#capSnap");
+  btn.disabled = true; btn.textContent = "Capturing…";
+  const v = CAP.rib.view;
+  const c = { id: "c" + Date.now().toString(36) + randCode(2).toLowerCase(), x: r5(v.x), y: r5(v.y), w: r5(v.w), h: r5(v.h) };
+  try {
+    c.url = await renderCap(r, c);
+    r.caps = (r.caps || []).concat(c);
+    $("#capView").classList.remove("flash"); void $("#capView").offsetWidth; $("#capView").classList.add("flash");
+    capStrip(true);
+  } catch (e){ toast("Couldn’t capture that. Try again."); }
+  btn.disabled = false; btn.textContent = "📸 Capture";
+  CAP.busy = false;
+}
+function capStrip(toEnd){
+  const r = G.rounds[gmIdx];
+  const el = $("#capStrip");
+  const caps = (r && r.caps) || [];
+  $("#capCount").textContent = caps.length ? caps.length + " picked" : "None yet: the auto-cut slides below will be used";
+  el.innerHTML = caps.length ? "" : '<p class="tiny cap-none">Frame something and press <b>📸 Capture</b>. Screenshots show on the TV in this order.</p>';
+  caps.forEach((c, i) => {
+    const d = document.createElement("div");
+    d.className = "cap-item";
+    d.innerHTML = '<button type="button" class="cap-pic" title="Show this one in the frame again"><img alt=""></button>' +
+      '<div class="cap-row"><b>' + (i + 1) + '</b><span class="grow"></span>' +
+      '<button type="button" class="mini" data-m="-1" title="Earlier"' + (i ? "" : " disabled") + '>‹</button>' +
+      '<button type="button" class="mini" data-m="1" title="Later"' + (i < caps.length - 1 ? "" : " disabled") + '>›</button>' +
+      '<button type="button" class="mini del" data-x title="Remove">✕</button></div>';
+    $("img", d).src = c.url;
+    $(".cap-pic", d).addEventListener("click", () => CAP.rib.setView(c));
+    $$("[data-m]", d).forEach(b => b.addEventListener("click", () => {
+      const j = i + Number(b.dataset.m);
+      const list = r.caps.slice(); list.splice(j, 0, list.splice(i, 1)[0]); r.caps = list; capStrip();
+    }));
+    $("[data-x]", d).addEventListener("click", () => { r.caps = r.caps.filter(x => x !== c); if (c.url) URL.revokeObjectURL(c.url); capStrip(); });
+    el.appendChild(d);
   });
-  return meta;
+  if (toEnd) el.scrollLeft = el.scrollWidth;
+}
+function setUpCount(n){
+  store.set("ds.up", String(n));
+  if (CAP.rib && !$("#gm").classList.contains("hidden")){ CAP.rib.setView(CAP.rib.view); capUpMark(); }
+  $$("#upSel button").forEach(b => b.classList.toggle("on", Number(b.dataset.up) === upCount()));
 }
 
 /* ============================================================
-   17a. THE TV
+   17b. THE TV: screenshots side by side, the sidebar, drawing
    ============================================================ */
 const TVB = {
-  rib: null, tools: null, uid: "",
-  local: {},          /* round uid → lines, kept for the whole game (the board's copy wins once a room is open) */
-  mine: {},           /* round uid → keys of the lines this screen drew */
-  lastCmd: 0, sendView: null, aspectAt: 0, penKey: "", decks: {}, deckBusy: null, pens: {}
+  panels: [], tools: null, uid: "", shots: [], page: 0, tool: null,
+  local: {},          /* round_screenshot → lines, kept for the whole game (the board's copy wins once a room is open) */
+  mine: [],           /* [key, line] for each line this screen drew, newest last */
+  lastCmd: 0, penKey: "", decks: {}, deckBusy: null, pens: {}
 };
 const tvLive = () => !!(LIVE.code && LIVE.isHost && BS.code === LIVE.code);
-
-function tvSegments(r){
-  const deck = r.slides.filter(sl => sl.on);
-  return (deck.length ? deck : r.slides.slice()).map(sl => ({ h: sl.h / r.pageW, src: sl.url, sy: sl.y }));
-}
+const tvUp = () => Math.max(1, Math.min(upCount(), TVB.shots.length || 1));
+const tvPages = () => Math.max(1, Math.ceil(TVB.shots.length / tvUp()));
 
 function tvInit(){
-  if (TVB.rib) return;
-  TVB.rib = makeRibbon($("#tvBoard"), {
-    control: true,
-    canDraw: () => true,
-    onView: (v, done) => { if (tvLive()) TVB.sendView(v, done); tvProgress(); },
-    onStroke: (key, s, done) => {
-      const uid = TVB.uid;
-      if (done){ (TVB.mine[uid] = TVB.mine[uid] || []).push(key); (TVB.local[uid] = TVB.local[uid] || {})[key] = s; }
-      if (tvLive()) boardPut("/ink/" + uid + "/" + key, s);
+  if (TVB.panels.length) return;
+  TVB.tool = savedTool();
+  const box = $("#tvBoard");
+  for (let i = 0; i < 3; i++){
+    const el = document.createElement("div");
+    el.className = "tv-panel";
+    box.appendChild(el);
+    const P = { el: el, key: "", shot: null };
+    P.rib = makeRibbon(el, {
+      control: true, fixed: true, canDraw: () => true,
+      onStroke: (k, s, done) => {
+        if (!P.key) return;
+        if (done){ TVB.mine.push([P.key, k]); (TVB.local[P.key] = TVB.local[P.key] || {})[k] = s; }
+        if (tvLive()) boardPut("/ink/" + P.key + "/" + k, s);
+      },
+      onErase: keys => tvErase(P.key, keys),
+      onSwipe: d => tvPage(TVB.page + d)
+    });
+    P.rib.setTool(TVB.tool);
+    TVB.panels.push(P);
+  }
+  const group = {
+    setTool(t){ TVB.tool = Object.assign({}, TVB.tool, t); TVB.panels.forEach(P => P.rib.setTool(TVB.tool)); },
+    get tool(){ return Object.assign({}, TVB.tool); }
+  };
+  TVB.tools = makeTools($("#tvTools"), group, {
+    noFit: true,
+    onUndo: () => {
+      while (TVB.mine.length){
+        const [key, k] = TVB.mine.pop();
+        if ((TVB.local[key] || {})[k]){ tvErase(key, [k]); return; }
+      }
     },
-    onErase: keys => tvErase(keys),
-    onResize: a => tvAspect(a),
-    sharp: (L, alive) => {
-      const r = G.rounds[G.idx];
-      return r && r.uid === TVB.uid ? sharpPage(r, TVB.segs, L, alive) : null;
-    }
+    onClear: () => TVB.panels.forEach(P => { if (P.key && P.el.style.display !== "none") tvErase(P.key, Object.keys(P.rib.ink)); })
   });
-  TVB.tools = makeTools($("#tvTools"), TVB.rib, {
-    zoom: true,
-    onUndo: () => undoLast(TVB.rib, TVB.mine[TVB.uid] || [], tvErase),
-    onClear: () => tvErase(Object.keys(TVB.rib.ink))
-  });
-  TVB.sendView = viewSender(() => TVB.uid);
 }
 
-function tvErase(keys){
-  const uid = TVB.uid, loc = TVB.local[uid] || {};
-  const ink = Object.assign({}, TVB.rib.ink);
-  keys.forEach(k => { delete loc[k]; delete ink[k]; });
-  TVB.rib.setInk(ink);
-  if (tvLive()) keys.forEach(k => boardPut("/ink/" + uid + "/" + k, null));
+function tvErase(key, keys){
+  if (!key) return;
+  const loc = TVB.local[key] || {};
+  keys.forEach(k => delete loc[k]);
+  TVB.panels.forEach(P => {
+    if (P.key !== key) return;
+    const ink = Object.assign({}, P.rib.ink);
+    keys.forEach(k => delete ink[k]);
+    P.rib.setInk(ink);
+  });
+  if (tvLive()) keys.forEach(k => boardPut("/ink/" + key + "/" + k, null));
 }
 
 /* a new round on the TV */
 function tvShowRound(r){
   tvInit();
   TVB.uid = r.uid;
-  TVB.segs = tvSegments(r);
-  TVB.rib.setSegments(r.uid, TVB.segs);
-  TVB.rib.setInk(TVB.local[r.uid] || {});
-  TVB.rib.top();
-  if (tvLive()) tvListenInk();
-  tvProgress();
+  TVB.shots = roundShots(r);
+  tvPage(0, true);
   tvPenDecks();
 }
 
-function tvProgress(){
-  const el = $("#tvPos");
-  if (el && TVB.rib) el.textContent = Math.round(TVB.rib.progress() * 100) + "%";
-}
-
-function tvAspect(a){
-  if (!tvLive() || !a) return;
-  if (Math.abs(a - TVB.aspectAt) < 0.01) return;
-  TVB.aspectAt = a;
-  boardPut("/screen", { a: r5(a), at: Date.now() });
-}
-
-function tvListenInk(){
-  boardListen("ink", "/ink/" + TVB.uid, v => {
-    const ink = (v && typeof v === "object") ? v : {};
-    TVB.local[TVB.uid] = Object.assign({}, ink);
-    TVB.rib.setInk(ink);
+/* show page p: up to three screenshots side by side */
+function tvPage(p, force){
+  if (!TVB.panels.length) return;
+  p = clamp(p, 0, tvPages() - 1);
+  if (p === TVB.page && !force) return;
+  TVB.page = p;
+  const up = tvUp();
+  $("#tvBoard").dataset.up = String(up);
+  TVB.panels.forEach((P, i) => {
+    const shot = i < up ? TVB.shots[p * up + i] : null;
+    P.el.style.display = i < up ? "" : "none";
+    P.el.style.visibility = shot ? "" : "hidden";
+    P.shot = shot;
+    P.key = shot ? shotKey(TVB.uid, shot.id) : "";
+    if (shot){
+      P.rib.setSegments(P.key, [{ h: 1 / shot.a, src: shot.url }]);
+      P.rib.setInk(TVB.local[P.key] || {});
+    } else P.rib.setSegments("", []);
+    if (tvLive()){
+      if (shot){
+        const key = P.key;
+        boardListen("ink" + i, "/ink/" + key, v => {
+          const ink = v && typeof v === "object" ? v : {};
+          TVB.local[key] = Object.assign({}, ink);
+          if (P.key === key) P.rib.setInk(ink);
+        });
+      } else boardOff("ink" + i);
+    }
   });
+  requestAnimationFrame(() => TVB.panels.forEach(P => { if (P.el.style.display !== "none") P.rib.layout(); }));
+  tvCounter();
+  if (tvLive()) boardPut("/pos", { r: TVB.uid, i: p * up, up: up, n: TVB.shots.length, at: Date.now() });
 }
+function tvCounter(){
+  const up = tvUp(), n = TVB.shots.length, first = TVB.page * up + 1, last = Math.min(n, first + up - 1);
+  $("#panelCount").textContent = n ? (up > 1 && last > first ? first + "–" + last : String(first)) + " / " + n : "";
+  const dots = $("#dots");
+  dots.innerHTML = "";
+  for (let i = 0; i < tvPages(); i++){ const d = document.createElement("i"); if (i <= TVB.page) d.className = "on"; dots.appendChild(d); }
+  $("#bPrev").disabled = TVB.page <= 0;
+  $("#bNextPanel").disabled = TVB.page >= tvPages() - 1;
+  $$("#upSel button").forEach(b => b.classList.toggle("on", Number(b.dataset.up) === upCount()));
+}
+function tvSetUp(n){
+  const first = TVB.page * tvUp();
+  setUpCount(n);
+  tvPage(Math.floor(first / tvUp()), true);
+}
+function tvRelayout(){ TVB.panels.forEach(P => { if (P.el.style.display !== "none") P.rib.layout(); }); }
 
 /* a room is open on the TV: put the board up next to it */
 async function tvBoardOpen(){
@@ -9716,32 +9931,26 @@ async function tvBoardOpen(){
   tvInit();
   BS.code = LIVE.code;
   TVB.lastCmd = Date.now();
-  TVB.aspectAt = 0;
   /* anything left from an old room with the same letters goes; lines drawn before the room opened come along */
   const ink = {};
-  for (const uid in TVB.local) if (Object.keys(TVB.local[uid] || {}).length) ink[uid] = TVB.local[uid];
+  for (const key in TVB.local) if (Object.keys(TVB.local[key] || {}).length) ink[key] = TVB.local[key];
   await boardPut("", { at: Date.now(), ink: ink });
-  tvAspect(TVB.rib.aspect());
   boardListen("pens", "/pens", v => { TVB.pens = (v && typeof v === "object") ? v : {}; tvPensChanged(); });
   boardListen("cmd", "/cmd", tvCmd);
-  boardListen("view", "/view", v => {
-    if (!v || v.by === DEV || v.r !== TVB.uid) return;
-    TVB.rib.setView(v);
-    tvProgress();
-  });
-  if (TVB.uid){ tvListenInk(); TVB.sendView(TVB.rib.view, true); }
+  if (TVB.uid) tvPage(TVB.page, true);
 }
 
 function tvCmd(c){
   if (!c || c.by === DEV || !(Number(c.n) > TVB.lastCmd)) return;
   TVB.lastCmd = Number(c.n);
-  const playing = !$("#play").classList.contains("hidden");
-  if (c.do === "back" && !$("#results").classList.contains("hidden")){ $("#resBack").click(); return; }
-  if (!playing) return;
+  if (c.do === "game" && !$("#results").classList.contains("hidden")){ $("#resBack").click(); return; }
+  if ($("#play").classList.contains("hidden")) return;
   if (c.do === "reveal") $("#bReveal").click();
   else if (c.do === "next") $("#bNext").click();
   else if (c.do === "info") $("#bInfo").click();
   else if (c.do === "prev" && G.idx > 0) loadRound(G.idx - 1);
+  else if (c.do === "fwd") tvPage(TVB.page + 1);
+  else if (c.do === "bwd") tvPage(TVB.page - 1);
 }
 
 /* ---------- pairing a phone as the pen ---------- */
@@ -9790,8 +9999,8 @@ function tvPensChanged(){
   if (ids.length) tvPenDecks();
 }
 
-/* The phone needs the page too. The TV sends up the round's (already
-   blacked-out) slide pictures, the one on screen first, then the rest. */
+/* The phone needs the screenshots too. The TV sends them up (already
+   blacked out), the round on screen first, then the rest. */
 async function tvPenDecks(){
   if (!tvLive() || !Object.keys(TVB.pens || {}).length || TVB.deckBusy) return;
   TVB.deckBusy = (async () => {
@@ -9799,14 +10008,13 @@ async function tvPenDecks(){
     for (const i of order){
       const r = G.rounds[i];
       if (!r || !tvLive()) break;
-      const segs = tvSegments(r);
-      const sig = segs.map(s => s.src).join("|");
+      const shots = roundShots(r);
+      const sig = shots.map(s => s.id + s.url).join("|");
       let id = TVB.decks[r.uid] && TVB.decks[r.uid].sig === sig ? TVB.decks[r.uid].id : "";
       if (!id){
         id = code6();
         try {
-          await pool(segs, 4, async (s, k) => { await putJSON(savePath("/" + id + "/deck/s/" + k), await toJpeg(s.src, 1000, 0.8)); });
-          await putJSON(savePath("/" + id + "/deck/meta"), { kind: "deck", n: segs.length, nx: 0, hs: segs.map(s => r5(s.h)), title: "", at: Date.now() });
+          await putDeck(id, shots, { title: "" });
         } catch (e){ id = ""; }
         if (!id) continue;
         TVB.decks[r.uid] = { id: id, sig: sig };
@@ -9815,18 +10023,79 @@ async function tvPenDecks(){
     }
   })().finally(() => { TVB.deckBusy = null; });
 }
+/* screenshots up to /saves/<id>/deck: s/<k> pictures, and meta with each one's id and shape */
+async function putDeck(id, shots, extra){
+  await pool(shots, 4, async (s, k) => {
+    await putJSON(savePath("/" + id + "/deck/s/" + k), await toJpeg(s.url, s.a >= 1 ? 1600 : 1100, 0.82));
+  });
+  await putJSON(savePath("/" + id + "/deck/meta"), Object.assign({
+    kind: "deck", n: shots.length, nx: 0,
+    ids: shots.map(s => s.id), as: shots.map(s => r5(s.a)), hs: shots.map(s => r5(1 / s.a)), at: Date.now()
+  }, extra || {}));
+}
 
-/* ---------- sharp: the visible part redrawn from the PDF at full screen resolution ---------- */
+/* a published set of screenshots, fetched one at a time as they're needed */
+function openDeck(id){
+  const d = { id: id, meta: null, ids: [], as: [], pics: {} };
+  d.ready = (async () => {
+    for (let t = 0; t < 3 && !d.meta; t++){
+      try { d.meta = await getJSON(savePath("/" + id + "/deck/meta")); } catch (e){ await sleep(700); }
+    }
+    if (!d.meta) return null;
+    const n = Number(d.meta.n) || 0, ids = asList(d.meta.ids), as = asList(d.meta.as), hs = asList(d.meta.hs);
+    for (let k = 0; k < n; k++){
+      d.ids.push(String(ids[k] || ("s" + k)));
+      d.as.push(Number(as[k]) || (Number(hs[k]) ? 1 / Number(hs[k]) : 0));
+    }
+    return d;
+  })();
+  d.pic = k => d.pics[k] || (d.pics[k] = (async () => {
+    for (let t = 0; t < 3; t++){
+      try {
+        const src = await getJSON(savePath("/" + id + "/deck/s/" + k));
+        if (src){
+          if (!d.as[k]){
+            /* decks published before shapes were recorded: measure the picture */
+            const im = new Image(); im.src = src;
+            await im.decode().catch(() => {});
+            d.as[k] = im.naturalWidth ? im.naturalWidth / im.naturalHeight : 0.8;
+          }
+          return src;
+        }
+      } catch (e){ await sleep(800); }
+    }
+    delete d.pics[k];
+    return "";
+  })());
+  return d;
+}
+/* screenshot k of a deck into a fixed sheet, with its drawings coming in live */
+async function showDeckShot(rib, deck, k, uid, listenName){
+  const key = shotKey(uid, deck.ids[k] || ("s" + k));
+  const shape = () => 1 / (deck.as[k] || 0.8);
+  if (rib.key !== key){
+    rib.setSegments(key, [{ h: shape() }]);
+    boardListen(listenName, "/ink/" + key, v => { if (rib.key === key) rib.setInk(v && typeof v === "object" ? v : {}); });
+  }
+  rib.message("");
+  const src = await deck.pic(k);
+  if (rib.key !== key) return key;
+  if (!src){ rib.message("Couldn’t load this screenshot. Check your signal."); return key; }
+  rib.setSegments(key, [{ h: shape(), src: src }]);
+  return key;
+}
+
+/* ---------- sharp: part of a page redrawn from the PDF at full resolution ---------- */
 function roundPdf(r){
   if (!r._pdf) r._pdf = pdfjsLib.getDocument({ data: new Uint8Array(r.pdfData), isEvalSupported: false }).promise
     .catch(e => { r._pdf = null; throw e; });
   return r._pdf;
 }
-async function sharpPage(r, segs, L, alive){
+async function sharpPage(r, segs, L, alive, force){
   if (!window.pdfjsLib || !r.pdfData || !r.pageTops || !segs) return null;
   const W = r.pageW;
   const f = L.k * L.dpr / W;                 /* screen pixels per pixel of the stored pictures */
-  if (f < 1.08) return null;                 /* the stored pictures are already sharp enough */
+  if (f < 1.08 && !force) return null;       /* the stored pictures are already sharp enough */
   const doc = await roundPdf(r);
   if (!alive()) return null;
   const out = document.createElement("canvas");
@@ -9848,7 +10117,7 @@ async function sharpPage(r, segs, L, alive){
         tmp.width = pw; tmp.height = ph;
         const t = tmp.getContext("2d");
         t.fillStyle = "#fff"; t.fillRect(0, 0, pw, ph);
-        /* where the top of this slide's source lands, in tmp's pixels */
+        /* where the top of this slice's source lands, in tmp's pixels */
         const tx = L.ox * L.dpr - dx0;
         const segTop = (dst * L.k + L.oy) * L.dpr - dy0;
         for (const pg of r.pageTops){
@@ -9882,7 +10151,10 @@ function renderSide(){
   const el = $("#tvSide");
   if (!el) return;
   const rd = G.rounds[G.idx];
-  if (!LIVE.isHost || !LIVE.code || !rd){ el.classList.add("hidden"); if (TVB.rib) TVB.rib.layout(); return; }
+  if (!LIVE.isHost || !LIVE.code || !rd){
+    if (!el.classList.contains("hidden")){ el.classList.add("hidden"); requestAnimationFrame(tvRelayout); }
+    return;
+  }
   const wasHidden = el.classList.contains("hidden");
   el.classList.remove("hidden");
   const players = livePlayers().sort((a, b) => (a.joined || 0) - (b.joined || 0));
@@ -9896,11 +10168,11 @@ function renderSide(){
     h += '<li class="' + (locked[p.id] ? "in" : "") + (nm === null ? " banned" : "") + '"><span>' + esc(nm === null ? "nope" : nm) + '</span><i>' + (locked[p.id] ? "✓" : "") + '</i></li>';
   }
   el.innerHTML = h + '</ul>';
-  if (wasHidden && TVB.rib) requestAnimationFrame(() => TVB.rib.layout());
+  if (wasHidden) requestAnimationFrame(tvRelayout);
 }
 
 /* ============================================================
-   17b. THE PEN: a phone that draws on the TV
+   17c. THE PEN: a phone that draws on the TV and steps through it
    ============================================================ */
 /* keep the phone's screen on while it's the pen (quietly skipped where unsupported) */
 let wakeLock = null;
@@ -9914,7 +10186,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && PN.room && !$("#pen").classList.contains("hidden")) keepAwake();
 });
 const PEN_KEY = "ds.pen";
-const PN = { rib: null, tools: null, uid: "", deck: "", mine: {}, sendView: null, aspect: 0, room: "" };
+const PN = { rib: null, tools: null, uid: "", deckId: "", deck: null, k: -1, mine: [], room: "" };
 
 function openPen(code){
   show("pen");
@@ -9972,31 +10244,37 @@ function phoneLabel(){
 function penInit(){
   if (PN.rib) return;
   PN.rib = makeRibbon($("#penBoard"), {
-    control: true,
-    frame: () => PN.aspect,
-    canDraw: () => true,
-    onView: (v, done) => PN.sendView(v, done),
-    onStroke: (key, s, done) => {
-      if (done) (PN.mine[PN.uid] = PN.mine[PN.uid] || []).push(key);
-      boardPut("/ink/" + PN.uid + "/" + key, s);
+    control: true, fixed: true, canDraw: () => true,
+    onStroke: (k, s, done) => {
+      const key = PN.rib.key;
+      if (!key) return;
+      if (done) PN.mine.push([key, k]);
+      boardPut("/ink/" + key + "/" + k, s);
     },
-    onErase: keys => penErase(keys)
+    onErase: keys => penErase(PN.rib.key, keys),
+    onSwipe: d => penCmd(d > 0 ? "fwd" : "bwd")
   });
   PN.tools = makeTools($("#penTools"), PN.rib, {
-    onUndo: () => undoLast(PN.rib, PN.mine[PN.uid] || [], penErase),
-    onClear: () => penErase(Object.keys(PN.rib.ink))
+    noFit: true,
+    onUndo: () => {
+      while (PN.mine.length){
+        const [key, k] = PN.mine.pop();
+        if (key === PN.rib.key && PN.rib.ink[k]){ penErase(key, [k]); return; }
+      }
+    },
+    onClear: () => penErase(PN.rib.key, Object.keys(PN.rib.ink))
   });
-  PN.sendView = viewSender(() => PN.uid);
 }
-function penErase(keys){
+function penErase(key, keys){
+  if (!key) return;
   const ink = Object.assign({}, PN.rib.ink);
-  keys.forEach(k => { delete ink[k]; boardPut("/ink/" + PN.uid + "/" + k, null); });
-  PN.rib.setInk(ink);
+  keys.forEach(k => { delete ink[k]; boardPut("/ink/" + key + "/" + k, null); });
+  if (PN.rib.key === key) PN.rib.setInk(ink);
 }
 
 function penAttach(room){
   penInit();
-  PN.room = room; PN.uid = ""; PN.deck = "";
+  PN.room = room; PN.uid = ""; PN.deckId = ""; PN.deck = null; PN.k = -1;
   BS.code = room;
   $("#penSetup").classList.add("hidden");
   $("#penWork").classList.remove("hidden");
@@ -10010,9 +10288,8 @@ function penAttach(room){
     penSetup(was ? "The TV disconnected this phone. Get a fresh code from the TV to reconnect."
                  : "This phone isn’t connected to that TV any more. Get a fresh code from the TV.");
   });
-  boardListen("screen", "/screen", v => { PN.aspect = (v && Number(v.a)) || 0; PN.rib.layout(); });
   boardListen("decks", "/deck", () => penRender());
-  boardListen("view", "/view", v => { if (v && v.by !== DEV && v.r === PN.uid) PN.rib.setView(v); });
+  boardListen("pos", "/pos", () => penShots());
   /* the room itself: which round, who's locked in */
   LIVE.code = room; LIVE.isHost = false; LIVE.state = {};
   liveConnect(() => penRender());
@@ -10025,7 +10302,7 @@ function penDetach(keepSaved){
     if (LIVE.es){ LIVE.es.close(); LIVE.es = null; }
     if (LIVE.code === PN.room){ LIVE.code = ""; LIVE.state = {}; LIVE.onChange = null; }
   }
-  PN.room = ""; PN.uid = ""; PN.deck = ""; PN.seenMe = false; PN.idle = false; PN.hadMeta = false;
+  PN.room = ""; PN.uid = ""; PN.deckId = ""; PN.deck = null; PN.k = -1; PN.seenMe = false; PN.hadMeta = false;
   if (!keepSaved) store.set(PEN_KEY, "");
 }
 
@@ -10045,23 +10322,21 @@ function penRender(){
   $("#penIn").textContent = inRound && players.length ? inN + "/" + players.length + " in" : "";
 
   if (!inRound){
-    if (PN.uid || !PN.idle){ PN.uid = ""; PN.deck = ""; PN.idle = true; boardOff("ink"); PN.rib.setSegments("", []); }
+    if (PN.uid || PN.k !== -2){ PN.uid = ""; PN.deckId = ""; PN.deck = null; PN.k = -2; boardOff("ink"); PN.rib.setSegments("", []); }
     PN.rib.message(now.phase === "results" || now.phase === "final" ? "Final results are up on the TV." : "Waiting for the TV to start a round…");
+    $("#penNav").innerHTML = "";
   } else {
     if (PN.uid !== now.uid){
-      PN.uid = now.uid; PN.deck = ""; PN.idle = false;
-      PN.rib.setSegments(now.uid, []);
-      PN.rib.message("Getting the page from the TV…");
-      boardListen("ink", "/ink/" + now.uid, v => PN.rib.setInk(v && typeof v === "object" ? v : {}));
+      PN.uid = now.uid; PN.deckId = ""; PN.deck = null; PN.k = -1;
+      PN.rib.setSegments("", []);
+      PN.rib.message("Getting the screenshots from the TV…");
     }
-    const deck = (BS.data.decks || {})[now.uid];
-    if (deck && deck !== PN.deck){
-      PN.deck = deck;
-      deckIntoRibbon(deck, PN.rib, now.uid, null).then(meta => {
-        if (!meta) return;
-        const v = BS.data.view;
-        if (v && v.r === PN.uid) PN.rib.setView(v);
-      });
+    const id = (BS.data.decks || {})[now.uid];
+    if (id && id !== PN.deckId){
+      PN.deckId = id;
+      const d = openDeck(id);
+      PN.deck = d;
+      d.ready.then(() => { if (PN.deck === d) penShots(); });
     }
   }
   const last = rounds && now.r + 1 >= rounds;
@@ -10069,7 +10344,28 @@ function penRender(){
     ? '<button type="button" class="btn sm ghost" data-pc="info">Info</button>' +
       '<button type="button" class="btn sm ' + (now.phase === "guessing" ? "solid" : "ghost") + '" data-pc="reveal">' + (now.phase === "guessing" ? "Reveal" : "Show/hide reveal") + '</button>' +
       '<button type="button" class="btn sm ' + (now.phase === "revealed" ? "solid" : "ghost") + '" data-pc="next">' + (last ? "Final results" : "Next round ›") + '</button>'
-    : (now.phase === "results" || now.phase === "final" ? '<button type="button" class="btn sm ghost" data-pc="back">Back to the game</button>' : "");
+    : (now.phase === "results" || now.phase === "final" ? '<button type="button" class="btn sm ghost" data-pc="game">Back to the game</button>' : "");
+}
+
+/* which screenshots the TV has up, and which of them this phone draws on */
+function penShots(){
+  const d = PN.deck;
+  if (!d || !d.meta || !PN.uid) return;
+  const n = d.ids.length;
+  const pos = BS.data.pos;
+  const here = pos && pos.r === PN.uid;
+  const first = here ? clamp(Number(pos.i) || 0, 0, Math.max(0, n - 1)) : 0;
+  const up = here ? Math.max(1, Number(pos.up) || 1) : 1;
+  const onTv = [];
+  for (let k = first; k < Math.min(n, first + up); k++) onTv.push(k);
+  if (!onTv.includes(PN.k)) PN.k = onTv[0] !== undefined ? onTv[0] : 0;
+  let h = '<button type="button" class="btn sm ghost" data-pc="bwd"' + (first > 0 ? "" : " disabled") + '>‹</button><span class="ptabs">';
+  if (onTv.length > 1) onTv.forEach(k => { h += '<button type="button" class="ptab' + (k === PN.k ? " on" : "") + '" data-pk="' + k + '">' + (k + 1) + '</button>'; });
+  else h += '<span class="pcount">' + (PN.k + 1) + ' / ' + n + '</span>';
+  h += '</span>' + (onTv.length > 1 ? '<span class="pcount">of ' + n + '</span>' : "") +
+       '<button type="button" class="btn sm ghost" data-pc="fwd"' + (first + up < n ? "" : " disabled") + '>›</button>';
+  $("#penNav").innerHTML = h;
+  showDeckShot(PN.rib, d, PN.k, PN.uid, "ink");
 }
 
 function penCmd(what){
@@ -10077,33 +10373,43 @@ function penCmd(what){
 }
 
 /* ============================================================
-   17c. REMOTE: the host steers, every player's phone follows
+   17d. REMOTE: the host steps through, every player's phone follows
    ============================================================ */
-const RB = { rib: null, tools: null, uid: "", deck: "", mine: {}, sendView: null, on: false };
+const RB = { rib: null, tools: null, uid: "", deckId: "", deck: null, i: 0, mine: [], on: false };
 
 function hsBoardInit(){
   if (RB.rib) return;
   RB.rib = makeRibbon($("#hsBoard"), {
-    control: true,
-    canDraw: () => true,
-    onView: (v, done) => RB.sendView(v, done),
-    onStroke: (key, s, done) => {
-      if (done) (RB.mine[RB.uid] = RB.mine[RB.uid] || []).push(key);
-      boardPut("/ink/" + RB.uid + "/" + key, s);
+    control: true, fixed: true, canDraw: () => true,
+    onStroke: (k, s, done) => {
+      const key = RB.rib.key;
+      if (!key) return;
+      if (done) RB.mine.push([key, k]);
+      boardPut("/ink/" + key + "/" + k, s);
     },
-    onErase: keys => hsErase(keys)
+    onErase: keys => hsErase(RB.rib.key, keys),
+    onSwipe: d => hsShow(RB.i + d)
   });
   RB.tools = makeTools($("#hsTools"), RB.rib, {
-    zoom: true,
-    onUndo: () => undoLast(RB.rib, RB.mine[RB.uid] || [], hsErase),
-    onClear: () => hsErase(Object.keys(RB.rib.ink))
+    noFit: true,
+    onUndo: () => {
+      while (RB.mine.length){
+        const [key, k] = RB.mine.pop();
+        if (key === RB.rib.key && RB.rib.ink[k]){ hsErase(key, [k]); return; }
+      }
+    },
+    onClear: () => hsErase(RB.rib.key, Object.keys(RB.rib.ink))
   });
-  RB.sendView = viewSender(() => RB.uid);
+  $("#hsNav").addEventListener("click", e => {
+    const b = e.target.closest("[data-hn]");
+    if (b) hsShow(RB.i + Number(b.dataset.hn));
+  });
 }
-function hsErase(keys){
+function hsErase(key, keys){
+  if (!key) return;
   const ink = Object.assign({}, RB.rib.ink);
-  keys.forEach(k => { delete ink[k]; boardPut("/ink/" + RB.uid + "/" + k, null); });
-  RB.rib.setInk(ink);
+  keys.forEach(k => { delete ink[k]; boardPut("/ink/" + key + "/" + k, null); });
+  if (RB.rib.key === key) RB.rib.setInk(ink);
 }
 /* the board follows whichever round is up */
 function hsBoardSync(now){
@@ -10111,22 +10417,36 @@ function hsBoardSync(now){
   hsBoardInit();
   if (BS.code !== LIVE.code){ boardStop(); BS.code = LIVE.code; }
   const inRound = /^(guessing|revealed)$/.test(now.phase) && now.r >= 0 && now.deck;
-  if (!inRound){ RB.uid = ""; RB.deck = ""; hsBoardShow(false); return; }
-  if (RB.uid !== now.uid || RB.deck !== now.deck){
+  if (!inRound){ RB.uid = ""; RB.deckId = ""; RB.deck = null; hsBoardShow(false); return; }
+  if (RB.uid !== now.uid || RB.deckId !== now.deck){
     const fresh = RB.uid !== now.uid;
-    RB.uid = now.uid; RB.deck = now.deck;
-    RB.rib.setSegments(now.uid, []);
+    RB.uid = now.uid; RB.deckId = now.deck;
+    RB.rib.setSegments("", []);
     RB.rib.message("Loading the campaign…");
-    boardListen("ink", "/ink/" + now.uid, v => RB.rib.setInk(v && typeof v === "object" ? v : {}));
-    deckIntoRibbon(now.deck, RB.rib, now.uid, null).then(meta => {
-      if (!meta) return;
-      /* back where everyone was, or the top for a new round */
-      getJSON(boardUrl("/view")).then(v => {
-        if (v && v.r === RB.uid && !fresh) RB.rib.setView(v);
-        else RB.rib.top();
-      }).catch(() => RB.rib.top());
+    const d = openDeck(now.deck);
+    RB.deck = d;
+    d.ready.then(async () => {
+      if (RB.deck !== d) return;
+      if (!d.meta){ RB.rib.message("Couldn’t load this campaign. Check your signal."); return; }
+      /* back where everyone was, or the first screenshot for a new round */
+      let i = 0;
+      if (!fresh){ const p = await getJSON(boardUrl("/pos")).catch(() => null); if (p && p.r === RB.uid) i = Number(p.i) || 0; }
+      hsShow(i, true);
     });
   }
+}
+function hsShow(i, force){
+  const d = RB.deck;
+  if (!d || !d.meta) return;
+  const n = d.ids.length;
+  i = clamp(i, 0, Math.max(0, n - 1));
+  if (i === RB.i && !force && RB.rib.key) return;
+  RB.i = i;
+  showDeckShot(RB.rib, d, i, RB.uid, "ink");
+  boardPut("/pos", { r: RB.uid, i: i, up: 1, n: n, at: Date.now() });
+  $("#hsNav").innerHTML = '<button type="button" class="btn sm ghost" data-hn="-1"' + (i > 0 ? "" : " disabled") + '>‹</button>' +
+    '<span class="pcount">' + (i + 1) + ' / ' + n + '</span>' +
+    '<button type="button" class="btn sm ghost" data-hn="1"' + (i < n - 1 ? "" : " disabled") + '>›</button>';
 }
 function hsBoardShow(on){
   RB.on = !!on && !!RB.uid;
@@ -10159,29 +10479,67 @@ function hsBoardStrip(){
 }
 
 /* ---------- a remote player's phone ---------- */
-const RPB = { rib: null, uid: "", deck: "" };
+const RPB = { rib: null, uid: "", deckId: "", deck: null, i: 0, hostI: 0 };
 function rpBoardInit(){
   if (RPB.rib) return;
-  RPB.rib = makeRibbon($("#rpBoard"), { follow: true });
+  RPB.rib = makeRibbon($("#rpBoard"), {
+    follow: true, fixed: true,
+    onSwipe: d => {
+      if (!RPB.deck || !RPB.deck.meta) return;
+      const i = clamp(RPB.i + d, 0, RPB.deck.ids.length - 1);
+      if (i === RPB.i) return;
+      RPB.i = i;
+      RPB.rib.detach(RPB.i !== RPB.hostI);
+      rpShow();
+    },
+    onFollow: () => { RPB.i = RPB.hostI; RPB.rib.detach(false); rpShow(); }
+  });
 }
 function rpBoardSync(now){
   rpBoardInit();
-  if (!now.deck || !now.uid){ return; }
+  if (!now.deck || !now.uid) return;
   if (BS.code !== LIVE.code){
     boardStop(); BS.code = LIVE.code;
-    boardListen("view", "/view", v => { if (v && v.r === RPB.uid) RPB.rib.setView(v); });
-  }
-  if (RPB.uid !== now.uid || RPB.deck !== now.deck){
-    RPB.uid = now.uid; RPB.deck = now.deck;
-    RPB.rib.setSegments(now.uid, []);
-    RPB.rib.message("Loading the campaign…");
-    boardListen("ink", "/ink/" + now.uid, v => RPB.rib.setInk(v && typeof v === "object" ? v : {}));
-    deckIntoRibbon(now.deck, RPB.rib, now.uid, $("#rpInfo")).then(meta => {
-      if (!meta) return;
-      const v = BS.data.view;
-      if (v && v.r === RPB.uid) RPB.rib.setView(v);
+    boardListen("pos", "/pos", v => {
+      if (!v || v.r !== RPB.uid) return;
+      RPB.hostI = Number(v.i) || 0;
+      if (!RPB.rib.detached){ RPB.i = RPB.hostI; rpShow(); }
+      else if (RPB.i === RPB.hostI){ RPB.rib.detach(false); rpShow(); }
+      else rpCount();
     });
   }
+  if (RPB.uid !== now.uid || RPB.deckId !== now.deck){
+    RPB.uid = now.uid; RPB.deckId = now.deck; RPB.i = 0; RPB.hostI = 0;
+    RPB.rib.detach(false);
+    RPB.rib.setSegments("", []);
+    RPB.rib.message("Loading the campaign…");
+    const d = openDeck(now.deck);
+    RPB.deck = d;
+    $("#rpInfo").dataset.deck = now.deck;
+    d.ready.then(() => {
+      if (RPB.deck !== d) return;
+      if (!d.meta){ RPB.rib.message("Couldn’t load this campaign. Check your signal."); return; }
+      renderInfo(d.meta.info, d.meta.nx || 0, now.deck, $("#rpInfo"));
+      const p = BS.data.pos;
+      if (p && p.r === RPB.uid) RPB.hostI = RPB.i = Number(p.i) || 0;
+      rpShow();
+    });
+  }
+}
+function rpShow(){
+  const d = RPB.deck;
+  if (!d || !d.meta) return;
+  RPB.i = clamp(RPB.i, 0, Math.max(0, d.ids.length - 1));
+  showDeckShot(RPB.rib, d, RPB.i, RPB.uid, "ink");
+  /* a new picture resets the sheet, so say again whether we're off on our own */
+  RPB.rib.detach(RPB.i !== RPB.hostI);
+  rpCount();
+}
+function rpCount(){
+  const d = RPB.deck, el = $("#rpShotN");
+  if (!el || !d || !d.meta) return;
+  const n = d.ids.length;
+  el.textContent = (RPB.i + 1) + " / " + n + (RPB.rib.detached ? " · looking around" : n > 1 ? " · swipe to look around" : "");
 }
 
 /* ============================================================
@@ -10212,6 +10570,12 @@ $("#penForm").addEventListener("submit", e => { e.preventDefault(); penPair($("#
 $("#penCode").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); $("#penErr").textContent = ""; });
 $("#penBack").addEventListener("click", () => { penDetach(true); show("menu"); });
 $("#penGame").addEventListener("click", e => { const b = e.target.closest("[data-pc]"); if (b) penCmd(b.dataset.pc); });
+$("#penNav").addEventListener("click", e => {
+  const t = e.target.closest("[data-pk]");
+  if (t){ PN.k = Number(t.dataset.pk); penShots(); return; }
+  const b = e.target.closest("[data-pc]");
+  if (b) penCmd(b.dataset.pc);
+});
 $("#toMenu").addEventListener("click", () => show("menu"));
 
 function setShield(on){
@@ -10328,7 +10692,7 @@ window.DS = window.REDACTED = {
   imageRegions: imageRegions, MONEY_RE: MONEY_RE, clamp: clamp, money: money,
   sliceAt: sliceAt, contentGaps: contentGaps,
   /* the board, for poking at from the console */
-  TVB: TVB, PN: PN, RB: RB, RPB: RPB, BS: BS, LIVE: LIVE
+  TVB: TVB, PN: PN, RB: RB, RPB: RPB, BS: BS, LIVE: LIVE, CAP: CAP
 };
 
 /* the wordmark bar slides off once, on load — the only decoration that moves */
