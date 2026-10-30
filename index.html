@@ -492,6 +492,7 @@ body.spooky .winner .drum{font-family:var(--spook);font-weight:400;letter-spacin
 body.spooky :is(#rplayer,#host){background:var(--night) radial-gradient(ellipse at 50% 0,#2E1A44 0,transparent 60%) no-repeat}
 body.spooky :is(#rplayer,#host) .rp-main > :is(p,.tiny),body.spooky :is(.rp-hint,.rp-leave){color:var(--mist)}
 body.spooky :is(#rplayer,#host) .rp-main a{color:var(--bone)}
+body.spooky :is(#rplayer,#host) .card a{color:var(--marker-deep);font-weight:600}
 body.spooky .rp-r{font-family:var(--spook);font-weight:400;font-size:1.2rem;letter-spacing:.04em}
 body.spooky .rv b.goal{text-shadow:0 0 18px rgba(255,122,26,.5)}
 body.spooky #player{background:var(--night) radial-gradient(ellipse at 50% 0,#2E1A44 0,transparent 65%) no-repeat}
@@ -595,6 +596,120 @@ body.spooky .rp-shotn{color:var(--mist)}
   .winner .drum,.winner .crown,.winner .wname,.winner .wpts,.winner .hint{animation:none !important;opacity:1;transform:none}
   .confetti{display:none}
 }
+/* ---------- the finale ---------- */
+.winner.fin{background:#000;overflow:hidden;justify-content:center;transition:background 1.2s}
+.winner.fin.dark{background:radial-gradient(ellipse at 50% 60%,#14100a 0,#000 70%)}
+.winner.fin.boom{background:radial-gradient(ellipse at 50% 45%,#3a2a05 0,#140d02 45%,#000 100%)}
+.fin-in{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;max-width:min(1400px,96vw)}
+/* only what's been announced takes up room, so everything stays on screen */
+.winner.fin:not(.go) .fin-in > :not(.drum){display:none}
+.winner.fin:not(.pod-in) .fin-podium,.winner.fin:not(.aw-in) .fin-awards{display:none}
+.fin-fx{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.fin-flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:5;pointer-events:none}
+.winner.boom .fin-flash{animation:finflash .7s ease-out}
+@keyframes finflash{0%{opacity:.95}100%{opacity:0}}
+.winner.shake .fin-in{animation:finshake .55s cubic-bezier(.36,.07,.19,.97)}
+@keyframes finshake{10%,90%{transform:translate(-3px,2px)}20%,80%{transform:translate(6px,-4px)}30%,50%,70%{transform:translate(-12px,6px)}40%,60%{transform:translate(12px,-6px)}}
+/* sweeping spotlights during the drumroll */
+.fin-spots{position:absolute;inset:0;z-index:1;pointer-events:none;transition:opacity .6s}
+.fin-spots i{position:absolute;bottom:-10%;width:34vmax;height:140vh;transform-origin:50% 100%;
+  background:linear-gradient(to top,rgba(255,240,190,.32),rgba(255,240,190,0) 85%);clip-path:polygon(42% 100%,58% 100%,100% 0,0 0);
+  filter:blur(6px);animation:sweep 1.6s ease-in-out infinite alternate}
+.fin-spots i:nth-child(1){left:8%;--a:-28deg;--b:18deg}
+.fin-spots i:nth-child(2){right:8%;--a:28deg;--b:-18deg;animation-delay:-.8s}
+@keyframes sweep{from{transform:rotate(var(--a))}to{transform:rotate(var(--b))}}
+.winner.boom .fin-spots{opacity:0}
+/* light rays behind the name */
+.fin-rays{position:absolute;left:50%;top:44%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;z-index:0;opacity:0;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,rgba(255,211,77,.20) 0deg 7deg,rgba(255,211,77,0) 7deg 18deg);
+  -webkit-mask:radial-gradient(circle,#000 0,#000 18%,transparent 55%);mask:radial-gradient(circle,#000 0,#000 18%,transparent 55%)}
+.winner.boom .fin-rays{animation:raysin 1s ease-out forwards,spin 26s linear infinite}
+@keyframes raysin{to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* marquee bulbs round the edge */
+.fin-bulbs{position:absolute;inset:12px;border:9px dotted #FFD34D;border-radius:22px;z-index:2;opacity:0;pointer-events:none;
+  filter:drop-shadow(0 0 6px #FFB000) drop-shadow(0 0 14px rgba(255,176,0,.6))}
+.winner.boom .fin-bulbs{opacity:1;animation:bulbs .42s steps(2) infinite}
+@keyframes bulbs{50%{border-color:#FFF6C8}}
+/* the build-up line */
+.fin .drum{font-size:clamp(1.8rem,5vw,4.4rem);color:#e8e2d0}
+.winner.boom .drum{display:none}
+/* the crown drops onto the name */
+.fin .crown{font-size:clamp(2.6rem,min(9vw,12vh),8rem);margin:0 0 -.18em;filter:drop-shadow(0 6px 18px rgba(255,190,0,.6))}
+.winner.go.fin .crown{animation:crowndrop .9s cubic-bezier(.3,1.6,.5,1) .25s forwards}
+@keyframes crowndrop{from{opacity:0;transform:translateY(-70vh) rotate(-30deg)}to{opacity:1;transform:rotate(-8deg)}}
+/* the name: enormous, gold, shimmering */
+.fin .wname{font-size:clamp(3.4rem,min(17vw,23vh),15rem);letter-spacing:-.045em;line-height:.9;margin:.05em 0 .12em;
+  filter:drop-shadow(0 .06em 0 #6b3d00) drop-shadow(0 0 .25em rgba(255,190,40,.55))}
+.fin .wname span{background:linear-gradient(100deg,#fff6c8 0%,#ffd34d 22%,#ff9f1c 42%,#fff3b0 52%,#ffd34d 66%,#e08a00 86%,#fff6c8 100%);
+  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 2.4s linear infinite}
+@keyframes shimmer{to{background-position:-220% 0}}
+.winner.go.fin .wname{animation:namesmash .7s cubic-bezier(.2,1.7,.35,1) forwards}
+@keyframes namesmash{0%{opacity:0;transform:scale(3.2) rotate(-8deg)}60%{opacity:1}100%{opacity:1;transform:none}}
+.fin .wpts{font-size:clamp(1.3rem,3vw,2.6rem);color:#fff3d6}
+.fin .wpts b{font-family:var(--display);font-size:1.5em;color:#FFD34D;font-variant-numeric:tabular-nums}
+.fin .wpts small{font-size:.62em;color:#d8c9a2;font-weight:600}
+/* second and third on the podium */
+.fin-podium{display:flex;gap:clamp(12px,3vw,40px);align-items:flex-end;margin-top:clamp(1rem,3vh,2.4rem)}
+.pod{display:flex;flex-direction:column;align-items:center;opacity:0;transform:translateY(60px)}
+.winner.pod-in .pod{animation:podup .7s cubic-bezier(.2,1.4,.4,1) forwards}
+.winner.pod-in .pod.p3{animation-delay:.35s}
+@keyframes podup{to{opacity:1;transform:none}}
+.pod-n{font-weight:800;font-size:clamp(1.1rem,2.4vw,2.2rem);max-width:28vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod-p{font-family:var(--display);font-size:clamp(.95rem,1.8vw,1.6rem);color:#d8c9a2;margin-bottom:.3rem}
+.pod-b{width:clamp(110px,15vw,240px);display:flex;align-items:flex-start;justify-content:center;border-radius:10px 10px 0 0;padding-top:.3rem}
+.pod-b b{font-family:var(--display);font-size:clamp(1.8rem,4vw,3.4rem);color:rgba(0,0,0,.45)}
+.p2 .pod-b{height:clamp(56px,9vh,130px);background:linear-gradient(#f2f4f6,#aab2bb)}
+.p3 .pod-b{height:clamp(40px,6vh,96px);background:linear-gradient(#f1c29a,#b0703c)}
+/* the awards */
+.fin-awards{display:flex;gap:clamp(10px,2vw,24px);flex-wrap:wrap;justify-content:center;margin-top:clamp(.7rem,2.4vh,2rem)}
+.aw{display:flex;gap:.7rem;align-items:flex-start;text-align:left;max-width:min(420px,90vw);background:rgba(255,255,255,.08);border:1px solid rgba(255,211,77,.35);
+    border-radius:12px;padding:.7rem .9rem;opacity:0;transform:translateY(24px);font-size:clamp(.85rem,1.3vw,1.15rem);color:#efe6cf}
+.aw b{display:block;color:#FFD34D;font-size:1.05em;margin-bottom:.1em}
+.ae{font-size:2em;line-height:1}
+.winner.aw-in .aw{animation:fadeup .6s ease forwards}
+.winner.aw-in .aw:nth-child(2){animation-delay:.5s}
+.winner.aw-in .aw:nth-child(3){animation-delay:1s}
+.fin-snd{position:absolute;top:18px;right:22px;z-index:6;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);border-radius:99px;
+         font-size:1.2rem;width:2.4em;height:2.4em;color:#fff}
+.winner.fin .hint{z-index:6}
+.winner.aw-in .hint,.winner.pod-in .hint{opacity:1}
+/* spooky: bats fly out at the boom, and the gold goes pumpkin */
+.fin-bats{position:absolute;inset:0;z-index:4;pointer-events:none}
+.fin-bats i{position:absolute;left:-10%;top:var(--y);width:70px;height:35px;color:#000;opacity:0}
+.fin-bats svg{width:100%;height:100%;animation:flap .18s ease-in-out infinite alternate}
+.winner.boom .fin-bats i{animation:batcross 3.2s ease-in var(--d) forwards}
+@keyframes batcross{0%{opacity:0;transform:translate(0,0) scale(.6)}10%{opacity:.95}100%{opacity:.9;transform:translate(125vw,-30vh) scale(1.3)}}
+body.spooky .fin .wname span{background-image:linear-gradient(100deg,#ffe0b8 0%,#ff9a3c 22%,#ff6a00 42%,#ffd0a0 52%,#ff8a1f 66%,#c94a00 86%,#ffe0b8 100%)}
+body.spooky .winner.fin.boom{background:radial-gradient(ellipse at 50% 45%,#3b1a4f 0,#160a22 50%,#05020a 100%)}
+body.spooky .fin-bulbs{border-color:#FF7A1A;filter:drop-shadow(0 0 6px #ff6a00) drop-shadow(0 0 14px rgba(166,226,46,.45))}
+body.spooky .fin-rays{background:repeating-conic-gradient(from 0deg,rgba(255,122,26,.2) 0deg 7deg,rgba(142,79,209,0) 7deg 18deg)}
+@media (prefers-reduced-motion:reduce){
+  .fin-spots,.fin-bats,.fin-fx{display:none}
+  .winner.boom .fin-rays,.winner.boom .fin-bulbs,.fin .wname span{animation:none}
+  .winner.go.fin .crown,.winner.go.fin .wname,.winner.pod-in .pod,.winner.aw-in .aw{animation:none;opacity:1;transform:none}
+}
+
+/* the phones */
+.ph-fin{position:fixed;inset:0;z-index:200;background:radial-gradient(ellipse at 50% 55%,#1a1408 0,#000 75%);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;overflow:hidden}
+.ph-fin.go{background:radial-gradient(ellipse at 50% 45%,#3a2a05 0,#140d02 50%,#000 100%)}
+body.spooky .ph-fin.go{background:radial-gradient(ellipse at 50% 45%,#3b1a4f 0,#160a22 55%,#05020a 100%)}
+.ph-fin-in{position:relative;z-index:3}
+.ph-fin .drum{font-family:var(--display);font-size:clamp(1.6rem,8vw,2.6rem);color:#e8e2d0}
+.ph-fin.go .drum{display:none}
+.ph-fin.go .fin-spots{opacity:0}
+.ph-fin .pf-main{display:none}
+.ph-fin.go .pf-main{display:block}
+.pf-you{font-family:var(--display);font-weight:800;font-size:clamp(2rem,11vw,3.4rem);color:#fff;letter-spacing:-.02em;animation:namesmash .6s cubic-bezier(.2,1.7,.35,1)}
+.ph-fin .crown{font-size:4rem;line-height:1;animation:crowndrop .9s cubic-bezier(.3,1.6,.5,1) both}
+.ph-fin .wname{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,15vw,5rem);line-height:.95;letter-spacing:-.04em;margin:.05em 0 .2em;
+  overflow-wrap:anywhere;filter:drop-shadow(0 .06em 0 #6b3d00) drop-shadow(0 0 .25em rgba(255,190,40,.55));animation:namesmash .7s cubic-bezier(.2,1.7,.35,1) both}
+.ph-fin .wname span{background:linear-gradient(100deg,#fff6c8 0%,#ffd34d 25%,#ff9f1c 45%,#fff3b0 55%,#ffd34d 70%,#e08a00 88%,#fff6c8 100%);
+  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 2.4s linear infinite}
+body.spooky .ph-fin .wname span{background-image:linear-gradient(100deg,#ffe0b8 0%,#ff9a3c 25%,#ff6a00 45%,#ffd0a0 55%,#ff8a1f 70%,#c94a00 88%,#ffe0b8 100%)}
+.pf-me{font-weight:700;font-size:1.15rem;color:#efe6cf}
+.ph-fin .hint{margin-top:1.6rem;font-size:.85rem;color:#a99f86}
+
 /* phone: final standings */
 .ph-win{text-align:center}
 .ph-win .wl{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
@@ -5075,10 +5190,14 @@ function openResults(){
   runResults();
 }
 
+function finClear(){
+  $$(".winner", $("#results")).forEach(w => { if (w._fx) w._fx.stop(); w.remove(); });
+  sndStop();
+}
 function runResults(){
   resClear();
   const stage = $("#resStage");
-  $$(".winner", $("#results")).forEach(w => w.remove());
+  finClear();
   const live = LIVE.isHost && LIVE.code;
   const st = live ? standings() : { rows: [], played: 0 };
 
@@ -5121,23 +5240,9 @@ function runResults(){
     t += (li.dataset.rank === "1") ? 0 : step;
   }
 
-  // then the announcement
+  // then the finale
   later(() => {
-    const w = document.createElement("div");
-    w.className = "winner";
-    const names = top.map(r => r.name);
-    const tie = names.length > 1;
-    w.innerHTML = '<div class="drum">' + (tie ? "We have a tie. The winners are…" : "And the winner is…") + '</div>' +
-      '<div class="crown">' + (isSpooky() ? "🎃" : "🏆") + '</div>' +
-      '<div class="wname">' + esc(names.join(" & ")) + '</div>' +
-      '<div class="wpts">' + fmt(top[0].total) + ' points' + (top[0].wins ? " · closest on " + top[0].wins + " round" + (top[0].wins === 1 ? "" : "s") : "") + '</div>' +
-      '<div class="hint">Click for the full table</div>';
-    $("#results").appendChild(w);
-    requestAnimationFrame(() => $(".drum", w).classList.add("in"));
-
-    later(() => {
-      w.classList.add("go");
-      confetti(w);
+    tvFinale(rows, { onBoom: (names, tie) => {
       // the phones find out the same instant the TV does
       if (live) dbPut("/now", {
         r: G.idx, phase: "final", title: "",
@@ -5151,9 +5256,7 @@ function runResults(){
         nm.innerHTML = esc(nm.dataset.real) + (nm.dataset.sub ? '<small>' + esc(nm.dataset.sub) + '</small>' : "");
         tt.textContent = tt.dataset.real;
       });
-    }, 2300);
-
-    w.addEventListener("click", () => { if (w.classList.contains("go")) w.remove(); });
+    } });
   }, t + 700);
 }
 
@@ -5177,6 +5280,7 @@ function confetti(host){
 /* Space or Enter during the build-up skips straight to the announcement. */
 function skipResults(){
   if (!RES.timers.length) return;
+  RES.skip = true;
   RES.squash = true;
   runResults();
   RES.squash = false;
@@ -5185,21 +5289,400 @@ function skipResults(){
 $("#resReplay").addEventListener("click", runResults);
 $("#resBack").addEventListener("click", () => {
   resClear();
-  $$(".winner", $("#results")).forEach(w => w.remove());
+  finClear();
   show("play");
   requestAnimationFrame(tvRelayout);
 });
-$("#resMenu").addEventListener("click", () => { resClear(); show("menu"); });
+$("#resMenu").addEventListener("click", () => { resClear(); finClear(); show("menu"); });
 window.addEventListener("keydown", e => {
   if ($("#results").classList.contains("hidden")) return;
   const w = $(".winner", $("#results"));
-  if (e.key === "Escape"){ if (w && w.classList.contains("go")) w.remove(); }
+  if (e.key === "Escape"){ if (w && w.classList.contains("go")) w.click(); }
+  else if (e.key === "m" || e.key === "M"){ finToggleSound(w); }
+  else if (e.key === "r" || e.key === "R"){ runResults(); }
   else if (e.key === " " || e.key === "Enter"){
     e.preventDefault();
-    if (w && w.classList.contains("go")) w.remove();
+    if (w && w.classList.contains("go")) w.click();
     else skipResults();
   }
 });
+
+/* ============================================================
+   THE FINALE: fireworks, confetti cannons, a drumroll and a brass
+   fanfare. One particle engine (a canvas) and one tiny synth (Web
+   Audio, nothing to download), shared by the TV and the phones.
+   ============================================================ */
+const FIN_KEY = "ds.fanfare";
+const finMuted = () => store.get(FIN_KEY) === "off";
+const finCalm = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function finColors(){
+  return isSpooky() ? ["#FF7A1A", "#FFB347", "#A6E22E", "#8E4FD1", "#F4EBDC", "#D9590A"]
+                    : ["#FFD34D", "#05CE78", "#FFFFFF", "#FF5C8A", "#4DA3FF", "#FF9F1C"];
+}
+
+/* ---------- particles ---------- */
+function makeFx(canvas){
+  const ctx = canvas.getContext("2d");
+  const P = [];                 /* every live particle */
+  const gens = [];              /* things that keep making particles for a while */
+  let raf = 0, W = 0, H = 0, dpr = 1, last = 0, dead = false;
+  function size(){
+    const b = canvas.getBoundingClientRect();
+    dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    W = b.width; H = b.height;
+    canvas.width = Math.max(1, Math.round(W * dpr)); canvas.height = Math.max(1, Math.round(H * dpr));
+  }
+  size();
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const pick = a => a[(Math.random() * a.length) | 0];
+  function tick(t){
+    if (dead) return;
+    const dt = Math.min(0.05, last ? (t - last) / 1000 : 0.016);
+    last = t;
+    for (let i = gens.length - 1; i >= 0; i--){ if (gens[i](dt) === false) gens.splice(i, 1); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    for (let i = P.length - 1; i >= 0; i--){
+      const p = P[i];
+      p.life -= dt;
+      if (p.life <= 0 || p.y > H + 40){ P.splice(i, 1); continue; }
+      p.vx *= p.drag; p.vy = p.vy * p.drag + p.g * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+      const fade = Math.min(1, p.life / (p.fade || 0.5));
+      ctx.globalAlpha = fade;
+      if (p.kind === "spark"){
+        ctx.fillStyle = p.c;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        if (p.trail){ p.trail -= dt; if (p.trail > 0 && Math.random() < 0.35) P.push(spark(p.x, p.y, 0, 0, p.c, 0.4, 0.9)); }
+      } else if (p.kind === "rocket"){
+        ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2); ctx.fill();
+        if (Math.random() < 0.8) P.push(spark(p.x + rnd(-1, 1), p.y + 4, rnd(-20, 20), rnd(20, 60), "#FFE9A8", 0.35, 1.2));
+        if (p.vy > -60){ p.life = 0; burst(p.x, p.y); }
+      } else {
+        /* confetti: a little card turning over as it falls */
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.scale(1, Math.cos(p.rot * 2.3));
+        ctx.fillStyle = p.c;
+        if (p.round){ ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2); ctx.fill(); }
+        else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+    }
+    ctx.globalAlpha = 1;
+    if (P.length || gens.length) raf = requestAnimationFrame(tick);
+    else { raf = 0; last = 0; }
+  }
+  function wake(){ if (!raf && !dead) raf = requestAnimationFrame(tick); }
+  function spark(x, y, vx, vy, c, life, r){
+    return { kind: "spark", x: x, y: y, vx: vx, vy: vy, c: c, life: life, fade: life, r: r || 2, g: 140, drag: 0.985, rot: 0, vr: 0 };
+  }
+  function card(x, y, vx, vy){
+    const s = rnd(7, 13);
+    return { kind: "card", x: x, y: y, vx: vx, vy: vy, c: pick(finColors()), life: rnd(5, 8), fade: 1, w: s, h: s * rnd(1.3, 1.9),
+             round: Math.random() < 0.25, g: rnd(260, 380), drag: 0.986, rot: rnd(0, 6), vr: rnd(-9, 9) };
+  }
+  function burst(x, y){
+    const c = pick(finColors()), c2 = pick(finColors());
+    const n = Math.round(rnd(60, 95)), sp = rnd(220, 340);
+    for (let i = 0; i < n; i++){
+      const a = (i / n) * Math.PI * 2 + rnd(-0.05, 0.05), v = sp * rnd(0.55, 1);
+      const p = spark(x, y, Math.cos(a) * v, Math.sin(a) * v, i % 3 ? c : c2, rnd(1.1, 1.8), rnd(1.6, 2.6));
+      p.drag = 0.965; p.g = 110; p.trail = 0.5;
+      P.push(p);
+    }
+    P.push(Object.assign(spark(x, y, 0, 0, "#FFFFFF", 0.18, 26), { g: 0 }));   /* the flash at the centre */
+    if (fx.onBang) fx.onBang();
+  }
+  const fx = {
+    /* a cannon of confetti from (x,y) towards angle a (radians), spreading by s */
+    cannon(x, y, a, s, n, speed){
+      for (let i = 0; i < n; i++){
+        const ang = a + rnd(-s, s), v = (speed || 900) * rnd(0.5, 1.1);
+        P.push(card(x, y, Math.cos(ang) * v, Math.sin(ang) * v));
+      }
+      wake();
+    },
+    /* confetti drifting down from the top for a while */
+    rain(seconds, perSec){
+      let left = seconds, acc = 0;
+      gens.push(dt => {
+        left -= dt; acc += dt * perSec;
+        while (acc >= 1){ acc--; P.push(card(rnd(0, W), -20, rnd(-40, 40), rnd(40, 160))); }
+        return left > 0;
+      });
+      wake();
+    },
+    rocket(x){
+      x = x === undefined ? rnd(W * 0.12, W * 0.88) : x;
+      P.push({ kind: "rocket", x: x, y: H + 10, vx: rnd(-40, 40), vy: -rnd(H * 0.9, H * 1.25), life: 4, g: 420, drag: 0.995, rot: 0, vr: 0 });
+      wake();
+    },
+    /* fireworks going up every so often, for a while */
+    show(seconds, every){
+      let left = seconds, next = 0;
+      gens.push(dt => {
+        left -= dt; next -= dt;
+        if (next <= 0){ next = (every || 0.55) * rnd(0.5, 1.4); fx.rocket(); if (Math.random() < 0.3) fx.rocket(); }
+        return left > 0;
+      });
+      wake();
+    },
+    resize: size,
+    stop(){ dead = true; cancelAnimationFrame(raf); P.length = 0; gens.length = 0; }
+  };
+  return fx;
+}
+
+/* ---------- sound: a drumroll, a crash, a fanfare ---------- */
+const SND = { ctx: null, out: null, nodes: [] };
+function sndCtx(){
+  if (finMuted()) return null;
+  try {
+    if (!SND.ctx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      SND.ctx = new AC();
+      SND.out = SND.ctx.createGain(); SND.out.gain.value = 0.55;
+      const comp = SND.ctx.createDynamicsCompressor();
+      SND.out.connect(comp); comp.connect(SND.ctx.destination);
+    }
+    if (SND.ctx.state === "suspended") SND.ctx.resume();
+    return SND.ctx;
+  } catch (e){ return null; }
+}
+function sndStop(){
+  SND.nodes.forEach(n => { try { n.stop(); } catch (e){} });
+  SND.nodes = [];
+}
+function noiseBuf(ac, secs){
+  const b = ac.createBuffer(1, Math.round(ac.sampleRate * secs), ac.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return b;
+}
+function sndDrumroll(secs){
+  const ac = sndCtx(); if (!ac) return;
+  const t0 = ac.currentTime + 0.02, buf = noiseBuf(ac, 0.06);
+  for (let t = 0; t < secs; t += 0.045){
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1700; bp.Q.value = 0.8;
+    const g = ac.createGain();
+    const lvl = 0.05 + 0.55 * Math.pow(t / secs, 1.6) * (0.85 + Math.random() * 0.3);
+    g.gain.setValueAtTime(lvl, t0 + t); g.gain.exponentialRampToValueAtTime(0.001, t0 + t + 0.05);
+    src.connect(bp); bp.connect(g); g.connect(SND.out);
+    src.start(t0 + t); src.stop(t0 + t + 0.06);
+    SND.nodes.push(src);
+  }
+}
+function sndBoom(){
+  const ac = sndCtx(); if (!ac) return;
+  const t = ac.currentTime + 0.01;
+  /* cymbal */
+  const src = ac.createBufferSource(); src.buffer = noiseBuf(ac, 3);
+  const hp = ac.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 4500;
+  const g = ac.createGain(); g.gain.setValueAtTime(0.7, t); g.gain.exponentialRampToValueAtTime(0.001, t + 2.8);
+  src.connect(hp); hp.connect(g); g.connect(SND.out); src.start(t); SND.nodes.push(src);
+  /* timpani */
+  const o = ac.createOscillator(); o.type = "sine";
+  o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.6);
+  const og = ac.createGain(); og.gain.setValueAtTime(1, t); og.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+  o.connect(og); og.connect(SND.out); o.start(t); o.stop(t + 1.3); SND.nodes.push(o);
+}
+function brass(ac, f, at, dur, vol){
+  const g = ac.createGain(), lp = ac.createBiquadFilter();
+  lp.type = "lowpass"; lp.Q.value = 2;
+  lp.frequency.setValueAtTime(700, at); lp.frequency.linearRampToValueAtTime(3200, at + 0.06); lp.frequency.linearRampToValueAtTime(1800, at + dur);
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(vol, at + 0.035);
+  g.gain.setValueAtTime(vol * 0.8, at + Math.max(0.05, dur - 0.08));
+  g.gain.exponentialRampToValueAtTime(0.0001, at + dur + 0.15);
+  lp.connect(g); g.connect(SND.out);
+  [-6, 0, 7].forEach(cents => {
+    const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = cents;
+    if (dur > 0.8){
+      /* a long note gets a bit of vibrato */
+      const lfo = ac.createOscillator(), lg = ac.createGain();
+      lfo.frequency.value = 5.5; lg.gain.value = 9;
+      lfo.connect(lg); lg.connect(o.detune); lfo.start(at + 0.25); lfo.stop(at + dur + 0.2); SND.nodes.push(lfo);
+    }
+    o.connect(lp); o.start(at); o.stop(at + dur + 0.2); SND.nodes.push(o);
+  });
+}
+function sndFanfare(){
+  const ac = sndCtx(); if (!ac) return;
+  const t = ac.currentTime + 0.05;
+  const G4 = 392, C5 = 523.25, E5 = 659.25, G5 = 783.99, A5 = 880, C6 = 1046.5, F5 = 698.46;
+  /* da-da-da DAAAH, da-da DAAAAAAH */
+  [[0, .11, [G4]], [.14, .11, [G4]], [.28, .11, [G4]], [.42, .55, [C5, E5, G5]],
+   [1.02, .13, [A5]], [1.18, .13, [G5]], [1.34, .13, [F5]], [1.5, .13, [E5]],
+   [1.68, 1.9, [C5, E5, G5, C6]]].forEach(([at, d, ns]) => ns.forEach(n => brass(ac, n, t + at, d, 0.11)));
+  /* and a bass note under the big chord */
+  brass(ac, 130.81, t + 1.68, 1.9, 0.12);
+}
+
+/* ---------- awards for the end of the night (the TV knows every answer) ---------- */
+function finAwards(rows){
+  const players = LIVE.state.players || {}, all = LIVE.state.guesses || {};
+  const nm = pid => { const n = displayName(pid, (players[pid] || {}).name); return n === null ? "Someone" : n; };
+  const off = (g, a) => { const x = Math.max(0, g) + SCORE_FLOOR, y = Math.max(0, a) + SCORE_FLOOR; return Math.max(x, y) / Math.min(x, y); };
+  let best = null, worst = null;
+  for (const r of G.rounds){
+    const gs = all[r.uid] || {};
+    for (const pid in gs){
+      const g = gs[pid] || {};
+      for (const [k, what, actual] of [["raised", "raised", r.raised], ["goal", "asking", r.goal]]){
+        const v = Number(g[k]);
+        if (!isFinite(v) || actual === null || actual === undefined) continue;
+        const x = off(v, actual);
+        const item = { pid: pid, v: v, a: actual, what: what, title: r.title, x: x };
+        if (!best || x < best.x) best = item;
+        if (!worst || x > worst.x) worst = item;
+      }
+    }
+  }
+  const out = [];
+  if (best) out.push({ e: "🎯", t: "Sharpest guess", d: nm(best.pid) + " said " + money(best.v) + " " + best.what + " for " + best.title + " (it was " + money(best.a) + ")" });
+  if (worst && worst.x >= 3 && (!best || worst.pid !== best.pid || worst.x !== best.x))
+    out.push({ e: "🚀", t: "Wildest guess", d: nm(worst.pid) + " said " + money(worst.v) + " " + worst.what + " for " + worst.title + " (it was " + money(worst.a) + ")" });
+  const lastRank = rows.length ? rows[rows.length - 1].rank : 0;
+  const spoons = rows.filter(r => r.rank === lastRank);
+  if (rows.length >= 3 && spoons.length === 1 && lastRank > 1) out.push({ e: "🥄", t: "Wooden spoon", d: spoons[0].name + ", with " + spoons[0].total.toLocaleString("en-US") + " points. There’s always next time." });
+  return out;
+}
+
+/* ---------- the TV's finale ---------- */
+function countUp(el, to, ms){
+  const t0 = performance.now();
+  const step = t => {
+    const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(to * e).toLocaleString("en-US");
+    if (k < 1 && el.isConnected) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+const BAT_SVG = '<svg viewBox="0 0 64 32" fill="currentColor"><path d="M32 10c-2 0-3 2-3.5 4C26 9 19 4 0 6c7 3 9 8 9 13 4-3 9-2 12 2 2-3 6-4 9-2 1-1 1.5-1 2-1s1 0 2 1c3-2 7-1 9 2 3-4 8-5 12-2 0-5 2-10 9-13-19-2-26 3-28.5 8-.5-2-1.5-4-3.5-4z"/></svg>';
+
+function tvFinale(rows, opts){
+  const top = rows.filter(r => r.rank === 1);
+  const names = top.map(r => r.name), tie = names.length > 1;
+  const fmt = n => Number(n).toLocaleString("en-US");
+  const podium = [2, 3].map(k => rows.filter(r => r.rank === k)).filter(g => g.length);
+  const awards = finAwards(rows);
+  const w = document.createElement("div");
+  w.className = "winner fin";
+  w.innerHTML =
+    '<div class="fin-rays"></div><div class="fin-spots"><i></i><i></i></div><canvas class="fin-fx"></canvas><div class="fin-bulbs"></div>' +
+    (isSpooky() ? '<div class="fin-bats">' + Array.from({ length: 7 }, (_, i) => '<i style="--d:' + (i * 0.35) + 's;--y:' + (10 + (i * 37) % 70) + '%">' + BAT_SVG + '</i>').join("") + '</div>' : "") +
+    '<div class="fin-flash"></div>' +
+    '<div class="fin-in">' +
+      '<div class="drum">' + (tie ? "We have a tie! The winners are…" : "And the winner is…") + '</div>' +
+      '<div class="crown">' + (isSpooky() ? "🎃" : "👑") + '</div>' +
+      '<div class="wname"><span>' + esc(names.join(" & ")) + '</span></div>' +
+      '<div class="wpts"><b class="fin-n">0</b> points' + (top[0].wins ? '<small> · closest on ' + top[0].wins + ' round' + (top[0].wins === 1 ? "" : "s") + '</small>' : "") + '</div>' +
+      (podium.length ? '<div class="fin-podium">' + podium.map((g, i) =>
+        '<div class="pod p' + (i + 2) + '"><div class="pod-n">' + esc(g.map(r => r.name).join(" & ")) + '</div><div class="pod-p">' + fmt(g[0].total) + '</div>' +
+        '<div class="pod-b"><b>' + (i + 2) + '</b></div></div>').join("") + '</div>' : "") +
+      (awards.length ? '<div class="fin-awards">' + awards.map(a => '<div class="aw"><span class="ae">' + a.e + '</span><span><b>' + esc(a.t) + '</b>' + esc(a.d) + '</span></div>').join("") + '</div>' : "") +
+    '</div>' +
+    '<button type="button" class="fin-snd" title="Sound on/off (M)">' + (finMuted() ? "🔇" : "🔊") + '</button>' +
+    '<div class="hint">Click for the full table · R to run it again</div>';
+  $("#results").appendChild(w);
+  const fx = makeFx($(".fin-fx", w));
+  w._fx = fx;
+  const calm = finCalm();
+  $(".fin-snd", w).addEventListener("click", e => { e.stopPropagation(); finToggleSound(w); });
+
+  /* 1. the build-up */
+  const BUILD = RES.skip ? 0 : 3200;
+  RES.skip = false;
+  requestAnimationFrame(() => { w.classList.add("dark"); $(".drum", w).classList.add("in"); });
+  if (BUILD) sndDrumroll(BUILD / 1000);
+
+  /* 2. the moment */
+  later(() => {
+    w.classList.add("go", "boom");
+    if (!calm) w.classList.add("shake");
+    sndBoom();
+    later(sndFanfare, 120);
+    countUp($(".fin-n", w), top[0].total, 1600);
+    if (opts && opts.onBoom) opts.onBoom(names, tie);
+    if (!calm){
+      fx.resize();
+      const b = w.getBoundingClientRect();
+      fx.cannon(0, b.height, -Math.PI / 3.2, 0.32, 220, 1250);
+      fx.cannon(b.width, b.height, -Math.PI + Math.PI / 3.2, 0.32, 220, 1250);
+      later(() => { fx.cannon(b.width * 0.5, b.height + 10, -Math.PI / 2, 0.5, 160, 1150); }, 450);
+      fx.rain(14, 45);
+      fx.show(16, 0.5);
+      later(() => { for (let i = 0; i < 5; i++) later(() => fx.rocket(b.width * (0.15 + i * 0.175)), i * 140); }, 9000);
+    }
+  }, BUILD);
+  /* 3. the podium, then the awards */
+  later(() => w.classList.add("pod-in"), BUILD + 2300);
+  later(() => w.classList.add("aw-in"), BUILD + 4200);
+  w.addEventListener("click", () => { if (w.classList.contains("go")){ fx.stop(); sndStop(); w.remove(); } });
+  return w;
+}
+function finToggleSound(w){
+  store.set(FIN_KEY, finMuted() ? "on" : "off");
+  if (finMuted()) sndStop();
+  const b = w && $(".fin-snd", w);
+  if (b) b.textContent = finMuted() ? "🔇" : "🔊";
+  toast(finMuted() ? "Fanfare off" : "Fanfare on");
+}
+
+/* ---------- the phones' finale ---------- */
+const PF = { key: "", el: null, fx: null, booms: "" };
+/* the drumroll starts on every phone when the host heads to the results */
+function phoneDrum(remote){
+  if (PF.el) return;
+  const el = document.createElement("div");
+  el.className = "ph-fin";
+  el.innerHTML = '<canvas class="fin-fx"></canvas><div class="fin-spots"><i></i><i></i></div>' +
+    '<div class="ph-fin-in"><div class="drum in">And the winner is…</div><div class="pf-main"></div></div>';
+  document.body.appendChild(el);
+  PF.el = el; PF.fx = makeFx($(".fin-fx", el)); PF.remote = remote;
+  if (remote) sndDrumroll(3.2);
+  el.addEventListener("click", () => { if (el.classList.contains("go")) phoneFinEnd(); });
+}
+/* the winner lands on every phone the moment it lands on the TV */
+function phoneBoom(now, myId, remote){
+  const sig = JSON.stringify([LIVE.code, asList(now.winners), asList(now.standings).length]);
+  if (PF.booms === sig) return;
+  PF.booms = sig;
+  phoneDrum(remote);
+  const el = PF.el;
+  const rows = asList(now.standings), winners = asList(now.winners);
+  const me = rows.find(r => r.id === myId);
+  const won = me && me.k === 1;
+  $(".pf-main", el).innerHTML =
+    (won ? '<div class="pf-you">' + (now.tie ? "You tied for the win!" : "YOU WON!") + '</div>' : "") +
+    '<div class="crown">' + (isSpooky() ? "🎃" : "👑") + '</div>' +
+    '<div class="wname"><span>' + esc(winners.join(" & ")) + '</span></div>' +
+    (me && !won ? '<div class="pf-me">You came ' + ordinal(me.k) + ' of ' + rows.length + '</div>' : "") +
+    '<div class="hint">Tap for the full table</div>';
+  setTimeout(() => {
+    el.classList.add("go");
+    if (navigator.vibrate) try { navigator.vibrate(won ? [120, 60, 120, 60, 400] : [80]); } catch (e){}
+    if (remote){ sndBoom(); setTimeout(sndFanfare, 120); }
+    if (!finCalm()){
+      const fx = PF.fx; fx.resize();
+      const b = el.getBoundingClientRect();
+      fx.cannon(0, b.height, -Math.PI / 2.8, 0.35, won ? 160 : 90, 900);
+      fx.cannon(b.width, b.height, -Math.PI + Math.PI / 2.8, 0.35, won ? 160 : 90, 900);
+      fx.rain(won ? 9 : 5, won ? 40 : 22);
+      if (won) fx.show(7, 0.6);
+    }
+  }, el.classList.contains("go") ? 0 : 700);
+}
+function phoneFinEnd(){
+  if (!PF.el) return;
+  if (PF.fx) PF.fx.stop();
+  PF.el.remove(); PF.el = null; PF.fx = null;
+}
 
 /* ---------- phone: final standings ---------- */
 function phoneFinal(now){
@@ -8607,15 +9090,24 @@ function renderLivePlayer(){
   $("#rpTitle").textContent = inRound ? (now.title || "") : (store.get("ds.name") || "");
   $("#rpPts").textContent = liveTotal().toLocaleString("en-US") + " pts";
 
-  if (now.deck && now.deck !== RP.deckId) RP.deckId = now.deck;
-  $("#rpDeckWrap").classList.toggle("hidden", !(inRound && RP.deckId && now.deck === RP.deckId));
-  if (inRound && now.deck) rpBoardSync(now);
+  /* An in-room game keeps the campaign on the TV. A player who isn't in the
+     room can ask for the TV's screenshots (the TV sends them up as soon as a
+     room is open) and follows along on the phone instead. */
+  const tvGame = inRound && !now.deck;
+  RP.watch = store.get("ds.watch") === LIVE.code;
+  if (tvGame && RP.watch) rpBoardListen();
+  const deckId = now.deck || (tvGame && RP.watch ? String((BS.data.decks || {})[now.uid] || "") : "");
+  if (deckId && deckId !== RP.deckId) RP.deckId = deckId;
+  $("#rpDeckWrap").classList.toggle("hidden", !(inRound && deckId && deckId === RP.deckId));
+  if (inRound && deckId) rpBoardSync(Object.assign({}, now, { deck: deckId }));
   $(".rp-hint").textContent = now.phase === "revealed"
     ? "The campaign again, for the post-mortem."
-    : "The host picks the screenshot and draws on it. Swipe to look at the others, then lock in both numbers at the bottom.";
+    : tvGame
+      ? "What’s on the TV, with the host’s drawings. It follows the host; swipe to look at the others."
+      : "The host picks the screenshot and draws on it. Swipe to look at the others, then lock in both numbers at the bottom.";
 
   const players = state.players || {};
-  const sig = JSON.stringify([now, Object.keys(players).length,
+  const sig = JSON.stringify([now, Object.keys(players).length, RP.watch, !!deckId,
     now.phase === "revealed" ? [(state.guesses || {})[now.uid], (state.scores || {})[now.uid], players] : 0]);
   if (sig !== RP.sig){ RP.sig = sig; rpStatus(now, state); }
   rpDock(now, state);
@@ -8637,11 +9129,27 @@ function rpStatus(now, state){
   } else if (now.phase === "final"){
     h = phoneFinal(now);
   } else if (now.phase === "guessing" && !now.deck){
-    h = '<div class="card"><b>The campaign is up on the TV.</b><p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals.</p></div>';
+    h = RP.watch
+      ? '<div class="card"><b>' + (RP.deckId ? "Following the TV." : "Getting the TV’s screenshots…") + '</b>' +
+        '<p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals. <a href="#" id="rpWatch" style="font-weight:600">In the room after all? Hide it</a></p></div>'
+      : '<div class="card"><b>The campaign is up on the TV.</b><p class="tiny" style="margin:.3rem 0 0">Lock in both numbers below before the host reveals.</p>' +
+        '<button type="button" class="btn sm" id="rpWatch" style="margin-top:.7rem">Not in the room? Show it on my phone</button></div>';
   } else if (now.phase === "revealed"){
     h = rpReveal(now, state);
   }
+  const remote = !!(state.meta && state.meta.remote);
+  if (now.phase === "results"){ PF.booms = ""; phoneDrum(remote); }
+  else if (now.phase === "final") phoneBoom(now, LIVE.pid, remote);
+  else if (PF.el) phoneFinEnd();
   el.innerHTML = h;
+  const w = $("#rpWatch", el);
+  if (w) w.addEventListener("click", e => {
+    e.preventDefault();
+    store.set("ds.watch", RP.watch ? "" : LIVE.code);
+    if (RP.watch){ boardStop(); RPB.uid = ""; RPB.deckId = ""; RP.deckId = ""; }
+    RP.sig = "";
+    renderLivePlayer();
+  });
   if (now.phase === "revealed" && RP.revealedFor !== now.uid){
     RP.revealedFor = now.uid;
     $("#rpMain").scrollTo({ top: 0, behavior: "smooth" });
@@ -8951,7 +9459,9 @@ function hostRender(force){
                  : '<button class="btn solid hs-act" data-go="start" data-r="' + (now.r + 1) + '">Start round ' + (now.r + 2) + '</button>');
   } else if (now.phase === "results"){
     h += '<div class="hs-phase">Final results</div><h3 class="hs-title">Drumroll on every phone…</h3>';
+    PF.booms = ""; phoneDrum(true);
   } else if (now.phase === "final"){
+    phoneBoom(now, "", true);
     h += '<div class="hs-phase">Game over</div>' + phoneFinal(now).replace(/class="card/g, 'class="inner') +
          '<button class="btn hs-act" data-go="final">Announce it again</button>';
   }
@@ -9938,6 +10448,7 @@ async function tvBoardOpen(){
   boardListen("pens", "/pens", v => { TVB.pens = (v && typeof v === "object") ? v : {}; tvPensChanged(); });
   boardListen("cmd", "/cmd", tvCmd);
   if (TVB.uid) tvPage(TVB.page, true);
+  tvPenDecks();
 }
 
 function tvCmd(c){
@@ -9999,10 +10510,11 @@ function tvPensChanged(){
   if (ids.length) tvPenDecks();
 }
 
-/* The phone needs the screenshots too. The TV sends them up (already
-   blacked out), the round on screen first, then the rest. */
+/* Phones may need the screenshots too: the pen, and any player who isn't in
+   the room. Once a room is open the TV sends them up (already blacked out),
+   the round on screen first, then the rest. */
 async function tvPenDecks(){
-  if (!tvLive() || !Object.keys(TVB.pens || {}).length || TVB.deckBusy) return;
+  if (!tvLive() || TVB.deckBusy) return;
   TVB.deckBusy = (async () => {
     const order = [G.idx].concat(G.rounds.map((_, i) => i).filter(i => i !== G.idx));
     for (const i of order){
@@ -10014,7 +10526,7 @@ async function tvPenDecks(){
       if (!id){
         id = code6();
         try {
-          await putDeck(id, shots, { title: "" });
+          await putDeck(id, shots, { title: "", info: roundInfo(r) });
         } catch (e){ id = ""; }
         if (!id) continue;
         TVB.decks[r.uid] = { id: id, sig: sig };
@@ -10495,19 +11007,22 @@ function rpBoardInit(){
     onFollow: () => { RPB.i = RPB.hostI; RPB.rib.detach(false); rpShow(); }
   });
 }
-function rpBoardSync(now){
+function rpBoardListen(){
   rpBoardInit();
-  if (!now.deck || !now.uid) return;
-  if (BS.code !== LIVE.code){
-    boardStop(); BS.code = LIVE.code;
-    boardListen("pos", "/pos", v => {
+  if (BS.code === LIVE.code) return;
+  boardStop(); BS.code = LIVE.code;
+  boardListen("decks", "/deck", () => { if (RP.watch) renderLivePlayer(); });
+  boardListen("pos", "/pos", v => {
       if (!v || v.r !== RPB.uid) return;
       RPB.hostI = Number(v.i) || 0;
       if (!RPB.rib.detached){ RPB.i = RPB.hostI; rpShow(); }
       else if (RPB.i === RPB.hostI){ RPB.rib.detach(false); rpShow(); }
       else rpCount();
-    });
-  }
+  });
+}
+function rpBoardSync(now){
+  rpBoardListen();
+  if (!now.deck || !now.uid) return;
   if (RPB.uid !== now.uid || RPB.deckId !== now.deck){
     RPB.uid = now.uid; RPB.deckId = now.deck; RPB.i = 0; RPB.hostI = 0;
     RPB.rib.detach(false);
@@ -10539,7 +11054,9 @@ function rpCount(){
   const d = RPB.deck, el = $("#rpShotN");
   if (!el || !d || !d.meta) return;
   const n = d.ids.length;
-  el.textContent = (RPB.i + 1) + " / " + n + (RPB.rib.detached ? " · looking around" : n > 1 ? " · swipe to look around" : "");
+  const p = BS.data.pos, up = p && p.r === RPB.uid ? Number(p.up) || 1 : 1;
+  const tv = up > 1 ? " · the TV shows " + (RPB.hostI + 1) + "–" + Math.min(n, RPB.hostI + up) : "";
+  el.textContent = (RPB.i + 1) + " / " + n + (RPB.rib.detached ? " · looking around" : tv || (n > 1 ? " · swipe to look around" : ""));
 }
 
 /* ============================================================

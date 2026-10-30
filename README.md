@@ -248,6 +248,16 @@ delete old games from the Firebase console now and then.
 
 ---
 
+### One player somewhere else
+
+In an in-room game, anyone who can't see the TV taps **Not in the room? Show it
+on my phone** after joining. Their phone then shows the TV's screenshots (with
+the host's drawings), follows along as the TV moves on, and they can swipe to
+look at the others. The TV sends its screenshots up as soon as a room is open,
+so there's nothing to set up. Players in the room don't see the button's effect
+unless they tap it. For the talking-it-over part, put the far-away player on a
+video or phone call next to the TV; the TV doesn't show the room chat.
+
 ### Remote — friends in other cities
 
 For when nobody is in the same room. There is no TV: every phone shows the
@@ -523,7 +533,11 @@ Anything under about $100 counts as next to nothing, so a campaign that raised
 $1,000 gets 29, and $3,000 or more gets nothing. Phones show this rule under everyone's guesses after
 each reveal.
 
-On the last round the **Next round** button becomes **Final results** (there's also a **Results** button any time). The TV counts the table up from last place, holds on "And the winner is…", then puts the winner's name up in letters you can read from the back of the room. Every phone gets the announcement at the same instant, along with the full table and where that player finished. A tie announces joint winners. Space skips the build-up; **Run the reveal again** does it all over.
+On the last round the **Next round** button becomes **Final results** (there's also a **Results** button any time). The TV counts the table up from last place with the top spot hidden. Then the lights go down, spotlights sweep and a drumroll builds under "And the winner is…". On the boom the screen flashes and shakes, a cymbal crashes and a brass fanfare plays. The winner's name slams in, enormous and gold, with a crown dropping onto it. Light rays spin, marquee bulbs chase round the edge, confetti cannons fire from the corners, fireworks go up and the points count up. Second and third rise on a podium, then the awards: **Sharpest guess**, **Wildest guess** and the **Wooden spoon**. Spooky mode does it in pumpkin and purple, with bats.
+
+Every phone gets a drumroll and then the winner the same instant the TV does. The winner's phone says **YOU WON!** and buzzes; everyone else's shows the winner and where they finished, under confetti. In a remote game (no TV) the phones play the drumroll and fanfare themselves.
+
+Keys on the results screen: Space skips the build-up · **R** runs it all again · **M** turns the sound off (or the 🔊 button) · click or Esc for the full table. A tie announces joint winners. The fanfare is synthesized in the browser, so there's nothing to download.
 
 ### House rules
 
