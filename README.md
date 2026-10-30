@@ -488,7 +488,27 @@ gets, and phones never download anyone's push subscription.
 
 ### Results and the winner
 
-With a live room open, everyone's name sits in a strip across the top of the TV. A name lights up green the moment that phone locks in, and after the reveal each name shows the points it just earned, with a star on whoever was closest.
+With a live room open, everyone's name sits in the sidebar on the TV, ticked the moment that phone locks in.
+
+**Scoring.** Each round has two numbers, and each is worth up to 200 points
+(400 a round). A guess is judged by how many *times* off it is, not by how many
+dollars, so being double on a $3,000 campaign costs the same as being double on
+a $3 million one, and too high costs the same as too low.
+
+| How far off | Points |
+|---|---|
+| Spot on | 200 |
+| Within 2% | about 199 |
+| Within 10% | about 148 |
+| 2× off (either way) | about 80 |
+| 5× off | about 53 |
+| 10× off | about 33 |
+| 30× off or worse | 0 |
+
+Anything under about $100 counts as next to nothing, so a campaign that raised
+**$0** scores like any other: guessing $0 is perfect, $50 still gets 88,
+$1,000 gets 29, and $3,000 or more gets nothing. Phones show this rule under everyone's guesses after
+each reveal.
 
 On the last round the **Next round** button becomes **Final results** (there's also a **Results** button any time). The TV counts the table up from last place, holds on "And the winner is…", then puts the winner's name up in letters you can read from the back of the room. Every phone gets the announcement at the same instant, along with the full table and where that player finished. A tie announces joint winners. Space skips the build-up; **Run the reveal again** does it all over.
 
