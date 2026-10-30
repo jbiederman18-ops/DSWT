@@ -23,6 +23,15 @@ and it works.
 
 ## How a game goes
 
+*For now the site opens straight to the game menu; the chats are door **01**.*
+
+**Spooky mode** 🎃 is on: the game screens go midnight purple and pumpkin
+orange, with a moonlit menu, bats at every reveal and a jack-o'-lantern for the
+winner. The chats keep their usual look, and the campaign page and its
+blackouts are untouched. **Spooky mode is on · turn it off** at the bottom of
+the menu switches it (remembered on each device).
+
+
 Opening the page gives you the **crew chat** (if you're in one) and four doors: **start a new game**, **load a saved
 game** by its six-character code, **join on your phone** if someone else is
 hosting, or **host a remote game** for friends who aren't in the room.

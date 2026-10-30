@@ -33,7 +33,7 @@
 <link rel="apple-touch-startup-image" href="splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Fredoka:wght@500;600;700&family=Creepster&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#F4F6F3;
@@ -378,6 +378,132 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 .ps-link span{word-break:break-all;font-weight:600}
 .ps-list{list-style:none;padding:0;margin:0}
 .ps-list li{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.3rem 0;border-bottom:1px solid var(--rule)}
+
+/* ============================================================
+   HAUNTED: the Halloween look for the game screens.
+   The chats keep their own look. Games → "Spooky mode" turns it off.
+   Mostly a palette swap: black becomes midnight purple, the green
+   marker becomes pumpkin, white paper becomes parchment. The
+   campaign page itself, and every blackout bar, stay as they are.
+   ============================================================ */
+body.spooky :is(#menu,#intake,#check,#gm,#play,#results,#player,#rplayer,#host,#pen){
+  --paper:#F4EBDC; --paper-deep:#E8DAC4; --card:#FFF8EC;
+  --ink:#1B0F26; --ink-soft:#6C5873;
+  --marker:#FF7A1A; --marker-deep:#D9590A; --hl:#FFD7AD;
+  --stamp:#C8102E; --rule:rgba(27,15,38,.16);
+  --night:#120A1B; --night-2:#21122F; --slime:#A6E22E; --on-pumpkin:#2A1000; --bone:#F4EBDC; --mist:#B9A9C6;
+  --spook:"Creepster",var(--display);
+}
+body.spooky :is(.btn.solid,.mi .mk,.chip.in,.sd-list li.in,.rp-chatbtn,.rb-follow,.pen-game .btn.solid){color:var(--on-pumpkin)}
+body.spooky .rb-follow{border-color:var(--on-pumpkin)}
+body.spooky :is(.opt input,.chk input,.shotpick input){accent-color:var(--marker-deep)}
+body.spooky .tl.on{background:rgba(255,122,26,.24)}
+body.spooky .rb-frame{outline-color:rgba(255,122,26,.95)}
+body.spooky .rb{background:#1F1330}
+
+/* ---------- the menu: a night sky ---------- */
+body.spooky #menu{position:relative;color:var(--bone);
+  background:
+    radial-gradient(circle at 82% 16%, rgba(255,236,190,.20) 0, rgba(255,236,190,0) 30%),
+    radial-gradient(ellipse at 50% 120%, #3A1F57 0, rgba(58,31,87,0) 60%),
+    linear-gradient(180deg,#0D0714 0%,#1A0E28 55%,#2A1640 100%)}
+body.spooky #menu .menu-inner{position:relative;z-index:1;padding-bottom:clamp(90px,15vh,140px)}
+body.spooky .wordmark h1{font-family:var(--spook);font-weight:400;letter-spacing:.01em;color:var(--marker);
+  text-shadow:0 0 18px rgba(255,122,26,.55),0 3px 0 #5A1E00}
+body.spooky .wordmark .bar{background:var(--slime);opacity:.85}
+body.spooky #menu :is(.submark,.lede){color:var(--bone)}
+body.spooky #menu .submark{color:var(--mist)}
+body.spooky #menu .foot{color:var(--mist)}
+body.spooky #menu .foot a,body.spooky #menu .spooky-tog{color:var(--bone)}
+body.spooky .mi{box-shadow:0 6px 22px rgba(0,0,0,.45);border-color:#000;color:var(--ink)}
+@media (max-width:640px){body.spooky .spook-deco .moon{width:64px;right:-14px;top:-14px;opacity:.75}body.spooky .spook-deco .web{width:90px;opacity:.25}}
+body.spooky .mi .mk{font-family:var(--spook);font-weight:400;font-size:1.25rem;letter-spacing:.04em}
+body.spooky .mi:hover{background:#FFE9D1;border-color:var(--marker-deep)}
+.spooky-tog{background:none;border:0;padding:0;font:inherit;text-decoration:underline;cursor:pointer;color:inherit}
+
+.spook-deco{display:none;position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+body.spooky .spook-deco{display:block}
+.spook-deco .moon{position:absolute;right:7%;top:7%;width:clamp(90px,15vw,190px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#FFF9E6 0,#F4E3B5 45%,#D9C28A 100%);
+  box-shadow:0 0 60px 18px rgba(255,236,190,.28),inset -14px -10px 0 rgba(160,130,70,.25)}
+.spook-deco .moon::before,.spook-deco .moon::after{content:"";position:absolute;border-radius:50%;background:rgba(170,140,80,.28)}
+.spook-deco .moon::before{width:18%;height:18%;left:24%;top:52%}
+.spook-deco .moon::after{width:11%;height:11%;left:58%;top:30%}
+.spook-deco .stars{position:absolute;inset:0;
+  background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 28% 8%,#fff 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 44% 22%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 63% 6%,#fff 50%,transparent 51%),
+    radial-gradient(1px 1px at 70% 34%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 9% 44%,#fff 50%,transparent 51%),
+    radial-gradient(1px 1px at 92% 48%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 35% 40%,#fff 50%,transparent 51%);
+  opacity:.7;animation:twinkle 5s ease-in-out infinite alternate}
+@keyframes twinkle{to{opacity:.35}}
+.spook-deco .bat{position:absolute;width:44px;height:22px;color:#05020A;opacity:.9;animation:batfly linear infinite}
+.spook-deco .bat svg{width:100%;height:100%;animation:flap .22s ease-in-out infinite alternate;transform-origin:50% 60%}
+.spook-deco .b1{top:14%;animation-duration:16s}
+.spook-deco .b2{top:28%;width:30px;height:15px;animation-duration:21s;animation-delay:-7s}
+.spook-deco .b3{top:9%;width:24px;height:12px;animation-duration:26s;animation-delay:-15s}
+@keyframes batfly{0%{left:-8%;transform:translateY(0)}25%{transform:translateY(-26px)}50%{transform:translateY(14px)}75%{transform:translateY(-18px)}100%{left:108%;transform:translateY(0)}}
+@keyframes flap{to{transform:scaleY(.45)}}
+.spook-deco .web{position:absolute;left:0;top:0;width:clamp(120px,20vw,230px);opacity:.38;color:#D9CDE6}
+.spook-deco .hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(70px,14vh,130px);color:#07030C}
+.spook-deco .fog{position:absolute;left:-20%;right:-20%;bottom:-10px;height:120px;
+  background:radial-gradient(ellipse at 30% 60%,rgba(200,185,220,.22),transparent 60%),radial-gradient(ellipse at 75% 70%,rgba(200,185,220,.18),transparent 55%);
+  animation:drift 18s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translateX(8%)}}
+.spook-deco .pumpkin{position:absolute;bottom:clamp(30px,6vh,60px);font-size:clamp(1.8rem,4vw,2.8rem);filter:drop-shadow(0 0 12px rgba(255,122,26,.75))}
+.spook-deco .p1{left:6%}.spook-deco .p2{right:9%;font-size:clamp(1.3rem,3vw,2rem)}
+
+/* ---------- building the game: parchment, a cobweb in the corner ---------- */
+body.spooky :is(#intake,#check){background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%231B0F26' stroke-opacity='.18' stroke-width='.8'%3E%3Cpath d='M100 0L40 0M100 0L100 60M100 0L52 48M100 0L70 30M100 0L82 18'/%3E%3Cpath d='M58 0Q72 12 100 14M70 0Q80 18 100 28M80 0Q86 24 100 42M90 0Q92 26 100 56'/%3E%3C/svg%3E") no-repeat right top/clamp(110px,16vw,190px)}
+body.spooky :is(#intake,#check,#gm) h1{font-family:var(--spook);font-weight:400;letter-spacing:.01em;color:var(--marker-deep)}
+
+/* ---------- the TV ---------- */
+body.spooky #play{background:var(--night)}
+body.spooky .topbar .rnum{font-family:var(--spook);font-weight:400;font-size:1.35rem;letter-spacing:.04em}
+body.spooky .tv-side{background:linear-gradient(180deg,#160C22,#0E0716);border-left-color:var(--marker)}
+body.spooky .sd-join span{color:var(--mist)}
+body.spooky .sd-join b{text-shadow:0 0 16px rgba(255,122,26,.5)}
+body.spooky .sd-join span::before{content:"🦇 "}
+body.spooky .sd-list li{border-color:rgba(185,169,198,.25)}
+body.spooky .sd-list li.in{box-shadow:0 0 14px rgba(255,122,26,.45)}
+body.spooky .sd-list li.in i{font-size:0}
+body.spooky .sd-list li.in i::after{content:"🎃";font-size:clamp(1rem,1.45vw,1.75rem)}
+body.spooky .tv-keys{color:#8D7C99}
+
+/* the reveal: under a full moon, with bats */
+body.spooky .reveal{background:radial-gradient(circle at 50% 38%,#2E1A44 0,#160C22 45%,#08040D 100%)}
+body.spooky .reveal .lbl{font-family:var(--spook);font-size:clamp(1.2rem,2.4vw,2rem);letter-spacing:.06em;color:var(--mist)}
+body.spooky .reveal .amt{color:var(--bone)}
+body.spooky .reveal .amt.goal{color:var(--marker);text-shadow:0 0 30px rgba(255,122,26,.55)}
+body.spooky .reveal .verdict{color:var(--mist)}
+.reveal .rbats{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.reveal .rbats i{position:absolute;left:50%;top:55%;width:56px;height:28px;color:#000;opacity:0;animation:scatter 1.6s cubic-bezier(.2,.7,.3,1) forwards}
+.reveal .rbats svg{width:100%;height:100%;animation:flap .18s ease-in-out infinite alternate}
+@keyframes scatter{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}12%{opacity:.95}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
+
+/* ---------- results: a graveyard roll call ---------- */
+body.spooky #results{background:radial-gradient(ellipse at 50% 0,#2A1640 0,#120A1B 55%)}
+body.spooky .res-h{font-family:var(--spook);font-weight:400;letter-spacing:.02em;text-shadow:0 0 22px rgba(255,122,26,.45)}
+body.spooky .board li.top{background:#3A1A08}
+body.spooky .winner{background:radial-gradient(circle at 50% 45%,#341D4D 0,#140A1D 50%,#05020A 100%)}
+body.spooky .winner .wname{font-family:var(--spook);font-weight:400;letter-spacing:.02em;color:var(--marker);text-shadow:0 0 40px rgba(255,122,26,.55)}
+body.spooky .winner .drum{font-family:var(--spook);font-weight:400;letter-spacing:.04em;color:var(--mist)}
+
+/* ---------- phones ---------- */
+body.spooky :is(#rplayer,#host){background:var(--night) radial-gradient(ellipse at 50% 0,#2E1A44 0,transparent 60%) no-repeat}
+body.spooky :is(#rplayer,#host) .rp-main > :is(p,.tiny),body.spooky :is(.rp-hint,.rp-leave){color:var(--mist)}
+body.spooky :is(#rplayer,#host) .rp-main a{color:var(--bone)}
+body.spooky .rp-r{font-family:var(--spook);font-weight:400;font-size:1.2rem;letter-spacing:.04em}
+body.spooky .rv b.goal{text-shadow:0 0 18px rgba(255,122,26,.5)}
+body.spooky #player{background:var(--night) radial-gradient(ellipse at 50% 0,#2E1A44 0,transparent 65%) no-repeat}
+body.spooky #player h1{font-family:var(--spook);font-weight:400;letter-spacing:.02em;text-shadow:0 0 18px rgba(255,122,26,.5)}
+body.spooky #pen,body.spooky :is(.pen-work,.hs-board){background:var(--night)}
+body.spooky .pen-setup h2{font-family:var(--spook);font-weight:400;letter-spacing:.02em;color:var(--marker-deep)}
+
+@media (prefers-reduced-motion:reduce){
+  .spook-deco .bat,.spook-deco .bat svg,.spook-deco .stars,.spook-deco .fog{animation:none}
+  .spook-deco .bat{left:62%}.spook-deco .b2{left:20%}.spook-deco .b3{left:40%}
+  .reveal .rbats{display:none}
+}
 
 /* ---------- player names on the TV ---------- */
 .roster{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;padding:.45rem .9rem;background:#121512;
@@ -1466,6 +1592,15 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
 <!-- ============ INTAKE ============ -->
 <!-- ============ MENU ============ -->
 <section id="menu" class="screen">
+  <div class="spook-deco" aria-hidden="true">
+    <div class="stars"></div>
+    <div class="moon"></div>
+    <svg class="web" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width=".7"><path d="M0 0L60 0M0 0L0 60M0 0L48 52M0 0L30 70M0 0L18 82M0 0L70 30M0 0L82 18"/><path d="M42 0Q30 12 0 14M30 0Q22 18 0 28M20 0Q14 24 0 42M10 0Q8 26 0 56"/><path d="M60 0Q46 26 48 52Q24 48 0 60"/><path d="M14 0Q12 9 15 15Q9 13 0 14"/></svg>
+    <span class="bat b1"><svg viewBox="0 0 64 32" fill="currentColor"><path d="M32 10c-2 0-3 2-3.5 4C26 9 19 4 0 6c7 3 9 8 9 13 4-3 9-2 12 2 2-3 6-4 9-2 1-1 1.5-1 2-1s1 0 2 1c3-2 7-1 9 2 3-4 8-5 12-2 0-5 2-10 9-13-19-2-26 3-28.5 8-.5-2-1.5-4-3.5-4z"/></svg></span><span class="bat b2"><svg viewBox="0 0 64 32" fill="currentColor"><path d="M32 10c-2 0-3 2-3.5 4C26 9 19 4 0 6c7 3 9 8 9 13 4-3 9-2 12 2 2-3 6-4 9-2 1-1 1.5-1 2-1s1 0 2 1c3-2 7-1 9 2 3-4 8-5 12-2 0-5 2-10 9-13-19-2-26 3-28.5 8-.5-2-1.5-4-3.5-4z"/></svg></span><span class="bat b3"><svg viewBox="0 0 64 32" fill="currentColor"><path d="M32 10c-2 0-3 2-3.5 4C26 9 19 4 0 6c7 3 9 8 9 13 4-3 9-2 12 2 2-3 6-4 9-2 1-1 1.5-1 2-1s1 0 2 1c3-2 7-1 9 2 3-4 8-5 12-2 0-5 2-10 9-13-19-2-26 3-28.5 8-.5-2-1.5-4-3.5-4z"/></svg></span>
+    <div class="fog"></div>
+    <svg class="hills" viewBox="0 0 400 60" preserveAspectRatio="none" fill="currentColor"><path d="M0 60V38Q40 18 90 32T190 26Q240 8 300 30T400 22V60Z"/><path d="M70 30v-14h3v-4h3v4h3v14zM322 26v-11h2v-3h2v3h2v11z"/></svg>
+    <span class="pumpkin p1">🎃</span><span class="pumpkin p2">🎃</span>
+  </div>
   <div class="menu-inner">
     <div class="wordmark"><h1>DS(WT)</h1><div class="bar" id="wmbar"></div></div>
     <p class="submark">Dicksharter (Working Title) · a JoshChat game</p>
@@ -1499,6 +1634,7 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
     </nav>
 
     <p class="tiny foot">Save a page from any browser with Print → Save as PDF. Everything happens on this device; nothing is uploaded unless you ask it to be.</p>
+    <p class="tiny foot" style="margin-top:.6rem"><button type="button" class="spooky-tog" id="spookyTog"></button></p>
   </div>
 </section>
 
@@ -2037,6 +2173,20 @@ function applyLook(){
   document.querySelectorAll("#profLook [data-look]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.look === v)));
 }
 applyLook();
+
+/* ---------- Halloween ("spooky mode") for the game screens: on unless switched off ---------- */
+function applySpooky(){
+  const on = store.get("ds.spooky") !== "off";
+  document.body.classList.toggle("spooky", on);
+  const b = document.getElementById("spookyTog");
+  if (b) b.textContent = on ? "🎃 Spooky mode is on · turn it off" : "Turn spooky mode back on 🎃";
+}
+const isSpooky = () => document.body.classList.contains("spooky");
+applySpooky();
+document.getElementById("spookyTog").addEventListener("click", () => {
+  store.set("ds.spooky", isSpooky() ? "off" : "on");
+  applySpooky();
+});
 
 /* ---------- state ---------- */
 const G = {
@@ -3566,6 +3716,15 @@ function doReveal(){
     '<div class="slot"><div class="lbl">Has raised</div><div class="amt">' + (r.raised !== null ? money(r.raised) : "\u2014") + '</div></div>' +
     '<div class="slot"><div class="lbl">Requesting</div><div class="amt goal">' + (r.goal !== null ? money(r.goal) : "\u2014") + '</div></div>' +
     '<p class="verdict slot">' + esc(verdict) + '</p>';
+  if (isSpooky()){
+    /* a cloud of bats bursts out as the numbers land */
+    let bats = '<div class="rbats" aria-hidden="true">';
+    for (let i = 0; i < 9; i++){
+      const a = (i / 9) * Math.PI * 2 + Math.random() * .5, d = 45 + Math.random() * 25;
+      bats += '<i style="--dx:calc(-50% + ' + Math.round(Math.cos(a) * d) + 'vw);--dy:calc(-50% + ' + Math.round(Math.sin(a) * d) + 'vh);animation-delay:' + (i * 40) + 'ms"><svg viewBox="0 0 64 32" fill="currentColor"><path d="M32 10c-2 0-3 2-3.5 4C26 9 19 4 0 6c7 3 9 8 9 13 4-3 9-2 12 2 2-3 6-4 9-2 1-1 1.5-1 2-1s1 0 2 1c3-2 7-1 9 2 3-4 8-5 12-2 0-5 2-10 9-13-19-2-26 3-28.5 8-.5-2-1.5-4-3.5-4z"/></svg></i>';
+    }
+    box.insertAdjacentHTML("afterbegin", bats + "</div>");
+  }
   box.classList.remove("hidden");
   $$(".slot", box).forEach((sl, i) => setTimeout(() => sl.classList.add("in"), 120 + i * 620));
   liveReveal();
@@ -4868,7 +5027,7 @@ function runResults(){
     const names = top.map(r => r.name);
     const tie = names.length > 1;
     w.innerHTML = '<div class="drum">' + (tie ? "We have a tie. The winners are…" : "And the winner is…") + '</div>' +
-      '<div class="crown">🏆</div>' +
+      '<div class="crown">' + (isSpooky() ? "🎃" : "🏆") + '</div>' +
       '<div class="wname">' + esc(names.join(" & ")) + '</div>' +
       '<div class="wpts">' + fmt(top[0].total) + ' points' + (top[0].wins ? " · closest on " + top[0].wins + " round" + (top[0].wins === 1 ? "" : "s") : "") + '</div>' +
       '<div class="hint">Click for the full table</div>';
@@ -4900,7 +5059,7 @@ function runResults(){
 function confetti(host){
   const box = document.createElement("div");
   box.className = "confetti";
-  const colors = ["#05CE78", "#ffffff", "#B9F3D8", "#FFD23F", "#03A861"];
+  const colors = isSpooky() ? ["#FF7A1A", "#F4EBDC", "#A6E22E", "#8E4FD1", "#D9590A"] : ["#05CE78", "#ffffff", "#B9F3D8", "#FFD23F", "#03A861"];
   for (let i = 0; i < 140; i++){
     const c = document.createElement("i");
     c.style.left = (Math.random() * 100) + "%";
@@ -10097,7 +10256,7 @@ if (CR.code && !crewList().some(c => c.code === CR.code)) crewRemember(CR.code);
 /* if someone lands here with #player, go straight to the phone view */
 /* the chats are the front door: show them straight away, not the game menu,
    while the saved sign-in comes back */
-if (!location.hash && !/[?&]oobCode=/.test(location.search)) show("crew");
+if (!location.hash && !/[?&]oobCode=/.test(location.search)) show("menu");
 /* where the app opens, once the saved sign-in is back (a few seconds at most) */
 authBoot().then(() => {
 const crewHash = (location.hash.match(/^#crew=([A-Z0-9]{6})/i) || [])[1];
@@ -10118,7 +10277,8 @@ if (/[?&]oobCode=/.test(location.search)){
 } else if (location.hash === "#games"){
   show("menu"); drawLiveBanner();
 } else {
-  openHome();            /* JoshChat opens to your chats; the game is behind Games */
+  /* for now the site opens to the game; the chats are door 01 on the menu */
+  show("menu"); drawLiveBanner();
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
