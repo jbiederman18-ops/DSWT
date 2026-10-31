@@ -104,6 +104,14 @@ painted on, so they stay sharp on a 4K TV. They line up in a strip underneath:
 blackout afterwards and every screenshot is redrawn to match. Saved games keep
 them (only their positions are stored; the pictures are redrawn on loading).
 
+**Blacking out while you pick.** Spot a number that's still showing? Press
+**▮ Blackout** (or B) and drag over it on the page; click a bar to lift it, and
+B or Esc to go back to moving the page. Each screenshot in the strip has its own
+**▮** button that frames it and turns blackout on. A bar belongs to the page, so
+every screenshot showing that spot (and the auto-cut slides) is redrawn to match.
+The full blackout editor (**Blackout…**) works too, and now scrolls the whole
+page rather than stopping at the first screenful.
+
 A round with no screenshots shows its kept auto-cut slides instead.
 
 ### Auto-cut slides
