@@ -135,8 +135,8 @@ label.field > span{display:block;font-size:.8rem;font-weight:600;margin-bottom:.
 
 /* ---------- check / redaction editor ---------- */
 #check{padding:var(--pad);overflow:auto}
-.check-head{max-width:1100px;margin:0 auto 1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
-.stage{position:relative;max-width:760px;margin:0 auto;background:var(--card);border:2px solid var(--ink);border-radius:var(--r);overflow:hidden}
+.check-head{max-width:1100px;margin:0 auto 1rem;flex:0 0 auto;width:100%;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
+.stage{position:relative;max-width:760px;margin:0 auto;flex:0 0 auto;width:100%;background:var(--card);border:2px solid var(--ink);border-radius:var(--r);overflow:hidden}
 .stage img{display:block;width:100%}
 .boxlayer{position:absolute;inset:0}
 .rbox{position:absolute;background:#000;outline:2px solid var(--stamp);cursor:pointer}
@@ -521,6 +521,11 @@ body.spooky .pen-setup h2{font-family:var(--spook);font-weight:400;letter-spacin
 .cap-ctl{display:flex;gap:.5rem;align-items:center;margin:.6rem 0}
 .cap-ctl #capSnap{font-size:1.05rem;padding:.55em 1.3em}
 .cap-strip{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px}
+.cap-bars{position:absolute;inset:0;z-index:6;cursor:crosshair;touch-action:none}
+.cap-bars[hidden]{display:none}
+.cap-ghost{position:absolute;background:rgba(0,0,0,.85);outline:2px solid var(--stamp)}
+.cap-view.busy{opacity:.75;pointer-events:none}
+#capBar.solid{background:#111;color:#fff;border-color:#111}
 .cap-item{flex:0 0 auto;display:flex;flex-direction:column;gap:4px}
 .cap-pic{padding:0;border:2px solid var(--ink);border-radius:4px;background:#fff;cursor:pointer;line-height:0}
 .cap-pic img{height:110px;width:auto;max-width:260px;object-fit:contain;display:block}
@@ -1938,12 +1943,14 @@ html[data-look=night] .msgr .ib-me{background:var(--m-mint);color:var(--m-ink);b
             <button data-up="1">1</button><button data-up="2">2</button><button data-up="3">3</button>
           </span>
         </div>
-        <p class="tiny" style="margin:0 0 .6rem;max-width:72ch">Scroll and zoom the page (wheel, Ctrl + wheel or pinch, or the buttons). Whatever is inside the frame is exactly what the TV will show. <b>📸 Capture</b> or Space keeps it.</p>
+        <p class="tiny" style="margin:0 0 .6rem;max-width:72ch">Scroll and zoom the page (wheel, Ctrl + wheel or pinch, or the buttons). Whatever is inside the frame is exactly what the TV will show. <b>📸 Capture</b> or Space keeps it. Spot a number that's still showing? <b>▮ Blackout</b> (or B), then drag over it: every screenshot is redrawn to match.</p>
         <div class="cap-view" id="capView"></div>
         <div class="cap-ctl">
           <button class="btn sm ghost" id="capOut" title="Zoom out">−</button>
           <button class="btn sm ghost" id="capFit">Fit the width</button>
           <button class="btn sm ghost" id="capIn" title="Zoom in">+</button>
+          <button class="btn sm" id="capBar" title="Drag on the page to black something out; click a bar to lift it (B)">▮ Blackout</button>
+          <span class="tiny" id="capBarNote"></span>
           <span class="grow" style="flex:1"></span>
           <button class="btn solid" id="capSnap">📸 Capture</button>
         </div>
@@ -3794,6 +3801,7 @@ $("#gmAuto").addEventListener("click", async () => {
 });
 $("#gmPreview").addEventListener("click", () => { show("play"); loadRound(gmIdx); });
 $("#capSnap").addEventListener("click", capSnap);
+$("#capBar").addEventListener("click", () => capBarMode(!CAP.bar));
 $("#capIn").addEventListener("click", () => CAP.rib && CAP.rib.zoom(1.25));
 $("#capOut").addEventListener("click", () => CAP.rib && CAP.rib.zoom(0.8));
 $("#capFit").addEventListener("click", () => CAP.rib && CAP.rib.fit());
@@ -3803,6 +3811,8 @@ window.addEventListener("keydown", e => {
   if ($("#gm").classList.contains("hidden") || $("#capWrap").hidden || !CAP.rib) return;
   if (/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(document.activeElement.tagName)) return;
   if (e.key === " " || e.key === "Enter"){ e.preventDefault(); capSnap(); }
+  else if (e.key === "b" || e.key === "B"){ capBarMode(!CAP.bar); }
+  else if (e.key === "Escape" && CAP.bar){ capBarMode(false); }
   else if (e.key === "+" || e.key === "="){ CAP.rib.zoom(1.25); }
   else if (e.key === "-" || e.key === "_"){ CAP.rib.zoom(0.8); }
   else if (e.key === "0"){ CAP.rib.fit(); }
@@ -10078,7 +10088,9 @@ function makeRibbon(el, o){
     layout(){ if (!resized()) place(); },
     progress(){ return R.H > 0 ? clamp((R.view.y + R.view.h) / R.H, 0, 1) : 0; },
     /* where a point on the page is on this screen, in CSS px */
-    screenOf(p){ return { x: p.x * R.k + R.ox, y: p.y * R.k + R.oy }; }
+    screenOf(p){ return { x: p.x * R.k + R.ox, y: p.y * R.k + R.oy }; },
+    /* and where a point on this screen is on the page */
+    sheetOf(p){ return { x: (p.x - R.ox) / R.k, y: (p.y - R.oy) / R.k }; }
   };
 }
 
@@ -10260,6 +10272,7 @@ function capOpen(){
   CAP.rib.setSegments("cap_" + r.uid, capSegs(r));
   capUpMark();
   capStrip();
+  capBarMode(false);
 }
 function capUpMark(){
   $$("#capUp button").forEach(b => b.classList.toggle("on", Number(b.dataset.up) === upCount()));
@@ -10294,6 +10307,7 @@ function capStrip(toEnd){
       '<div class="cap-row"><b>' + (i + 1) + '</b><span class="grow"></span>' +
       '<button type="button" class="mini" data-m="-1" title="Earlier"' + (i ? "" : " disabled") + '>‹</button>' +
       '<button type="button" class="mini" data-m="1" title="Later"' + (i < caps.length - 1 ? "" : " disabled") + '>›</button>' +
+      '<button type="button" class="mini" data-b title="Add blackout bars to this one">▮</button>' +
       '<button type="button" class="mini del" data-x title="Remove">✕</button></div>';
     $("img", d).src = c.url;
     $(".cap-pic", d).addEventListener("click", () => CAP.rib.setView(c));
@@ -10301,10 +10315,89 @@ function capStrip(toEnd){
       const j = i + Number(b.dataset.m);
       const list = r.caps.slice(); list.splice(j, 0, list.splice(i, 1)[0]); r.caps = list; capStrip();
     }));
+    $("[data-b]", d).addEventListener("click", () => {
+      CAP.rib.setView(c); capBarMode(true);
+      $("#capView").scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
     $("[data-x]", d).addEventListener("click", () => { r.caps = r.caps.filter(x => x !== c); if (c.url) URL.revokeObjectURL(c.url); capStrip(); });
     el.appendChild(d);
   });
   if (toEnd) el.scrollLeft = el.scrollWidth;
+}
+/* ---------- blackout bars straight onto the page, while picking screenshots ----------
+   Drag to cover something; click a bar to lift it. A bar belongs to the page,
+   not to one screenshot, so every screenshot that shows that spot is redrawn. */
+function capBarMode(on){
+  CAP.bar = !!on;
+  $("#capBar").classList.toggle("solid", CAP.bar);
+  $("#capBarNote").textContent = CAP.bar ? "Drag to cover · click a bar to lift it · B or Esc when done" : "";
+  let layer = $("#capView .cap-bars");
+  if (!layer){
+    layer = document.createElement("div");
+    layer.className = "cap-bars";
+    $("#capView").appendChild(layer);
+    let start = null, ghost = null;
+    const at = e => { const b = layer.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+    layer.addEventListener("pointerdown", e => {
+      if (e.button) return;
+      e.stopPropagation(); e.preventDefault();
+      start = at(e);
+      ghost = document.createElement("div"); ghost.className = "cap-ghost";
+      layer.appendChild(ghost);
+      try { layer.setPointerCapture(e.pointerId); } catch (x){}
+    });
+    layer.addEventListener("pointermove", e => {
+      if (!start) return;
+      const p = at(e);
+      Object.assign(ghost.style, { left: Math.min(p.x, start.x) + "px", top: Math.min(p.y, start.y) + "px",
+        width: Math.abs(p.x - start.x) + "px", height: Math.abs(p.y - start.y) + "px" });
+    });
+    const end = e => {
+      if (!start) return;
+      const p = at(e), s0 = start;
+      start = null; if (ghost) ghost.remove(); ghost = null;
+      const r = G.rounds[gmIdx];
+      if (!r || !CAP.rib) return;
+      const a = CAP.rib.sheetOf(s0), b = CAP.rib.sheetOf(p), W = r.pageW;
+      if (Math.abs(p.x - s0.x) < 6 && Math.abs(p.y - s0.y) < 6){
+        /* a click: lift the bar under it (newest first) */
+        const x = a.x * W, y = a.y * W;
+        const hit = r.boxes.slice().reverse().find(bx => bx.on && x >= bx.x && x <= bx.x + bx.w && y >= bx.y && y <= bx.y + bx.h);
+        if (hit){ hit.on = false; capRebuild(r, "Bar lifted."); }
+        return;
+      }
+      r.boxes.push({ on: true, why: "added on a screenshot",
+        x: Math.max(0, Math.min(a.x, b.x) * W), y: Math.max(0, Math.min(a.y, b.y) * W),
+        w: Math.abs(b.x - a.x) * W, h: Math.abs(b.y - a.y) * W });
+      capRebuild(r, "Blacked out.");
+    };
+    layer.addEventListener("pointerup", end);
+    layer.addEventListener("pointercancel", () => { start = null; if (ghost) ghost.remove(); ghost = null; });
+  }
+  layer.hidden = !CAP.bar;
+}
+/* the page and every screenshot again, with the new bars painted in */
+async function capRebuild(r, msg){
+  if (CAP.rebuilding){ CAP.again = r; return; }
+  CAP.rebuilding = true;
+  $("#capView").classList.add("busy");
+  try {
+    do {
+      CAP.again = null;
+      await composite(r);            /* redraws the stored page and every screenshot */
+      await buildSlides(r);          /* and the auto-cut slides, for rounds without screenshots */
+    } while (CAP.again);
+  } finally {
+    CAP.rebuilding = false;
+    $("#capView").classList.remove("busy");
+  }
+  if (G.rounds[gmIdx] === r && !$("#gm").classList.contains("hidden")){
+    CAP.rib.setSegments("cap_" + r.uid, capSegs(r));
+    CAP.rib.refreshSharp();
+    capStrip();
+    drawGrid();
+  }
+  if (msg) toast(msg);
 }
 function setUpCount(n){
   store.set("ds.up", String(n));
