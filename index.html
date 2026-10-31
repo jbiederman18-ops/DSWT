@@ -5059,6 +5059,20 @@ function liveConnect(onChange){
   es.addEventListener("put", handle(false));
   es.addEventListener("patch", handle(true));
   es.addEventListener("error", () => { /* EventSource and the SDK both reconnect on their own */ });
+  /* refused (usually the sign-in wasn't back yet, e.g. a slow signal at boot):
+     the SDK has dropped the listener for good, so get a fresh sign-in and listen
+     again rather than sitting on "Connecting…" until the phone is reopened */
+  es.addEventListener("cancel", () => {
+    LIVE.retry = Math.min(30000, (LIVE.retry || 1500) * 2);
+    setTimeout(async () => {
+      if (LIVE.es !== es || !LIVE.code || !LIVE.onChange) return;
+      await authToken(true);
+      if (LIVE.es === es) liveConnect(LIVE.onChange);
+    }, LIVE.retry);
+  });
+  es.addEventListener("put", () => { LIVE.retry = 0; }, { once: true });
+  /* a sleeping screen drops the connection: keep it on while in a room */
+  keepAwake();
 }
 
 function roomUrl(){
@@ -5072,6 +5086,10 @@ async function liveOpenRoom(quiet){
   if (!url){ toast("Paste the database URL first"); return; }
   LIVE.db = url.replace(/\/+$/, "");
   store.set("ds.db", LIVE.db);
+  if (LIVE.code && LIVE.isHost){
+    if (quiet) return;
+    if (!confirm("Room " + LIVE.code + " is already open. Open a brand-new room? Phones in " + LIVE.code + " won’t follow you, and its scores stay behind.")) return;
+  }
   await authToken();
 
   LIVE.code = randCode(4);
@@ -5086,6 +5104,7 @@ async function liveOpenRoom(quiet){
     return;
   }
   LIVE.isHost = true;
+  store.set("ds.tvRoom", JSON.stringify({ room: LIVE.code, at: Date.now() }));
   $("#liveState").textContent = "Room open.";
   // if a round is already up on the TV, phones should land straight into it
   const playing = !$("#play").classList.contains("hidden") && G.rounds[G.idx];
@@ -5096,6 +5115,71 @@ async function liveOpenRoom(quiet){
   liveConnect(() => updateTally());
   updateTally();
   await tvBoardOpen();
+}
+
+/* The TV's page reloaded (or the laptop restarted) mid-party: pick the same
+   room back up instead of opening a new one, so the phones, the pen and every
+   score so far carry on. Load the game again first (Cloud save → Load). */
+function tvLastRoom(){
+  try {
+    const s = JSON.parse(store.get("ds.tvRoom") || "null");
+    return (s && /^[A-Z0-9]{4}$/.test(s.room) && Date.now() - Number(s.at) < 12 * 3600000) ? s.room : "";
+  } catch (e){ return ""; }
+}
+function tvResumeOffer(){
+  const old = $("#liveResume"); if (old) old.remove();
+  const room = tvLastRoom();
+  if (!room || LIVE.code) return;
+  const b = document.createElement("button");
+  b.className = "btn sm"; b.id = "liveResume"; b.type = "button";
+  b.textContent = "Reopen room " + room;
+  b.title = "Phones, the pen and the scores so far carry on";
+  b.addEventListener("click", () => liveResumeRoom(room));
+  $("#liveStart").insertAdjacentElement("afterend", b);
+}
+async function liveResumeRoom(room){
+  const st = $("#liveState");
+  st.textContent = "Reopening " + room + "…";
+  await authToken();
+  let meta = null;
+  const prev = LIVE.code;
+  LIVE.code = room;
+  try { meta = await getJSON(gamePath("/meta")); } catch (e){}
+  if (!meta || (meta.host && meta.host !== AUTH.uid)){
+    LIVE.code = prev;
+    st.textContent = meta ? "That room belongs to another account." : "Room " + room + " is gone. Open a new one.";
+    if (!meta) store.set("ds.tvRoom", "");
+    tvResumeOffer();
+    return;
+  }
+  LIVE.isHost = true;
+  LIVE.state = {};
+  store.set("ds.tvRoom", JSON.stringify({ room: room, at: Date.now() }));
+  st.textContent = "Room reopened. Scores so far are kept." + (G.rounds.length ? "" : " Load the game too (Cloud save → Load) before you start.");
+  /* Start picks up on the round the phones are on, without sending them back to guessing */
+  LIVE.resumeIdx = -1; LIVE.quietUid = "";
+  try {
+    const now = await getJSON(gamePath("/now"));
+    const i = now && now.uid ? G.rounds.findIndex(r => r.uid === now.uid) : -1;
+    if (i >= 0 && /^(guessing|revealed)$/.test(now.phase)){
+      LIVE.resumeIdx = i; LIVE.quietUid = now.uid;
+      st.textContent += " Start picks up at round " + (i + 1) + ".";
+    }
+  } catch (e){}
+  const b = $("#liveResume"); if (b) b.remove();
+  $("#liveRoom").classList.remove("hidden");
+  $("#roomCode").textContent = room;
+  $("#roomUrl").textContent = roomUrl();
+  liveConnect(() => updateTally());
+  updateTally();
+  /* the board as it was: the pen phone stays paired */
+  tvInit();
+  BS.code = room;
+  TVB.lastCmd = Date.now();
+  boardListen("pens", "/pens", v => { TVB.pens = (v && typeof v === "object") ? v : {}; tvPensChanged(); });
+  boardListen("cmd", "/cmd", tvCmd);
+  if (TVB.uid) tvPage(TVB.page, true);
+  tvPenDecks();
 }
 
 function livePlayers(){
@@ -5129,24 +5213,38 @@ async function liveAnnounceRound(){
   if (!LIVE.code || !dbRoot()) return;
   LIVE.isHost = true;
   const r = G.rounds[G.idx];
+  /* the round a reopened room was already on: the phones are there already */
+  if (LIVE.quietUid){ const q = LIVE.quietUid; LIVE.quietUid = ""; if (q === r.uid){ updateTally(); return; } }
   await dbPut("/now", { r: G.idx, uid: r.uid, phase: "guessing", title: r.title });
   updateTally();
 }
 
+/* every guess for a round, straight from the database at the moment of the
+   reveal, so one locked in a second ago (or while this screen's connection was
+   catching up after a sleep) still gets scored */
+async function freshGuesses(uid){
+  const have = (LIVE.state.guesses || {})[uid] || {};
+  try {
+    const got = await Promise.race([getJSON(gamePath("/guesses/" + uid)), sleep(4000).then(() => null)]);
+    if (got && typeof got === "object") return Object.assign({}, have, got);
+  } catch (e){}
+  return have;
+}
+
 async function liveReveal(){
   if (!LIVE.isHost || !LIVE.code) return;
-  const r = G.rounds[G.idx];
-  const guesses = (LIVE.state.guesses || {})[r.uid] || {};
+  const idx = G.idx, r = G.rounds[idx];
+  if (!r) return;
+  const guesses = await freshGuesses(r.uid);
   const scores = {};
   for (const pid in guesses){
     const g = guesses[pid] || {};
     scores[pid] = scoreGuess(Number(g.raised), r.raised) + scoreGuess(Number(g.goal), r.goal);
   }
-  await dbPut("/scores/" + r.uid, scores);
-  await dbPut("/now", {
-    r: G.idx, uid: r.uid, phase: "revealed", title: r.title,
-    raised: r.raised, goal: r.goal
-  });
+  let ok = await dbPut("/scores/" + r.uid, scores);
+  /* moved on to the next round while the guesses came in: keep the scores, leave the phones on the new round */
+  if (ok && G.idx === idx) ok = await dbPut("/now", { r: idx, uid: r.uid, phase: "revealed", title: r.title, raised: r.raised, goal: r.goal });
+  if (!ok) toast("The phones didn’t get that reveal. Press R twice to send it again.");
 }
 
 /* ---------- names on the TV ---------- */
@@ -5722,11 +5820,37 @@ async function liveJoin(code, name){
   LIVE.state = {};
   rpReset();
   await authToken();     /* signed in first, so the entry goes under this account */
-  const ok = await dbPut("/players/" + LIVE.pid, { name: name, joined: Date.now() });
+  /* back in a room this phone was already in: keep its place in the join order */
+  const was = await getJSON(gamePath("/players/" + LIVE.pid)).catch(() => null);
+  const ok = await dbPut("/players/" + LIVE.pid, { name: name, joined: (was && Number(was.joined)) || Date.now() });
   if (!ok) return false;
   store.set("ds.room", LIVE.code);
+  store.set("ds.roomAt", String(Date.now()));
   store.set("ds.name", name);
   liveConnect(() => renderLivePlayer());
+  return true;
+}
+
+/* The page reloaded mid-game (the phone dropped the tab, or someone pulled to
+   refresh): go straight back into the room this phone was playing in, as long
+   as it was joined today, the room is still open and this phone is in it. */
+async function liveRejoin(){
+  const room = String(store.get("ds.room") || "").toUpperCase();
+  const at = Number(store.get("ds.roomAt") || 0);
+  if (!/^[A-Z0-9]{4}$/.test(room) || !at || Date.now() - at > 8 * 3600000) return false;
+  if (LIVE.code) return false;
+  await authToken();
+  if (LIVE.code) return false;
+  LIVE.code = room;
+  try {
+    const [meta, me] = await Promise.all([getJSON(gamePath("/meta")), getJSON(gamePath("/players/" + LIVE.pid))]);
+    if (!meta){ store.set("ds.room", ""); }
+    if (!meta || !me || (meta.host && meta.host === AUTH.uid)){ LIVE.code = ""; return false; }
+  } catch (e){ LIVE.code = ""; return false; }
+  LIVE.isHost = false; LIVE.state = {};
+  rpReset();
+  liveConnect(() => renderLivePlayer());
+  renderLivePlayer();
   return true;
 }
 
@@ -5745,6 +5869,7 @@ function liveTotal(){
 $("#liveBtn").addEventListener("click", () => {
   $("#liveSheet").classList.toggle("hidden");
   $("#liveUrl").value = LIVE.db;
+  tvResumeOffer();
 });
 $("#liveSave").addEventListener("click", () => {
   const typed = $("#liveUrl").value.trim().replace(/\/+$/, "");
@@ -9518,6 +9643,11 @@ function hostRender(force){
 }
 
 async function hostStart(i, replay){
+  if (RH.busy){ toast("Still sending the last step — check the connection"); return; }
+  RH.busy = true;
+  try { await hostStartNow(i, replay); } finally { RH.busy = false; }
+}
+async function hostStartNow(i, replay){
   const rd = RH.pkg.rounds[i];
   if (!rd) return;
   clearTimeout(RH.timer);
@@ -9529,10 +9659,15 @@ async function hostStart(i, replay){
 }
 
 async function hostReveal(){
+  if (RH.busy){ toast("Still sending the last step — check the connection"); return; }
+  RH.busy = true;
+  try { await hostRevealNow(); } finally { RH.busy = false; }
+}
+async function hostRevealNow(){
   const now = hostNow();
   const rd = RH.pkg.rounds[now.r];
   if (!rd) return;
-  const guesses = (LIVE.state.guesses || {})[rd.uid] || {};
+  const guesses = await freshGuesses(rd.uid);
   const scores = {};
   let best = -1, who = [];
   for (const pid in guesses){
@@ -9541,7 +9676,7 @@ async function hostReveal(){
     scores[pid] = s;
     if (s > best){ best = s; who = [pid]; } else if (s === best) who.push(pid);
   }
-  await dbPut("/scores/" + rd.uid, scores);
+  if (!(await dbPut("/scores/" + rd.uid, scores))){ toast("Couldn’t save the scores — tap Reveal again"); return; }
   const ok = await dbPut("/now", Object.assign({}, now, { phase: "revealed", raised: rd.raised, goal: rd.goal }));
   if (!ok){ toast("Couldn’t reach the database"); return; }
   const players = LIVE.state.players || {};
@@ -10849,7 +10984,7 @@ async function keepAwake(){
   } catch (e){ wakeLock = null; }
 }
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && PN.room && !$("#pen").classList.contains("hidden")) keepAwake();
+  if (document.visibilityState === "visible" && ((PN.room && !$("#pen").classList.contains("hidden")) || (LIVE.code && LIVE.es))) keepAwake();
 });
 const PEN_KEY = "ds.pen";
 const PN = { rib: null, tools: null, uid: "", deckId: "", deck: null, k: -1, mine: [], room: "" };
@@ -11277,7 +11412,10 @@ drop.addEventListener("drop", e => {
 $("#start").addEventListener("click", () => {
   if (!G.rounds.length) return;
   show("play");
-  loadRound(0);
+  /* a reopened room carries on from the round it was on */
+  const i = (LIVE.code && LIVE.isHost && LIVE.resumeIdx >= 0 && LIVE.resumeIdx < G.rounds.length) ? LIVE.resumeIdx : 0;
+  LIVE.resumeIdx = -1;
+  loadRound(i);
 });
 $("#addMore").addEventListener("click", () => $("#file").click());
 $("#reviewBtn").addEventListener("click", () => {
@@ -11333,6 +11471,13 @@ if (/[?&]oobCode=/.test(location.search)){
 }
 menuCrew();
 if (CR.code && !CR.es) crewConnect();
+/* reloaded mid-game: back into the room */
+const joinHash = ((location.hash.match(/^#join=([A-Z0-9]{4})/i) || [])[1] || "").toUpperCase();
+if (!/[?&]oobCode=/.test(location.search) && !LIVE.code &&
+    (!location.hash || location.hash === "#games" || location.hash === "#player" ||
+     (joinHash && joinHash === String(store.get("ds.room") || "").toUpperCase()))){
+  liveRejoin().catch(() => {});
+}
 });
 /* iPhones don't shrink the page when the keyboard opens, so the message box
    would end up under it: size the app to the part of the screen that's visible */
